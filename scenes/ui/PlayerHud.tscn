@@ -1,0 +1,37 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/player_hud.gd" id="1_hud"]
+
+[node name="PlayerHud" type="CanvasLayer"]
+layer = 8
+script = ExtResource("1_hud")
+
+[node name="Panel" type="PanelContainer" parent="."]
+offset_left = 16.0
+offset_top = 16.0
+offset_right = 280.0
+offset_bottom = 60.0
+
+[node name="Margin" type="MarginContainer" parent="Panel"]
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 6
+
+[node name="VBox" type="VBoxContainer" parent="Panel/Margin"]
+
+[node name="HPRow" type="HBoxContainer" parent="Panel/Margin/VBox"]
+theme_override_constants/separation = 8
+
+[node name="Tag" type="Label" parent="Panel/Margin/VBox/HPRow"]
+text = "HP"
+
+[node name="Bar" type="ProgressBar" parent="Panel/Margin/VBox/HPRow"]
+custom_minimum_size = Vector2(140, 16)
+size_flags_horizontal = 3
+show_percentage = false
+max_value = 100.0
+value = 100.0
+
+[node name="Label" type="Label" parent="Panel/Margin/VBox/HPRow"]
+text = "100 / 100"

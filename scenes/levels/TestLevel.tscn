@@ -1,9 +1,10 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/player/Player.tscn" id="1_player"]
 [ext_resource type="PackedScene" path="res://scenes/npc/Npc.tscn" id="2_npc"]
 [ext_resource type="PackedScene" path="res://scenes/enemies/Dummy.tscn" id="3_dummy"]
 [ext_resource type="PackedScene" path="res://scenes/ui/MobileControls.tscn" id="4_mobile"]
+[ext_resource type="PackedScene" path="res://scenes/ui/PlayerHud.tscn" id="5_hud"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ground"]
 size = Vector2(1280, 32)
@@ -28,3 +29,5 @@ position = Vector2(500, 668)
 position = Vector2(800, 668)
 
 [node name="MobileControls" parent="." instance=ExtResource("4_mobile")]
+
+[node name="PlayerHud" parent="." instance=ExtResource("5_hud")]
