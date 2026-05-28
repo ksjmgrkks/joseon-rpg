@@ -8,6 +8,19 @@
 
 ## 진행 중
 
+### 🅗 Phase 1-2 대화 시스템 PC 검증 (Godot 에디터 필요)
+- [ ] PC에서 `git pull` 후 Godot 에디터 열기
+- [ ] `scenes/levels/TestLevel.tscn` ▶ 재생
+  - 회색 placeholder 사각형(Player) + 갈색 placeholder(Villager NPC) 보이는지
+  - 플레이어가 NPC 근처에 갈 때 → `E` 키 → 대화창(`마을 어르신 — 어디서 왔는가, 젊은이?`) 뜨는지
+  - 선택지 두 개 보이고, 클릭하면 다음 대사로 진행 → outro → 닫힘
+- [ ] (선택) 헤드리스 자동 테스트:
+  ```bash
+  godot --headless res://tests/test_dialogue.tscn
+  # 기대: === 4/4 passed === 종료코드 0
+  ```
+- [ ] UI가 아직 기본 폰트라 한글이 약간 못생기게 보일 수 있음 — Galmuri 임포트(`HUMAN_TASKS 🅐`) 후 다시 보면 정상.
+
 ### 🅖 Phase 1 골격 PC 검증 (Godot 에디터 필요)
 > Claude가 입력맵·Player·TestLevel·헤드리스 테스트 골격까지 짜놨음. 한 번 PC에서 확인 + (선택) 헤드리스 자동 테스트 실행.
 

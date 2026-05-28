@@ -1,6 +1,7 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=4 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/player/Player.tscn" id="1_player"]
+[ext_resource type="PackedScene" path="res://scenes/npc/Npc.tscn" id="2_npc"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ground"]
 size = Vector2(1280, 32)
@@ -17,3 +18,6 @@ shape = SubResource("RectangleShape2D_ground")
 position = Vector2(200, 400)
 
 [node name="Camera2D" type="Camera2D" parent="Player"]
+
+[node name="Villager" parent="." instance=ExtResource("2_npc")]
+position = Vector2(500, 668)

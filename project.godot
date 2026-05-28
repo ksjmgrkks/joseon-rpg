@@ -10,6 +10,11 @@ config/name="조선시대 도트 RPG"
 config/features=PackedStringArray("4.3", "GL Compatibility")
 config/icon="res://icon.svg"
 
+[autoload]
+
+Dialogue="*res://scripts/dialogue/dialogue_manager.gd"
+DialogueBalloon="*res://scenes/ui/DialogueBalloon.tscn"
+
 [input]
 
 move_left={

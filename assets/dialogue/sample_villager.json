@@ -1,0 +1,29 @@
+{
+  "id": "sample_villager_first",
+  "start": "intro",
+  "nodes": {
+    "intro": {
+      "speaker": "마을 어르신",
+      "text": "어디서 왔는가, 젊은이?",
+      "choices": [
+        { "text": "한양에서 왔소.", "next": "from_hanyang" },
+        { "text": "그저 떠도는 길손이외다.", "next": "wanderer" }
+      ]
+    },
+    "from_hanyang": {
+      "speaker": "마을 어르신",
+      "text": "오, 한양이라! 무슨 일로 이 시골까지 오셨는가?",
+      "next": "outro"
+    },
+    "wanderer": {
+      "speaker": "마을 어르신",
+      "text": "허허, 무사인가? 칼이 가볍지 아니한가.",
+      "next": "outro"
+    },
+    "outro": {
+      "speaker": "마을 어르신",
+      "text": "어쨌든 마을에 오신 것을 환영하네.",
+      "next": null
+    }
+  }
+}
