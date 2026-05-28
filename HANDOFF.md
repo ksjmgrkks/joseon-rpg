@@ -69,14 +69,20 @@
 # 📍 PART 2. 현재 상황 (어디까지 했는가)
 
 ## 현재 상태 (한 줄 요약)
-> **지금 여기:** 기획 완료. Godot 프로젝트와 깃헙 레포는 아직 미생성. 첫 셋업 대기 중.
+> **지금 여기:** Phase 0 자동 셋업 4단계 완료(레포·Godot 골격·CLAUDE/STYLE_BIBLE·폰트·AI 프롬프트). **사용자 작업 대기:** AI 도구로 첫 주인공 스프라이트 후보 생성 → 1장 선택 → 픽셀 에디터로 손보정 → `assets/sprites/protagonist/idle.png` 커밋. 자세한 사용자 할 일 목록은 `docs/HUMAN_TASKS.md`.
 
 ## 바로 다음 할 일 (Next Action)
-> 1. 깃헙에 빈 레포 생성 (예: `joseon-rpg`)
-> 2. Godot 4 GDScript 프로젝트 뼈대 생성 (project.godot + 폴더 구조)
-> 3. CLAUDE.md, HANDOFF.md를 레포 루트에 커밋 & 푸시
-> 4. Phase 0 시작: 주인공 스프라이트 1종 만들고 스타일 확정
-> 5. Phase 1: 주인공이 화면에서 걷게 만들기
+> 1. ~~깃헙에 빈 레포 생성~~ ✅ 2026-05-28 (`github.com/ksjmgrkks/joseon-rpg`, private)
+> 2. ~~Godot 4 GDScript 프로젝트 뼈대 + 폴더 구조~~ ✅
+> 3. ~~CLAUDE.md, HANDOFF.md를 레포 루트에 커밋 & 푸시~~ ✅
+> 4. Phase 0 — 주인공 스프라이트 1종 확정 (★ 진행 중)
+>    - a. ~~CLAUDE.md `[채워넣기]` 잠금~~ ✅
+>    - b. ~~Galmuri 픽셀 폰트(11/9) + OFL 라이선스 레포 배치~~ ✅ (Godot 임포트 설정만 사용자 PC 작업)
+>    - c. ~~STYLE_BIBLE v0 (팔레트 25색 hex + 비율 + 아웃라인·음영 규칙)~~ ✅
+>    - d. ~~AI 스프라이트 프롬프트 세트 `docs/PROMPTS_PROTAGONIST.md`~~ ✅
+>    - e. **사용자: AI 도구로 후보 5~10장 생성 → 1장 선택 → Aseprite/LibreSprite로 손보정 → `assets/sprites/protagonist/idle.png` 커밋** ← 사람만 가능
+>    - f. (사용자 e 완료 후 Claude) STYLE_BIBLE "잠정 v0" → 잠금, HANDOFF/CLAUDE 의 "시대·톤 미확정" 갱신
+> 5. Phase 1: 주인공이 화면에서 걷게 만들기 (걷기/점프 애니메이션 4~8프레임, 기본 씬·플레이어 노드, 횡스크롤 카메라)
 
 ## 대기 / 막힌 것 (Blocked / Waiting)
 > - 캐릭터 스프라이트 에셋 없음 (Phase 0에서 생성)
@@ -88,18 +94,19 @@
 # 🗂️ PART 3. 빠른 참조 & 진행 로그
 
 ## 프로젝트 정보
-- **레포 주소:** [깃헙 레포 URL 입력]
+- **레포 주소:** https://github.com/ksjmgrkks/joseon-rpg (private)
 - **메인 브랜치:** main
 - **상세 규칙:** `CLAUDE.md` 참조 / **상세 로드맵:** `조선시대_도트_RPG_제작_로드맵.md` 참조
 
 ## 완료된 작업 로그 (최신이 위로)
 > 작업 마칠 때마다 한 줄씩 위에 추가 (날짜 + 한 일).
 
-- (아직 없음 — 기획 단계까지 완료. 첫 셋업 작업부터 기록 시작)
+- **2026-05-28** — Phase 0 자동 셋업 4단계: ① CLAUDE.md placeholder 잠금 ② Galmuri 픽셀 폰트(11/9) + OFL 라이선스 자동 다운로드·배치 ③ `docs/STYLE_BIBLE.md` v0 (팔레트 25색·48px 비율·아웃라인·음영·Aseprite 파이프라인) ④ `docs/PROMPTS_PROTAGONIST.md` (코어 + A/B/C 변형 + 도구별 호환 + 실패 패턴). `docs/HUMAN_TASKS.md` 신설·정제.
+- **2026-05-28** — 깃헙 private 레포 생성 + Godot 4 GDScript 골격 푸시 (project.godot · 1280×720 landscape · GL Compatibility · Nearest 필터 · 폴더 구조 · README · CLAUDE.md · 로드맵 문서).
 
 ## 시스템별 진행 현황
-- [ ] 깃헙 레포 + Godot 프로젝트 셋업
-- [ ] 주인공 스프라이트 1종 (Phase 0 스타일 확정)
+- [x] 깃헙 레포 + Godot 프로젝트 셋업 (2026-05-28)
+- [ ] 주인공 스프라이트 1종 (Phase 0 스타일 확정) — 사용자 작업 대기 (`HUMAN_TASKS.md` 🅑·🅒)
 - [ ] 플레이어 이동/점프
 - [ ] 전투
 - [ ] 인벤토리/아이템
