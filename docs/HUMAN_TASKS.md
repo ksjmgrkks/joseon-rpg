@@ -8,6 +8,17 @@
 
 ## 진행 중
 
+### 🅘 Phase 1-3 전투 시스템 PC 검증 (Godot 에디터 필요)
+- [ ] PC `git pull` → Godot 에디터 `scenes/levels/TestLevel.tscn` ▶ 재생
+  - 회색 Player + 갈색 NPC + 푸르스름한 Dummy 적 보이는지
+  - Dummy 근처로 가서 `J`(공격) → Dummy가 옅은 빨강 깜빡 + 옆으로 살짝 밀리고 위로 살짝 떠오름 → 콘솔에 `[Dummy] HP 25 / 40` 식 출력
+  - 3번 정도 더 때리면 Dummy `[Dummy] died` 출력 + 사라짐
+- [ ] (선택) 헤드리스 자동 테스트:
+  ```bash
+  godot --headless res://tests/test_combat.tscn
+  # 기대: === 3/3 passed === 종료코드 0
+  ```
+
 ### 🅗 Phase 1-2 대화 시스템 PC 검증 (Godot 에디터 필요)
 - [ ] PC에서 `git pull` 후 Godot 에디터 열기
 - [ ] `scenes/levels/TestLevel.tscn` ▶ 재생
