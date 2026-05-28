@@ -1,0 +1,21 @@
+# Godot 4+ specific
+.godot/
+.import/
+export.cfg
+export_presets.cfg
+
+# Android export
+/android/
+
+# Imported translations (auto-generated)
+*.translation
+
+# Build output (선택 — 빌드 산출물을 레포에 안 두려면 유지)
+/builds/
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.log
