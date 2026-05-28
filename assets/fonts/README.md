@@ -1,7 +1,7 @@
 # 한글 픽셀 폰트 — 후보 & 사용 가이드
 
 > Phase 0 결정 사항: **본문/대사 = Galmuri11(우선)**, **HUD·작은 텍스트 = Galmuri9**.
-> 이 폴더에 실제 폰트 파일(.ttf/.otf)을 직접 받아 넣고 라이선스 파일도 함께 둔다.
+> 현재 상태: 레포에 `Galmuri11.ttf` · `Galmuri9.ttf` · `OFL.txt`(영문) · `OFL-ko.md`(한글) **이미 포함됨** (quiple/galmuri 공식 배포본). Godot 임포트 설정만 남음.
 
 ---
 
@@ -31,13 +31,15 @@
 
 ---
 
-## 3) 받아서 넣는 법
+## 3) 받아서 넣는 법 (이미 완료)
 
-1. 위 출처에서 `Galmuri.zip` 다운로드 → 안에 들어 있는 `.ttf` 또는 `.otf` 파일 중 다음 두 개 정도를 이 폴더(`assets/fonts/`)에 복사:
-   - `Galmuri11.ttf`
-   - `Galmuri9.ttf`
-2. 같은 폴더에 `OFL.txt` (라이선스 본문)도 함께 배치. (Galmuri 배포 zip에 포함돼 있음 — 그대로 복사)
-3. Godot에서 Import 탭 → 한 번 클릭해서 `FontFile`로 인식되게 한다.
+✅ 다음 파일들이 이 폴더에 이미 들어있습니다 (Phase 0 자동 셋업에서 quiple/galmuri 공식 배포본에서 가져옴):
+- `Galmuri11.ttf` (본문·대사용)
+- `Galmuri9.ttf` (HUD·작은 텍스트용)
+- `OFL.txt` (SIL Open Font License 1.1, 영문 원본)
+- `OFL-ko.md` (한글 번역본 — 참고용)
+
+남은 일은 §4 Godot 임포트 설정뿐.
 
 ---
 
