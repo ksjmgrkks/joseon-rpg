@@ -69,20 +69,18 @@
 # 📍 PART 2. 현재 상황 (어디까지 했는가)
 
 ## 현재 상태 (한 줄 요약)
-> **지금 여기:** Phase 0 자동 셋업 4단계 완료(레포·Godot 골격·CLAUDE/STYLE_BIBLE·폰트·AI 프롬프트). **사용자 작업 대기:** AI 도구로 첫 주인공 스프라이트 후보 생성 → 1장 선택 → 픽셀 에디터로 손보정 → `assets/sprites/protagonist/idle.png` 커밋. 자세한 사용자 할 일 목록은 `docs/HUMAN_TASKS.md`.
+> **지금 여기:** Phase 0(스타일 셋업) 완료 + **Phase 1의 아트 무관 시스템 전부 완성** — 입력 매핑·플레이어(이동/점프/공격)·NPC+대화·Hitbox/Hurtbox/HealthComponent·Dummy 적·HUD HP 바·모바일 터치 컨트롤·헤드리스 테스트 3종. **이제 사용자 손이 꼭 필요한 것:** ① 주인공 스프라이트 1장 생성·손보정(`HUMAN_TASKS 🅑·🅒`) ② Godot에서 폰트/씬 임포트 설정 + 시각 검증(`HUMAN_TASKS 🅖·🅗·🅘·🅙`) ③ 시대·톤 확정(`🅓`).
 
 ## 바로 다음 할 일 (Next Action)
-> 1. ~~깃헙에 빈 레포 생성~~ ✅ 2026-05-28 (`github.com/ksjmgrkks/joseon-rpg`, private)
-> 2. ~~Godot 4 GDScript 프로젝트 뼈대 + 폴더 구조~~ ✅
-> 3. ~~CLAUDE.md, HANDOFF.md를 레포 루트에 커밋 & 푸시~~ ✅
-> 4. Phase 0 — 주인공 스프라이트 1종 확정 (★ 진행 중)
->    - a. ~~CLAUDE.md `[채워넣기]` 잠금~~ ✅
->    - b. ~~Galmuri 픽셀 폰트(11/9) + OFL 라이선스 레포 배치~~ ✅ (Godot 임포트 설정만 사용자 PC 작업)
->    - c. ~~STYLE_BIBLE v0 (팔레트 25색 hex + 비율 + 아웃라인·음영 규칙)~~ ✅
->    - d. ~~AI 스프라이트 프롬프트 세트 `docs/PROMPTS_PROTAGONIST.md`~~ ✅
->    - e. **사용자: AI 도구로 후보 5~10장 생성 → 1장 선택 → Aseprite/LibreSprite로 손보정 → `assets/sprites/protagonist/idle.png` 커밋** ← 사람만 가능
->    - f. (사용자 e 완료 후 Claude) STYLE_BIBLE "잠정 v0" → 잠금, HANDOFF/CLAUDE 의 "시대·톤 미확정" 갱신
-> 5. Phase 1: 주인공이 화면에서 걷게 만들기 (걷기/점프 애니메이션 4~8프레임, 기본 씬·플레이어 노드, 횡스크롤 카메라)
+> 1. ~~깃헙 레포 + Godot 골격~~ ✅
+> 2. ~~Phase 0 자동 셋업 (CLAUDE 잠금·폰트·STYLE_BIBLE·프롬프트)~~ ✅
+> 3. ~~Phase 1 시스템 골격~~ ✅ (입력·플레이어·NPC/대화·전투·HUD·모바일 컨트롤·테스트)
+> 4. **사용자: 주인공 스프라이트 생성 + Phase 1 PC 검증** ← 사람만 가능
+>    - a. `docs/PROMPTS_PROTAGONIST.md` 프롬프트로 AI 후보 5~10장 → 1장 선택 → Aseprite/LibreSprite로 손보정 → `assets/sprites/protagonist/idle.png` 커밋
+>    - b. PC Godot 에디터 → 폰트 임포트 설정 + `TestLevel.tscn` 재생 → HUMAN_TASKS 🅖~🅙 체크리스트로 시각 확인
+>    - c. 시대·톤 확정 → Claude에게 알리면 STYLE_BIBLE 잠금 + HANDOFF/CLAUDE 갱신
+> 5. (사용자 a 완료 후 Claude) AnimationPlayer 연결: 걷기/점프/공격 애니메이션 → 스프라이트 가져와 player.gd 연동.
+> 6. (이후) 타일셋·테스트 맵·BGM — 아트 다음 단계.
 
 ## 대기 / 막힌 것 (Blocked / Waiting)
 > - 캐릭터 스프라이트 에셋 없음 (Phase 0에서 생성)
@@ -101,19 +99,20 @@
 ## 완료된 작업 로그 (최신이 위로)
 > 작업 마칠 때마다 한 줄씩 위에 추가 (날짜 + 한 일).
 
+- **2026-05-28** — Phase 1 골격 5단계: ① 입력 매핑(5 액션) + Player(중력/이동/점프) + TestLevel + 헤드리스 테스트(`0cb8858`). ② NPC + 분기형 대화 시스템(autoload Dialogue/DialogueBalloon · 샘플 JSON · 테스트 4건) (`f3b7426`). ③ 전투 컴포넌트(Hitbox/Hurtbox/HealthComponent) + 공격 hitbox + Dummy 적 + 전투 테스트 3건 (`55c1cfd`). ④ 모바일 터치 컨트롤(TouchScreenButton 5종 · 데스크탑 자동 숨김 · 원형 SVG placeholder) (`ee1129c`). ⑤ Player HUD HP 바 (`83ff048`). 모두 푸시 완료.
 - **2026-05-28** — Phase 0 자동 셋업 4단계: ① CLAUDE.md placeholder 잠금 ② Galmuri 픽셀 폰트(11/9) + OFL 라이선스 자동 다운로드·배치 ③ `docs/STYLE_BIBLE.md` v0 (팔레트 25색·48px 비율·아웃라인·음영·Aseprite 파이프라인) ④ `docs/PROMPTS_PROTAGONIST.md` (코어 + A/B/C 변형 + 도구별 호환 + 실패 패턴). `docs/HUMAN_TASKS.md` 신설·정제.
 - **2026-05-28** — 깃헙 private 레포 생성 + Godot 4 GDScript 골격 푸시 (project.godot · 1280×720 landscape · GL Compatibility · Nearest 필터 · 폴더 구조 · README · CLAUDE.md · 로드맵 문서).
 
 ## 시스템별 진행 현황
 - [x] 깃헙 레포 + Godot 프로젝트 셋업 (2026-05-28)
 - [ ] 주인공 스프라이트 1종 (Phase 0 스타일 확정) — 사용자 작업 대기 (`HUMAN_TASKS.md` 🅑·🅒)
-- [ ] 플레이어 이동/점프
-- [ ] 전투
-- [ ] 인벤토리/아이템
-- [ ] 세이브/로드
-- [ ] 대화/퀘스트
-- [ ] UI/HUD (모바일 터치)
-- [ ] web export 빌드 + 폰 미리보기
+- [x] 플레이어 이동/점프 — 골격 완성, AnimationPlayer는 스프라이트 후 (2026-05-28)
+- [x] 전투(기본) — Hitbox/Hurtbox/HealthComponent/Dummy 적 (2026-05-28). 확장(다양한 적·콤보·스킬)은 Phase 2.
+- [ ] 인벤토리/아이템 — Phase 2
+- [ ] 세이브/로드 — Phase 2
+- [x] 대화/퀘스트 — 대화(분기형) 골격 완성 (2026-05-28). 퀘스트는 Phase 2~3.
+- [x] UI/HUD (모바일 터치) — HP 바 + 5개 터치 컨트롤 (2026-05-28). 한지·먹 톤 스킨은 폰트 임포트 후.
+- [ ] web export 빌드 + 폰 미리보기 — 사용자 PC에서 시도 필요
 - [ ] GitHub Pages 배포
 
 ## 다음 세션에게 남기는 메모
