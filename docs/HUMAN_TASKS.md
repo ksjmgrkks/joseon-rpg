@@ -8,6 +8,11 @@
 
 ## 진행 중
 
+### 🅙 Phase 1-4 모바일 터치 컨트롤 PC/모바일 검증
+- [ ] PC에선 키보드 동작은 그대로. TestLevel 재생 시 데스크탑에선 터치 버튼이 **숨겨져 있어야 정상** (DisplayServer.is_touchscreen_available() 기준).
+- [ ] 폰 미리보기(web export): 우측 하단 점프(큰 원) · 공격(공격) · E(상호작용), 좌측 하단 ← / → 두 버튼이 떠있고 누르면 Player가 같은 동작 수행하는지.
+- [ ] (선택) 디자인 폴리시: `assets/ui/touch_button.svg`(원형 placeholder) 자리에 한지·먹 톤의 실제 터치 버튼 텍스처 교체.
+
 ### 🅘 Phase 1-3 전투 시스템 PC 검증 (Godot 에디터 필요)
 - [ ] PC `git pull` → Godot 에디터 `scenes/levels/TestLevel.tscn` ▶ 재생
   - 회색 Player + 갈색 NPC + 푸르스름한 Dummy 적 보이는지

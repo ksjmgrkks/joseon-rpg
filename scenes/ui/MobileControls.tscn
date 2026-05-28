@@ -1,0 +1,108 @@
+[gd_scene load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/mobile_controls.gd" id="0_mob"]
+[ext_resource type="Texture2D" path="res://assets/ui/touch_button.svg" id="1_btn"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_small"]
+size = Vector2(72, 72)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_med"]
+size = Vector2(80, 80)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_large"]
+size = Vector2(96, 96)
+
+[sub_resource type="LabelSettings" id="LabelSettings_btn"]
+font_size = 22
+font_color = Color(1, 1, 1, 0.95)
+outline_size = 2
+outline_color = Color(0, 0, 0, 0.6)
+
+[node name="MobileControls" type="CanvasLayer"]
+layer = 5
+script = ExtResource("0_mob")
+
+[node name="MoveLeft" type="TouchScreenButton" parent="."]
+position = Vector2(60, 580)
+scale = Vector2(1.1, 1.1)
+texture_normal = ExtResource("1_btn")
+shape = SubResource("RectangleShape2D_small")
+action = "move_left"
+
+[node name="Label" type="Label" parent="MoveLeft"]
+offset_left = 12.0
+offset_top = 14.0
+offset_right = 60.0
+offset_bottom = 50.0
+text = "←"
+label_settings = SubResource("LabelSettings_btn")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="MoveRight" type="TouchScreenButton" parent="."]
+position = Vector2(160, 580)
+scale = Vector2(1.1, 1.1)
+texture_normal = ExtResource("1_btn")
+shape = SubResource("RectangleShape2D_small")
+action = "move_right"
+
+[node name="Label" type="Label" parent="MoveRight"]
+offset_left = 12.0
+offset_top = 14.0
+offset_right = 60.0
+offset_bottom = 50.0
+text = "→"
+label_settings = SubResource("LabelSettings_btn")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Jump" type="TouchScreenButton" parent="."]
+position = Vector2(1100, 540)
+scale = Vector2(1.5, 1.5)
+texture_normal = ExtResource("1_btn")
+shape = SubResource("RectangleShape2D_large")
+action = "jump"
+
+[node name="Label" type="Label" parent="Jump"]
+offset_left = 12.0
+offset_top = 14.0
+offset_right = 60.0
+offset_bottom = 50.0
+text = "↑"
+label_settings = SubResource("LabelSettings_btn")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Attack" type="TouchScreenButton" parent="."]
+position = Vector2(980, 580)
+scale = Vector2(1.25, 1.25)
+texture_normal = ExtResource("1_btn")
+shape = SubResource("RectangleShape2D_med")
+action = "attack"
+
+[node name="Label" type="Label" parent="Attack"]
+offset_left = 12.0
+offset_top = 14.0
+offset_right = 60.0
+offset_bottom = 50.0
+text = "공격"
+label_settings = SubResource("LabelSettings_btn")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Interact" type="TouchScreenButton" parent="."]
+position = Vector2(1170, 460)
+scale = Vector2(1.0, 1.0)
+texture_normal = ExtResource("1_btn")
+shape = SubResource("RectangleShape2D_small")
+action = "interact"
+
+[node name="Label" type="Label" parent="Interact"]
+offset_left = 12.0
+offset_top = 14.0
+offset_right = 60.0
+offset_bottom = 50.0
+text = "E"
+label_settings = SubResource("LabelSettings_btn")
+horizontal_alignment = 1
+vertical_alignment = 1
