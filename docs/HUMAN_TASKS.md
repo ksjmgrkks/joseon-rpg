@@ -8,6 +8,22 @@
 
 ## 진행 중
 
+### 🅖 Phase 1 골격 PC 검증 (Godot 에디터 필요)
+> Claude가 입력맵·Player·TestLevel·헤드리스 테스트 골격까지 짜놨음. 한 번 PC에서 확인 + (선택) 헤드리스 자동 테스트 실행.
+
+- [ ] PC Godot 4.x 에디터로 `~/projects/joseon-rpg` 프로젝트 열기 (또는 PC 작업 경로)
+- [ ] `scenes/levels/TestLevel.tscn` 더블클릭 → 우상단 ▶ 재생 → 다음 동작 확인:
+  - A/← 키로 왼쪽, D/→ 키로 오른쪽 이동
+  - Space/W/↑ 키로 점프 (지면에서만)
+  - 좌우 이동 시 placeholder 사각형이 flip (sprite.flip_h)
+  - 카메라가 플레이어를 따라가는지
+- [ ] (선택) 헤드리스 자동 테스트 실행:
+  ```bash
+  godot --headless res://tests/test_player_movement.tscn
+  # 기대 출력: === 3/3 passed === 종료코드 0
+  ```
+- [ ] 이상 있으면 Claude한테 알려주기. 정상이면 위 체크박스 [x] + 한 줄 노트.
+
 ### 🅰️ Godot 폰트 임포트 설정 (PC Godot GUI 필요)
 > 폰트 파일·라이선스는 AI가 quiple/galmuri 공식 배포본에서 받아 레포에 이미 포함시켰음 (`assets/fonts/Galmuri11.ttf` · `Galmuri9.ttf` · `OFL.txt` · `OFL-ko.md`). 다운로드 단계는 자동 처리 완료, 임포트 설정만 남음.
 
