@@ -45,14 +45,37 @@ func _rebuild(slots: Array) -> void:
         var cnt := int(s.count)
         var row := HBoxContainer.new()
         row.add_theme_constant_override("separation", 12)
+
         var name_label := Label.new()
         name_label.text = "%s × %d" % [name, cnt]
-        name_label.custom_minimum_size = Vector2(180, 0)
+        name_label.custom_minimum_size = Vector2(160, 0)
+        row.add_child(name_label)
+
         var desc_label := Label.new()
         desc_label.text = desc
         desc_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
         desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-        row.add_child(name_label)
         row.add_child(desc_label)
+
+        # 소모품(heal) 이면 '사용' 버튼
+        if String(def.get("type", "")) == "consumable" and def.has("heal"):
+            var use_btn := Button.new()
+            use_btn.text = "사용"
+            var item_id := String(s.id)
+            var heal_amt := int(def.get("heal", 0))
+            use_btn.pressed.connect(func() -> void: _use_consumable(item_id, heal_amt))
+            row.add_child(use_btn)
+
         slots_list.add_child(row)
     hint_label.text = "[I] 닫기  ·  %d / %d 슬롯" % [slots.size(), Inventory.CAPACITY]
+
+
+func _use_consumable(item_id: String, heal_amt: int) -> void:
+    var player := get_tree().get_first_node_in_group("player")
+    if player == null:
+        return
+    var health: HealthComponent = player.get_node_or_null("HealthComponent")
+    if health == null:
+        return
+    health.heal(float(heal_amt))
+    Inventory.remove(item_id, 1)
