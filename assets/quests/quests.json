@@ -1,0 +1,23 @@
+{
+  "quests": {
+    "first_meet_villager": {
+      "name": "마을 어르신과 첫 인사",
+      "description": "마을 어귀의 어르신과 통성명한다.",
+      "stages": {
+        "start": {
+          "title": "어르신을 찾자",
+          "description": "마을에 들어선 김에 어르신께 인사를 드린다."
+        },
+        "greeted": {
+          "title": "어르신께 인사함",
+          "description": "어르신과 통성명을 마쳤다. 마을은 조용하다."
+        }
+      },
+      "rewards": {
+        "items": [
+          { "id": "rice_bun", "count": 3 }
+        ]
+      }
+    }
+  }
+}

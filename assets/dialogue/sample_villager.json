@@ -5,10 +5,13 @@
     "intro": {
       "speaker": "마을 어르신",
       "text": "어디서 왔는가, 젊은이?",
+      "actions": [
+        { "type": "start_quest", "quest": "first_meet_villager" }
+      ],
       "choices": [
         { "text": "한양에서 왔소.", "next": "from_hanyang" },
         { "text": "그저 떠도는 길손이외다.", "next": "wanderer" },
-        { "text": "(다시 인사) 또 뵙습니다.", "next": "again", "if_flag": "talked_to_villager" }
+        { "text": "(다시 인사) 또 뵙습니다.", "next": "again", "if_quest_completed": "first_meet_villager" }
       ]
     },
     "from_hanyang": {
@@ -28,9 +31,10 @@
     },
     "outro": {
       "speaker": "마을 어르신",
-      "text": "어쨌든 마을에 오신 것을 환영하네.",
+      "text": "어쨌든 마을에 오신 것을 환영하네. (작은 답례라며 쌀떡 한 묶음을 건넨다.)",
       "actions": [
-        { "type": "set_flag", "key": "talked_to_villager", "value": true }
+        { "type": "set_flag", "key": "talked_to_villager", "value": true },
+        { "type": "complete_quest", "quest": "first_meet_villager" }
       ],
       "next": null
     }

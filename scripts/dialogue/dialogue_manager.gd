@@ -122,11 +122,19 @@ func _run_actions(node: Dictionary) -> void:
         match t:
             "set_flag":
                 Flags.set_flag(String(a.get("key", "")), a.get("value", true))
+            "start_quest":
+                QuestManager.start_quest(String(a.get("quest", "")))
+            "set_quest_stage":
+                QuestManager.set_stage(String(a.get("quest", "")), String(a.get("stage", "")))
+            "complete_quest":
+                QuestManager.complete_quest(String(a.get("quest", "")))
+            "give_item":
+                Inventory.add(String(a.get("item", "")), int(a.get("count", 1)))
             _:
                 push_warning("[Dialogue] unknown action type: %s" % t)
 
 
-## 조건(if_flag / unless_flag)에 맞는 choice만 추림.
+## 조건(if_flag / unless_flag / 퀘스트)에 맞는 choice만 추림.
 func _filter_choices(choices: Array) -> Array:
     var out: Array = []
     for c in choices:
@@ -136,6 +144,14 @@ func _filter_choices(choices: Array) -> Array:
             continue
         if c.has("unless_flag") and Flags.has_flag(String(c.unless_flag)):
             continue
+        if c.has("if_quest_active") and not QuestManager.is_active(String(c.if_quest_active)):
+            continue
+        if c.has("if_quest_completed") and not QuestManager.is_completed(String(c.if_quest_completed)):
+            continue
+        if c.has("if_quest_stage"):
+            var parts := String(c.if_quest_stage).split(":")
+            if parts.size() != 2 or not QuestManager.is_stage(parts[0], parts[1]):
+                continue
         out.append(c)
     return out
 
