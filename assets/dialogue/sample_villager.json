@@ -7,7 +7,8 @@
       "text": "어디서 왔는가, 젊은이?",
       "choices": [
         { "text": "한양에서 왔소.", "next": "from_hanyang" },
-        { "text": "그저 떠도는 길손이외다.", "next": "wanderer" }
+        { "text": "그저 떠도는 길손이외다.", "next": "wanderer" },
+        { "text": "(다시 인사) 또 뵙습니다.", "next": "again", "if_flag": "talked_to_villager" }
       ]
     },
     "from_hanyang": {
@@ -20,9 +21,17 @@
       "text": "허허, 무사인가? 칼이 가볍지 아니한가.",
       "next": "outro"
     },
+    "again": {
+      "speaker": "마을 어르신",
+      "text": "또 만났구먼. 마을은 어떤가?",
+      "next": null
+    },
     "outro": {
       "speaker": "마을 어르신",
       "text": "어쨌든 마을에 오신 것을 환영하네.",
+      "actions": [
+        { "type": "set_flag", "key": "talked_to_villager", "value": true }
+      ],
       "next": null
     }
   }

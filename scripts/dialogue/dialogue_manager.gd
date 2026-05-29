@@ -11,8 +11,16 @@ extends Node
 ##     "<id>": {
 ##       "speaker": "...",
 ##       "text": "...",
-##       "choices": [ { "text": "...", "next": "<id 또는 null>" }, ... ]   # 분기형
-##       또는 "next": "<id 또는 null>"                                       # 단순 진행
+##       "actions": [                                # (선택) 노드 진입 시 실행
+##         { "type": "set_flag", "key": "...", "value": ... },
+##         ...
+##       ],
+##       "choices": [
+##         { "text": "...", "next": "<id 또는 null>",
+##           "if_flag": "<key>",                       # (선택) Flags.has_flag(key)일 때만 표시
+##           "unless_flag": "<key>" }                  # (선택) Flags.has_flag(key) 아닐 때만
+##       ]
+##       또는 "next": "<id 또는 null>"
 ##     }, ...
 ##   }
 ## }
@@ -53,21 +61,22 @@ func start(json_path: String) -> bool:
     if node.is_empty():
         _end()
         return false
-    var choices: Array = node.get("choices", [])
-    dialogue_started.emit(String(node.get("speaker", "")), String(node.get("text", "")), choices)
+    _run_actions(node)
+    var visible_choices := _filter_choices(node.get("choices", []))
+    dialogue_started.emit(String(node.get("speaker", "")), String(node.get("text", "")), visible_choices)
     return true
 
 
-## 분기 선택 (choices 인덱스 기준)
+## 분기 선택 (현재 노드의 '보이는' choices 인덱스 기준)
 func choose(index: int) -> void:
     if not _active:
         return
     var node := _current_node()
-    var choices: Array = node.get("choices", [])
-    if index < 0 or index >= choices.size():
-        push_warning("[Dialogue] choice index out of range: %d / %d" % [index, choices.size()])
+    var visible := _filter_choices(node.get("choices", []))
+    if index < 0 or index >= visible.size():
+        push_warning("[Dialogue] choice index out of range: %d / %d" % [index, visible.size()])
         return
-    _advance_to(choices[index].get("next", null))
+    _advance_to(visible[index].get("next", null))
 
 
 ## choices 없는 노드에서 다음으로 진행 (사용자가 진행 버튼 누름)
@@ -98,8 +107,37 @@ func _advance_to(next_id: Variant) -> void:
     if node.is_empty():
         _end()
         return
-    var choices: Array = node.get("choices", [])
-    dialogue_advanced.emit(String(node.get("speaker", "")), String(node.get("text", "")), choices)
+    _run_actions(node)
+    var visible_choices := _filter_choices(node.get("choices", []))
+    dialogue_advanced.emit(String(node.get("speaker", "")), String(node.get("text", "")), visible_choices)
+
+
+## 노드 진입 시 actions 배열을 순서대로 실행.
+func _run_actions(node: Dictionary) -> void:
+    var actions: Array = node.get("actions", [])
+    for a in actions:
+        if not (a is Dictionary):
+            continue
+        var t := String(a.get("type", ""))
+        match t:
+            "set_flag":
+                Flags.set_flag(String(a.get("key", "")), a.get("value", true))
+            _:
+                push_warning("[Dialogue] unknown action type: %s" % t)
+
+
+## 조건(if_flag / unless_flag)에 맞는 choice만 추림.
+func _filter_choices(choices: Array) -> Array:
+    var out: Array = []
+    for c in choices:
+        if not (c is Dictionary):
+            continue
+        if c.has("if_flag") and not Flags.has_flag(String(c.if_flag)):
+            continue
+        if c.has("unless_flag") and Flags.has_flag(String(c.unless_flag)):
+            continue
+        out.append(c)
+    return out
 
 
 func _end() -> void:
