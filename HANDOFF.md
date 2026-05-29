@@ -69,7 +69,7 @@
 # 📍 PART 2. 현재 상황 (어디까지 했는가)
 
 ## 현재 상태 (한 줄 요약)
-> **지금 여기:** Phase 0(스타일 셋업) 완료 + **Phase 1의 아트 무관 시스템 전부 완성** — 입력 매핑·플레이어(이동/점프/공격)·NPC+대화·Hitbox/Hurtbox/HealthComponent·Dummy 적·HUD HP 바·모바일 터치 컨트롤·헤드리스 테스트 3종. **이제 사용자 손이 꼭 필요한 것:** ① 주인공 스프라이트 1장 생성·손보정(`HUMAN_TASKS 🅑·🅒`) ② Godot에서 폰트/씬 임포트 설정 + 시각 검증(`HUMAN_TASKS 🅖·🅗·🅘·🅙`) ③ 시대·톤 확정(`🅓`).
+> **지금 여기:** Phase 0~2의 **아트 무관 시스템 전부 완성**. Phase 1(이동/공격/대화/HUD/모바일터치) + Phase 2(SaveManager·Inventory·Flags+대화 if_flag·일시정지+저장 메뉴·AI 상태머신+Patroller·Audio autoload+SFX hook) 모두 자동 셋업. 헤드리스 테스트 6종. **이제 사용자 손이 꼭 필요한 것:** ① 주인공 스프라이트 1장 생성·손보정(`HUMAN_TASKS 🅑·🅒`) ② PC Godot에서 폰트/씬 임포트 + 시각 검증(`🅖·🅗·🅘·🅙·🅚`) ③ (선택) SFX 파일 6종 떨어뜨리기(`🅛`) ④ 시대·톤 확정(`🅓`).
 
 ## 바로 다음 할 일 (Next Action)
 > 1. ~~깃헙 레포 + Godot 골격~~ ✅
@@ -99,6 +99,7 @@
 ## 완료된 작업 로그 (최신이 위로)
 > 작업 마칠 때마다 한 줄씩 위에 추가 (날짜 + 한 일).
 
+- **2026-05-29** — Phase 2 아트 무관 시스템 6단계: ① SaveManager autoload — JSON 슬롯·save_requested/loaded 시그널 패턴 (`e864b46`). ② Inventory + items.json(5종) + InventoryPanel UI(I 키 토글) — SaveManager 자동 연동 (`aeaf970`, fix `4107c7e`). ③ Flags autoload + Dialogue actions/if_flag 확장 — 'set_flag' 액션 + 'if_flag/unless_flag' 조건 choices, 샘플 villager에 적용 (`720dbf4`, fix `8c44b07`). ④ 적 AI 상태머신 — AIState·StateMachine·Idle/Patrol/Chase + Patroller 적 (`234541b`). ⑤ 일시정지 메뉴(Esc) + 인벤토리 소모품 '사용' 버튼 — process_mode=ALWAYS, 슬롯 1 저장 버튼 (`5d2d6dc`, fix `41ae097`). ⑥ AudioManager autoload + SFX 6종 상수 + 공격/피격/사망/포션 hook (`546dc8a`, fix `ec324ac`). 헤드리스 테스트 추가 3종(save·inventory·flags = 11건).
 - **2026-05-28** — Phase 1 골격 5단계: ① 입력 매핑(5 액션) + Player(중력/이동/점프) + TestLevel + 헤드리스 테스트(`0cb8858`). ② NPC + 분기형 대화 시스템(autoload Dialogue/DialogueBalloon · 샘플 JSON · 테스트 4건) (`f3b7426`). ③ 전투 컴포넌트(Hitbox/Hurtbox/HealthComponent) + 공격 hitbox + Dummy 적 + 전투 테스트 3건 (`55c1cfd`). ④ 모바일 터치 컨트롤(TouchScreenButton 5종 · 데스크탑 자동 숨김 · 원형 SVG placeholder) (`ee1129c`). ⑤ Player HUD HP 바 (`83ff048`). 모두 푸시 완료.
 - **2026-05-28** — Phase 0 자동 셋업 4단계: ① CLAUDE.md placeholder 잠금 ② Galmuri 픽셀 폰트(11/9) + OFL 라이선스 자동 다운로드·배치 ③ `docs/STYLE_BIBLE.md` v0 (팔레트 25색·48px 비율·아웃라인·음영·Aseprite 파이프라인) ④ `docs/PROMPTS_PROTAGONIST.md` (코어 + A/B/C 변형 + 도구별 호환 + 실패 패턴). `docs/HUMAN_TASKS.md` 신설·정제.
 - **2026-05-28** — 깃헙 private 레포 생성 + Godot 4 GDScript 골격 푸시 (project.godot · 1280×720 landscape · GL Compatibility · Nearest 필터 · 폴더 구조 · README · CLAUDE.md · 로드맵 문서).
@@ -107,11 +108,12 @@
 - [x] 깃헙 레포 + Godot 프로젝트 셋업 (2026-05-28)
 - [ ] 주인공 스프라이트 1종 (Phase 0 스타일 확정) — 사용자 작업 대기 (`HUMAN_TASKS.md` 🅑·🅒)
 - [x] 플레이어 이동/점프 — 골격 완성, AnimationPlayer는 스프라이트 후 (2026-05-28)
-- [x] 전투(기본) — Hitbox/Hurtbox/HealthComponent/Dummy 적 (2026-05-28). 확장(다양한 적·콤보·스킬)은 Phase 2.
-- [ ] 인벤토리/아이템 — Phase 2
-- [ ] 세이브/로드 — Phase 2
-- [x] 대화/퀘스트 — 대화(분기형) 골격 완성 (2026-05-28). 퀘스트는 Phase 2~3.
-- [x] UI/HUD (모바일 터치) — HP 바 + 5개 터치 컨트롤 (2026-05-28). 한지·먹 톤 스킨은 폰트 임포트 후.
+- [x] 전투(기본) — Hitbox/Hurtbox/HealthComponent/Dummy/Patroller + 상태머신(Idle/Patrol/Chase) (2026-05-28~29). 콤보·스킬·다양한 적 비주얼은 추후.
+- [x] 인벤토리/아이템 — InventoryManager·items.json(5종)·InventoryPanel(I 키)·소모품 사용 + Save 연동 (2026-05-29)
+- [x] 세이브/로드 — SaveManager 슬롯 기반 JSON, Inventory/Flags/Audio 자동 연동, 일시정지 메뉴에서 저장 (2026-05-29)
+- [x] 대화/퀘스트 — 분기 대화 + Flags(set_flag 액션·if_flag 조건) 통합 (2026-05-28~29). 본격 퀘스트 라인은 추후.
+- [x] UI/HUD (모바일 터치) — HP 바 + 5개 터치 컨트롤 + 인벤토리 패널 + 일시정지 메뉴 (2026-05-28~29). 한지·먹 톤 스킨은 폰트 임포트 후.
+- [x] 오디오 — AudioManager + SFX 호출 hook (파일 미존재 시 no-op) (2026-05-29). 실 사운드 파일 떨어뜨리는 건 사용자(`HUMAN_TASKS 🅛`).
 - [ ] web export 빌드 + 폰 미리보기 — 사용자 PC에서 시도 필요
 - [ ] GitHub Pages 배포
 

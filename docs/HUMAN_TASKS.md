@@ -8,6 +8,40 @@
 
 ## 진행 중
 
+### 🅚 Phase 2 시스템 PC 검증 — Save·Inventory·Flags·Pause·AI (Godot 에디터 필요)
+- [ ] PC `git pull` → `TestLevel.tscn` ▶ 재생.
+- [ ] **인벤토리(I 키)** — 패널 토글, 보따리 비어 있음 표시. Inventory.add 콘솔로 시연하려면:
+  ```
+  # Godot 디버거 콘솔에서:
+  Inventory.add("rice_bun", 5)
+  Inventory.add("potion_minor", 3)
+  ```
+  → I 키로 다시 열어 항목 보이는지 + '사용' 버튼 누르면 HP 바 +10/+30 회복하고 1개 차감.
+- [ ] **대화 분기 + 플래그** — Villager NPC에 E. 첫 회 선택지 2개. outro 보고 닫힘. 다시 E 누르면 '또 뵙습니다.' 선택지 1개 추가됨(if_flag 'talked_to_villager').
+- [ ] **AI Patroller** — TestLevel 오른쪽(x=1000)의 보라기 적이 좌우로 왕복(Patrol) → 가까이 가면 추격(Chase) → 멀어지면 Idle.
+- [ ] **일시정지(Esc)** — 메뉴 뜨고 게임 멈춤. '저장(슬롯 1)' → 상태 '슬롯 1에 저장됨'. '계속하기' 누르면 다시 진행.
+- [ ] **세이브 로드 round-trip** — 인벤토리에 뭐 넣고 Esc → 저장 → 게임 재시작 → 같은 슬롯 SaveManager.load(1) 호출(테스트는 디버거에서) → 인벤토리/HP/플래그 복원되는지.
+- [ ] (선택) 헤드리스 자동 테스트:
+  ```bash
+  godot --headless res://tests/test_save.tscn
+  godot --headless res://tests/test_inventory.tscn
+  godot --headless res://tests/test_flags.tscn
+  # 각각 3~4건 PASS, 종료코드 0 기대
+  ```
+
+### 🅛 오디오 파일 떨어뜨리기 (선택, 분위기 작업)
+> Audio.play_sfx 호출은 이미 코드에 박혀 있고, 같은 이름의 파일이 없으면 조용히 무시. 파일만 두면 자동으로 들리기 시작.
+
+- [ ] `assets/audio/sfx/` 에 다음 6개 짧은 wav/ogg 떨어뜨리기 (이름 정확히):
+  - `attack.wav` — 공격 swing
+  - `hit.wav` — 적 피격
+  - `hurt.wav` — (선택) 플레이어 피격용 — 아직 hook 없음, 추후
+  - `die.wav` — 사망
+  - `pickup.wav` — 아이템 획득 (추후 hook)
+  - `potion.wav` — 소모품 사용
+- [ ] BGM은 `assets/audio/bgm/` 아래 두고 코드에서 `Audio.play_bgm("res://assets/audio/bgm/village.ogg")` 호출.
+- [ ] AI/사용자 생성 음원 사용 시 라이선스 확인.
+
 ### 🅙 Phase 1-4 모바일 터치 컨트롤 PC/모바일 검증
 - [ ] PC에선 키보드 동작은 그대로. TestLevel 재생 시 데스크탑에선 터치 버튼이 **숨겨져 있어야 정상** (DisplayServer.is_touchscreen_available() 기준).
 - [ ] 폰 미리보기(web export): 우측 하단 점프(큰 원) · 공격(공격) · E(상호작용), 좌측 하단 ← / → 두 버튼이 떠있고 누르면 Player가 같은 동작 수행하는지.
