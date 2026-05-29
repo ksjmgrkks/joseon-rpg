@@ -53,6 +53,7 @@ func _do_attack() -> void:
         return
     attack_hitbox.position.x = 16.0 if _facing_right else -16.0
     attack_hitbox.activate(ATTACK_DURATION)
+    Audio.play_sfx(Sfx.ATTACK)
 
 
 func _on_hp_changed(hp: float, max_hp: float) -> void:
@@ -61,6 +62,7 @@ func _on_hp_changed(hp: float, max_hp: float) -> void:
 
 func _on_died() -> void:
     print("[Player] died — 위치 리셋(Phase 1 임시)")
+    Audio.play_sfx(Sfx.DIE)
     position = Vector2(200, 400)
     velocity = Vector2.ZERO
     health.heal(health.max_hp)

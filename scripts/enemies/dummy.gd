@@ -36,8 +36,8 @@ func _physics_process(delta: float) -> void:
 
 func _on_hurt(damage: float, knockback: float, _attacker: Node) -> void:
     _knockback_vel = knockback
-    # 살짝 위로 띄움 (있으면 더 맛있는 피격감)
     velocity.y = -160.0
+    Audio.play_sfx(Sfx.HIT)
     if sprite:
         sprite.modulate = Color(1, 0.5, 0.5, 1)
         await get_tree().create_timer(0.08).timeout
@@ -51,4 +51,5 @@ func _on_hp_changed(hp: float, max_hp: float) -> void:
 
 func _on_died() -> void:
     print("[Dummy] died")
+    Audio.play_sfx(Sfx.DIE)
     queue_free()
