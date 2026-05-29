@@ -61,8 +61,7 @@ func _on_hp_changed(hp: float, max_hp: float) -> void:
 
 
 func _on_died() -> void:
-    print("[Player] died — 위치 리셋(Phase 1 임시)")
+    print("[Player] died")
     Audio.play_sfx(Sfx.DIE)
-    position = Vector2(200, 400)
     velocity = Vector2.ZERO
-    health.heal(health.max_hp)
+    GameOverScreen.show_screen()

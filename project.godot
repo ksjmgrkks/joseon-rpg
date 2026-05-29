@@ -25,6 +25,7 @@ DialogueBalloon="*res://scenes/ui/DialogueBalloon.tscn"
 InventoryPanel="*res://scenes/ui/InventoryPanel.tscn"
 PauseMenu="*res://scenes/ui/PauseMenu.tscn"
 QuestLog="*res://scenes/ui/QuestLog.tscn"
+GameOverScreen="*res://scenes/ui/GameOverScreen.tscn"
 
 [input]
 
