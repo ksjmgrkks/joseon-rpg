@@ -1,0 +1,38 @@
+{
+  "items": {
+    "potion_minor": {
+      "name": "쾌혈환",
+      "description": "한약 환. HP를 30 회복한다.",
+      "type": "consumable",
+      "max_stack": 9,
+      "heal": 30
+    },
+    "potion_major": {
+      "name": "대보회",
+      "description": "비싼 약환. HP를 80 회복한다.",
+      "type": "consumable",
+      "max_stack": 5,
+      "heal": 80
+    },
+    "sword_iron": {
+      "name": "철검",
+      "description": "평범한 무사의 철검. 견고하다.",
+      "type": "weapon",
+      "max_stack": 1,
+      "damage": 12
+    },
+    "scroll_old": {
+      "name": "낡은 서찰",
+      "description": "누렇게 바랜 한지에 적힌 글귀가 흐릿하다.",
+      "type": "quest",
+      "max_stack": 1
+    },
+    "rice_bun": {
+      "name": "쌀떡",
+      "description": "쫄깃한 한 줌의 떡. HP를 10 회복한다.",
+      "type": "consumable",
+      "max_stack": 20,
+      "heal": 10
+    }
+  }
+}
