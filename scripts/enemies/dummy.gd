@@ -7,6 +7,8 @@ extends CharacterBody2D
 const GRAVITY: float = 980.0
 const KNOCKBACK_DECAY: float = 1200.0  # px/s² 마찰
 
+@export var xp_reward: int = 8
+
 @onready var sprite: Sprite2D = $Sprite2D
 @onready var health: HealthComponent = $HealthComponent
 @onready var hurtbox: Hurtbox = $Hurtbox
@@ -38,6 +40,7 @@ func _on_hurt(damage: float, knockback: float, _attacker: Node) -> void:
     _knockback_vel = knockback
     velocity.y = -160.0
     Audio.play_sfx(Sfx.HIT)
+    FloatingNumber.spawn(get_tree().current_scene, global_position, "-%d" % int(damage), Color(1, 0.6, 0.55))
     if sprite:
         sprite.modulate = Color(1, 0.5, 0.5, 1)
         await get_tree().create_timer(0.08).timeout
@@ -52,4 +55,7 @@ func _on_hp_changed(hp: float, max_hp: float) -> void:
 func _on_died() -> void:
     print("[Dummy] died")
     Audio.play_sfx(Sfx.DIE)
+    if xp_reward > 0:
+        PlayerStats.gain_xp(xp_reward)
+        FloatingNumber.spawn(get_tree().current_scene, global_position, "+%d XP" % xp_reward, Color(1, 0.95, 0.6))
     queue_free()
