@@ -8,6 +8,14 @@
 
 ## 진행 중
 
+### 🅜 Phase 3 시스템 PC 검증 — MainMenu/Quest/스탯/GameOver (Godot 에디터 필요)
+- [ ] PC `git pull` → Godot 에디터 ▶ 재생 (`run/main_scene = MainMenu` 이므로 자동으로 메인 메뉴부터).
+- [ ] **메인 메뉴**: '새로 시작' → 페이드 → TestLevel. '설정' → 슬라이더 만져보고 SFX 즉시 반응(파일이 있으면). '이어하기'는 슬롯 1 저장본 있을 때만 활성.
+- [ ] **퀘스트(Q 키)**: TestLevel에서 Villager에 E 누르면 자동으로 '마을 어르신과 첫 인사' 퀘스트 시작. outro 도달 시 완료 + 쌀떡 ×3 자동 지급(I 키로 확인). Q 키로 퀘스트 로그에 '진행 중'→'완료' 이동 확인.
+- [ ] **레벨/XP**: 좌상단 HUD에 'Lv 1 · XP 0/100'. Dummy/Patroller 처치 시 +8/+14 XP 노란 숫자가 떠오르고 HUD 갱신. 한 마리만 잡아도 LEVEL UP 직전. 임계치 넘으면 콘솔 'LEVEL UP → 2' + PICKUP SFX.
+- [ ] **사망/Game Over**: 디버거 콘솔에서 `Player.health.take_damage(150)` 등으로 강제 사망 → 'GameOverScreen' 어두운 오버레이 + '이어하기 (마지막 저장)' (저장본 없으면 비활성) + '메인 메뉴로' 두 버튼. 이어하기 → 슬롯 1 로드 + 씬 리로드. 메인 메뉴 → MainMenu로.
+- [ ] (선택) 헤드리스: `godot --headless res://tests/test_quests.tscn` → `=== 3/3 passed ===`.
+
 ### 🅚 Phase 2 시스템 PC 검증 — Save·Inventory·Flags·Pause·AI (Godot 에디터 필요)
 - [ ] PC `git pull` → `TestLevel.tscn` ▶ 재생.
 - [ ] **인벤토리(I 키)** — 패널 토글, 보따리 비어 있음 표시. Inventory.add 콘솔로 시연하려면:

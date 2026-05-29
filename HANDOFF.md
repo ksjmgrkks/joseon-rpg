@@ -69,7 +69,7 @@
 # 📍 PART 2. 현재 상황 (어디까지 했는가)
 
 ## 현재 상태 (한 줄 요약)
-> **지금 여기:** Phase 0~2의 **아트 무관 시스템 전부 완성**. Phase 1(이동/공격/대화/HUD/모바일터치) + Phase 2(SaveManager·Inventory·Flags+대화 if_flag·일시정지+저장 메뉴·AI 상태머신+Patroller·Audio autoload+SFX hook) 모두 자동 셋업. 헤드리스 테스트 6종. **이제 사용자 손이 꼭 필요한 것:** ① 주인공 스프라이트 1장 생성·손보정(`HUMAN_TASKS 🅑·🅒`) ② PC Godot에서 폰트/씬 임포트 + 시각 검증(`🅖·🅗·🅘·🅙·🅚`) ③ (선택) SFX 파일 6종 떨어뜨리기(`🅛`) ④ 시대·톤 확정(`🅓`).
+> **지금 여기:** Phase 0~3의 **아트 무관 시스템 전부 완성**. Phase 1(이동/공격/대화/HUD/모바일터치) + Phase 2(SaveManager/Inventory/Flags/일시정지/AI 상태머신/Audio) + Phase 3(SceneManager+페이드/메인메뉴/설정/QuestManager+로그/PlayerStats+레벨업/부유 데미지 숫자/Game Over 화면) 모두 자동 셋업. 헤드리스 테스트 7종(20+ 케이스). **이제 사용자 손이 꼭 필요한 것:** ① 주인공 스프라이트 1장 생성·손보정(`HUMAN_TASKS 🅑·🅒`) ② PC Godot에서 폰트/씬 임포트 + 시각 검증(`🅖~🅜`) ③ (선택) SFX 파일 떨어뜨리기(`🅛`) ④ 시대·톤 확정(`🅓`).
 
 ## 바로 다음 할 일 (Next Action)
 > 1. ~~깃헙 레포 + Godot 골격~~ ✅
@@ -99,6 +99,7 @@
 ## 완료된 작업 로그 (최신이 위로)
 > 작업 마칠 때마다 한 줄씩 위에 추가 (날짜 + 한 일).
 
+- **2026-05-29 (후속)** — Phase 3 아트 무관 시스템 4단계: ① SceneManager(페이드 인/아웃) + MainMenu + SettingsMenu(볼륨 슬라이더 3종) — `run/main_scene` 변경 (`5d2f75f` + fix `8d2d642`). ② QuestManager + QuestLog UI(Q 키) + 대화 quest action(start/set_stage/complete/give_item) + choice 조건(if_quest_active/completed/stage) — 샘플 villager 에 적용, rewards.items 자동 지급 (`05815c1` + fix `2bc5d61`). ③ PlayerStats autoload(레벨/XP 곡선) + FloatingNumber(부유 데미지/XP 숫자) + PlayerHud 에 Lv/XP 표시 + Dummy/Patroller xp_reward 통합 (`f73f976`). ④ GameOverScreen — 사망 시 이어하기(슬롯1 로드+리로드) / 메인 메뉴 선택 (`fb208ef`). 헤드리스 테스트 +1종(quests, 3건).
 - **2026-05-29** — Phase 2 아트 무관 시스템 6단계: ① SaveManager autoload — JSON 슬롯·save_requested/loaded 시그널 패턴 (`e864b46`). ② Inventory + items.json(5종) + InventoryPanel UI(I 키 토글) — SaveManager 자동 연동 (`aeaf970`, fix `4107c7e`). ③ Flags autoload + Dialogue actions/if_flag 확장 — 'set_flag' 액션 + 'if_flag/unless_flag' 조건 choices, 샘플 villager에 적용 (`720dbf4`, fix `8c44b07`). ④ 적 AI 상태머신 — AIState·StateMachine·Idle/Patrol/Chase + Patroller 적 (`234541b`). ⑤ 일시정지 메뉴(Esc) + 인벤토리 소모품 '사용' 버튼 — process_mode=ALWAYS, 슬롯 1 저장 버튼 (`5d2d6dc`, fix `41ae097`). ⑥ AudioManager autoload + SFX 6종 상수 + 공격/피격/사망/포션 hook (`546dc8a`, fix `ec324ac`). 헤드리스 테스트 추가 3종(save·inventory·flags = 11건).
 - **2026-05-28** — Phase 1 골격 5단계: ① 입력 매핑(5 액션) + Player(중력/이동/점프) + TestLevel + 헤드리스 테스트(`0cb8858`). ② NPC + 분기형 대화 시스템(autoload Dialogue/DialogueBalloon · 샘플 JSON · 테스트 4건) (`f3b7426`). ③ 전투 컴포넌트(Hitbox/Hurtbox/HealthComponent) + 공격 hitbox + Dummy 적 + 전투 테스트 3건 (`55c1cfd`). ④ 모바일 터치 컨트롤(TouchScreenButton 5종 · 데스크탑 자동 숨김 · 원형 SVG placeholder) (`ee1129c`). ⑤ Player HUD HP 바 (`83ff048`). 모두 푸시 완료.
 - **2026-05-28** — Phase 0 자동 셋업 4단계: ① CLAUDE.md placeholder 잠금 ② Galmuri 픽셀 폰트(11/9) + OFL 라이선스 자동 다운로드·배치 ③ `docs/STYLE_BIBLE.md` v0 (팔레트 25색·48px 비율·아웃라인·음영·Aseprite 파이프라인) ④ `docs/PROMPTS_PROTAGONIST.md` (코어 + A/B/C 변형 + 도구별 호환 + 실패 패턴). `docs/HUMAN_TASKS.md` 신설·정제.
@@ -114,6 +115,9 @@
 - [x] 대화/퀘스트 — 분기 대화 + Flags(set_flag 액션·if_flag 조건) 통합 (2026-05-28~29). 본격 퀘스트 라인은 추후.
 - [x] UI/HUD (모바일 터치) — HP 바 + 5개 터치 컨트롤 + 인벤토리 패널 + 일시정지 메뉴 (2026-05-28~29). 한지·먹 톤 스킨은 폰트 임포트 후.
 - [x] 오디오 — AudioManager + SFX 호출 hook (파일 미존재 시 no-op) (2026-05-29). 실 사운드 파일 떨어뜨리는 건 사용자(`HUMAN_TASKS 🅛`).
+- [x] 게임 흐름 — MainMenu → 새로 시작/이어하기 → TestLevel → 사망 시 GameOverScreen → 이어하기/메인 메뉴. 설정 메뉴 볼륨 슬라이더(Master/SFX/BGM). 일시정지 메뉴에서 슬롯 1 저장 (2026-05-29).
+- [x] 퀘스트 — QuestManager + QuestLog(Q 키) + 대화 quest action·condition + rewards 자동 지급 (2026-05-29). 샘플 퀘스트 1종(첫 인사).
+- [x] 스탯/성장 — PlayerStats 레벨/XP 곡선 + FloatingNumber 부유 숫자 + HUD 레벨/XP 표시 (2026-05-29).
 - [ ] web export 빌드 + 폰 미리보기 — 사용자 PC에서 시도 필요
 - [ ] GitHub Pages 배포
 
