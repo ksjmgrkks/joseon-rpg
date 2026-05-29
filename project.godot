@@ -13,6 +13,7 @@ config/icon="res://icon.svg"
 [autoload]
 
 SaveManager="*res://scripts/save/save_manager.gd"
+Flags="*res://scripts/flags/flag_manager.gd"
 Inventory="*res://scripts/inventory/inventory_manager.gd"
 Dialogue="*res://scripts/dialogue/dialogue_manager.gd"
 DialogueBalloon="*res://scenes/ui/DialogueBalloon.tscn"
