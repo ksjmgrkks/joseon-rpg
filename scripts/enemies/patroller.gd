@@ -32,6 +32,7 @@ func can_see_player() -> bool:
 func _on_hurt(_damage: float, knockback: float, _attacker: Node) -> void:
     velocity.x = knockback
     velocity.y = -160.0
+    Audio.play_sfx(Sfx.HIT)
     if sprite:
         sprite.modulate = Color(1, 0.5, 0.5, 1)
         await get_tree().create_timer(0.08).timeout
@@ -45,4 +46,5 @@ func _on_hp_changed(hp: float, max_hp: float) -> void:
 
 func _on_died() -> void:
     print("[Patroller] died")
+    Audio.play_sfx(Sfx.DIE)
     queue_free()

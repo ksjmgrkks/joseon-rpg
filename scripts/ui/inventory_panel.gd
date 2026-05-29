@@ -79,3 +79,4 @@ func _use_consumable(item_id: String, heal_amt: int) -> void:
         return
     health.heal(float(heal_amt))
     Inventory.remove(item_id, 1)
+    Audio.play_sfx(Sfx.POTION)
