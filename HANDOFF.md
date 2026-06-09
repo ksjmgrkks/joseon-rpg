@@ -69,18 +69,22 @@
 # 📍 PART 2. 현재 상황 (어디까지 했는가)
 
 ## 현재 상태 (한 줄 요약)
-> **지금 여기:** Phase 0~3의 **아트 무관 시스템 전부 완성**. Phase 1(이동/공격/대화/HUD/모바일터치) + Phase 2(SaveManager/Inventory/Flags/일시정지/AI 상태머신/Audio) + Phase 3(SceneManager+페이드/메인메뉴/설정/QuestManager+로그/PlayerStats+레벨업/부유 데미지 숫자/Game Over 화면) 모두 자동 셋업. 헤드리스 테스트 7종(20+ 케이스). **이제 사용자 손이 꼭 필요한 것:** ① 주인공 스프라이트 1장 생성·손보정(`HUMAN_TASKS 🅑·🅒`) ② PC Godot에서 폰트/씬 임포트 + 시각 검증(`🅖~🅜`) ③ (선택) SFX 파일 떨어뜨리기(`🅛`) ④ 시대·톤 확정(`🅓`).
+> **지금 여기:** Phase 0~3 + 콘텐츠 확장 트랙 A~F까지 **아트 무관 영역 끝**. 맵 3종(마을·들판·숲) + 보스 아레나 + 입출구/명명 스폰, 적 변종 4종(도깨비·구미호·저승사자·호환) + 보스(호환 두령) 패턴, 메인 5단계 퀘스트(호환 토벌) + 사이드 2종(잃어버린 부적·대장간 인사), 콤보/차지/스크린쉐이크/히트스톱, 장비(무기·방어구)·소지금·낮밤 사이클, GitHub Actions Web export + 헤드리스 테스트 워크플로 자동화. 헤드리스 테스트 11종(40+ 케이스). **이제 사용자 손이 꼭 필요한 것:** ① 주인공 스프라이트 1장 생성·손보정(`HUMAN_TASKS 🅑·🅒`) ② PC Godot에서 폰트/씬 임포트 + 시각 검증(`🅖~🅜`) ③ (선택) SFX 파일 떨어뜨리기(`🅛`) ④ 시대·톤 확정(`🅓`) ⑤ GitHub Pages/Cloudflare Pages 호스팅 연결(`🅔`).
 
 ## 바로 다음 할 일 (Next Action)
 > 1. ~~깃헙 레포 + Godot 골격~~ ✅
 > 2. ~~Phase 0 자동 셋업 (CLAUDE 잠금·폰트·STYLE_BIBLE·프롬프트)~~ ✅
-> 3. ~~Phase 1 시스템 골격~~ ✅ (입력·플레이어·NPC/대화·전투·HUD·모바일 컨트롤·테스트)
-> 4. **사용자: 주인공 스프라이트 생성 + Phase 1 PC 검증** ← 사람만 가능
+> 3. ~~Phase 1 시스템 골격~~ ✅
+> 4. ~~Phase 2 핵심 시스템 (Save·Inventory·Flags·AI·Pause·Audio)~~ ✅
+> 5. ~~Phase 3 게임 흐름 (SceneManager·MainMenu·Quest·Stats·GameOver)~~ ✅
+> 6. ~~콘텐츠 확장 A~F (맵 다수·전투 콘텐츠·퀘스트 라인·장비/경제/낮밤·CI)~~ ✅
+> 7. **사용자: 주인공 스프라이트 생성 + Phase 1/2/3 + 콘텐츠 확장 시각 검증** ← 사람만 가능
 >    - a. `docs/PROMPTS_PROTAGONIST.md` 프롬프트로 AI 후보 5~10장 → 1장 선택 → Aseprite/LibreSprite로 손보정 → `assets/sprites/protagonist/idle.png` 커밋
->    - b. PC Godot 에디터 → 폰트 임포트 설정 + `TestLevel.tscn` 재생 → HUMAN_TASKS 🅖~🅙 체크리스트로 시각 확인
+>    - b. PC Godot 에디터 → 폰트 임포트 설정 + 메인 메뉴 ▶ → 마을→들판→숲→보스→귀환 흐름 + 인벤토리/장비/엽전/낮밤/콤보·차지·shake 시각 확인 (HUMAN_TASKS 🅖~🅝)
 >    - c. 시대·톤 확정 → Claude에게 알리면 STYLE_BIBLE 잠금 + HANDOFF/CLAUDE 갱신
-> 5. (사용자 a 완료 후 Claude) AnimationPlayer 연결: 걷기/점프/공격 애니메이션 → 스프라이트 가져와 player.gd 연동.
-> 6. (이후) 타일셋·테스트 맵·BGM — 아트 다음 단계.
+>    - d. GitHub Actions 워크플로 실행 결과 확인 (Settings → Actions → Web Export). Pages 배포까지 켤지 결정.
+> 8. (사용자 a 완료 후 Claude) AnimationPlayer 연결: 걷기/점프/공격/콤보/사망 애니메이션 → 스프라이트 가져와 player.gd 연동.
+> 9. (이후) 타일셋으로 placeholder 박스 교체 → BGM → 폰 미리보기.
 
 ## 대기 / 막힌 것 (Blocked / Waiting)
 > - 캐릭터 스프라이트 에셋 없음 (Phase 0에서 생성)
@@ -99,6 +103,7 @@
 ## 완료된 작업 로그 (최신이 위로)
 > 작업 마칠 때마다 한 줄씩 위에 추가 (날짜 + 한 일).
 
+- **2026-06-09** — 콘텐츠 확장 6 트랙 (사용자 지시: A~F 일괄). ① **C** 맵/씬 전환: SceneManager.change_scene_to(path,entry) + LevelExit/LevelEntry, Village/TestLevel/Forest/BossArena 4씬, 명명 스폰 마커. ② **B** 전투 콘텐츠: ScreenFx autoload(shake/hit_stop) + Player 콤보(1-2-3타)·차지(누르고 떼면 강타) + 적 변종 4종(도깨비/구미호/저승사자/호환) + 보스 호환 두령(텔레그래프→돌진→회복 패턴). ③ **A** 퀘스트 라인: 메인 main_tiger_lord(5단계, 사이드 부적·대장간 2종 포함), Pickup/QuestTrigger 제너릭 Area2D, 어르신 대화에 if_quest_stage 분기로 어금니 보고 노드 추가. ④ **D** 장비/경제/낮밤: Equipment autoload(weapon/armor 슬롯, 인벤토리 패널 [장착] 버튼) + PlayerStats.gold + HUD 엽전 표시 + TimeManager(낮/밤 270초 사이클) + WorldTint autoload(CanvasModulate 자동 갱신). ⑤ **E** CI: GitHub Actions 두 워크플로(Web export + 헤드리스 테스트 전체), export_presets.cfg Web 프리셋 포함. ⑥ **F** 테스트 +4종(test_scene 3건, test_questline 3건, test_equipment 5건, test_pickup_fx 4건) — 총 11종 40+ 케이스.
 - **2026-05-29 (후속)** — Phase 3 아트 무관 시스템 4단계: ① SceneManager(페이드 인/아웃) + MainMenu + SettingsMenu(볼륨 슬라이더 3종) — `run/main_scene` 변경 (`5d2f75f` + fix `8d2d642`). ② QuestManager + QuestLog UI(Q 키) + 대화 quest action(start/set_stage/complete/give_item) + choice 조건(if_quest_active/completed/stage) — 샘플 villager 에 적용, rewards.items 자동 지급 (`05815c1` + fix `2bc5d61`). ③ PlayerStats autoload(레벨/XP 곡선) + FloatingNumber(부유 데미지/XP 숫자) + PlayerHud 에 Lv/XP 표시 + Dummy/Patroller xp_reward 통합 (`f73f976`). ④ GameOverScreen — 사망 시 이어하기(슬롯1 로드+리로드) / 메인 메뉴 선택 (`fb208ef`). 헤드리스 테스트 +1종(quests, 3건).
 - **2026-05-29** — Phase 2 아트 무관 시스템 6단계: ① SaveManager autoload — JSON 슬롯·save_requested/loaded 시그널 패턴 (`e864b46`). ② Inventory + items.json(5종) + InventoryPanel UI(I 키 토글) — SaveManager 자동 연동 (`aeaf970`, fix `4107c7e`). ③ Flags autoload + Dialogue actions/if_flag 확장 — 'set_flag' 액션 + 'if_flag/unless_flag' 조건 choices, 샘플 villager에 적용 (`720dbf4`, fix `8c44b07`). ④ 적 AI 상태머신 — AIState·StateMachine·Idle/Patrol/Chase + Patroller 적 (`234541b`). ⑤ 일시정지 메뉴(Esc) + 인벤토리 소모품 '사용' 버튼 — process_mode=ALWAYS, 슬롯 1 저장 버튼 (`5d2d6dc`, fix `41ae097`). ⑥ AudioManager autoload + SFX 6종 상수 + 공격/피격/사망/포션 hook (`546dc8a`, fix `ec324ac`). 헤드리스 테스트 추가 3종(save·inventory·flags = 11건).
 - **2026-05-28** — Phase 1 골격 5단계: ① 입력 매핑(5 액션) + Player(중력/이동/점프) + TestLevel + 헤드리스 테스트(`0cb8858`). ② NPC + 분기형 대화 시스템(autoload Dialogue/DialogueBalloon · 샘플 JSON · 테스트 4건) (`f3b7426`). ③ 전투 컴포넌트(Hitbox/Hurtbox/HealthComponent) + 공격 hitbox + Dummy 적 + 전투 테스트 3건 (`55c1cfd`). ④ 모바일 터치 컨트롤(TouchScreenButton 5종 · 데스크탑 자동 숨김 · 원형 SVG placeholder) (`ee1129c`). ⑤ Player HUD HP 바 (`83ff048`). 모두 푸시 완료.
@@ -116,10 +121,15 @@
 - [x] UI/HUD (모바일 터치) — HP 바 + 5개 터치 컨트롤 + 인벤토리 패널 + 일시정지 메뉴 (2026-05-28~29). 한지·먹 톤 스킨은 폰트 임포트 후.
 - [x] 오디오 — AudioManager + SFX 호출 hook (파일 미존재 시 no-op) (2026-05-29). 실 사운드 파일 떨어뜨리는 건 사용자(`HUMAN_TASKS 🅛`).
 - [x] 게임 흐름 — MainMenu → 새로 시작/이어하기 → TestLevel → 사망 시 GameOverScreen → 이어하기/메인 메뉴. 설정 메뉴 볼륨 슬라이더(Master/SFX/BGM). 일시정지 메뉴에서 슬롯 1 저장 (2026-05-29).
-- [x] 퀘스트 — QuestManager + QuestLog(Q 키) + 대화 quest action·condition + rewards 자동 지급 (2026-05-29). 샘플 퀘스트 1종(첫 인사).
-- [x] 스탯/성장 — PlayerStats 레벨/XP 곡선 + FloatingNumber 부유 숫자 + HUD 레벨/XP 표시 (2026-05-29).
-- [ ] web export 빌드 + 폰 미리보기 — 사용자 PC에서 시도 필요
-- [ ] GitHub Pages 배포
+- [x] 퀘스트 — QuestManager + QuestLog(Q 키) + 대화 quest action·condition + rewards 자동 지급 (2026-05-29). 메인 5단계 main_tiger_lord + 사이드 2종 (2026-06-09).
+- [x] 스탯/성장 — PlayerStats 레벨/XP 곡선 + FloatingNumber 부유 숫자 + HUD 레벨/XP/엽전 표시 (2026-05-29~06-09).
+- [x] 맵/씬 전환 — SceneManager.change_scene_to(path, entry), LevelExit/LevelEntry, Village/TestLevel/Forest/BossArena 4씬 (2026-06-09).
+- [x] 전투 콘텐츠 — 콤보(1-2-3)/차지/ScreenFx shake+hit_stop, 적 변종 4종 + 보스 패턴 (2026-06-09).
+- [x] 장비/경제 — Equipment autoload(weapon/armor) · PlayerStats.gold · 인벤토리 [장착] 버튼 · Pickup 의 gold 환산 (2026-06-09).
+- [x] 낮/밤 — TimeManager 사이클 + WorldTint(CanvasModulate) 자동 색감 변화 (2026-06-09).
+- [x] CI — GitHub Actions Web export 워크플로 + 헤드리스 테스트 워크플로 + export_presets.cfg Web 프리셋 (2026-06-09).
+- [ ] web export 빌드 + 폰 미리보기 — Actions 실행 결과는 자동, 폰 확인은 사용자 PC/모바일
+- [ ] GitHub Pages 배포 — 워크플로에 주석으로 준비, Settings → Pages 에서 켜면 활성화
 
 ## 다음 세션에게 남기는 메모
 - 폰(텔레그램+Claude Code)과 PC를 오가며 작업하므로 이 파일을 항상 최신으로 유지하는 게 생명줄.
