@@ -65,9 +65,33 @@ func _rebuild(slots: Array) -> void:
             var heal_amt := int(def.get("heal", 0))
             use_btn.pressed.connect(func() -> void: _use_consumable(item_id, heal_amt))
             row.add_child(use_btn)
+        # 장비(slot=weapon/armor) 면 '장착' 버튼. 이미 장착돼 있으면 표시만.
+        var slot := String(def.get("slot", ""))
+        if slot == "weapon" or slot == "armor":
+            var iid := String(s.id)
+            var is_equipped := (slot == "weapon" and Equipment.weapon_id == iid) \
+                or (slot == "armor" and Equipment.armor_id == iid)
+            if is_equipped:
+                var tag := Label.new()
+                tag.text = "[장착중]"
+                row.add_child(tag)
+            else:
+                var eq_btn := Button.new()
+                eq_btn.text = "장착"
+                eq_btn.pressed.connect(func() -> void: _equip_item(iid))
+                row.add_child(eq_btn)
 
         slots_list.add_child(row)
-    hint_label.text = "[I] 닫기  ·  %d / %d 슬롯" % [slots.size(), Inventory.CAPACITY]
+
+    # 현재 장착 정보를 한 줄
+    if Equipment.weapon_id != "" or Equipment.armor_id != "":
+        var eq := Label.new()
+        var wname: String = Inventory.get_def(Equipment.weapon_id).get("name", "(없음)") if Equipment.weapon_id != "" else "(없음)"
+        var aname: String = Inventory.get_def(Equipment.armor_id).get("name", "(없음)") if Equipment.armor_id != "" else "(없음)"
+        eq.text = "장비 — 무기: %s, 방어구: %s" % [wname, aname]
+        slots_list.add_child(eq)
+
+    hint_label.text = "[I] 닫기  ·  %d / %d 슬롯  ·  엽전 %d" % [slots.size(), Inventory.CAPACITY, PlayerStats.gold]
 
 
 func _use_consumable(item_id: String, heal_amt: int) -> void:
@@ -80,3 +104,8 @@ func _use_consumable(item_id: String, heal_amt: int) -> void:
     health.heal(float(heal_amt))
     Inventory.remove(item_id, 1)
     Audio.play_sfx(Sfx.POTION)
+
+
+func _equip_item(item_id: String) -> void:
+    if Equipment.equip(item_id):
+        _rebuild(Inventory.slots())

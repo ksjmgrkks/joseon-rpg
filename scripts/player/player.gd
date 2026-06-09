@@ -113,8 +113,11 @@ func _do_combo_attack() -> void:
     _combo_timer = COMBO_WINDOW
     _attacking = true
 
-    var base_damage: float = attack_hitbox.damage
-    var base_knock: float = attack_hitbox.knockback
+    var stored_damage: float = attack_hitbox.damage
+    var stored_knock: float = attack_hitbox.knockback
+    # 무기 장착돼 있으면 그 데미지를 베이스로 사용.
+    var base_damage: float = Equipment.current_damage(stored_damage)
+    var base_knock: float = stored_knock
     # 콤보 단계별 보너스. 3타에서 데미지·넉백·shake 증가.
     var damage_mult := 1.0
     var knock_mult := 1.0
@@ -135,9 +138,9 @@ func _do_combo_attack() -> void:
     # 공격 휘두를 때마다 살짝 진동(피드백). 명중 시 추가 진동은 _on_hitbox_landed에서.
     ScreenFx.shake(shake_strength * 0.5, 0.08)
     await attack_hitbox.activate(duration)
-    # 원래 데미지/넉백으로 복귀
-    attack_hitbox.damage = base_damage
-    attack_hitbox.knockback = base_knock
+    # 원래 베이스(씬에 박힌 기본값)로 복귀
+    attack_hitbox.damage = stored_damage
+    attack_hitbox.knockback = stored_knock
     await get_tree().create_timer(ATTACK_RECOVER).timeout
     _attacking = false
     # 3타까지 갔으면 콤보 즉시 리셋(다음 입력은 1타부터)
@@ -153,16 +156,17 @@ func _do_charged_attack() -> void:
     _attacking = true
     _combo_step = 0
     _combo_timer = 0.0
-    var base_damage: float = attack_hitbox.damage
-    var base_knock: float = attack_hitbox.knockback
+    var stored_damage: float = attack_hitbox.damage
+    var stored_knock: float = attack_hitbox.knockback
+    var base_damage: float = Equipment.current_damage(stored_damage)
     attack_hitbox.damage = base_damage * 2.0
-    attack_hitbox.knockback = base_knock * 1.6
+    attack_hitbox.knockback = stored_knock * 1.6
     attack_hitbox.position.x = 16.0 if _facing_right else -16.0
     Audio.play_sfx(Sfx.ATTACK)
     ScreenFx.shake(10.0, 0.18)
     await attack_hitbox.activate(ATTACK_DURATION_FINISH)
-    attack_hitbox.damage = base_damage
-    attack_hitbox.knockback = base_knock
+    attack_hitbox.damage = stored_damage
+    attack_hitbox.knockback = stored_knock
     await get_tree().create_timer(ATTACK_RECOVER).timeout
     _attacking = false
 

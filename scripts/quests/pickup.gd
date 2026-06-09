@@ -40,9 +40,17 @@ func _on_body_entered(body: Node) -> void:
         return
     _used = true
     if item_id != "" and count > 0:
-        Inventory.add(item_id, count)
-        var label := pickup_label if pickup_label != "" else ("+%d %s" % [count, item_id])
-        FloatingNumber.spawn(get_tree().current_scene, global_position, label, Color(1, 0.85, 0.55))
+        # 'gold' 속성이 정의된 아이템은 인벤토리에 넣지 않고 PlayerStats.add_gold 로 환산.
+        var def := Inventory.get_def(item_id)
+        var gold_per := int(def.get("gold", 0))
+        if gold_per > 0:
+            PlayerStats.add_gold(gold_per * count)
+            var glabel := pickup_label if pickup_label != "" else ("+%d 엽전" % (gold_per * count))
+            FloatingNumber.spawn(get_tree().current_scene, global_position, glabel, Color(1.0, 0.85, 0.35))
+        else:
+            Inventory.add(item_id, count)
+            var label := pickup_label if pickup_label != "" else ("+%d %s" % [count, item_id])
+            FloatingNumber.spawn(get_tree().current_scene, global_position, label, Color(1, 0.85, 0.55))
         Audio.play_sfx(Sfx.PICKUP)
     if quest_id != "":
         if quest_stage != "":

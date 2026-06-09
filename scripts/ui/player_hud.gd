@@ -8,6 +8,7 @@ extends CanvasLayer
 @onready var hp_label: Label = $Panel/Margin/VBox/HPRow/Label
 @onready var level_label: Label = $Panel/Margin/VBox/StatsRow/LevelLabel
 @onready var xp_label: Label = $Panel/Margin/VBox/StatsRow/XpLabel
+@onready var gold_label: Label = $Panel/Margin/VBox/StatsRow/GoldLabel
 
 
 func _ready() -> void:
@@ -25,6 +26,8 @@ func _ready() -> void:
     _update_stats(PlayerStats.xp, PlayerStats.xp_to_next())
     PlayerStats.xp_changed.connect(_update_stats)
     PlayerStats.level_up.connect(_on_level_up)
+    _update_gold(PlayerStats.gold)
+    PlayerStats.gold_changed.connect(_update_gold)
 
 
 func _update_hp(hp: float, max_hp: float) -> void:
@@ -41,3 +44,8 @@ func _update_stats(xp: int, xp_to_next: int) -> void:
 func _on_level_up(new_level: int) -> void:
     print("[Player] LEVEL UP → %d" % new_level)
     Audio.play_sfx(Sfx.PICKUP)
+
+
+func _update_gold(amount: int) -> void:
+    if gold_label:
+        gold_label.text = "엽전 %d" % amount
