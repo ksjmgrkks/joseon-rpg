@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3]
+[gd_scene load_steps=13 format=3]
 
 ; 들판 — 마을과 숲 사이의 첫 전투 구간. 좌측은 Village 로 돌아가고 우측은 Forest 로.
 
@@ -10,12 +10,16 @@
 [ext_resource type="PackedScene" path="res://scenes/enemies/Patroller.tscn" id="6_patroller"]
 [ext_resource type="Script" path="res://scripts/scene/level_exit.gd" id="7_exit"]
 [ext_resource type="Script" path="res://scripts/scene/level_entry.gd" id="8_entry"]
+[ext_resource type="Script" path="res://scripts/quests/pickup.gd" id="9_pickup"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ground"]
 size = Vector2(1600, 32)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_exit"]
 size = Vector2(32, 96)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_pickup"]
+radius = 14.0
 
 [node name="TestLevel" type="Node2D"]
 
@@ -64,6 +68,80 @@ position = Vector2(800, 668)
 
 [node name="Patroller" parent="." instance=ExtResource("6_patroller")]
 position = Vector2(1100, 668)
+
+; 들판에 들풀 약초 픽업 3개 (숲에 추가 2개 = 총 5포기)
+[node name="Herb1" type="Area2D" parent="."]
+collision_mask = 1
+position = Vector2(360, 660)
+script = ExtResource("9_pickup")
+item_id = "herb_field"
+count = 1
+pickup_label = "+1 들풀 약초"
+
+[node name="Herb1Shape" type="CollisionShape2D" parent="Herb1"]
+shape = SubResource("CircleShape2D_pickup")
+
+[node name="Herb1Visual" type="ColorRect" parent="Herb1"]
+offset_left = -6.0
+offset_top = -12.0
+offset_right = 6.0
+offset_bottom = 12.0
+color = Color(0.35, 0.75, 0.35, 1)
+
+[node name="Herb2" type="Area2D" parent="."]
+collision_mask = 1
+position = Vector2(900, 660)
+script = ExtResource("9_pickup")
+item_id = "herb_field"
+count = 1
+pickup_label = "+1 들풀 약초"
+
+[node name="Herb2Shape" type="CollisionShape2D" parent="Herb2"]
+shape = SubResource("CircleShape2D_pickup")
+
+[node name="Herb2Visual" type="ColorRect" parent="Herb2"]
+offset_left = -6.0
+offset_top = -12.0
+offset_right = 6.0
+offset_bottom = 12.0
+color = Color(0.35, 0.75, 0.35, 1)
+
+[node name="Herb3" type="Area2D" parent="."]
+collision_mask = 1
+position = Vector2(1260, 660)
+script = ExtResource("9_pickup")
+item_id = "herb_field"
+count = 1
+pickup_label = "+1 들풀 약초"
+
+[node name="Herb3Shape" type="CollisionShape2D" parent="Herb3"]
+shape = SubResource("CircleShape2D_pickup")
+
+[node name="Herb3Visual" type="ColorRect" parent="Herb3"]
+offset_left = -6.0
+offset_top = -12.0
+offset_right = 6.0
+offset_bottom = 12.0
+color = Color(0.35, 0.75, 0.35, 1)
+
+; 들판 가운데에 떨어진 낡은 서찰
+[node name="ScrollPickup" type="Area2D" parent="."]
+collision_mask = 1
+position = Vector2(640, 660)
+script = ExtResource("9_pickup")
+item_id = "scroll_old"
+count = 1
+pickup_label = "+1 낡은 서찰"
+
+[node name="ScrollShape" type="CollisionShape2D" parent="ScrollPickup"]
+shape = SubResource("CircleShape2D_pickup")
+
+[node name="ScrollVisual" type="ColorRect" parent="ScrollPickup"]
+offset_left = -8.0
+offset_top = -10.0
+offset_right = 8.0
+offset_bottom = 10.0
+color = Color(0.85, 0.78, 0.55, 1)
 
 ; 좌측: 마을로 돌아가는 출구
 [node name="ExitToVillage" type="Area2D" parent="."]

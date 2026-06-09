@@ -71,6 +71,13 @@
       "max_stack": 20,
       "heal": 10
     },
+    "herb_field": {
+      "name": "들풀 약초",
+      "description": "들판·숲 어귀에 자라는 약초. 모아 두면 약방에서 환을 빚을 수 있다.",
+      "type": "consumable",
+      "max_stack": 20,
+      "heal": 5
+    },
     "coin_pouch": {
       "name": "엽전 꾸러미",
       "description": "엽전 50문이 든 작은 주머니.",

@@ -27,6 +27,9 @@ size = Vector2(64, 96)
 [sub_resource type="CircleShape2D" id="CircleShape2D_pickup"]
 radius = 18.0
 
+[sub_resource type="CircleShape2D" id="CircleShape2D_herb"]
+radius = 14.0
+
 [node name="Forest" type="Node2D"]
 
 [node name="Background" type="ColorRect" parent="."]
@@ -112,6 +115,43 @@ offset_top = -16.0
 offset_right = 8.0
 offset_bottom = 16.0
 color = Color(0.85, 0.40, 0.35, 1)
+
+; 숲의 들풀 약초 픽업 2포기 (TestLevel 3 + Forest 2 = 5)
+[node name="Herb1" type="Area2D" parent="."]
+collision_mask = 1
+position = Vector2(380, 660)
+script = ExtResource("10_pickup")
+item_id = "herb_field"
+count = 1
+pickup_label = "+1 들풀 약초"
+
+[node name="Herb1Shape" type="CollisionShape2D" parent="Herb1"]
+shape = SubResource("CircleShape2D_herb")
+
+[node name="Herb1Visual" type="ColorRect" parent="Herb1"]
+offset_left = -6.0
+offset_top = -12.0
+offset_right = 6.0
+offset_bottom = 12.0
+color = Color(0.30, 0.65, 0.32, 1)
+
+[node name="Herb2" type="Area2D" parent="."]
+collision_mask = 1
+position = Vector2(1180, 660)
+script = ExtResource("10_pickup")
+item_id = "herb_field"
+count = 1
+pickup_label = "+1 들풀 약초"
+
+[node name="Herb2Shape" type="CollisionShape2D" parent="Herb2"]
+shape = SubResource("CircleShape2D_herb")
+
+[node name="Herb2Visual" type="ColorRect" parent="Herb2"]
+offset_left = -6.0
+offset_top = -12.0
+offset_right = 6.0
+offset_bottom = 12.0
+color = Color(0.30, 0.65, 0.32, 1)
 
 ; 좌측: 들판으로 돌아가는 출구
 [node name="ExitToField" type="Area2D" parent="."]

@@ -14,7 +14,9 @@
         { "text": "호환 두령은 어찌 됐습니까?", "next": "tiger_status",
           "if_quest_active": "main_tiger_lord" },
         { "text": "(어금니를 내민다) 두령을 처치하였소.", "next": "tooth_show",
-          "if_quest_stage": "main_tiger_lord:boss_defeated" }
+          "if_quest_stage": "main_tiger_lord:boss_defeated" },
+        { "text": "(들판에서 주운 낡은 서찰을 내민다.)", "next": "scroll_show",
+          "if_has_item": "scroll_old" }
       ]
     },
     "from_hanyang": {
@@ -69,6 +71,16 @@
         { "type": "set_quest_stage", "quest": "main_tiger_lord", "stage": "return_to_elder" },
         { "type": "complete_quest", "quest": "main_tiger_lord" },
         { "type": "set_flag", "key": "tiger_lord_resolved", "value": true }
+      ],
+      "next": null
+    },
+    "scroll_show": {
+      "speaker": "마을 어르신",
+      "text": "허, 이게… 옛 관아의 서찰이로구먼. 잘 봐 두었네. 수고 했어. 자, 엽전 한 꾸러미 받게.",
+      "actions": [
+        { "type": "start_quest", "quest": "side_lost_scroll" },
+        { "type": "take_item", "item": "scroll_old", "count": 1 },
+        { "type": "complete_quest", "quest": "side_lost_scroll" }
       ],
       "next": null
     }

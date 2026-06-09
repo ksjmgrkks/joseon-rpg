@@ -84,6 +84,37 @@
           { "id": "sword_iron", "count": 1 }
         ]
       }
+    },
+    "side_collect_herbs": {
+      "name": "약방의 들풀 약초",
+      "description": "마을 아낙이 약방 일을 거들고 있다. 들풀 약초 5포기를 모아 가져다 준다.",
+      "stages": {
+        "start": {
+          "title": "들풀 약초 5포기 수집",
+          "description": "들판과 숲 어귀에서 들풀 약초를 모은다."
+        }
+      },
+      "rewards": {
+        "items": [
+          { "id": "potion_major", "count": 1 },
+          { "id": "coin_pouch", "count": 1 }
+        ]
+      }
+    },
+    "side_lost_scroll": {
+      "name": "들판에 떨어진 서찰",
+      "description": "들판 가운데서 발견한 낡은 서찰. 어르신께 보여 드린다.",
+      "stages": {
+        "start": {
+          "title": "어르신께 서찰 보이기",
+          "description": "마을 어르신께 가져간다."
+        }
+      },
+      "rewards": {
+        "items": [
+          { "id": "coin_pouch", "count": 1 }
+        ]
+      }
     }
   }
 }

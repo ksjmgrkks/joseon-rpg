@@ -130,6 +130,8 @@ func _run_actions(node: Dictionary) -> void:
                 QuestManager.complete_quest(String(a.get("quest", "")))
             "give_item":
                 Inventory.add(String(a.get("item", "")), int(a.get("count", 1)))
+            "take_item":
+                Inventory.remove(String(a.get("item", "")), int(a.get("count", 1)))
             "open_shop":
                 var items: Array = a.get("items", [])
                 var stitle := String(a.get("title", "상점"))
@@ -156,6 +158,14 @@ func _filter_choices(choices: Array) -> Array:
         if c.has("if_quest_stage"):
             var parts := String(c.if_quest_stage).split(":")
             if parts.size() != 2 or not QuestManager.is_stage(parts[0], parts[1]):
+                continue
+        if c.has("if_inventory_at_least"):
+            # "id:N"  →  Inventory.count(id) >= N
+            var inv := String(c.if_inventory_at_least).split(":")
+            if inv.size() != 2 or Inventory.count(inv[0]) < int(inv[1]):
+                continue
+        if c.has("if_has_item"):
+            if Inventory.count(String(c.if_has_item)) <= 0:
                 continue
         out.append(c)
     return out
