@@ -1,0 +1,27 @@
+{
+  "id": "village_blacksmith",
+  "start": "intro",
+  "nodes": {
+    "intro": {
+      "speaker": "대장간 어르신",
+      "text": "쇠 두드리는 소리가 들리지 않던가? 무사라면 한 자루는 꿰차고 다녀야지.",
+      "actions": [
+        { "type": "complete_quest", "quest": "side_meet_blacksmith" }
+      ],
+      "choices": [
+        { "text": "이 철검, 잘 쓰겠소.", "next": "thanks" },
+        { "text": "(혹시 더 좋은 무기가 있냐고 물어본다.)", "next": "shop_hint" }
+      ]
+    },
+    "thanks": {
+      "speaker": "대장간 어르신",
+      "text": "베일 곳은 적이로되, 부러질 곳은 자네 자신이라네. 부디 잘 다루게.",
+      "next": null
+    },
+    "shop_hint": {
+      "speaker": "대장간 어르신",
+      "text": "더 좋은 물건은 큰 일을 한 자에게만 보이는 법이지. 마을에 호환이 사라지거든 다시 오게.",
+      "next": null
+    }
+  }
+}

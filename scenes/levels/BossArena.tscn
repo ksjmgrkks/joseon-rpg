@@ -1,6 +1,7 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=11 format=3]
 
 ; 호환 두령 보스 아레나 — 숲 깊은 곳. 좌측만 통로 있음(귀환), 우측은 막다른 절벽.
+; 메인 퀘스트 단계 boss_arena 자동 진행.
 
 [ext_resource type="PackedScene" path="res://scenes/player/Player.tscn" id="1_player"]
 [ext_resource type="PackedScene" path="res://scenes/enemies/BossTiger.tscn" id="2_boss"]
@@ -8,12 +9,16 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/PlayerHud.tscn" id="4_hud"]
 [ext_resource type="Script" path="res://scripts/scene/level_exit.gd" id="5_exit"]
 [ext_resource type="Script" path="res://scripts/scene/level_entry.gd" id="6_entry"]
+[ext_resource type="Script" path="res://scripts/quests/quest_trigger.gd" id="7_trigger"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ground"]
 size = Vector2(1600, 32)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_exit"]
 size = Vector2(32, 96)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_trigger"]
+size = Vector2(96, 96)
 
 [node name="BossArena" type="Node2D"]
 
@@ -59,6 +64,18 @@ script = ExtResource("6_entry")
 
 [node name="Boss" parent="." instance=ExtResource("2_boss")]
 position = Vector2(1200, 640)
+
+; 메인 퀘스트 boss_arena 단계 자동 진행
+[node name="BossArenaTrigger" type="Area2D" parent="."]
+collision_mask = 1
+position = Vector2(220, 620)
+script = ExtResource("7_trigger")
+quest_id = "main_tiger_lord"
+quest_stage = "boss_arena"
+only_if_quest_active = "main_tiger_lord"
+
+[node name="TriggerShape" type="CollisionShape2D" parent="BossArenaTrigger"]
+shape = SubResource("RectangleShape2D_trigger")
 
 ; 좌측: 숲으로 돌아가기
 [node name="ExitToForest" type="Area2D" parent="."]

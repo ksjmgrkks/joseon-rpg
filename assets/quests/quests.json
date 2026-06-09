@@ -18,6 +18,72 @@
           { "id": "rice_bun", "count": 3 }
         ]
       }
+    },
+    "main_tiger_lord": {
+      "name": "호환 두령 토벌",
+      "description": "마을 가축을 잡아간다는 호환의 두목을 처치하라.",
+      "stages": {
+        "start": {
+          "title": "어르신께서 부탁하시다",
+          "description": "마을 어르신이 호환 두령 처치를 부탁했다. 들판을 지나 숲으로."
+        },
+        "to_forest": {
+          "title": "숲으로 향함",
+          "description": "들판을 지나 숲 깊은 곳으로 들어가야 한다."
+        },
+        "boss_arena": {
+          "title": "절벽 앞 호환 두령",
+          "description": "절벽 앞에서 호환 두령과 마주쳤다. 결단을 내릴 때."
+        },
+        "boss_defeated": {
+          "title": "호환 두령 처치",
+          "description": "두령의 어금니를 손에 넣었다. 마을로 돌아가 어르신께 보이자."
+        },
+        "return_to_elder": {
+          "title": "마을로 귀환",
+          "description": "어르신께 어금니를 전해 일을 마무리한다."
+        }
+      },
+      "rewards": {
+        "items": [
+          { "id": "sword_jade", "count": 1 },
+          { "id": "coin_pouch", "count": 2 }
+        ]
+      }
+    },
+    "side_lost_charm": {
+      "name": "잃어버린 부적",
+      "description": "마을 아낙이 숲 어귀에서 부적을 잃어버렸다고 한다.",
+      "stages": {
+        "start": {
+          "title": "부적 찾기",
+          "description": "숲 어딘가에 떨어진 부적을 찾는다."
+        },
+        "found": {
+          "title": "부적을 손에 넣음",
+          "description": "아낙에게 돌려준다."
+        }
+      },
+      "rewards": {
+        "items": [
+          { "id": "potion_minor", "count": 2 }
+        ]
+      }
+    },
+    "side_meet_blacksmith": {
+      "name": "대장간 어르신과의 만남",
+      "description": "마을 대장간을 찾아 무기 견문을 넓힌다.",
+      "stages": {
+        "start": {
+          "title": "대장간 어르신 찾기",
+          "description": "마을 안 어딘가에 대장간이 있다고 한다."
+        }
+      },
+      "rewards": {
+        "items": [
+          { "id": "sword_iron", "count": 1 }
+        ]
+      }
     }
   }
 }

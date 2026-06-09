@@ -1,6 +1,7 @@
-[gd_scene load_steps=12 format=3]
+[gd_scene load_steps=14 format=3]
 
 ; 숲 — 들판 우측에서 진입. 어두운 침엽수 톤. 적 변종 4종 + 우측 보스 아레나 입구.
+; 메인 퀘스트 main_tiger_lord 단계 to_forest 자동 진행, 사이드 퀘스트 부적 픽업.
 
 [ext_resource type="PackedScene" path="res://scenes/player/Player.tscn" id="1_player"]
 [ext_resource type="PackedScene" path="res://scenes/enemies/Goblin.tscn" id="2_goblin"]
@@ -11,6 +12,8 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/PlayerHud.tscn" id="7_hud"]
 [ext_resource type="Script" path="res://scripts/scene/level_exit.gd" id="8_exit"]
 [ext_resource type="Script" path="res://scripts/scene/level_entry.gd" id="9_entry"]
+[ext_resource type="Script" path="res://scripts/quests/pickup.gd" id="10_pickup"]
+[ext_resource type="Script" path="res://scripts/quests/quest_trigger.gd" id="11_trigger"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ground"]
 size = Vector2(1600, 32)
@@ -18,9 +21,14 @@ size = Vector2(1600, 32)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_exit"]
 size = Vector2(32, 96)
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_trigger"]
+size = Vector2(64, 96)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_pickup"]
+radius = 18.0
+
 [node name="Forest" type="Node2D"]
 
-; 침엽수 어둑한 톤
 [node name="Background" type="ColorRect" parent="."]
 offset_right = 1600.0
 offset_bottom = 720.0
@@ -70,6 +78,40 @@ position = Vector2(1080, 668)
 
 [node name="Tiger1" parent="." instance=ExtResource("5_tiger")]
 position = Vector2(1320, 668)
+
+; 메인 퀘스트 to_forest 단계 자동 진행 (입장 직후)
+[node name="MainQuestForestTrigger" type="Area2D" parent="."]
+collision_mask = 1
+position = Vector2(150, 620)
+script = ExtResource("11_trigger")
+quest_id = "main_tiger_lord"
+quest_stage = "to_forest"
+only_if_quest_active = "main_tiger_lord"
+
+[node name="TriggerShape" type="CollisionShape2D" parent="MainQuestForestTrigger"]
+shape = SubResource("RectangleShape2D_trigger")
+
+; 사이드 퀘스트: 잃어버린 부적 (숲 가운데에 떨어져 있음)
+[node name="CharmPickup" type="Area2D" parent="."]
+collision_mask = 1
+position = Vector2(680, 660)
+script = ExtResource("10_pickup")
+item_id = "charm_lost"
+count = 1
+quest_id = "side_lost_charm"
+quest_stage = "found"
+requires_quest_active = "side_lost_charm"
+pickup_label = "+1 잃어버린 부적"
+
+[node name="PickupShape" type="CollisionShape2D" parent="CharmPickup"]
+shape = SubResource("CircleShape2D_pickup")
+
+[node name="PickupVisual" type="ColorRect" parent="CharmPickup"]
+offset_left = -8.0
+offset_top = -16.0
+offset_right = 8.0
+offset_bottom = 16.0
+color = Color(0.85, 0.40, 0.35, 1)
 
 ; 좌측: 들판으로 돌아가는 출구
 [node name="ExitToField" type="Area2D" parent="."]

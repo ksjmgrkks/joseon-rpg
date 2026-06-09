@@ -25,6 +25,12 @@ class_name Boss
 @export var reward_item_id: String = "rice_bun"
 @export var reward_item_qty: int = 5
 
+# 사망 시 진행될 메인 퀘스트 단계 (비워두면 무시).
+@export var quest_id_on_death: String = ""
+@export var quest_stage_on_death: String = ""
+# 사망 시 set_flag 한 번(예: "tiger_lord_defeated").
+@export var flag_on_death: String = ""
+
 @onready var sprite: Sprite2D = $Sprite2D
 @onready var hurtbox: Hurtbox = $Hurtbox
 @onready var health: HealthComponent = $HealthComponent
@@ -163,6 +169,10 @@ func _on_died() -> void:
     if reward_item_id != "" and reward_item_qty > 0 and Inventory:
         Inventory.add(reward_item_id, reward_item_qty)
         FloatingNumber.spawn(get_tree().current_scene, global_position + Vector2(0, -32), "+%d %s" % [reward_item_qty, reward_item_id], Color(1, 0.85, 0.55))
+    if quest_id_on_death != "" and quest_stage_on_death != "" and QuestManager.is_active(quest_id_on_death):
+        QuestManager.set_stage(quest_id_on_death, quest_stage_on_death)
+    if flag_on_death != "":
+        Flags.set_flag(flag_on_death, true)
     # 즉시 제거하지 않고 잠깐 두면 사라지는 페이드를 줄 수 있지만 간단히 비활성화
     if attack_hitbox:
         attack_hitbox.monitoring = false
