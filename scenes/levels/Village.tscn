@@ -1,0 +1,108 @@
+[gd_scene load_steps=10 format=3]
+
+; 마을(시작 허브) — 아트 없이 placeholder. 가로 1600px 폭에 한지 베이지 톤 배경.
+; 좌측: 상점·집 placeholder + Villager NPC. 우측: 들판으로 가는 LevelExit.
+; 새 게임 시 MainMenu 가 Village.tscn 으로 진입. TestLevel(들판)에서 좌측 LevelExit 로 되돌아옴.
+
+[ext_resource type="PackedScene" path="res://scenes/player/Player.tscn" id="1_player"]
+[ext_resource type="PackedScene" path="res://scenes/npc/Npc.tscn" id="2_npc"]
+[ext_resource type="PackedScene" path="res://scenes/ui/MobileControls.tscn" id="3_mobile"]
+[ext_resource type="PackedScene" path="res://scenes/ui/PlayerHud.tscn" id="4_hud"]
+[ext_resource type="Script" path="res://scripts/scene/level_exit.gd" id="5_exit"]
+[ext_resource type="Script" path="res://scripts/scene/level_entry.gd" id="6_entry"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ground"]
+size = Vector2(1600, 32)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_exit"]
+size = Vector2(32, 96)
+
+[node name="Village" type="Node2D"]
+
+; 한지 베이지 배경
+[node name="Background" type="ColorRect" parent="."]
+offset_right = 1600.0
+offset_bottom = 720.0
+color = Color(0.93, 0.89, 0.78, 1)
+
+; 지면
+[node name="Ground" type="StaticBody2D" parent="."]
+position = Vector2(800, 700)
+
+[node name="GroundShape" type="CollisionShape2D" parent="Ground"]
+shape = SubResource("RectangleShape2D_ground")
+
+[node name="GroundRect" type="ColorRect" parent="Ground"]
+offset_left = -800.0
+offset_top = -16.0
+offset_right = 800.0
+offset_bottom = 16.0
+color = Color(0.55, 0.42, 0.28, 1)
+
+; 한옥 placeholder들 (집·상점 — 갈색 박스)
+[node name="House1" type="ColorRect" parent="."]
+offset_left = 220.0
+offset_top = 540.0
+offset_right = 360.0
+offset_bottom = 684.0
+color = Color(0.35, 0.22, 0.14, 1)
+
+[node name="Shop" type="ColorRect" parent="."]
+offset_left = 440.0
+offset_top = 520.0
+offset_right = 600.0
+offset_bottom = 684.0
+color = Color(0.45, 0.27, 0.18, 1)
+
+[node name="House2" type="ColorRect" parent="."]
+offset_left = 1080.0
+offset_top = 540.0
+offset_right = 1220.0
+offset_bottom = 684.0
+color = Color(0.32, 0.20, 0.12, 1)
+
+; 플레이어 — Camera2D 동봉
+[node name="Player" parent="." instance=ExtResource("1_player")]
+position = Vector2(300, 400)
+
+[node name="Camera2D" type="Camera2D" parent="Player"]
+
+; 명명 스폰 지점들
+[node name="default" type="Marker2D" parent="."]
+position = Vector2(300, 400)
+script = ExtResource("6_entry")
+
+[node name="from_field" type="Marker2D" parent="."]
+position = Vector2(1500, 400)
+script = ExtResource("6_entry")
+
+; 마을 NPC들 (Villager · 촌장)
+[node name="Villager" parent="." instance=ExtResource("2_npc")]
+position = Vector2(520, 668)
+
+[node name="ElderNpc" parent="." instance=ExtResource("2_npc")]
+position = Vector2(900, 668)
+dialogue_path = "res://assets/dialogue/sample_villager.json"
+
+; 우측 들판으로 가는 출구 (TestLevel 의 from_village 마커로)
+[node name="ExitToField" type="Area2D" parent="."]
+collision_mask = 1
+position = Vector2(1550, 620)
+script = ExtResource("5_exit")
+target_scene = "res://scenes/levels/TestLevel.tscn"
+target_entry = &"from_village"
+
+[node name="ExitShape" type="CollisionShape2D" parent="ExitToField"]
+shape = SubResource("RectangleShape2D_exit")
+
+[node name="ExitMark" type="ColorRect" parent="ExitToField"]
+offset_left = -16.0
+offset_top = -48.0
+offset_right = 16.0
+offset_bottom = 48.0
+color = Color(0.75, 0.62, 0.35, 0.5)
+
+; UI 오버레이
+[node name="MobileControls" parent="." instance=ExtResource("3_mobile")]
+
+[node name="PlayerHud" parent="." instance=ExtResource("4_hud")]

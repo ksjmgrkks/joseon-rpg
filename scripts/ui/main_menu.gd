@@ -3,7 +3,7 @@ extends Control
 ## 메인 메뉴 — 게임 시작·이어하기·설정·종료.
 ##
 
-const TEST_LEVEL_PATH := "res://scenes/levels/TestLevel.tscn"
+const START_LEVEL_PATH := "res://scenes/levels/Village.tscn"
 const SETTINGS_PATH := "res://scenes/ui/SettingsMenu.tscn"
 
 @onready var new_btn: Button = $Margin/VBox/Buttons/NewBtn
@@ -22,17 +22,17 @@ func _ready() -> void:
 
 
 func _on_new() -> void:
-    # 새로 시작 — 진행 상태 초기화
+    # 새로 시작 — 진행 상태 초기화 후 시작 마을(Village)로
     Flags.clear()
     Inventory.clear()
-    SceneManager.change_scene(TEST_LEVEL_PATH)
+    SceneManager.change_scene(START_LEVEL_PATH)
 
 
 func _on_continue() -> void:
     if not SaveManager.has_save(1):
         return
     SaveManager.load(1)
-    SceneManager.change_scene(TEST_LEVEL_PATH)
+    SceneManager.change_scene(START_LEVEL_PATH)
 
 
 func _on_settings() -> void:
