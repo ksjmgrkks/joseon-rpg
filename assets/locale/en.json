@@ -1,0 +1,30 @@
+{
+  "menu.title":     "Joseon Pixel RPG",
+  "menu.subtitle":  "— Phase 1~3 Skeleton Demo —",
+  "menu.new":       "New Game",
+  "menu.continue":  "Continue",
+  "menu.settings":  "Settings",
+  "menu.quit":      "Quit",
+
+  "pause.title":    "Paused",
+  "pause.resume":   "Resume",
+  "pause.save":     "Save",
+  "pause.quit":     "Quit",
+
+  "hud.lv":         "Lv %d",
+  "hud.xp":         "XP %d / %d",
+  "hud.gold":       "Coins %d",
+  "hud.hp":         "HP %d / %d",
+
+  "slot.empty":     "(empty)",
+  "slot.load":      "Continue",
+  "slot.save_here": "Save to this slot",
+  "slot.delete":    "Delete",
+  "slot.cancel":    "[ESC] Cancel",
+
+  "shop.title":     "Shop",
+  "shop.buy":       "Buy",
+  "shop.sell":      "Sell",
+  "shop.close":     "Close",
+  "shop.no_gold":   "Not enough coins"
+}
