@@ -1,0 +1,54 @@
+name: Godot Headless Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+env:
+  GODOT_VERSION: "4.3.0-stable"
+
+jobs:
+  tests:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cache Godot
+        id: cache-godot
+        uses: actions/cache@v4
+        with:
+          path: ~/godot-bin
+          key: godot-${{ env.GODOT_VERSION }}
+
+      - name: Download Godot binary
+        if: steps.cache-godot.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p ~/godot-bin
+          wget -q "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_linux.x86_64.zip" -O godot.zip
+          unzip -q godot.zip -d ~/godot-bin
+          chmod +x ~/godot-bin/Godot_v${GODOT_VERSION}_linux.x86_64
+          mv ~/godot-bin/Godot_v${GODOT_VERSION}_linux.x86_64 ~/godot-bin/godot
+
+      - name: PATH
+        run: echo "$HOME/godot-bin" >> "$GITHUB_PATH"
+
+      - name: Import assets
+        run: |
+          godot --headless --import . || true
+          godot --headless --import . || true
+
+      - name: Run all headless tests
+        run: |
+          set -e
+          exit_code=0
+          for t in tests/*.tscn; do
+            echo "=== Running $t ==="
+            if ! godot --headless "res://$t"; then
+              echo "FAIL: $t"
+              exit_code=1
+            fi
+          done
+          exit $exit_code

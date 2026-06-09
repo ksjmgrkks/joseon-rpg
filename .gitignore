@@ -2,7 +2,8 @@
 .godot/
 .import/
 export.cfg
-export_presets.cfg
+# export_presets.cfg 은 의도적으로 커밋 — GitHub Actions Web export 가 사용.
+# (서명/암호화 키 없이 Web preset 만 정의.)
 
 # Android export
 /android/

@@ -1,0 +1,97 @@
+name: Godot Web Export
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+env:
+  GODOT_VERSION: "4.3.0-stable"
+
+jobs:
+  export-web:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cache Godot
+        id: cache-godot
+        uses: actions/cache@v4
+        with:
+          path: ~/godot-bin
+          key: godot-${{ env.GODOT_VERSION }}
+
+      - name: Download Godot binary + templates
+        if: steps.cache-godot.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p ~/godot-bin
+          # Godot 헤드리스 리눅스 빌드
+          wget -q "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_linux.x86_64.zip" -O godot.zip
+          unzip -q godot.zip -d ~/godot-bin
+          chmod +x ~/godot-bin/Godot_v${GODOT_VERSION}_linux.x86_64
+          mv ~/godot-bin/Godot_v${GODOT_VERSION}_linux.x86_64 ~/godot-bin/godot
+          # 익스포트 템플릿
+          wget -q "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_export_templates.tpz" -O templates.tpz
+          mkdir -p ~/.local/share/godot/export_templates/${GODOT_VERSION}
+          unzip -q -j templates.tpz -d ~/.local/share/godot/export_templates/${GODOT_VERSION}
+
+      - name: Make Godot available on PATH
+        run: |
+          echo "$HOME/godot-bin" >> "$GITHUB_PATH"
+
+      - name: Ensure templates path (cached run)
+        run: |
+          # 캐시 적중 시 export templates 가 없을 수 있으므로 한 번 더 확인
+          if [ ! -d "$HOME/.local/share/godot/export_templates/${GODOT_VERSION}" ]; then
+            wget -q "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_export_templates.tpz" -O templates.tpz
+            mkdir -p "$HOME/.local/share/godot/export_templates/${GODOT_VERSION}"
+            unzip -q -j templates.tpz -d "$HOME/.local/share/godot/export_templates/${GODOT_VERSION}"
+          fi
+
+      - name: Import assets
+        run: |
+          mkdir -p build/web
+          godot --headless --import . || true
+          godot --headless --import . || true
+
+      - name: Export Web
+        run: |
+          godot --headless --export-release "Web" build/web/index.html
+          ls -la build/web
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: joseon-rpg-web-${{ github.sha }}
+          path: build/web
+
+      # GitHub Pages 배포가 필요하면 아래 주석을 풀고, 레포 Settings → Pages 에서
+      # Source 를 'GitHub Actions' 로 바꿔주세요. (private 레포는 GitHub Pro 필요.)
+      # - name: Configure Pages
+      #   uses: actions/configure-pages@v5
+      # - name: Upload Pages artifact
+      #   uses: actions/upload-pages-artifact@v3
+      #   with:
+      #     path: build/web
+
+  # GitHub Pages 배포 잡(옵션). 위 단계의 upload-pages-artifact 를 풀어야 동작.
+  # deploy-pages:
+  #   needs: export-web
+  #   environment:
+  #     name: github-pages
+  #     url: ${{ steps.deployment.outputs.page_url }}
+  #   runs-on: ubuntu-22.04
+  #   steps:
+  #     - name: Deploy to GitHub Pages
+  #       id: deployment
+  #       uses: actions/deploy-pages@v4
