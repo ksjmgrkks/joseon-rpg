@@ -43,6 +43,8 @@ var _state: int = State.IDLE
 var _state_timer: float = 0.0
 var _facing_right: bool = true
 var _attacking_blink: bool = false
+# 페이즈 2 — HP 50% 이하에서 한 번만 진입. 패턴 가속 + 색감 변화.
+var _phase: int = 1
 
 
 func _ready() -> void:
@@ -54,6 +56,7 @@ func _ready() -> void:
         attack_hitbox.monitoring = false
         attack_hitbox.monitorable = false
     hurtbox.hurt.connect(_on_hurt)
+    health.hp_changed.connect(_on_hp_changed)
     health.died.connect(_on_died)
 
 
@@ -118,24 +121,51 @@ func _tick_recover(_delta: float) -> void:
 
 func _enter_telegraph() -> void:
     _state = State.TELEGRAPH
-    _state_timer = telegraph_seconds
+    _state_timer = telegraph_seconds * _phase_mult_telegraph()
 
 
 func _enter_attack() -> void:
     _state = State.ATTACK
-    _state_timer = attack_seconds
+    var dur := attack_seconds * _phase_mult_attack()
+    _state_timer = dur
     if attack_hitbox:
         attack_hitbox.position.x = 28.0 if _facing_right else -28.0
-        # 보스는 자체 공격 데미지/넉백을 hitbox 에 세팅
-        attack_hitbox.damage = attack_damage
+        attack_hitbox.damage = attack_damage * (1.25 if _phase >= 2 else 1.0)
         attack_hitbox.knockback = attack_knockback
-        attack_hitbox.activate(attack_seconds)
+        attack_hitbox.activate(dur)
     Audio.play_sfx(Sfx.ATTACK)
 
 
 func _enter_recover() -> void:
     _state = State.RECOVER
-    _state_timer = recover_seconds
+    _state_timer = recover_seconds * _phase_mult_recover()
+
+
+# 페이즈 배율 (1=원본, >=2 면 더 빠르고 회복 짧음)
+func _phase_mult_telegraph() -> float:
+    return 0.70 if _phase >= 2 else 1.0
+
+
+func _phase_mult_attack() -> float:
+    return 1.0    # 공격 자체는 길이 유지, 데미지만 증가
+
+
+func _phase_mult_recover() -> float:
+    return 0.55 if _phase >= 2 else 1.0
+
+
+func _on_hp_changed(hp: float, max_hp: float) -> void:
+    if _phase == 1 and hp > 0.0 and hp <= max_hp * 0.5:
+        _enter_phase2()
+
+
+func _enter_phase2() -> void:
+    _phase = 2
+    print("[%s] 페이즈 2 진입 — 패턴 가속" % display_name)
+    if sprite:
+        # 핏빛 톤으로 강조
+        sprite.modulate = body_color.lerp(Color(1, 0.25, 0.20, 1), 0.45)
+    ScreenFx.shake(14.0, 0.32)
 
 
 func _player() -> Node2D:

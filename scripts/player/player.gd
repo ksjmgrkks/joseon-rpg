@@ -23,8 +23,14 @@ const COMBO_WINDOW: float = 0.45         # 콤보 입력 허용 윈도우
 const CHARGE_THRESHOLD: float = 0.45     # 이 시간보다 길게 누르고 있으면 차지로 인식
 const CHARGE_FULL: float = 0.95          # 완전 차지(시각 강조용)
 
+# 회피 구르기
+const DODGE_DURATION: float = 0.28       # 무적·dash 지속
+const DODGE_SPEED: float = 360.0
+const DODGE_COOLDOWN: float = 0.6
+
 @onready var sprite: Sprite2D = $Sprite2D
 @onready var attack_hitbox: Hitbox = $AttackHitbox
+@onready var hurtbox: Hurtbox = $Hurtbox
 @onready var health: HealthComponent = $HealthComponent
 
 var _facing_right: bool = true
@@ -35,6 +41,10 @@ var _combo_timer: float = 0.0            # 콤보 유지 카운트다운
 var _hold_time: float = 0.0              # attack 키 누른 누적 시간(차지용)
 var _charge_started: bool = false        # 이번 누름이 차지로 인식됐는가
 var _base_modulate: Color = Color.WHITE
+# 회피 상태
+var _dodging: bool = false
+var _dodge_timer: float = 0.0
+var _dodge_cd: float = 0.0
 
 
 func _ready() -> void:
@@ -52,6 +62,24 @@ func _physics_process(delta: float) -> void:
     # 중력
     if not is_on_floor():
         velocity.y += GRAVITY * delta
+
+    # 회피 진행/쿨다운 카운트다운
+    if _dodge_timer > 0.0:
+        _dodge_timer = maxf(0.0, _dodge_timer - delta)
+        if _dodge_timer <= 0.0:
+            _end_dodge()
+    if _dodge_cd > 0.0:
+        _dodge_cd = maxf(0.0, _dodge_cd - delta)
+
+    # 회피 시작
+    if Input.is_action_just_pressed("dodge") and not _dodging and not _attacking and _dodge_cd <= 0.0:
+        _start_dodge()
+
+    # 회피 중에는 이동/공격/콤보 윈도우 무시하고 dash 가속 유지
+    if _dodging:
+        velocity.x = (DODGE_SPEED if _facing_right else -DODGE_SPEED)
+        move_and_slide()
+        return
 
     # 점프 (지면일 때만)
     if Input.is_action_just_pressed("jump") and is_on_floor():
@@ -179,6 +207,30 @@ func _on_hitbox_landed(area: Area2D) -> void:
     var landed_strength := 4.0 + 1.5 * float(_combo_step)
     ScreenFx.shake(landed_strength, 0.16)
     ScreenFx.hit_stop(0.04 if _combo_step < 3 else 0.08)
+
+
+# 회피 시작/종료 — Hurtbox 비활성으로 무적, sprite 반투명
+func _start_dodge() -> void:
+    _dodging = true
+    _dodge_timer = DODGE_DURATION
+    if hurtbox:
+        hurtbox.monitoring = false
+    if sprite:
+        var c := _base_modulate
+        c.a = 0.55
+        sprite.modulate = c
+    ScreenFx.shake(2.0, 0.08)
+
+
+func _end_dodge() -> void:
+    _dodging = false
+    _dodge_cd = DODGE_COOLDOWN
+    if hurtbox:
+        hurtbox.monitoring = true
+    if sprite:
+        var c := _base_modulate
+        c.a = 1.0
+        sprite.modulate = c
 
 
 func _on_hp_changed(hp: float, max_hp: float) -> void:
