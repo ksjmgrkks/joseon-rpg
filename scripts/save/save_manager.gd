@@ -16,6 +16,15 @@ signal loaded(slot: int, data: Dictionary)
 const SAVE_DIR := "user://saves/"
 const VERSION := 1
 
+# 슬롯 표시용 한국어 지역명 매핑. 씬 root 이름과 1:1.
+const AREA_LABELS := {
+    "Village":   "마을",
+    "TestLevel": "들판",
+    "Forest":    "숲",
+    "BossArena": "절벽 아레나",
+    "MainMenu":  "메인 메뉴",
+}
+
 
 func _ready() -> void:
     DirAccess.make_dir_recursive_absolute(SAVE_DIR)
@@ -38,6 +47,12 @@ func save(slot: int) -> bool:
     }
     # 다른 시스템들이 data 에 자기 영역을 추가
     save_requested.emit(slot, data)
+    # 요약 메타(슬롯 선택 화면용) — 본문은 안 풀고 빠르게 표시할 수 있도록 한 줄에.
+    data["meta"] = {
+        "area":  _current_area_name(),
+        "level": (PlayerStats.level if PlayerStats else 1),
+        "gold":  (PlayerStats.gold  if PlayerStats else 0),
+    }
 
     var path := _slot_path(slot)
     var file := FileAccess.open(path, FileAccess.WRITE)
@@ -78,7 +93,7 @@ func delete_save(slot: int) -> bool:
     return err == OK
 
 
-## 슬롯별 메타데이터(저장 시각·버전) 빠른 조회. 본문 데이터는 안 읽음.
+## 슬롯별 메타데이터 + 요약 정보(레벨/엽전/지역/저장 시각) 빠른 조회.
 func get_slot_info(slot: int) -> Dictionary:
     if not has_save(slot):
         return {}
@@ -90,9 +105,24 @@ func get_slot_info(slot: int) -> Dictionary:
     var data = JSON.parse_string(raw)
     if not (data is Dictionary):
         return {}
+    var meta: Dictionary = data.get("meta", {})
     return {
         "slot": slot,
         "version": data.get("version", 0),
         "timestamp": data.get("timestamp", 0),
         "iso": data.get("iso", ""),
+        "area":  String(meta.get("area", "")),
+        "level": int(meta.get("level", 1)),
+        "gold":  int(meta.get("gold", 0)),
     }
+
+
+func _current_area_name() -> String:
+    var tree := get_tree()
+    if tree == null:
+        return ""
+    var cur := tree.current_scene
+    if cur == null:
+        return ""
+    var nm := String(cur.name)
+    return String(AREA_LABELS.get(nm, nm))

@@ -10,7 +10,10 @@
       ],
       "choices": [
         { "text": "이 철검, 잘 쓰겠소.", "next": "thanks" },
-        { "text": "(혹시 더 좋은 무기가 있냐고 물어본다.)", "next": "shop_hint" }
+        { "text": "(혹시 더 좋은 무기가 있냐고 물어본다.)", "next": "shop_hint",
+          "unless_flag": "tiger_lord_resolved" },
+        { "text": "상점을 보고 싶소.", "next": "open_shop",
+          "if_flag": "tiger_lord_resolved" }
       ]
     },
     "thanks": {
@@ -21,6 +24,22 @@
     "shop_hint": {
       "speaker": "대장간 어르신",
       "text": "더 좋은 물건은 큰 일을 한 자에게만 보이는 법이지. 마을에 호환이 사라지거든 다시 오게.",
+      "next": null
+    },
+    "open_shop": {
+      "speaker": "대장간 어르신",
+      "text": "물건들은 이렇다네. 엽전이 부족하면 잡동사니를 팔게나.",
+      "actions": [
+        { "type": "open_shop", "title": "대장간",
+          "items": [
+            { "id": "potion_minor", "price": 25 },
+            { "id": "potion_major", "price": 80 },
+            { "id": "rice_bun", "price": 5 },
+            { "id": "armor_robe", "price": 120 },
+            { "id": "armor_brigandine", "price": 320 }
+          ]
+        }
+      ],
       "next": null
     }
   }

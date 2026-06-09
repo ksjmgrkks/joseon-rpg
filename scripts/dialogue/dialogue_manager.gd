@@ -130,6 +130,11 @@ func _run_actions(node: Dictionary) -> void:
                 QuestManager.complete_quest(String(a.get("quest", "")))
             "give_item":
                 Inventory.add(String(a.get("item", "")), int(a.get("count", 1)))
+            "open_shop":
+                var items: Array = a.get("items", [])
+                var stitle := String(a.get("title", "상점"))
+                if ShopPanel:
+                    ShopPanel.open(items, stitle)
             _:
                 push_warning("[Dialogue] unknown action type: %s" % t)
 
