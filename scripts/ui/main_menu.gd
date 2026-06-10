@@ -42,6 +42,8 @@ func _on_locale_changed(_locale: String) -> void:
 
 
 func _any_save_exists() -> bool:
+    if SaveManager.has_save(0):    # autosave
+        return true
     for s in range(1, 4):
         if SaveManager.has_save(s):
             return true

@@ -13,6 +13,8 @@ signal cancelled
 
 @export var mode: String = "load"   # "load" | "save"
 @export var slot_count: int = 3
+# load 모드에서 슬롯 0(autosave)도 표시. save 모드에선 사용자 저장 슬롯만(1~3).
+@export var show_autosave: bool = true
 
 @onready var bg: ColorRect = $Bg
 @onready var list_root: VBoxContainer = $Margin/VBox/Slots
@@ -32,6 +34,9 @@ func _ready() -> void:
 func _rebuild() -> void:
     for c in list_root.get_children():
         c.queue_free()
+    # 자동 저장 슬롯(0) 은 load 모드에서만 표시 + 저장본 있을 때만.
+    if mode == "load" and show_autosave and SaveManager.has_save(0):
+        list_root.add_child(_make_slot_card(0))
     for i in range(1, slot_count + 1):
         var card := _make_slot_card(i)
         list_root.add_child(card)
@@ -43,14 +48,15 @@ func _make_slot_card(slot: int) -> Control:
     var info := SaveManager.get_slot_info(slot)
     var line := Label.new()
     line.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+    var slot_name := "자동 저장" if slot == 0 else "슬롯 %d" % slot
     if info.is_empty():
-        line.text = "슬롯 %d  —  (비어 있음)" % slot
+        line.text = "%s  —  (비어 있음)" % slot_name
     else:
         var area := String(info.get("area", "-"))
         var lvl := int(info.get("level", 1))
         var gold := int(info.get("gold", 0))
         var iso := String(info.get("iso", ""))
-        line.text = "슬롯 %d  ·  %s  ·  Lv %d  ·  엽전 %d  ·  %s" % [slot, area, lvl, gold, iso]
+        line.text = "%s  ·  %s  ·  Lv %d  ·  엽전 %d  ·  %s" % [slot_name, area, lvl, gold, iso]
     row.add_child(line)
 
     if mode == "load":

@@ -1,8 +1,9 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene load_steps=11 format=3]
 
 ; 마을(시작 허브) — 아트 없이 placeholder. 가로 1600px 폭에 한지 베이지 톤 배경.
 ; 좌측: 상점·집 placeholder + Villager NPC. 우측: 들판으로 가는 LevelExit.
 ; 새 게임 시 MainMenu 가 Village.tscn 으로 진입. TestLevel(들판)에서 좌측 LevelExit 로 되돌아옴.
+; '떠돌이 상인' 은 NightOnly 노드 아래에 있어 밤(TimeManager.is_night)에만 등장.
 
 [ext_resource type="PackedScene" path="res://scenes/player/Player.tscn" id="1_player"]
 [ext_resource type="PackedScene" path="res://scenes/npc/Npc.tscn" id="2_npc"]
@@ -10,6 +11,7 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/PlayerHud.tscn" id="4_hud"]
 [ext_resource type="Script" path="res://scripts/scene/level_exit.gd" id="5_exit"]
 [ext_resource type="Script" path="res://scripts/scene/level_entry.gd" id="6_entry"]
+[ext_resource type="Script" path="res://scripts/world/night_only.gd" id="7_night"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ground"]
 size = Vector2(1600, 32)
@@ -88,6 +90,14 @@ dialogue_path = "res://assets/dialogue/village_blacksmith.json"
 [node name="Woman" parent="." instance=ExtResource("2_npc")]
 position = Vector2(960, 668)
 dialogue_path = "res://assets/dialogue/village_woman.json"
+
+; 밤에만 등장하는 떠돌이 상인. 자식 NPC 의 collision 도 NightOnly 가 토글.
+[node name="NightWanderer" type="Node2D" parent="."]
+script = ExtResource("7_night")
+
+[node name="Wanderer" parent="NightWanderer" instance=ExtResource("2_npc")]
+position = Vector2(1280, 668)
+dialogue_path = "res://assets/dialogue/village_wanderer.json"
 
 ; 우측 들판으로 가는 출구 (TestLevel 의 from_village 마커로)
 [node name="ExitToField" type="Area2D" parent="."]

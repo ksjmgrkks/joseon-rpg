@@ -32,6 +32,7 @@ InventoryPanel="*res://scenes/ui/InventoryPanel.tscn"
 ShopPanel="*res://scenes/ui/ShopPanel.tscn"
 PauseMenu="*res://scenes/ui/PauseMenu.tscn"
 QuestLog="*res://scenes/ui/QuestLog.tscn"
+QuestToast="*res://scenes/ui/QuestToast.tscn"
 GameOverScreen="*res://scenes/ui/GameOverScreen.tscn"
 
 [input]

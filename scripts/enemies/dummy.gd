@@ -21,6 +21,7 @@ func _ready() -> void:
     hurtbox.hurt.connect(_on_hurt)
     health.hp_changed.connect(_on_hp_changed)
     health.died.connect(_on_died)
+    EnemyHpBar.attach_to(self, health)
 
 
 func _physics_process(delta: float) -> void:

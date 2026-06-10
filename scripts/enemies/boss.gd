@@ -58,6 +58,9 @@ func _ready() -> void:
     hurtbox.hurt.connect(_on_hurt)
     health.hp_changed.connect(_on_hp_changed)
     health.died.connect(_on_died)
+    # 보스는 폭이 더 넓게 잘 보이도록 y_offset 만 살짝 위. 폭은 EnemyHpBar 기본값 유지.
+    var bar := EnemyHpBar.attach_to(self, health)
+    bar.position.y = -44
 
 
 func _physics_process(delta: float) -> void:

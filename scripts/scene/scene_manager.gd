@@ -15,6 +15,16 @@ extends Node
 ##
 
 const DEFAULT_FADE := 0.4
+# 슬롯 0 은 autosave 약속 — SaveManager 코멘트와 일치.
+const AUTOSAVE_SLOT := 0
+
+# 메뉴/타이틀 등 게임플레이가 아닌 씬은 자동 저장에서 제외.
+const NON_GAMEPLAY_SCENES := {
+    "MainMenu": true,
+    "SettingsMenu": true,
+}
+
+@export var autosave_on_scene_change: bool = true
 
 var _fade_layer: CanvasLayer
 var _fade_rect: ColorRect
@@ -51,6 +61,8 @@ func _do_change(path: String, entry: StringName, fade_seconds: float) -> bool:
     if path.is_empty():
         return false
     _pending_entry = entry
+    # 떠나기 전 마지막 씬이 게임플레이라면 슬롯 0 (autosave) 에 저장.
+    _try_autosave()
     await _fade_to(1.0, fade_seconds)
     get_tree().paused = false
     var err := get_tree().change_scene_to_file(path)
@@ -64,6 +76,20 @@ func _do_change(path: String, entry: StringName, fade_seconds: float) -> bool:
     _apply_pending_entry()
     await _fade_to(0.0, fade_seconds)
     return true
+
+
+func _try_autosave() -> void:
+    if not autosave_on_scene_change:
+        return
+    if SaveManager == null:
+        return
+    var tree := get_tree()
+    if tree == null or tree.current_scene == null:
+        return
+    var nm := String(tree.current_scene.name)
+    if NON_GAMEPLAY_SCENES.has(nm):
+        return
+    SaveManager.save(AUTOSAVE_SLOT)
 
 
 func _apply_pending_entry() -> void:
