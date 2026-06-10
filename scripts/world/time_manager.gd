@@ -64,13 +64,13 @@ func tint_for(t: float) -> Color:
     var dr := day_ratio()
     if t < dr:
         # 낮 — 끝부분 가까울수록 약간 황혼 톤
-        var p := t / max(dr, 0.0001)   # 0..1
+        var p := t / maxf(dr, 0.0001)   # 0..1
         if p < 0.7:
             return Color(1, 1, 1, 1)
         night_pct = (p - 0.7) / 0.3   # 0..1
     else:
         # 밤 — 진입 직후 어두워졌다가 새벽 가까이 다시 밝아짐
-        var p := (t - dr) / max(1.0 - dr, 0.0001) # 0..1
+        var p := (t - dr) / maxf(1.0 - dr, 0.0001) # 0..1
         if p < 0.2:
             night_pct = lerp(1.0, 1.0, 0.0)  # 진입은 즉시 어둡게
             night_pct = 1.0

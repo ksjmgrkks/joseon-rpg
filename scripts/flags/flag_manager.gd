@@ -35,18 +35,25 @@ func get_flag(key: String, default = null):
 
 
 ## 키가 존재하고 truthy(true/0이 아닌 숫자/빈 문자열 아님/빈 배열·딕셔너리 아님)이면 true.
+## Variant 교차 타입 ==(bool vs int 등)는 Godot 4.4+에서 런타임 에러라 타입별로 분기.
 func has_flag(key: String) -> bool:
     if not _store.has(key):
         return false
     var v = _store[key]
-    if v == null or v == false or v == 0:
+    if v == null:
         return false
-    if v is String and (v as String).is_empty():
-        return false
-    if v is Array and (v as Array).is_empty():
-        return false
-    if v is Dictionary and (v as Dictionary).is_empty():
-        return false
+    if v is bool:
+        return v
+    if v is int:
+        return v != 0
+    if v is float:
+        return v != 0.0
+    if v is String:
+        return not (v as String).is_empty()
+    if v is Array:
+        return not (v as Array).is_empty()
+    if v is Dictionary:
+        return not (v as Dictionary).is_empty()
     return true
 
 
