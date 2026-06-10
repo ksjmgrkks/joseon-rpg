@@ -84,6 +84,7 @@ func _physics_process(delta: float) -> void:
     # 점프 (지면일 때만)
     if Input.is_action_just_pressed("jump") and is_on_floor():
         velocity.y = JUMP_VELOCITY
+        Audio.play_sfx(Sfx.JUMP)
 
     # 콤보 윈도우 카운트다운
     if _combo_timer > 0.0:
@@ -213,6 +214,7 @@ func _on_hitbox_landed(area: Area2D) -> void:
 func _start_dodge() -> void:
     _dodging = true
     _dodge_timer = DODGE_DURATION
+    Audio.play_sfx(Sfx.DODGE)
     if hurtbox:
         hurtbox.monitoring = false
     if sprite:

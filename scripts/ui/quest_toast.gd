@@ -42,6 +42,7 @@ func _on_quest_changed(quest_id: String, _stage: String, is_completed: bool) -> 
 func _show(text: String) -> void:
     label.text = text
     panel.visible = true
+    Audio.play_sfx(Sfx.JINGLE)
     if _tween and _tween.is_valid():
         _tween.kill()
     _tween = create_tween()

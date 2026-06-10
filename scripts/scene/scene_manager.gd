@@ -22,6 +22,7 @@ const AUTOSAVE_SLOT := 0
 const NON_GAMEPLAY_SCENES := {
     "MainMenu": true,
     "SettingsMenu": true,
+    "Ending": true,
 }
 
 @export var autosave_on_scene_change: bool = true

@@ -10,3 +10,7 @@ const HIT    := "res://assets/audio/sfx/hit.wav"      # 적 피격
 const DIE    := "res://assets/audio/sfx/die.wav"      # 적 사망
 const PICKUP := "res://assets/audio/sfx/pickup.wav"   # 아이템 획득
 const POTION := "res://assets/audio/sfx/potion.wav"   # 소모품 사용
+const JUMP   := "res://assets/audio/sfx/jump.wav"     # 점프
+const DODGE  := "res://assets/audio/sfx/dodge.wav"    # 회피 구르기
+const UI     := "res://assets/audio/sfx/ui_click.wav" # 메뉴/버튼
+const JINGLE := "res://assets/audio/sfx/jingle_quest.wav" # 퀘스트 시작/완료

@@ -6,17 +6,35 @@
       "speaker": "마을 어르신",
       "text": "어디서 왔는가, 젊은이? 마침 잘 왔네.",
       "actions": [
-        { "type": "start_quest", "quest": "first_meet_villager" }
+        {
+          "type": "start_quest",
+          "quest": "first_meet_villager"
+        }
       ],
       "choices": [
-        { "text": "한양에서 왔소.", "next": "from_hanyang" },
-        { "text": "그저 떠도는 길손이외다.", "next": "wanderer" },
-        { "text": "호환 두령은 어찌 됐습니까?", "next": "tiger_status",
-          "if_quest_active": "main_tiger_lord" },
-        { "text": "(어금니를 내민다) 두령을 처치하였소.", "next": "tooth_show",
-          "if_quest_stage": "main_tiger_lord:boss_defeated" },
-        { "text": "(들판에서 주운 낡은 서찰을 내민다.)", "next": "scroll_show",
-          "if_has_item": "scroll_old" }
+        {
+          "text": "한양에서 왔소.",
+          "next": "from_hanyang"
+        },
+        {
+          "text": "그저 떠도는 길손이외다.",
+          "next": "wanderer"
+        },
+        {
+          "text": "호환 두령은 어찌 됐습니까?",
+          "next": "tiger_status",
+          "if_quest_active": "main_tiger_lord"
+        },
+        {
+          "text": "(어금니를 내민다) 두령을 처치하였소.",
+          "next": "tooth_show",
+          "if_quest_stage": "main_tiger_lord:boss_defeated"
+        },
+        {
+          "text": "(들판에서 주운 낡은 서찰을 내민다.)",
+          "next": "scroll_show",
+          "if_has_item": "scroll_old"
+        }
       ]
     },
     "from_hanyang": {
@@ -33,8 +51,15 @@
       "speaker": "마을 어르신",
       "text": "어쨌든 마을에 오신 것을 환영하네. (작은 답례라며 쌀떡 한 묶음을 건넨다.)",
       "actions": [
-        { "type": "set_flag", "key": "talked_to_villager", "value": true },
-        { "type": "complete_quest", "quest": "first_meet_villager" }
+        {
+          "type": "set_flag",
+          "key": "talked_to_villager",
+          "value": true
+        },
+        {
+          "type": "complete_quest",
+          "quest": "first_meet_villager"
+        }
       ],
       "next": "tiger_offer"
     },
@@ -42,15 +67,24 @@
       "speaker": "마을 어르신",
       "text": "한데… 마을이 요즘 큰일이라네. 호환(虎患)이 마을 가축을 줄줄이 잡아가는데, 두령 격인 큼지막한 놈이 있다더군.",
       "choices": [
-        { "text": "내가 처치해 보겠소.", "next": "tiger_accept" },
-        { "text": "(눈치를 살피며 거리를 둔다.)", "next": "tiger_decline" }
+        {
+          "text": "내가 처치해 보겠소.",
+          "next": "tiger_accept"
+        },
+        {
+          "text": "(눈치를 살피며 거리를 둔다.)",
+          "next": "tiger_decline"
+        }
       ]
     },
     "tiger_accept": {
       "speaker": "마을 어르신",
       "text": "오, 고맙네! 들판을 동쪽으로 가면 숲이 나오네. 숲 깊은 곳 절벽 앞에 그 놈이 둥지를 틀고 있다더군.",
       "actions": [
-        { "type": "start_quest", "quest": "main_tiger_lord" }
+        {
+          "type": "start_quest",
+          "quest": "main_tiger_lord"
+        }
       ],
       "next": null
     },
@@ -68,9 +102,24 @@
       "speaker": "마을 어르신",
       "text": "어허! 이놈… 정말로 두령을 잡으셨군. 자, 이거. 옥장도 한 자루와 약간의 엽전이다. 부족하지만 마음을 받게나.",
       "actions": [
-        { "type": "set_quest_stage", "quest": "main_tiger_lord", "stage": "return_to_elder" },
-        { "type": "complete_quest", "quest": "main_tiger_lord" },
-        { "type": "set_flag", "key": "tiger_lord_resolved", "value": true }
+        {
+          "type": "set_quest_stage",
+          "quest": "main_tiger_lord",
+          "stage": "return_to_elder"
+        },
+        {
+          "type": "complete_quest",
+          "quest": "main_tiger_lord"
+        },
+        {
+          "type": "set_flag",
+          "key": "tiger_lord_resolved",
+          "value": true
+        },
+        {
+          "type": "change_scene",
+          "scene": "res://scenes/ui/Ending.tscn"
+        }
       ],
       "next": null
     },
@@ -78,9 +127,19 @@
       "speaker": "마을 어르신",
       "text": "허, 이게… 옛 관아의 서찰이로구먼. 잘 봐 두었네. 수고 했어. 자, 엽전 한 꾸러미 받게.",
       "actions": [
-        { "type": "start_quest", "quest": "side_lost_scroll" },
-        { "type": "take_item", "item": "scroll_old", "count": 1 },
-        { "type": "complete_quest", "quest": "side_lost_scroll" }
+        {
+          "type": "start_quest",
+          "quest": "side_lost_scroll"
+        },
+        {
+          "type": "take_item",
+          "item": "scroll_old",
+          "count": 1
+        },
+        {
+          "type": "complete_quest",
+          "quest": "side_lost_scroll"
+        }
       ],
       "next": null
     }

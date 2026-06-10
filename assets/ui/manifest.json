@@ -1,0 +1,47 @@
+{
+  "type": "ui_skin",
+  "images": {
+    "panel_hanji": {
+      "frame_w": 48,
+      "frame_h": 48,
+      "frames": 1,
+      "nine_slice_margin": 12
+    },
+    "button": {
+      "frame_w": 48,
+      "frame_h": 20,
+      "frames": 1
+    },
+    "button_pressed": {
+      "frame_w": 48,
+      "frame_h": 20,
+      "frames": 1
+    },
+    "hp_frame": {
+      "frame_w": 104,
+      "frame_h": 12,
+      "frames": 1,
+      "inner_rect": [
+        2,
+        1,
+        100,
+        10
+      ]
+    },
+    "balloon_tail": {
+      "frame_w": 12,
+      "frame_h": 8,
+      "frames": 1
+    },
+    "title_logo": {
+      "frame_w": 269,
+      "frame_h": 77,
+      "frames": 1
+    },
+    "ending_scroll": {
+      "frame_w": 320,
+      "frame_h": 200,
+      "frames": 1
+    }
+  }
+}

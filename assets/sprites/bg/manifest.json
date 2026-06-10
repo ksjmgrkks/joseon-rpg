@@ -1,0 +1,41 @@
+{
+  "frame_w": 640,
+  "frame_h": 360,
+  "anims": {
+    "bg_far": {
+      "frames": 1,
+      "fps": 0,
+      "loop": false
+    },
+    "bg_mid": {
+      "frames": 1,
+      "fps": 0,
+      "loop": false
+    },
+    "bg_near": {
+      "frames": 1,
+      "fps": 0,
+      "loop": false
+    }
+  },
+  "parallax": {
+    "bg_far": {
+      "file": "bg_far.png",
+      "scroll_factor": 0.1,
+      "tile_x": true,
+      "desc": "먼 산 2겹 INK_FAINT — 뒤 능선은 50% 디더로 옅게. 하늘 투명"
+    },
+    "bg_mid": {
+      "file": "bg_mid.png",
+      "scroll_factor": 0.35,
+      "tile_x": true,
+      "desc": "중경 산+소나무 INK_SOFT — 능선/산허리 안개 디더"
+    },
+    "bg_near": {
+      "file": "bg_near.png",
+      "scroll_factor": 0.7,
+      "tile_x": true,
+      "desc": "근경 둔덕 GRASS_DEEP→INK_MID + 갈대 실루엣"
+    }
+  }
+}

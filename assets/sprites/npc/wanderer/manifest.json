@@ -1,0 +1,11 @@
+{
+  "frame_w": 32,
+  "frame_h": 64,
+  "anims": {
+    "idle": {
+      "frames": 2,
+      "fps": 3,
+      "loop": true
+    }
+  }
+}

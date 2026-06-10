@@ -137,6 +137,13 @@ func _run_actions(node: Dictionary) -> void:
                 var stitle := String(a.get("title", "상점"))
                 if ShopPanel:
                     ShopPanel.open(items, stitle)
+            "change_scene":
+                # 대화가 끝난 뒤 씬 전환 (엔딩 등). 진행 중 전환하면 대화 상태가 새 씬에 남는다.
+                var target := String(a.get("scene", ""))
+                if not target.is_empty():
+                    dialogue_ended.connect(
+                        func() -> void: SceneManager.change_scene(target),
+                        CONNECT_ONE_SHOT)
             _:
                 push_warning("[Dialogue] unknown action type: %s" % t)
 

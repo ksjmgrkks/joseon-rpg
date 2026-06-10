@@ -1,0 +1,107 @@
+{
+  "sample_rate": 22050,
+  "bit_depth": 16,
+  "channels": 1,
+  "sfx": {
+    "attack": {
+      "file": "sfx/attack.wav",
+      "duration_s": 0.3,
+      "peak_dbfs": -3.2,
+      "rms_dbfs": -14.01,
+      "loop": false
+    },
+    "hurt": {
+      "file": "sfx/hurt.wav",
+      "duration_s": 0.22,
+      "peak_dbfs": -3.2,
+      "rms_dbfs": -14.47,
+      "loop": false
+    },
+    "hit": {
+      "file": "sfx/hit.wav",
+      "duration_s": 0.12,
+      "peak_dbfs": -3.2,
+      "rms_dbfs": -16.01,
+      "loop": false
+    },
+    "die": {
+      "file": "sfx/die.wav",
+      "duration_s": 0.6,
+      "peak_dbfs": -3.2,
+      "rms_dbfs": -11.07,
+      "loop": false
+    },
+    "pickup": {
+      "file": "sfx/pickup.wav",
+      "duration_s": 0.28,
+      "peak_dbfs": -3.2,
+      "rms_dbfs": -14.38,
+      "loop": false
+    },
+    "potion": {
+      "file": "sfx/potion.wav",
+      "duration_s": 0.5,
+      "peak_dbfs": -3.2,
+      "rms_dbfs": -14.58,
+      "loop": false
+    },
+    "jump": {
+      "file": "sfx/jump.wav",
+      "duration_s": 0.16,
+      "peak_dbfs": -3.2,
+      "rms_dbfs": -9.41,
+      "loop": false
+    },
+    "dodge": {
+      "file": "sfx/dodge.wav",
+      "duration_s": 0.16,
+      "peak_dbfs": -3.2,
+      "rms_dbfs": -14.83,
+      "loop": false
+    },
+    "ui_click": {
+      "file": "sfx/ui_click.wav",
+      "duration_s": 0.1,
+      "peak_dbfs": -3.2,
+      "rms_dbfs": -19.35,
+      "loop": false
+    },
+    "jingle_quest": {
+      "file": "sfx/jingle_quest.wav",
+      "duration_s": 1.0,
+      "peak_dbfs": -3.2,
+      "rms_dbfs": -14.0,
+      "loop": false
+    }
+  },
+  "bgm": {
+    "village": {
+      "file": "bgm/village.wav",
+      "duration_s": 24.0,
+      "peak_dbfs": -3.2,
+      "rms_dbfs": -20.64,
+      "loop": true
+    },
+    "forest": {
+      "file": "bgm/forest.wav",
+      "duration_s": 24.0,
+      "peak_dbfs": -3.2,
+      "rms_dbfs": -15.9,
+      "loop": true
+    },
+    "boss": {
+      "file": "bgm/boss.wav",
+      "duration_s": 16.0,
+      "peak_dbfs": -3.2,
+      "rms_dbfs": -22.44,
+      "loop": true
+    },
+    "night": {
+      "file": "bgm/night.wav",
+      "duration_s": 20.0,
+      "peak_dbfs": -3.2,
+      "rms_dbfs": -13.93,
+      "loop": true
+    }
+  }
+}
