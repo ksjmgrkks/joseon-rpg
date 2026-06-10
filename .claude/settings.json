@@ -1,0 +1,33 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash",
+      "PowerShell",
+      "Edit",
+      "Write",
+      "WebFetch",
+      "WebSearch",
+      "Bash(git *)",
+      "Bash(timeout *)",
+      "Bash(python *)",
+      "Bash(*Godot*)",
+      "Bash(ls *)",
+      "Bash(mkdir *)",
+      "Bash(cp *)",
+      "Bash(mv *)",
+      "Bash(rm *)",
+      "Bash(cat *)",
+      "Bash(unix2dos *)",
+      "Bash(dos2unix *)",
+      "Bash(grep *)",
+      "Bash(find *)",
+      "Bash(which *)",
+      "Bash(wc *)",
+      "Bash(head *)",
+      "Bash(tail *)",
+      "Bash(diff *)",
+      "Bash(file *)",
+      "Bash(curl *)"
+    ]
+  }
+}

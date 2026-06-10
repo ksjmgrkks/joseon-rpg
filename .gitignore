@@ -1,11 +1,6 @@
-# Godot 4+ specific
+# Godot 4+ specific (표준: 4.6.3 — *.uid/*.import 사이드카는 커밋한다)
 .godot/
-.import/
 export.cfg
-# 4.4+ 에디터가 생성하는 사이드카 — 프로젝트 표준 버전(현 CI 4.3) 확정 전까지 미커밋.
-# (4.4+ 로 통일하기로 하면 이 두 줄을 지우고 일괄 커밋할 것)
-*.uid
-*.import
 # export_presets.cfg 은 의도적으로 커밋 — GitHub Actions Web export 가 사용.
 # (서명/암호화 키 없이 Web preset 만 정의.)
 

@@ -1,10 +1,10 @@
-# 조선시대 도트 횡스크롤 RPG
+# 호환기담 (虎患奇譚) — 조선시대 도트 횡스크롤 RPG
 
-가상의 조선시대를 배경으로 한 픽셀아트 횡스크롤 액션 RPG. 모바일 우선, 개발 중 미리보기는 웹(HTML5) export로 폰 브라우저에서 확인.
+가상의 조선 후기, 호랑이 괴변이 도는 산골 마을에 흘러든 떠돌이 무사의 이야기. 픽셀아트 횡스크롤 액션 RPG. 모바일 우선, 개발 중 미리보기는 웹(HTML5) export로 폰 브라우저에서 확인.
 
 ## 스택
 
-- **엔진:** Godot 4.x (**GDScript 전용** — C# 금지: web export 비호환)
+- **엔진:** Godot 4.6.3 (**GDScript 전용** — C# 금지: web export 비호환)
 - **렌더러:** GL Compatibility (모바일·웹 호환)
 - **픽셀 필터:** Nearest (서브픽셀 깨짐 방지)
 - **배포:** GitHub 레포 + Web Export(HTML5) → GitHub Pages 등에 미리보기
