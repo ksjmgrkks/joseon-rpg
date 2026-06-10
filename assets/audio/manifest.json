@@ -33,16 +33,16 @@
     },
     "pickup": {
       "file": "sfx/pickup.wav",
-      "duration_s": 0.28,
+      "duration_s": 0.3,
       "peak_dbfs": -3.2,
-      "rms_dbfs": -14.38,
+      "rms_dbfs": -14.9,
       "loop": false
     },
     "potion": {
       "file": "sfx/potion.wav",
       "duration_s": 0.5,
       "peak_dbfs": -3.2,
-      "rms_dbfs": -14.58,
+      "rms_dbfs": -14.49,
       "loop": false
     },
     "jump": {
@@ -70,7 +70,7 @@
       "file": "sfx/jingle_quest.wav",
       "duration_s": 1.0,
       "peak_dbfs": -3.2,
-      "rms_dbfs": -14.0,
+      "rms_dbfs": -14.16,
       "loop": false
     }
   },
@@ -93,14 +93,14 @@
       "file": "bgm/boss.wav",
       "duration_s": 16.0,
       "peak_dbfs": -3.2,
-      "rms_dbfs": -22.44,
+      "rms_dbfs": -17.28,
       "loop": true
     },
     "night": {
       "file": "bgm/night.wav",
       "duration_s": 20.0,
       "peak_dbfs": -3.2,
-      "rms_dbfs": -13.93,
+      "rms_dbfs": -12.65,
       "loop": true
     }
   }

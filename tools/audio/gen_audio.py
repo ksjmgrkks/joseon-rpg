@@ -94,15 +94,17 @@ def sfx_pickup():
 def sfx_potion():
     """물약 — 보글보글 (상승 블립 연속 + 옅은 거품 노이즈)."""
     out = silence(0.50)
-    blips = [(0.02, 320), (0.10, 430), (0.19, 370), (0.27, 540),
-             (0.35, 460), (0.42, 620)]
+    blips = [(0.02, 320), (0.10, 430), (0.18, 370), (0.26, 540),
+             (0.33, 460), (0.40, 620)]
     for i, (t, f) in enumerate(blips):
         b = decay_exp(sine_sweep(f, f * 1.8, 0.05, "exp"), tau=0.025)
         mix_at(out, b, t, 0.8)
     fizz = gain(lowpass(noise(0.50, seed=41), 1800), 0.10)
     fizz = env_points(fizz, [(0, 0.3), (0.25, 1.0), (0.50, 0.0)])
     mix_at(out, fizz, 0.0, 1.0)
-    return fade_io(trim(out, 0.50), 0.003)
+    out = trim(out, 0.50)
+    out = env_points(out, [(0, 1.0), (0.44, 1.0), (0.50, 0.0)])  # 끝 정리
+    return fade_io(out, 0.003)
 
 
 def sfx_jump():
@@ -141,8 +143,10 @@ def sfx_jingle_quest():
     out = silence(1.0)
     mix_at(out, bell(note("C5"), 0.16), 0.00, 0.85)
     mix_at(out, bell(note("D5"), 0.16), 0.22, 0.90)
-    mix_at(out, bell(note("G5"), 0.30), 0.44, 1.00)
-    return fade_io(trim(out, 1.0), 0.004)
+    mix_at(out, bell(note("G5"), 0.28), 0.44, 1.00)
+    out = trim(out, 1.0)
+    out = env_points(out, [(0, 1.0), (0.85, 1.0), (1.0, 0.0)])  # 여운 마무리
+    return fade_io(out, 0.004)
 
 
 # ════════════════════════════ BGM ════════════════════════════
@@ -246,19 +250,19 @@ def bgm_boss():
     # 드론에 느린 맥동 (마디 주기)
     drone = [s * (0.85 + 0.15 * math.sin(2 * math.pi * (i / SR) / (4 * beat)))
              for i, s in enumerate(drone)]
-    mix_at(out, drone, 0.0, 0.40)
+    mix_at(out, drone, 0.0, 0.95)            # 드론을 타악과 맞먹게 — 위압감
     # 장구 패턴 (8분음 위치): e0 덩 / e2 기 e3 덕 / e4 쿵 / e6 덕
     for bar in range(8):
         t0 = bar * 4 * beat
         e = beat / 2.0
-        mix_at(out, _drum_kung(1.0), t0 + 0 * e)            # 덩 = 궁+채 동시
-        mix_at(out, _drum_deok(0.85), t0 + 0 * e)
-        mix_at(out, _drum_deok(0.50), t0 + 2 * e)           # 기
-        mix_at(out, _drum_deok(0.80), t0 + 3 * e)           # 덕
-        mix_at(out, _drum_kung(0.95), t0 + 4 * e)           # 쿵
-        mix_at(out, _drum_deok(0.85), t0 + 6 * e)           # 덕
+        mix_at(out, _drum_kung(0.90), t0 + 0 * e)           # 덩 = 궁+채 동시
+        mix_at(out, _drum_deok(0.65), t0 + 0 * e)
+        mix_at(out, _drum_deok(0.45), t0 + 2 * e)           # 기
+        mix_at(out, _drum_deok(0.70), t0 + 3 * e)           # 덕
+        mix_at(out, _drum_kung(0.85), t0 + 4 * e)           # 쿵
+        mix_at(out, _drum_deok(0.75), t0 + 6 * e)           # 덕
         for k in range(8):                                   # 햇 8분음
-            mix_at(out, _drum_hat(0.10 if k % 2 == 0 else 0.06,
+            mix_at(out, _drum_hat(0.12 if k % 2 == 0 else 0.07,
                                   seed=bar * 8 + k), t0 + k * e)
     return fade_io(trim(out, total), 0.005)
 
@@ -273,7 +277,7 @@ def bgm_night():
     for i in range(n):
         t = i / SR
         lfo = 1.0 + 0.15 * math.sin(2 * math.pi * t / 10.0)
-        out.append((0.22 * d1[i] + 0.10 * d2[i] + 0.07 * d3[i]) * lfo)
+        out.append((0.28 * d1[i] + 0.13 * d2[i] + 0.09 * d3[i]) * lfo)
     # 바람 — 컷오프·세기 느린 변조 (주기 10s/(20/3)s — 20s 에 정수 회)
     wn = noise(total, seed=77)
     cut = []
@@ -284,7 +288,7 @@ def bgm_night():
     wind = lowpass(wn, cut)
     wind = [s * (0.65 + 0.35 * math.sin(2 * math.pi * (i / SR) / 20.0))
             for i, s in enumerate(wind)]
-    mix_at(out, wind, 0.0, 0.55)
+    mix_at(out, wind, 0.0, 0.42)
     # 풀벌레 — 고음 짧은 트릴 (펄스 8개 묶음), 두 마리 교차
     def chirp(f, seed):
         c = silence(0.20)
@@ -295,11 +299,11 @@ def bgm_night():
     rng = random.Random(3)
     t = 0.8
     while t < 18.6:                                   # 루프 이음새 앞은 비움
-        mix_at(out, chirp(4300 + rng.uniform(-80, 80), 0), t, 0.10)
+        mix_at(out, chirp(4300 + rng.uniform(-80, 80), 0), t, 0.15)
         t += 1.7 + rng.uniform(-0.15, 0.15)
     t = 1.7
     while t < 18.2:
-        mix_at(out, chirp(4900 + rng.uniform(-80, 80), 1), t, 0.07)
+        mix_at(out, chirp(4900 + rng.uniform(-80, 80), 1), t, 0.10)
         t += 2.3 + rng.uniform(-0.2, 0.2)
     return fade_io(trim(out, total), 0.005)
 
@@ -392,4 +396,10 @@ def main():
         json.dump(manifest, f, indent=2, ensure_ascii=False)
     png = waveform_sheet(specs, os.path.join(SHEETS, "audio_waveforms.png"))
     print("spec  :", spec_path)
-    print("mani  :", m
+    print("mani  :", mani_path)
+    if png:
+        print("waves :", png)
+
+
+if __name__ == "__main__":
+    main()
