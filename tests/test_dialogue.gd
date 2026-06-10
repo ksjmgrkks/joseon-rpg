@@ -58,8 +58,7 @@ func _check_start_emits() -> Dictionary:
         return { "name": "start_emits_event", "status": FAIL, "reason": "expected 2 choices, got %d" % hit.choices_size }
     # cleanup state
     Dialogue.choose(0)  # advance past
-    while Dialogue.is_active():
-        Dialogue.advance()
+    _drain_dialogue()
     return { "name": "start_emits_event", "status": PASS, "reason": "" }
 
 
@@ -100,3 +99,17 @@ func _check_advance_to_end() -> Dictionary:
     if Dialogue.is_active():
         return { "name": "advance_to_end", "status": FAIL, "reason": "Dialogue still active after end" }
     return { "name": "advance_to_end", "status": PASS, "reason": "" }
+
+
+## 대화를 끝까지 흘린다. choices 노드에서 advance() 는 no-op 이라(dialogue_manager 가드)
+## 그대로 돌리면 무한 루프 — 첫 선택지를 골라 진행하고 안전 상한을 둔다.
+func _drain_dialogue(max_steps: int = 32) -> void:
+    var steps := 0
+    while Dialogue.is_active() and steps < max_steps:
+        Dialogue.advance()
+        if Dialogue.is_active():
+            Dialogue.choose(0)
+        steps += 1
+    if Dialogue.is_active():
+        push_warning("[test] dialogue still active after %d steps — force end" % max_steps)
+        Dialogue._end()

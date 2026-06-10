@@ -70,44 +70,64 @@ func _check_dialogue_set_flag_action() -> Dictionary:
     Dialogue.choose(0)   # from_hanyang
     Dialogue.advance()   # outro 에 들어가면서 set_flag 실행
     Dialogue.advance()   # 끝
-    while Dialogue.is_active():
-        Dialogue.advance()
+    _drain_dialogue()
     if not Flags.has_flag("talked_to_villager"):
         return { "name": "dialogue_set_flag_action", "status": FAIL, "reason": "set_flag action not run" }
     return { "name": "dialogue_set_flag_action", "status": PASS, "reason": "" }
 
 
-# 대화 choices의 if_flag 필터링
+# 대화 choices의 if_flag / unless_flag 필터링.
+# sample_villager 의 세 번째 선택지는 Phase 3에서 if_quest_completed 게이트로 바뀌어
+# (그건 test_quests 가 검증) 여기선 순수 플래그 게이트인 village_woman 으로 확인한다.
 func _check_dialogue_if_flag_filtering() -> Dictionary:
-    # 1회차: talked_to_villager 없으면 intro 의 '또 뵙습니다.' 가 안 보여야 함
+    const WOMAN := "res://assets/dialogue/village_woman.json"
     Flags.clear()
-    var first_choices := { "count": -1 }
-    var cb1 := func(speaker: String, text: String, choices: Array) -> void:
-        if first_choices.count < 0:
-            first_choices.count = choices.size()
-    Dialogue.dialogue_started.connect(cb1)
-    Dialogue.start(SAMPLE)
-    Dialogue.dialogue_started.disconnect(cb1)
-    # 끝까지 흘려 outro 의 set_flag 실행
-    Dialogue.choose(0)
-    Dialogue.advance()
-    Dialogue.advance()
-    while Dialogue.is_active():
-        Dialogue.advance()
+    QuestManager.clear()
+    var seen := { "texts": [] }
+    var cb := func(_speaker: String, _text: String, choices: Array) -> void:
+        var texts: Array = []
+        for c in choices:
+            texts.append(String(c.get("text", "")))
+        seen.texts = texts
 
-    # 2회차: talked_to_villager가 true → '또 뵙습니다.' 가 보여야 함 → choices size 1 증가
-    var second_choices := { "count": -1 }
-    var cb2 := func(speaker: String, text: String, choices: Array) -> void:
-        if second_choices.count < 0:
-            second_choices.count = choices.size()
-    Dialogue.dialogue_started.connect(cb2)
-    Dialogue.start(SAMPLE)
-    Dialogue.dialogue_started.disconnect(cb2)
-    while Dialogue.is_active():
-        Dialogue.advance()
+    # 1회차 (플래그 없음): '말씀하시오'(unless_flag) + '다음에' 만 보여야 함
+    Dialogue.dialogue_started.connect(cb)
+    Dialogue.start(WOMAN)
+    _drain_dialogue()
+    var first: Array = seen.texts
+    if first.size() != 2 or not String(first[0]).begins_with("말씀"):
+        Dialogue.dialogue_started.disconnect(cb)
+        return { "name": "dialogue_if_flag_filtering", "status": FAIL, "reason": "1회차 choices %s (expect [말씀…, 다음에…])" % [first] }
 
-    if first_choices.count != 2:
-        return { "name": "dialogue_if_flag_filtering", "status": FAIL, "reason": "1회차 choices: %d (expect 2)" % first_choices.count }
-    if second_choices.count != 3:
-        return { "name": "dialogue_if_flag_filtering", "status": FAIL, "reason": "2회차 choices: %d (expect 3)" % second_choices.count }
+    # 2회차 (asked_charm=true): unless_flag 로 '말씀하시오' 숨고 if_flag 로 '약초' 등장
+    Flags.set_flag("asked_charm", true)
+    Dialogue.start(WOMAN)
+    _drain_dialogue()
+    var second: Array = seen.texts
+    if second.size() != 2 or not String(second[0]).begins_with("약초"):
+        Dialogue.dialogue_started.disconnect(cb)
+        return { "name": "dialogue_if_flag_filtering", "status": FAIL, "reason": "2회차 choices %s (expect [약초…, 다음에…])" % [second] }
+
+    # 3회차 (asked_herbs 도 true): '약초'도 숨어 '다음에' 하나만
+    Flags.set_flag("asked_herbs", true)
+    Dialogue.start(WOMAN)
+    Dialogue.dialogue_started.disconnect(cb)
+    _drain_dialogue()
+    var third: Array = seen.texts
+    if third.size() != 1:
+        return { "name": "dialogue_if_flag_filtering", "status": FAIL, "reason": "3회차 choices %s (expect 1)" % [third] }
     return { "name": "dialogue_if_flag_filtering", "status": PASS, "reason": "" }
+
+
+## 대화를 끝까지 흘린다. choices 노드에서 advance() 는 no-op 이라(dialogue_manager 가드)
+## 그대로 돌리면 무한 루프 — 첫 선택지를 골라 진행하고 안전 상한을 둔다.
+func _drain_dialogue(max_steps: int = 32) -> void:
+    var steps := 0
+    while Dialogue.is_active() and steps < max_steps:
+        Dialogue.advance()
+        if Dialogue.is_active():
+            Dialogue.choose(0)
+        steps += 1
+    if Dialogue.is_active():
+        push_warning("[test] dialogue still active after %d steps — force end" % max_steps)
+        Dialogue._end()

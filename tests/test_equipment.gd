@@ -13,7 +13,7 @@ func _ready() -> void:
     _reset()
     results.append(_check_equip_weapon())
     _reset()
-    results.append(_check_armor_defense())
+    results.append(await _check_armor_defense())
     _reset()
     results.append(_check_gold_spend())
     _reset()

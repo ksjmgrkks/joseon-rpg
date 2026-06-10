@@ -17,7 +17,7 @@ func _ready() -> void:
     _reset()
     results.append(_check_pickup_quest_gate())
     _reset()
-    results.append(_check_screenfx_no_camera())
+    results.append(await _check_screenfx_no_camera())
 
     var failed := 0
     for r in results:

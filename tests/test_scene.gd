@@ -12,9 +12,9 @@ const FAIL := "FAIL"
 func _ready() -> void:
     print("=== test_scene ===")
     var results: Array[Dictionary] = []
-    results.append(_check_entry_match())
-    results.append(_check_entry_no_match())
-    results.append(_check_entry_no_player())
+    results.append(await _check_entry_match())
+    results.append(await _check_entry_no_match())
+    results.append(await _check_entry_no_player())
     var failed := 0
     for r in results:
         print("[%s] %s" % [r.status, r.name])

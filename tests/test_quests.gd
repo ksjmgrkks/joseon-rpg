@@ -67,8 +67,7 @@ func _check_dialogue_action_chain() -> Dictionary:
     Dialogue.choose(0)   # from_hanyang
     Dialogue.advance()   # outro -> complete + rice_bun x3
     Dialogue.advance()   # null -> end
-    while Dialogue.is_active():
-        Dialogue.advance()
+    _drain_dialogue()
 
     if not QuestManager.is_completed("first_meet_villager"):
         return { "name": "dialogue_action_chain", "status": FAIL, "reason": "complete_quest action didn't run" }
@@ -83,8 +82,7 @@ func _check_dialogue_action_chain() -> Dictionary:
     Dialogue.dialogue_started.connect(cb)
     Dialogue.start(SAMPLE_DIALOG)
     Dialogue.dialogue_started.disconnect(cb)
-    while Dialogue.is_active():
-        Dialogue.advance()
+    _drain_dialogue()
     if second_choices.count != 3:
         return { "name": "dialogue_action_chain", "status": FAIL, "reason": "expected 3 choices after completion, got %d" % second_choices.count }
     return { "name": "dialogue_action_chain", "status": PASS, "reason": "" }
@@ -105,3 +103,17 @@ func _check_save_load_roundtrip() -> Dictionary:
     if not QuestManager.is_stage("first_meet_villager", "greeted"):
         return { "name": "quest_save_load", "status": FAIL, "reason": "stage not restored" }
     return { "name": "quest_save_load", "status": PASS, "reason": "" }
+
+
+## 대화를 끝까지 흘린다. choices 노드에서 advance() 는 no-op 이라(dialogue_manager 가드)
+## 그대로 돌리면 무한 루프 — 첫 선택지를 골라 진행하고 안전 상한을 둔다.
+func _drain_dialogue(max_steps: int = 32) -> void:
+    var steps := 0
+    while Dialogue.is_active() and steps < max_steps:
+        Dialogue.advance()
+        if Dialogue.is_active():
+            Dialogue.choose(0)
+        steps += 1
+    if Dialogue.is_active():
+        push_warning("[test] dialogue still active after %d steps — force end" % max_steps)
+        Dialogue._end()

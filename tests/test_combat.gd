@@ -96,6 +96,6 @@ func _check_death_signal() -> Dictionary:
     var hit := { "v": false }
     hc.died.connect(func() -> void: hit.v = true)
     hc.take_damage(15.0)
-    var ok := hit.v and is_equal_approx(hc.hp, 0.0)
+    var ok: bool = hit.v and is_equal_approx(hc.hp, 0.0)
     hc.queue_free()
     return { "name": "death_signal", "status": PASS if ok else FAIL, "reason": "" if ok else "died not emitted or hp wrong" }

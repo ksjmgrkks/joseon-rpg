@@ -68,8 +68,7 @@ func _check_main_quest_stages() -> Dictionary:
 func _check_side_charm_stages() -> Dictionary:
     Dialogue.start(WOMAN_DIALOG)
     Dialogue.choose(0)   # "말씀하시오." → ask_charm (start_quest)
-    while Dialogue.is_active():
-        Dialogue.advance()
+    _drain_dialogue()
     if not QuestManager.is_active("side_lost_charm"):
         return _fail("side_charm_stages", "quest not started by dialogue")
     # 부적을 주운 셈치고 set_stage("found") + 인벤토리에 charm_lost 직접 추가
@@ -77,20 +76,29 @@ func _check_side_charm_stages() -> Dictionary:
         return _fail("side_charm_stages", "set_stage found failed")
     Inventory.add("charm_lost", 1)
     # 아낙에게 돌려주기 — if_quest_stage:side_lost_charm:found 선택지가 보여야 함
-    var observed := { "choices_count": -1 }
+    var observed := { "texts": [] }
     var cb := func(_speaker: String, _text: String, choices: Array) -> void:
-        if observed.choices_count < 0:
-            observed.choices_count = choices.size()
+        var texts: Array = []
+        for c in choices:
+            texts.append(String(c.get("text", "")))
+        observed.texts = texts
     Dialogue.dialogue_started.connect(cb)
     Dialogue.start(WOMAN_DIALOG)
     Dialogue.dialogue_started.disconnect(cb)
-    # 시작 노드에서 3개 선택지(말씀하시오/돌려주기/다음에)가 모두 보여야 함 (start_quest 중복 호출은 무해)
-    if observed.choices_count != 3:
-        return _fail("side_charm_stages", "expected 3 choices (with return option), got %d" % observed.choices_count)
-    # 두 번째 선택지(return)를 골라 보상 받기
-    Dialogue.choose(1)
-    while Dialogue.is_active():
-        Dialogue.advance()
+    # 시작 노드에서 3개 선택지(부적 돌려주기/약초/다음에)가 보여야 함
+    # (A2에서 약초 선택지가 추가돼 위치가 밀리므로 인덱스가 아니라 텍스트로 고른다)
+    var texts: Array = observed.texts
+    if texts.size() != 3:
+        return _fail("side_charm_stages", "expected 3 choices (with return option), got %s" % [texts])
+    var return_idx := -1
+    for i in range(texts.size()):
+        if String(texts[i]).contains("찾았소"):
+            return_idx = i
+            break
+    if return_idx < 0:
+        return _fail("side_charm_stages", "return-charm choice not visible: %s" % [texts])
+    Dialogue.choose(return_idx)
+    _drain_dialogue()
     if not QuestManager.is_completed("side_lost_charm"):
         return _fail("side_charm_stages", "side quest not completed")
     if Inventory.count("potion_minor") != 2:
@@ -116,8 +124,7 @@ func _check_elder_branches() -> Dictionary:
     # outro_first 다음 노드는 tiger_offer 인데 choices 가 있어 dialogue_started 가 아니라 advanced 가 떨어짐.
     # tiger_offer 에서 선택지 두 개 중 첫 번째 (수락).
     Dialogue.choose(0)
-    while Dialogue.is_active():
-        Dialogue.advance()
+    _drain_dialogue()
     if not QuestManager.is_active("main_tiger_lord"):
         return _fail("elder_branches", "tiger_offer accept didn't start main quest")
     if not QuestManager.is_completed("first_meet_villager"):
@@ -131,8 +138,7 @@ func _check_elder_branches() -> Dictionary:
     Dialogue.dialogue_started.connect(cb2)
     Dialogue.start(ELDER_DIALOG)
     Dialogue.dialogue_started.disconnect(cb2)
-    while Dialogue.is_active():
-        Dialogue.advance()
+    _drain_dialogue()
     if second.n != 3:
         return _fail("elder_branches", "second visit expected 3 choices, got %d" % second.n)
 
@@ -149,8 +155,7 @@ func _check_elder_branches() -> Dictionary:
         return _fail("elder_branches", "post-boss expected 4 choices, got %d" % third.n)
     # 마지막 옵션(어금니 내밀기)을 골라 complete
     Dialogue.choose(3)
-    while Dialogue.is_active():
-        Dialogue.advance()
+    _drain_dialogue()
     if not QuestManager.is_completed("main_tiger_lord"):
         return _fail("elder_branches", "tooth_show didn't complete main quest")
     if not Flags.has_flag("tiger_lord_resolved"):
@@ -164,3 +169,17 @@ func _pass(name: String) -> Dictionary:
 
 func _fail(name: String, reason: String) -> Dictionary:
     return { "name": name, "status": FAIL, "reason": reason }
+
+
+## 대화를 끝까지 흘린다. choices 노드에서 advance() 는 no-op 이라(dialogue_manager 가드)
+## 그대로 돌리면 무한 루프 — 첫 선택지를 골라 진행하고 안전 상한을 둔다.
+func _drain_dialogue(max_steps: int = 32) -> void:
+    var steps := 0
+    while Dialogue.is_active() and steps < max_steps:
+        Dialogue.advance()
+        if Dialogue.is_active():
+            Dialogue.choose(0)
+        steps += 1
+    if Dialogue.is_active():
+        push_warning("[test] dialogue still active after %d steps — force end" % max_steps)
+        Dialogue._end()
