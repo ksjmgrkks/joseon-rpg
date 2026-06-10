@@ -69,7 +69,7 @@
 # 📍 PART 2. 현재 상황 (어디까지 했는가)
 
 ## 현재 상태 (한 줄 요약)
-> **지금 여기:** Phase 0~3 + 콘텐츠 확장 A~F + 2차 확장(A2/B2/D2/E2/F2)까지 **아트 무관 영역 끝**. 맵 4종 + 적 변종 4종 + 보스(페이즈 2 포함) + 메인 5단계 + 사이드 4종(부적·대장간·약초·서찰) + 콤보/차지/회피/스크린쉐이크/히트스톱 + 장비·소지금·낮밤 + **저장 슬롯 1/2/3 (메타데이터: 지역/Lv/엽전/저장 시각)** + **상점 시스템(대장간, 호환 처치 후 해금)** + **로컬라이제이션 스캐폴드(ko/en, MainMenu 시범 적용)** + GitHub Actions Web export & 헤드리스 테스트 워크플로 자료. 헤드리스 테스트 12종. **이제 사용자 손이 꼭 필요한 것:** ① 주인공 스프라이트(`HUMAN_TASKS 🅑·🅒`) ② PC Godot 시각 검증(`🅖~🅝`) ③ workflow yml 두 개 `.github/workflows/` 로 이동·푸시(`docs/ci/README.md`) ④ 시대·톤 확정(`🅓`) ⑤ 호스팅 결정(`🅔`).
+> **지금 여기:** Phase 0~3 + 콘텐츠 확장 A~F + 2차 확장(A2/B2/D2/E2/F2) + **3차 폴리시(H 씬 전환 자동저장·I 퀘스트 토스트·J 적 HP 바·K 밤 전용 떠돌이 상인)** 까지 **아트 무관 영역 끝**. 맵 4종 + 적 변종 4종 + 보스(페이즈 2 포함) + 메인 5단계 + 사이드 4종(부적·대장간·약초·서찰) + 콤보/차지/회피/스크린쉐이크/히트스톱 + 장비·소지금·낮밤 + **저장 슬롯 0(자동)/1/2/3 (메타데이터: 지역/Lv/엽전/저장 시각)** + **상점 시스템(대장간, 호환 처치 후 해금 + 야시장)** + **로컬라이제이션 스캐폴드(ko/en, MainMenu 시범 적용)** + GitHub Actions Web export & 헤드리스 테스트 워크플로 자료. **헤드리스 테스트 13종 52케이스 전부 통과 (2026-06-11, 로컬 Godot 4.6.3 — 오래 좌초돼 있던 테스트 6종을 이날 수리)**. **이제 사용자 손이 꼭 필요한 것:** ① 주인공 스프라이트(`HUMAN_TASKS 🅑·🅒`) ② PC Godot 시각 검증(`🅖~🅝`) ③ workflow yml 두 개 `.github/workflows/` 로 이동·푸시(`docs/ci/README.md`) ④ 시대·톤 확정(`🅓`) ⑤ 호스팅 결정(`🅔`) ⑥ **Godot 표준 버전 결정(로컬 4.6.3 vs CI 4.3.0 — 아래 '대기' 참조)**.
 
 ## 바로 다음 할 일 (Next Action)
 > 1. ~~깃헙 레포 + Godot 골격~~ ✅
@@ -77,7 +77,7 @@
 > 3. ~~Phase 1 시스템 골격~~ ✅
 > 4. ~~Phase 2 핵심 시스템 (Save·Inventory·Flags·AI·Pause·Audio)~~ ✅
 > 5. ~~Phase 3 게임 흐름 (SceneManager·MainMenu·Quest·Stats·GameOver)~~ ✅
-> 6. ~~콘텐츠 확장 A~F (맵 다수·전투 콘텐츠·퀘스트 라인·장비/경제/낮밤·CI)~~ ✅
+> 6. ~~콘텐츠 확장 A~F + 2차(A2~F2) + 3차 폴리시(H~K) + 헤드리스 테스트 전면 수리(13종 그린)~~ ✅
 > 7. **사용자: 주인공 스프라이트 생성 + Phase 1/2/3 + 콘텐츠 확장 시각 검증** ← 사람만 가능
 >    - a. `docs/PROMPTS_PROTAGONIST.md` 프롬프트로 AI 후보 5~10장 → 1장 선택 → Aseprite/LibreSprite로 손보정 → `assets/sprites/protagonist/idle.png` 커밋
 >    - b. PC Godot 에디터 → 폰트 임포트 설정 + 메인 메뉴 ▶ → 마을→들판→숲→보스→귀환 흐름 + 인벤토리/장비/엽전/낮밤/콤보·차지·shake 시각 확인 (HUMAN_TASKS 🅖~🅝)
@@ -90,6 +90,7 @@
 > - 캐릭터 스프라이트 에셋 없음 (Phase 0에서 생성)
 > - 시대·분위기 톤 미확정 (첫 캐릭터 보고 결정)
 > - 개발용 상시 환경(집 PC 원격 or 클라우드 서버) 결정 필요
+> - **Godot 버전 분기:** 로컬 실행 파일은 4.6.3(Downloads), CI yml·project.godot 은 4.3 기준. 2026-06-11 에 코드가 양쪽 다 호환되게 정비했지만 표준 버전 결정 필요. 4.6 으로 통일하면 → docs/ci 두 yml 의 `GODOT_VERSION` 을 4.6.x 로 올리고, `.gitignore` 의 `*.uid` 항목을 지워 사이드카 일괄 커밋 권장. (4.6 에디터를 한 번이라도 열면 project.godot 의 features 태그를 "4.6" 으로 재작성하니 그 diff 는 그때 같이 커밋.)
 
 ---
 
@@ -103,6 +104,8 @@
 ## 완료된 작업 로그 (최신이 위로)
 > 작업 마칠 때마다 한 줄씩 위에 추가 (날짜 + 한 일).
 
+- **2026-06-11 (테스트 전면 수리 + 4.6 호환)** — 헤드리스 스위트가 실제로는 절반쯤 좌초돼 있던 것을 발견·복구, **13종 52케이스 전부 통과** (로컬 Godot 4.6.3). ① 좌초 원인: (a) 대화 드레인 `while Dialogue.is_active(): advance()` 가 choices 노드에서 무한 루프(advance 는 choices 노드에서 no-op) — 테스트 4파일 11곳을 `_drain_dialogue()` 헬퍼(첫 선택지 고르기 + 32스텝 상한)로 교체. (b) Godot 4.4+ 파서 강화: 코루틴을 await 없이 호출(test_equipment/pickup_fx/scene)과 `var x := max(...)`/`var ok := dict.v and ...` Variant 추론(time_manager→`maxf`, test_combat→타입 명시)이 파스 에러 → 스크립트 로드 실패 → quit() 없는 빈 씬으로 타임아웃. (c) `has_flag` 의 `v == false or v == 0` Variant 교차 비교가 4.4+ 런타임 에러 — 타입별 분기로 재작성. ② **Hitbox 게이트 교체(전투 핵심 픽스)**: monitoring/monitorable 토글 게이트는 4.4+ 브로드페이즈에서 겹친 채 재활성 시 페어를 안 만들어 *정지 상태 공격이 헛스윙* — `collision_layer` 0↔1 게이트로 변경(hitbox.gd + boss.gd 수동 토글 2곳). 회피 무적 사이클(영구 무적 없음)과 밤 NPC 걸어들어오기 감지는 프로브로 확인. ③ 낡은 단정 2건: test_flags 필터링(샘플 JSON 3번째 선택지가 Phase 3에서 quest 게이트로 변경됨 — village_woman 의 if/unless_flag 로 재작성), test_questline 부적 반납(A2 약초 선택지 추가로 choose(1) 위치 어긋남 — 텍스트 기반 선택). ④ **test_polish 신규 10건** (H 자동저장 슬롯 0/메뉴 제외/토글, I 토스트 시작·완료/단계 침묵, J HP 바 표시·비율·자동 숨김, K NightOnly 초기화·페이즈 토글). ⑤ project.godot `flush_stdout_on_print=true`, .gitignore 에 `*.uid`/`*.import`(버전 확정 전 미커밋 방침).
+- **2026-06-10 (3차 폴리시 — 전 세션 커밋 `40c7e41`, HANDOFF 반영 누락분)** — ① **H** 씬 전환 자동 저장: SceneManager._do_change 가 떠나기 전 슬롯 0(autosave) 저장, MainMenu/SettingsMenu 는 NON_GAMEPLAY_SCENES 로 제외. SlotPicker load 모드에 슬롯 0('자동 저장') 노출, MainMenu '이어하기' 활성 조건을 슬롯 0~3 으로 확대. ② **I** QuestToast autoload: quest_changed 를 듣고 시작/완료만 상단 토스트(2.4초 페이드), 단계 전이는 침묵. ③ **J** EnemyHpBar: patroller/dummy/boss 가 attach_to 로 동적 부착, 피격 시 2초 표시 후 숨김(보스는 y 오프셋 상향). ④ **K** NightOnly 노드 + 떠돌이 상인 NPC(Village, 밤 전용 등장, 야시장 open_shop 대화).
 - **2026-06-09 (2차 확장)** — A~F 후속 6 트랙. ① **E2** 저장 슬롯 멀티: SaveManager.save 가 area/level/gold 메타 동봉, SlotPicker UI(load/save 양모드, 3 슬롯, 카드별 요약), MainMenu '이어하기'·PauseMenu '저장' 이 picker 호출. ② **D2** 상점: ShopManager autoload + ShopPanel UI(좌 구매·우 판매, 판매가는 정가 50%, 퀘스트 아이템 판매 차단), 대화 액션 `open_shop`, 대장간 어르신이 tiger_lord_resolved 이후 상점 해금. ③ **B2** 전투 폴리시: 회피 구르기(Shift, 무적 + dash + 0.6s 쿨다운), 보스 페이즈 2(HP ≤ 50% 에서 텔레그래프 0.70x · 회복 0.55x · 데미지 1.25x + 핏빛 톤). ④ **A2** 사이드 퀘스트 2종 추가(약초 5포기 수집·들판 서찰), Dialogue 조건 `if_has_item`/`if_inventory_at_least`, 액션 `take_item` 신규. ⑤ **F2** Locale 스캐폴드(ko/en JSON, MainMenu 시범 적용, locale_changed 시그널). ⑥ **C2/G2** 검증: 현 placeholder 박스가 사실상 ColorRect 기반 grid 역할을 수행 — 실제 TileMap 마이그레이션은 타일 텍스처 도착 후 사용자 PC에서. 헤드리스 테스트 +1종(test_shop_slots, 3건).
 - **2026-06-09** — 콘텐츠 확장 6 트랙 (사용자 지시: A~F 일괄). ① **C** 맵/씬 전환: SceneManager.change_scene_to(path,entry) + LevelExit/LevelEntry, Village/TestLevel/Forest/BossArena 4씬, 명명 스폰 마커. ② **B** 전투 콘텐츠: ScreenFx autoload(shake/hit_stop) + Player 콤보(1-2-3타)·차지(누르고 떼면 강타) + 적 변종 4종(도깨비/구미호/저승사자/호환) + 보스 호환 두령(텔레그래프→돌진→회복 패턴). ③ **A** 퀘스트 라인: 메인 main_tiger_lord(5단계, 사이드 부적·대장간 2종 포함), Pickup/QuestTrigger 제너릭 Area2D, 어르신 대화에 if_quest_stage 분기로 어금니 보고 노드 추가. ④ **D** 장비/경제/낮밤: Equipment autoload(weapon/armor 슬롯, 인벤토리 패널 [장착] 버튼) + PlayerStats.gold + HUD 엽전 표시 + TimeManager(낮/밤 270초 사이클) + WorldTint autoload(CanvasModulate 자동 갱신). ⑤ **E** CI: GitHub Actions 두 워크플로(Web export + 헤드리스 테스트 전체), export_presets.cfg Web 프리셋 포함. ⑥ **F** 테스트 +4종(test_scene 3건, test_questline 3건, test_equipment 5건, test_pickup_fx 4건) — 총 11종 40+ 케이스.
 - **2026-05-29 (후속)** — Phase 3 아트 무관 시스템 4단계: ① SceneManager(페이드 인/아웃) + MainMenu + SettingsMenu(볼륨 슬라이더 3종) — `run/main_scene` 변경 (`5d2f75f` + fix `8d2d642`). ② QuestManager + QuestLog UI(Q 키) + 대화 quest action(start/set_stage/complete/give_item) + choice 조건(if_quest_active/completed/stage) — 샘플 villager 에 적용, rewards.items 자동 지급 (`05815c1` + fix `2bc5d61`). ③ PlayerStats autoload(레벨/XP 곡선) + FloatingNumber(부유 데미지/XP 숫자) + PlayerHud 에 Lv/XP 표시 + Dummy/Patroller xp_reward 통합 (`f73f976`). ④ GameOverScreen — 사망 시 이어하기(슬롯1 로드+리로드) / 메인 메뉴 선택 (`fb208ef`). 헤드리스 테스트 +1종(quests, 3건).
@@ -129,6 +132,8 @@
 - [x] 장비/경제 — Equipment autoload(weapon/armor) · PlayerStats.gold · 인벤토리 [장착] 버튼 · Pickup 의 gold 환산 (2026-06-09).
 - [x] 낮/밤 — TimeManager 사이클 + WorldTint(CanvasModulate) 자동 색감 변화 (2026-06-09).
 - [x] CI — GitHub Actions Web export 워크플로 + 헤드리스 테스트 워크플로 + export_presets.cfg Web 프리셋 (2026-06-09).
+- [x] 폴리시 — 씬 전환 자동저장(슬롯 0) + 퀘스트 토스트 + 적 HP 바 + 밤 전용 NPC/야시장 (2026-06-10).
+- [x] 헤드리스 테스트 — 13종 52케이스 그린. 좌초 6종 수리 + Godot 4.4+/4.6 호환 정비 + Hitbox layer 게이트 (2026-06-11).
 - [ ] web export 빌드 + 폰 미리보기 — Actions 실행 결과는 자동, 폰 확인은 사용자 PC/모바일
 - [ ] GitHub Pages 배포 — 워크플로에 주석으로 준비, Settings → Pages 에서 켜면 활성화
 
