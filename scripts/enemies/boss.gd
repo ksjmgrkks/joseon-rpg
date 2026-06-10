@@ -52,9 +52,7 @@ func _ready() -> void:
     add_to_group("boss")
     if sprite:
         sprite.modulate = body_color
-    if attack_hitbox:
-        attack_hitbox.monitoring = false
-        attack_hitbox.monitorable = false
+    # attack_hitbox 활성 게이트는 Hitbox._ready 가 스스로 초기화 (layer 게이트)
     hurtbox.hurt.connect(_on_hurt)
     health.hp_changed.connect(_on_hp_changed)
     health.died.connect(_on_died)
@@ -208,8 +206,7 @@ func _on_died() -> void:
         Flags.set_flag(flag_on_death, true)
     # 즉시 제거하지 않고 잠깐 두면 사라지는 페이드를 줄 수 있지만 간단히 비활성화
     if attack_hitbox:
-        attack_hitbox.monitoring = false
-        attack_hitbox.monitorable = false
+        attack_hitbox.collision_layer = 0
     if hurtbox:
         hurtbox.monitoring = false
     await get_tree().create_timer(0.45).timeout
