@@ -28,7 +28,7 @@ const DODGE_DURATION: float = 0.28       # 무적·dash 지속
 const DODGE_SPEED: float = 360.0
 const DODGE_COOLDOWN: float = 0.6
 
-@onready var sprite: Sprite2D = $Sprite2D
+@onready var sprite: AnimatedSprite2D = $Visual
 @onready var attack_hitbox: Hitbox = $AttackHitbox
 @onready var hurtbox: Hurtbox = $Hurtbox
 @onready var health: HealthComponent = $HealthComponent

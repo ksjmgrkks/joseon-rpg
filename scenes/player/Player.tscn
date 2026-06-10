@@ -4,6 +4,7 @@
 [ext_resource type="Script" path="res://scripts/combat/hurtbox.gd" id="2_hurtbox"]
 [ext_resource type="Script" path="res://scripts/combat/hitbox.gd" id="3_hitbox"]
 [ext_resource type="Script" path="res://scripts/combat/health_component.gd" id="4_health"]
+[ext_resource type="Script" path="res://scripts/visual/player_visual.gd" id="5_visual"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_player"]
 size = Vector2(16, 32)
@@ -14,14 +15,11 @@ size = Vector2(18, 34)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_hit"]
 size = Vector2(24, 24)
 
-[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_player"]
-size = Vector2(16, 32)
-
 [node name="Player" type="CharacterBody2D" groups=["player"]]
 script = ExtResource("1_player")
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
-texture = SubResource("PlaceholderTexture2D_player")
+[node name="Visual" type="AnimatedSprite2D" parent="."]
+script = ExtResource("5_visual")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("RectangleShape2D_player")
