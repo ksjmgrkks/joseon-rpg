@@ -1,6 +1,8 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/ending.gd" id="1_ending"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_scroll"]
 
 [node name="Ending" type="Control"]
 layout_mode = 3
@@ -34,6 +36,7 @@ texture_filter = 1
 
 [node name="Scroll" type="PanelContainer" parent="."]
 layout_mode = 1
+theme_override_styles/panel = SubResource("StyleBoxEmpty_scroll")
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
@@ -58,11 +61,13 @@ theme_override_constants/separation = 24
 [node name="Story" type="Label" parent="Scroll/Margin/VBox"]
 layout_mode = 2
 size_flags_vertical = 3
+theme_override_colors/font_color = Color(0.16, 0.13, 0.1, 1)
 theme_override_font_sizes/font_size = 22
 autowrap_mode = 2
 
 [node name="Credits" type="Label" parent="Scroll/Margin/VBox"]
 layout_mode = 2
+theme_override_colors/font_color = Color(0.24, 0.18, 0.13, 1)
 theme_override_font_sizes/font_size = 14
 horizontal_alignment = 1
 autowrap_mode = 2

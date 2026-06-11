@@ -38,6 +38,11 @@
       "frame_h": 77,
       "frames": 1
     },
+    "title_logo_menu": {
+      "frame_w": 269,
+      "frame_h": 77,
+      "frames": 1
+    },
     "ending_scroll": {
       "frame_w": 320,
       "frame_h": 200,

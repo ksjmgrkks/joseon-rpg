@@ -154,6 +154,34 @@ def title_logo() -> Canvas:
     return c
 
 
+# ── ⑤b title_logo_menu — 어두운 타이틀 배경용 (밝은 한지 글자 + 먹 그림자) ──
+def title_logo_menu() -> Canvas:
+    font = ImageFont.truetype(FONT_PATH, 64)
+    text = "호환기담"
+    tmp = Image.new("L", (64 * 6, 160), 0)
+    d = ImageDraw.Draw(tmp)
+    d.text((16, 16), text, font=font, fill=255)
+    bbox = tmp.getbbox()
+    if bbox is None:
+        raise RuntimeError("폰트 렌더 실패: 빈 비트맵")
+    mask = tmp.crop(bbox)
+    mw, mh = mask.size
+    M, SH = 8, 2
+    c = Canvas(mw + SH + M * 2, mh + SH + M * 2)
+    mp = mask.load()
+    # 먹 그림자 먼저 (+2/+2)
+    for y in range(mh):
+        for x in range(mw):
+            if mp[x, y] >= 128:
+                c.px(M + x + SH, M + y + SH, P.INK_DEEPEST)
+    # 본문 — 밝은 한지색 (어두운 배경에서 읽힘)
+    for y in range(mh):
+        for x in range(mw):
+            if mp[x, y] >= 128:
+                c.px(M + x, M + y, P.PAPER_BRIGHT)
+    return c
+
+
 # ── ⑥ ending_scroll 320x200 — 펼친 두루마리 ─────────────────────
 def ending_scroll() -> Canvas:
     W, H = 320, 200
@@ -217,6 +245,7 @@ ASSETS = [
     ("hp_frame",       hp_frame,              {"inner_rect": [2, 1, 100, 10]}, 8),
     ("balloon_tail",   balloon_tail,          {},                        8),
     ("title_logo",     title_logo,            {},                        3),
+    ("title_logo_menu",title_logo_menu,       {},                        3),
     ("ending_scroll",  ending_scroll,         {},                        3),
 ]
 
