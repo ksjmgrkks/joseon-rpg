@@ -221,9 +221,13 @@ ASSETS = [
 ]
 
 
+DARK_ASSETS = {"hp_frame", "title_logo"}  # 먹색 위주 — 시트 검수용 한지 받침 필요
+
+
 def main():
     manifest = {"type": "ui_skin", "images": {}}
     paths = []
+    sheets_dir = os.path.join(ROOT, "shots", "sheets")
     for name, build, extra, scale in ASSETS:
         cv = build()
         path = os.path.join(UI_DIR, name + ".png")
@@ -231,7 +235,16 @@ def main():
         entry = {"frame_w": cv.w, "frame_h": cv.h, "frames": 1}
         entry.update(extra)
         manifest["images"][name] = entry
-        paths.append(path)
+        if name in DARK_ASSETS:
+            # 시트 전용: 한지 받침 위에 합성 (게임 에셋은 투명 배경 그대로)
+            backed = Canvas(cv.w + 8, cv.h + 8)
+            backed.rect(0, 0, backed.w, backed.h, P.PAPER_BASE)
+            backed.paste(cv, 4, 4)
+            tmp = os.path.join(sheets_dir, "_backed_" + name + ".png")
+            backed.save(tmp, preview_scale=1)
+            paths.append(tmp)
+        else:
+            paths.append(path)
         print("saved: %s (%dx%d)" % (path, cv.w, cv.h))
 
     # manifest 검증: frames * frame_w == PNG 폭, frame_h == PNG 높이

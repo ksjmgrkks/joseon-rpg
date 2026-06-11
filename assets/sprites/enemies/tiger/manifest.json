@@ -1,0 +1,26 @@
+{
+  "frame_w": 48,
+  "frame_h": 48,
+  "anims": {
+    "idle": {
+      "frames": 2,
+      "fps": 3,
+      "loop": true
+    },
+    "walk": {
+      "frames": 4,
+      "fps": 8,
+      "loop": true
+    },
+    "attack": {
+      "frames": 3,
+      "fps": 12,
+      "loop": false
+    },
+    "death": {
+      "frames": 4,
+      "fps": 8,
+      "loop": false
+    }
+  }
+}

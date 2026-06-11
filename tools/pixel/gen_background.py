@@ -84,36 +84,44 @@ def gen_far() -> Canvas:
 
 
 # ── ② bg_mid — 중경 산 + 소나무 + 안개 디더 ──────────────────
-def _pad(c, cx, cy, w, col):
-    """소나무 가지층 — 납작하고 위가 평평한 솔잎 덩어리."""
-    half = w // 2
-    whline(c, cx - half + 1, cy - 1, w - 2, col)
-    whline(c, cx - half, cy, w, col)
-    whline(c, cx - half + 2, cy + 1, max(2, w - 5), col)
-
-
 def _pine(c, rnd, x, ground_y, h):
-    """굽은 줄기 + 수평 솔잎층 — 한국 소나무 실루엣."""
+    """굽은 줄기 + 우산형 솔잎 크라운 — 한국 소나무 실루엣.
+    크라운(덩어리)이 나무 높이의 절반을 차지하고 위가 가장 넓다(우산형)."""
     col = P.INK_SOFT
-    lean = rnd.choice([-1, 1]) * rnd.uniform(0.10, 0.22)
-    txs = []
-    for i in range(h + 1):
-        wob = 1 if (i > h * 0.55 and (i // 3) % 2 == 0) else 0
-        tx = int(round(x + lean * i)) + (wob if lean > 0 else -wob)
-        txs.append(tx)
+    lean = rnd.choice([-1, 1]) * rnd.uniform(0.08, 0.18)
+    txs = [int(round(x + lean * i + 0.7 * math.sin(i * math.pi / max(8, h))))
+           for i in range(h + 1)]
     for i, tx in enumerate(txs):
         y = ground_y - i
         wpx(c, tx, y, col)
-        if i <= h // 3:                       # 밑동은 2px
+        if i <= h * 0.5:                      # 밑동~중단은 2px
             wpx(c, tx + 1, y, col)
     top_x, top_y = txs[-1], ground_y - h
     side = 1 if lean > 0 else -1
-    _pad(c, top_x, top_y + 1, rnd.randint(7, 9), col)                          # 우듬지
-    _pad(c, top_x + side * rnd.randint(3, 5), top_y + rnd.randint(4, 6),
-         rnd.randint(9, 12), col)                                              # 본가지
-    if h >= 18:
-        _pad(c, top_x - side * rnd.randint(2, 4), top_y + rnd.randint(8, 10),
-             rnd.randint(8, 11), col)                                          # 곁가지
+    w = max(12, int(h * 0.85)) + rnd.randint(-1, 2)
+    # 본 크라운 — 5단 덩어리, 둘째 단이 가장 넓은 납작 우산
+    for dy, ww in ((0, w - 5), (1, w), (2, w - 1), (3, w - 4), (4, w - 8)):
+        off = rnd.randint(-1, 1)
+        whline(c, top_x - ww // 2 + off, top_y + dy, ww, col)
+    # 곁가지층 — 크라운 바로 아래 좌우 엇갈림 (실루엣이 한 덩어리로 이어짐)
+    bw = max(6, w // 2 + 1)
+    whline(c, top_x + side * (w // 3) - bw // 2, top_y + 6, bw, col)
+    whline(c, top_x + side * (w // 3) - bw // 2 + 1, top_y + 7, bw - 3, col)
+    if h >= 16:
+        bw2 = max(5, w // 2 - 1)
+        whline(c, top_x - side * (w // 3) - bw2 // 2, top_y + 9, bw2, col)
+
+
+def _peak_spots(ridge, n=5, min_gap=70):
+    """능선 배열에서 서로 떨어진 봉우리(작은 y) 후보 x 를 고른다 — 래핑 거리."""
+    order = sorted(range(W), key=lambda x: ridge[x])
+    chosen = []
+    for x in order:
+        if all(min(abs(x - c0), W - abs(x - c0)) >= min_gap for c0 in chosen):
+            chosen.append(x)
+        if len(chosen) >= n:
+            break
+    return chosen
 
 
 def gen_mid(rnd) -> Canvas:
@@ -132,10 +140,13 @@ def gen_mid(rnd) -> Canvas:
                 c.px(x, y, P.INK_SOFT)
         for y in range(y0 + 4, H):
             c.px(x, y, P.INK_SOFT)
-    # 소나무 — 군락 2곳 + 독립수 (실루엣만, 능선 위에서 하늘에 걸림)
-    for tx, th in [(40, 22), (120, 18), (148, 24), (310, 20), (342, 26),
-                   (470, 16), (552, 23), (588, 18)]:
-        _pine(c, rnd, tx, ridge[tx % W] + 3, th)
+    # 소나무 — 봉우리마다 큰 나무 + 곁나무 (능선 위 하늘에 실루엣이 걸리도록)
+    for px_ in _peak_spots(ridge, n=5, min_gap=80):
+        big_h = rnd.randint(17, 22)
+        _pine(c, rnd, px_, ridge[px_] + 3, big_h)
+        if rnd.random() < 0.75:               # 곁나무 (작게, 옆에)
+            ox = px_ + rnd.choice([-1, 1]) * rnd.randint(11, 16)
+            _pine(c, rnd, ox, ridge[ox % W] + 3, rnd.randint(11, 14))
     # 산허리 안개띠 — 투명으로 '지우는' 디더 (알파 혼합 없이 뒤 레이어가 비침)
     for x in range(W):
         yf = int(round(288 + 6 * math.sin(TAU * 2 * x / W + 1.3)

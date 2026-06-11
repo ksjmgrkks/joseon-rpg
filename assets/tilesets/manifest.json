@@ -1,0 +1,82 @@
+{
+  "tiles": {
+    "ground_dirt": {
+      "file": "ground_dirt.png",
+      "frame_w": 32,
+      "frame_h": 32,
+      "frames": 1,
+      "tileable": "xy"
+    },
+    "ground_grass": {
+      "file": "ground_grass.png",
+      "frame_w": 32,
+      "frame_h": 32,
+      "frames": 1,
+      "tileable": "xy"
+    },
+    "stone": {
+      "file": "stone.png",
+      "frame_w": 32,
+      "frame_h": 32,
+      "frames": 1,
+      "tileable": "xy"
+    },
+    "wood_platform": {
+      "file": "wood_platform.png",
+      "frame_w": 32,
+      "frame_h": 32,
+      "frames": 1,
+      "tileable": "xy"
+    }
+  },
+  "props": {
+    "house_tile": {
+      "file": "house_tile.png",
+      "frame_w": 96,
+      "frame_h": 80,
+      "frames": 1
+    },
+    "house_thatch": {
+      "file": "house_thatch.png",
+      "frame_w": 96,
+      "frame_h": 72,
+      "frames": 1
+    },
+    "well": {
+      "file": "well.png",
+      "frame_w": 40,
+      "frame_h": 40,
+      "frames": 1
+    },
+    "fence": {
+      "file": "fence.png",
+      "frame_w": 64,
+      "frame_h": 24,
+      "frames": 1
+    },
+    "jangseung": {
+      "file": "jangseung.png",
+      "frame_w": 24,
+      "frame_h": 56,
+      "frames": 1
+    },
+    "sotdae": {
+      "file": "sotdae.png",
+      "frame_w": 16,
+      "frame_h": 64,
+      "frames": 1
+    },
+    "pine": {
+      "file": "pine.png",
+      "frame_w": 56,
+      "frame_h": 88,
+      "frames": 1
+    },
+    "lantern": {
+      "file": "lantern.png",
+      "frame_w": 16,
+      "frame_h": 24,
+      "frames": 1
+    }
+  }
+}

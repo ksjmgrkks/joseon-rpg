@@ -30,14 +30,14 @@ def _feet(c, front_hl=True):
 
 
 def _face(c, b, hx=CX, hair=True):
-    """공통 얼굴 (y 17+b..25+b) — hx 로 머리 중심 이동 가능."""
-    c.rect(hx - 4, 17 + b, 8, 9, P.SKIN_BASE)
-    c.rect(hx + 2, 18 + b, 2, 8, P.SKIN_SHADE)        # 뒤통수쪽 음영
-    c.px(hx - 4, 17 + b, P.TRANSPARENT); c.px(hx + 3, 17 + b, P.TRANSPARENT)
+    """공통 얼굴 (y 16+b..25+b) — 모자 챙(y15)에 바로 닿는 높이."""
+    c.rect(hx - 4, 16 + b, 8, 10, P.SKIN_BASE)
+    c.rect(hx + 2, 17 + b, 2, 9, P.SKIN_SHADE)        # 뒤통수쪽 음영
+    c.px(hx - 4, 16 + b, P.TRANSPARENT); c.px(hx + 3, 16 + b, P.TRANSPARENT)
     c.px(hx + 1, 20 + b, P.INK_DEEPEST)               # 눈
     c.px(hx + 3, 22 + b, P.SKIN_DEEP)                 # 코점
     if hair:
-        c.rect(hx - 4, 18 + b, 2, 4, P.INK_DARK)      # 귀밑 머리칼
+        c.rect(hx - 4, 17 + b, 2, 5, P.INK_DARK)      # 귀밑 머리칼
 
 
 # ──────────────────────────────────────────────────────────────
@@ -56,9 +56,10 @@ def elder(b: int) -> Canvas:
     c.hline(CX - 8, 58, 16, P.PAPER_SHADE)
     _feet(c)
 
-    # 지팡이 (고정 — 땅에 짚음, y 34..61)
-    c.vline(CX + 8, 34, 28, P.WOOD_DEEP)
-    c.px(CX + 8, 35, P.WOOD_BASE)
+    # 지팡이 (고정 — 땅에 짚음, y 33..61) + 손잡이 옹이
+    c.vline(CX + 8, 33, 29, P.WOOD_DEEP)
+    c.px(CX + 8, 33, P.WOOD_BASE)                      # 손잡이 머리
+    c.px(CX + 7, 34, P.WOOD_BASE)
 
     # 상체 도포 (y 28+b..42 — 아랫단은 자락에 물림)
     c.rect(CX - 6, 28 + b, 12, 15 - b, P.PAPER_BASE)
@@ -75,7 +76,7 @@ def elder(b: int) -> Canvas:
 
     c.rect(hx - 1, 26 + b, 3, 2, P.SKIN_SHADE)         # 목
     _face(c, b, hx=hx, hair=False)
-    c.rect(hx - 4, 19 + b, 2, 4, P.INK_FAINT)          # 흰 구레나룻(잿빛)
+    c.rect(hx - 4, 18 + b, 2, 5, P.INK_FAINT)          # 흰 구레나룻(잿빛)
     c.hline(hx, 19 + b, 3, P.PAPER_BRIGHT)             # 흰 눈썹
 
     # 흰 수염 — 턱에서 가슴까지 점점 좁게
@@ -169,8 +170,8 @@ def woman(b: int) -> Canvas:
         half = min(4 + i // 3, 9)
         c.hline(CX - half, y, half * 2, P.BLUE_BASE)
         c.rect(CX + half - 2, y, 2, 1, P.BLUE_DEEP)    # 우측 음영
-    c.dither(CX - 3, 40, 2, 18, P.BLUE_DEEP)           # 주름
-    c.dither(CX + 1, 44, 2, 14, P.BLUE_DEEP, parity=1)
+    c.dither(CX - 2, 44, 1, 13, P.BLUE_DEEP)           # 주름 한 줄만 (절제)
+    c.dither(CX + 2, 48, 1, 9, P.BLUE_DEEP, parity=1)
     c.hline(CX - 9, 58, 18, P.BLUE_DEEP)               # 밑단
     c.rect(CX + 2, 59, 4, 3, P.PAPER_BRIGHT)           # 신발코(고무신)만 빼꼼
     c.px(CX + 5, 61, P.PAPER_SHADE)
@@ -196,17 +197,16 @@ def woman(b: int) -> Canvas:
     c.px(CX - 3, 16 + b, P.TRANSPARENT); c.px(CX + 3, 16 + b, P.TRANSPARENT)
     c.px(CX + 1, 19 + b, P.INK_DEEPEST)                # 눈
     c.px(CX - 2, 18 + b, P.SKIN_LIGHT)                 # 볼 하이라이트
-    c.px(CX + 3, 21 + b, P.SKIN_DEEP)                  # 코점
-    c.px(CX + 2, 23 + b, P.RED_DEEP)                   # 입술
+    c.px(CX + 2, 22 + b, P.RED_DEEP)                   # 입술 (코점 생략 — 갸름하게)
 
     # 쪽진 머리 (가르마 정수리 + 뒤통수 + 쪽 + 비녀)
     c.rect(CX - 4, 14 + b, 9, 3, P.INK_DARK)
     c.px(CX - 4, 14 + b, P.TRANSPARENT); c.px(CX + 4, 14 + b, P.TRANSPARENT)
-    c.rect(CX - 5, 15 + b, 2, 7, P.INK_DARK)           # 뒷머리
+    c.rect(CX - 5, 15 + b, 2, 8, P.INK_DARK)           # 뒷머리
     c.px(CX, 15 + b, P.INK_MID)                        # 머릿결 윤기
-    c.rect(CX - 7, 19 + b, 3, 3, P.INK_DARK)           # 쪽(낭자)
-    c.px(CX - 7, 19 + b, P.TRANSPARENT)
-    c.hline(CX - 9, 20 + b, 3, P.GOLD_BASE)            # 비녀
+    c.rect(CX - 7, 20 + b, 3, 3, P.INK_DARK)           # 쪽(낭자) — 목덜미 높이
+    c.px(CX - 7, 20 + b, P.TRANSPARENT)
+    c.hline(CX - 9, 21 + b, 3, P.GOLD_BASE)            # 비녀
 
     c.outline(P.INK_SOFT, only_color=P.PAPER_BRIGHT)
     return c
