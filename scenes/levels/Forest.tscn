@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3]
+[gd_scene load_steps=17 format=3]
 
 ; 숲 — 들판 우측에서 진입. 어두운 침엽수 톤. 적 변종 4종 + 우측 보스 아레나 입구.
 ; 메인 퀘스트 main_tiger_lord 단계 to_forest 자동 진행, 사이드 퀘스트 부적 픽업.
@@ -14,6 +14,9 @@
 [ext_resource type="Script" path="res://scripts/scene/level_entry.gd" id="9_entry"]
 [ext_resource type="Script" path="res://scripts/quests/pickup.gd" id="10_pickup"]
 [ext_resource type="Script" path="res://scripts/quests/quest_trigger.gd" id="11_trigger"]
+[ext_resource type="PackedScene" path="res://scenes/world/Backdrop.tscn" id="bd"]
+[ext_resource type="Script" path="res://scripts/world/tiled_sprite.gd" id="tile"]
+[ext_resource type="Texture2D" path="res://assets/tilesets/pine.png" id="pine"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ground"]
 size = Vector2(1600, 32)
@@ -32,10 +35,24 @@ radius = 14.0
 
 [node name="Forest" type="Node2D"]
 
-[node name="Background" type="ColorRect" parent="."]
-offset_right = 1600.0
-offset_bottom = 720.0
-color = Color(0.22, 0.30, 0.24, 1)
+[node name="Backdrop" parent="." instance=ExtResource("bd")]
+sky_color = Color(0.58, 0.62, 0.55, 1)
+tint = Color(0.82, 0.86, 0.80, 1)
+far_scale = 0.12
+
+[node name="GroundDirt" type="Sprite2D" parent="."]
+position = Vector2(-600, 716)
+script = ExtResource("tile")
+tex_path = "res://assets/tilesets/ground_dirt.png"
+width = 2800
+height = 340
+
+[node name="GroundTiles" type="Sprite2D" parent="."]
+position = Vector2(-600, 684)
+script = ExtResource("tile")
+tex_path = "res://assets/tilesets/ground_dirt.png"
+width = 2800
+height = 36
 
 [node name="Ground" type="StaticBody2D" parent="."]
 position = Vector2(800, 700)
@@ -44,6 +61,7 @@ position = Vector2(800, 700)
 shape = SubResource("RectangleShape2D_ground")
 
 [node name="GroundRect" type="ColorRect" parent="Ground"]
+visible = false
 offset_left = -800.0
 offset_top = -16.0
 offset_right = 800.0
@@ -188,6 +206,46 @@ offset_top = -48.0
 offset_right = 16.0
 offset_bottom = 48.0
 color = Color(0.55, 0.20, 0.18, 0.5)
+
+[node name="Pine0" type="Sprite2D" parent="."]
+texture_filter = 1
+position = Vector2(180, 686)
+scale = Vector2(2.0, 2.0)
+texture = ExtResource("pine")
+centered = false
+offset = Vector2(-28, -88)
+
+[node name="Pine1" type="Sprite2D" parent="."]
+texture_filter = 1
+position = Vector2(520, 686)
+scale = Vector2(1.6, 1.6)
+texture = ExtResource("pine")
+centered = false
+offset = Vector2(-28, -88)
+
+[node name="Pine2" type="Sprite2D" parent="."]
+texture_filter = 1
+position = Vector2(820, 686)
+scale = Vector2(2.2, 2.2)
+texture = ExtResource("pine")
+centered = false
+offset = Vector2(-28, -88)
+
+[node name="Pine3" type="Sprite2D" parent="."]
+texture_filter = 1
+position = Vector2(1180, 686)
+scale = Vector2(1.8, 1.8)
+texture = ExtResource("pine")
+centered = false
+offset = Vector2(-28, -88)
+
+[node name="Pine4" type="Sprite2D" parent="."]
+texture_filter = 1
+position = Vector2(1450, 686)
+scale = Vector2(2.0, 2.0)
+texture = ExtResource("pine")
+centered = false
+offset = Vector2(-28, -88)
 
 [node name="MobileControls" parent="." instance=ExtResource("6_mobile")]
 

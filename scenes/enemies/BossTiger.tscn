@@ -1,8 +1,9 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=9 format=3]
 
 ; 호환 두령 보스 — 텔레그래프 → 돌진 → 회복 패턴.
 
 [ext_resource type="Script" path="res://scripts/enemies/boss.gd" id="1_boss"]
+[ext_resource type="Script" path="res://scripts/visual/enemy_visual.gd" id="vis_enemy"]
 [ext_resource type="Script" path="res://scripts/combat/hurtbox.gd" id="2_hurt"]
 [ext_resource type="Script" path="res://scripts/combat/health_component.gd" id="3_health"]
 [ext_resource type="Script" path="res://scripts/combat/hitbox.gd" id="4_hit"]
@@ -31,9 +32,10 @@ quest_id_on_death = "main_tiger_lord"
 quest_stage_on_death = "boss_defeated"
 flag_on_death = "tiger_lord_defeated"
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
-modulate = Color(0.85, 0.35, 0.18, 1)
-texture = SubResource("PlaceholderTexture2D_p")
+[node name="Sprite2D" type="AnimatedSprite2D" parent="."]
+script = ExtResource("vis_enemy")
+sheet = "enemies/boss"
+foot_offset = -2.0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("RectangleShape2D_body")

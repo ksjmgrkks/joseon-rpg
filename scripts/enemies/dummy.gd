@@ -9,7 +9,7 @@ const KNOCKBACK_DECAY: float = 1200.0  # px/s² 마찰
 
 @export var xp_reward: int = 8
 
-@onready var sprite: Sprite2D = $Sprite2D
+@onready var sprite: AnimatedSprite2D = $Sprite2D
 @onready var health: HealthComponent = $HealthComponent
 @onready var hurtbox: Hurtbox = $Hurtbox
 
@@ -46,7 +46,7 @@ func _on_hurt(damage: float, knockback: float, _attacker: Node) -> void:
         sprite.modulate = Color(1, 0.5, 0.5, 1)
         await get_tree().create_timer(0.08).timeout
         if is_instance_valid(sprite):
-            sprite.modulate = Color(0.55, 0.55, 0.65, 1)
+            sprite.modulate = Color.WHITE
 
 
 func _on_hp_changed(hp: float, max_hp: float) -> void:

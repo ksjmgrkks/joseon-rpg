@@ -1,8 +1,9 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene load_steps=11 format=3]
 
 ; 구미호 — 중간 HP, 추격 거리 길고 시야 넓음.
 
 [ext_resource type="Script" path="res://scripts/enemies/patroller.gd" id="1_p"]
+[ext_resource type="Script" path="res://scripts/visual/enemy_visual.gd" id="vis_enemy"]
 [ext_resource type="Script" path="res://scripts/combat/hurtbox.gd" id="2_hurt"]
 [ext_resource type="Script" path="res://scripts/combat/health_component.gd" id="3_health"]
 [ext_resource type="Script" path="res://scripts/ai/state_machine.gd" id="4_sm"]
@@ -26,9 +27,10 @@ body_color = Color(0.88, 0.52, 0.28, 1)
 detect_range = 260.0
 xp_reward = 22
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
-modulate = Color(0.88, 0.52, 0.28, 1)
-texture = SubResource("PlaceholderTexture2D_p")
+[node name="Sprite2D" type="AnimatedSprite2D" parent="."]
+script = ExtResource("vis_enemy")
+sheet = "enemies/fox"
+foot_offset = -4.0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("RectangleShape2D_body")

@@ -9,9 +9,11 @@ extends CharacterBody2D
 @export var detect_range: float = 160.0
 @export var xp_reward: int = 14
 
-@onready var sprite: Sprite2D = $Sprite2D
+@onready var sprite: AnimatedSprite2D = $Sprite2D
 @onready var hurtbox: Hurtbox = $Hurtbox
 @onready var health: HealthComponent = $HealthComponent
+
+var _dying: bool = false
 
 
 func _ready() -> void:
@@ -20,8 +22,7 @@ func _ready() -> void:
     health.hp_changed.connect(_on_hp_changed)
     health.died.connect(_on_died)
     EnemyHpBar.attach_to(self, health)
-    if sprite:
-        sprite.modulate = body_color
+    # 실제 스프라이트(EnemyVisual) 사용 — 색 틴트 없이 원본 표시.
 
 
 func get_player() -> Node:
@@ -44,7 +45,7 @@ func _on_hurt(damage: float, knockback: float, _attacker: Node) -> void:
         sprite.modulate = Color(1, 0.5, 0.5, 1)
         await get_tree().create_timer(0.08).timeout
         if is_instance_valid(sprite):
-            sprite.modulate = body_color
+            sprite.modulate = Color.WHITE
 
 
 func _on_hp_changed(hp: float, max_hp: float) -> void:
@@ -52,9 +53,18 @@ func _on_hp_changed(hp: float, max_hp: float) -> void:
 
 
 func _on_died() -> void:
+    if _dying:
+        return
+    _dying = true
     print("[%s] died" % display_name)
     Audio.play_sfx(Sfx.DIE)
     if xp_reward > 0:
         PlayerStats.gain_xp(xp_reward)
         FloatingNumber.spawn(get_tree().current_scene, global_position, "+%d XP" % xp_reward, Color(1, 0.95, 0.6))
+    # 더는 안 맞고, 죽음 애니메이션이 보이도록 잠깐 둔 뒤 제거
+    if hurtbox:
+        hurtbox.monitoring = false
+    set_physics_process(false)
+    velocity = Vector2.ZERO
+    await get_tree().create_timer(0.6).timeout
     queue_free()
