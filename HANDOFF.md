@@ -69,28 +69,21 @@
 # 📍 PART 2. 현재 상황 (어디까지 했는가)
 
 ## 현재 상태 (한 줄 요약)
-> **지금 여기:** Phase 0~3 + 콘텐츠 확장 A~F + 2차 확장(A2/B2/D2/E2/F2) + **3차 폴리시(H 씬 전환 자동저장·I 퀘스트 토스트·J 적 HP 바·K 밤 전용 떠돌이 상인)** 까지 **아트 무관 영역 끝**. 맵 4종 + 적 변종 4종 + 보스(페이즈 2 포함) + 메인 5단계 + 사이드 4종(부적·대장간·약초·서찰) + 콤보/차지/회피/스크린쉐이크/히트스톱 + 장비·소지금·낮밤 + **저장 슬롯 0(자동)/1/2/3 (메타데이터: 지역/Lv/엽전/저장 시각)** + **상점 시스템(대장간, 호환 처치 후 해금 + 야시장)** + **로컬라이제이션 스캐폴드(ko/en, MainMenu 시범 적용)** + GitHub Actions Web export & 헤드리스 테스트 워크플로 자료. **헤드리스 테스트 13종 52케이스 전부 통과 (2026-06-11, 로컬 Godot 4.6.3 — 오래 좌초돼 있던 테스트 6종을 이날 수리)**. **이제 사용자 손이 꼭 필요한 것:** ① 주인공 스프라이트(`HUMAN_TASKS 🅑·🅒`) ② PC Godot 시각 검증(`🅖~🅝`) ③ workflow yml 두 개 `.github/workflows/` 로 이동·푸시(`docs/ci/README.md`) ④ 시대·톤 확정(`🅓`) ⑤ 호스팅 결정(`🅔`) ⑥ **Godot 표준 버전 결정(로컬 4.6.3 vs CI 4.3.0 — 아래 '대기' 참조)**.
+> **지금 여기:** **실제 돌아가는 비주얼 게임 완성 (2026-06-11).** Godot 4.6.3 표준화 + 「호환기담」 컨셉 잠금 + **자체 제작 픽셀아트·사운드 전량 적용**. 타이틀(로고+산수)→마을→들판→숲→보스 아레나→엔딩(두루마리)까지 한 바퀴가 시각적으로 완결. 주인공 11종 애님(idle/walk/jump/공격1-3/차지/회피/피격/사망) + 적 5종(도깨비·구미호·저승사자·호환·+) + **보스 호환 두령(idle/walk/telegraph/attack/heal/death)** + NPC 4종 + 한옥(기와집/초가집)·장승·우물·솟대·소나무·등롱 + **수묵 산수 패럴랙스 3겹** + 타일 지면 + 한지·먹 UI 스킨 + **SFX 10종·BGM 4종(순수 파이썬 신디사이저)**. 시스템(전투·인벤·장비·상점·퀘스트·세이브·낮밤)은 기존 유지. **헤드리스 테스트 13종 52케이스 그린.** 모든 에셋은 `tools/pixel/`·`tools/audio/` 의 재현 가능한 생성 스크립트 산출물(STYLE_BIBLE 25색 강제).
+> **남은 것(미감·실기기):** ① **손맛/애니 타이밍**은 스크린샷으로 못 잡음 — PC에서 실제 플레이로 확인 ② 폰 브라우저 web export 미리보기 ③ 픽업 아이템(약초·서찰·엽전)이 아직 ColorRect 마커 — 전용 스프라이트로 교체하면 더 좋음 ④ 대화 말풍선/HUD 에 한지 UI 스킨 적용은 부분적(추가 폴리시 여지).
 
 ## 바로 다음 할 일 (Next Action)
-> 1. ~~깃헙 레포 + Godot 골격~~ ✅
-> 2. ~~Phase 0 자동 셋업 (CLAUDE 잠금·폰트·STYLE_BIBLE·프롬프트)~~ ✅
-> 3. ~~Phase 1 시스템 골격~~ ✅
-> 4. ~~Phase 2 핵심 시스템 (Save·Inventory·Flags·AI·Pause·Audio)~~ ✅
-> 5. ~~Phase 3 게임 흐름 (SceneManager·MainMenu·Quest·Stats·GameOver)~~ ✅
-> 6. ~~콘텐츠 확장 A~F + 2차(A2~F2) + 3차 폴리시(H~K) + 헤드리스 테스트 전면 수리(13종 그린)~~ ✅
-> 7. **사용자: 주인공 스프라이트 생성 + Phase 1/2/3 + 콘텐츠 확장 시각 검증** ← 사람만 가능
->    - a. `docs/PROMPTS_PROTAGONIST.md` 프롬프트로 AI 후보 5~10장 → 1장 선택 → Aseprite/LibreSprite로 손보정 → `assets/sprites/protagonist/idle.png` 커밋
->    - b. PC Godot 에디터 → 폰트 임포트 설정 + 메인 메뉴 ▶ → 마을→들판→숲→보스→귀환 흐름 + 인벤토리/장비/엽전/낮밤/콤보·차지·shake 시각 확인 (HUMAN_TASKS 🅖~🅝)
->    - c. 시대·톤 확정 → Claude에게 알리면 STYLE_BIBLE 잠금 + HANDOFF/CLAUDE 갱신
->    - d. GitHub Actions 워크플로 실행 결과 확인 (Settings → Actions → Web Export). Pages 배포까지 켤지 결정.
-> 8. (사용자 a 완료 후 Claude) AnimationPlayer 연결: 걷기/점프/공격/콤보/사망 애니메이션 → 스프라이트 가져와 player.gd 연동.
-> 9. (이후) 타일셋으로 placeholder 박스 교체 → BGM → 폰 미리보기.
+> 1~6. ~~Phase 0~3 + 콘텐츠 A~F + 2차(A2~F2) + 3차(H~K) + 테스트 13종 그린~~ ✅
+> 7. ~~**4.6.3 마이그레이션 + 자체 제작 에셋 전량 + 게임 통합(캐릭터 배선·레벨 드레싱·타이틀·엔딩)**~~ ✅ (2026-06-11)
+> 8. **사용자: PC 실제 플레이로 손맛·애니 타이밍·밸런스 확인** ← 미감은 사람 몫
+>    - 메인 메뉴 ▶ 새로 시작 → 마을 NPC 대화 → 들판/숲 전투(콤보·차지·회피) → 보스 → 엔딩까지 한 바퀴
+>    - 어색한 애니/타이밍/충돌 박스는 알려주면 해당 gen 스크립트나 player/enemy 파라미터 조정
+> 9. (폴리시 후보) 픽업 아이템 스프라이트화 / 말풍선·HUD 한지 스킨 / web export → 폰 미리보기 / GitHub Pages 배포
 
 ## 대기 / 막힌 것 (Blocked / Waiting)
-> - 캐릭터 스프라이트 에셋 없음 (Phase 0에서 생성)
-> - 시대·분위기 톤 미확정 (첫 캐릭터 보고 결정)
-> - 개발용 상시 환경(집 PC 원격 or 클라우드 서버) 결정 필요
-> - **Godot 버전 분기:** 로컬 실행 파일은 4.6.3(Downloads), CI yml·project.godot 은 4.3 기준. 2026-06-11 에 코드가 양쪽 다 호환되게 정비했지만 표준 버전 결정 필요. 4.6 으로 통일하면 → docs/ci 두 yml 의 `GODOT_VERSION` 을 4.6.x 로 올리고, `.gitignore` 의 `*.uid` 항목을 지워 사이드카 일괄 커밋 권장. (4.6 에디터를 한 번이라도 열면 project.godot 의 features 태그를 "4.6" 으로 재작성하니 그 diff 는 그때 같이 커밋.)
+> - **미감 최종 판단은 사용자 몫** — 스크린샷으로 정적 화면은 검증했으나 애니메이션 타이밍·손맛·전투 밸런스는 실제 플레이 필요.
+> - web export 빌드 + 폰 미리보기 환경(호스팅) 결정.
+> - **에셋 재생성 방법:** 모양이 마음에 안 들면 `python tools/pixel/gen_<카테고리>.py` 수정·재실행 → `--import` → 게임 반영. 팔레트는 `tools/pixel/palette.py`(STYLE_BIBLE 25색)에서 잠금.
 
 ---
 
@@ -104,6 +97,7 @@
 ## 완료된 작업 로그 (최신이 위로)
 > 작업 마칠 때마다 한 줄씩 위에 추가 (날짜 + 한 일).
 
+- **2026-06-11 (자율 대작업 — 실제 돌아가는 비주얼 게임)** — 사용자 지시 "4.6.3 마이그레이션 + 이미지 직접 생성·적용 + 처음부터 끝까지 돌아가는 게임 + 권한 안 묻고 쭉". ① **마이그레이션**: project.godot features 4.6 / CI GODOT_VERSION 4.6.3 / `.gitignore` 사이드카 커밋 전환 / CLAUDE·README·STYLE_BIBLE 버전·컨셉 잠금 / `.claude` 권한 allowlist + `/goal` 커맨드. ② **픽셀아트 파이프라인**: `tools/pixel/`(palette.py=STYLE_BIBLE 25색 강제·검증, core.py=Canvas/strip/contact_sheet, 저장 시 팔레트 검증+8x preview) + `tools/Screenshot.tscn`(윈도우드 임의 씬 PNG 캡처, --scene/--out/--cam/--night)로 시각 자체검증 루프 확립. ③ **에셋 전량 생성**(워크플로 asset-forge + 직접): 주인공 11애님·적 5종(도깨비·구미호·저승사자·호환)·보스 호환두령(telegraph/heal 포함 6애님)·NPC 4종·타일&소품(기와집/초가집/우물/장승/솟대/소나무/등롱)·수묵 산수 배경 3겹·한지 UI 스킨·SFX 10+BGM 4(`tools/audio` 순수 파이썬 신디사이저). 세션 한도로 누락된 도깨비/구미호/보스는 직접 작성(구미호 꼬리 빈약 → 재작업). ④ **통합**: SpriteDb(manifest→SpriteFrames)·CharacterVisual·PlayerVisual·EnemyVisual·BgmDirector autoload, 적/NPC 씬 placeholder→AnimatedSprite2D 배선, 레벨 4종에 ParallaxBackdrop+타일 지면+한옥·소품 드레싱, 타이틀(로고+산수)·엔딩(두루마리 타자기) 완성, 대화 change_scene 액션으로 보스 처치→엔딩 연결. ⑤ Hitbox 게이트(이전 세션 layer 전환)·has_flag 타입분기 유지. 헤드리스 13종 52케이스 그린 유지. 스크린샷으로 타이틀·마을·들판·숲·보스·엔딩 전부 검증. **미감·손맛은 사용자 실플레이 확인 대기.**
 - **2026-06-11 (테스트 전면 수리 + 4.6 호환)** — 헤드리스 스위트가 실제로는 절반쯤 좌초돼 있던 것을 발견·복구, **13종 52케이스 전부 통과** (로컬 Godot 4.6.3). ① 좌초 원인: (a) 대화 드레인 `while Dialogue.is_active(): advance()` 가 choices 노드에서 무한 루프(advance 는 choices 노드에서 no-op) — 테스트 4파일 11곳을 `_drain_dialogue()` 헬퍼(첫 선택지 고르기 + 32스텝 상한)로 교체. (b) Godot 4.4+ 파서 강화: 코루틴을 await 없이 호출(test_equipment/pickup_fx/scene)과 `var x := max(...)`/`var ok := dict.v and ...` Variant 추론(time_manager→`maxf`, test_combat→타입 명시)이 파스 에러 → 스크립트 로드 실패 → quit() 없는 빈 씬으로 타임아웃. (c) `has_flag` 의 `v == false or v == 0` Variant 교차 비교가 4.4+ 런타임 에러 — 타입별 분기로 재작성. ② **Hitbox 게이트 교체(전투 핵심 픽스)**: monitoring/monitorable 토글 게이트는 4.4+ 브로드페이즈에서 겹친 채 재활성 시 페어를 안 만들어 *정지 상태 공격이 헛스윙* — `collision_layer` 0↔1 게이트로 변경(hitbox.gd + boss.gd 수동 토글 2곳). 회피 무적 사이클(영구 무적 없음)과 밤 NPC 걸어들어오기 감지는 프로브로 확인. ③ 낡은 단정 2건: test_flags 필터링(샘플 JSON 3번째 선택지가 Phase 3에서 quest 게이트로 변경됨 — village_woman 의 if/unless_flag 로 재작성), test_questline 부적 반납(A2 약초 선택지 추가로 choose(1) 위치 어긋남 — 텍스트 기반 선택). ④ **test_polish 신규 10건** (H 자동저장 슬롯 0/메뉴 제외/토글, I 토스트 시작·완료/단계 침묵, J HP 바 표시·비율·자동 숨김, K NightOnly 초기화·페이즈 토글). ⑤ project.godot `flush_stdout_on_print=true`, .gitignore 에 `*.uid`/`*.import`(버전 확정 전 미커밋 방침).
 - **2026-06-10 (3차 폴리시 — 전 세션 커밋 `40c7e41`, HANDOFF 반영 누락분)** — ① **H** 씬 전환 자동 저장: SceneManager._do_change 가 떠나기 전 슬롯 0(autosave) 저장, MainMenu/SettingsMenu 는 NON_GAMEPLAY_SCENES 로 제외. SlotPicker load 모드에 슬롯 0('자동 저장') 노출, MainMenu '이어하기' 활성 조건을 슬롯 0~3 으로 확대. ② **I** QuestToast autoload: quest_changed 를 듣고 시작/완료만 상단 토스트(2.4초 페이드), 단계 전이는 침묵. ③ **J** EnemyHpBar: patroller/dummy/boss 가 attach_to 로 동적 부착, 피격 시 2초 표시 후 숨김(보스는 y 오프셋 상향). ④ **K** NightOnly 노드 + 떠돌이 상인 NPC(Village, 밤 전용 등장, 야시장 open_shop 대화).
 - **2026-06-09 (2차 확장)** — A~F 후속 6 트랙. ① **E2** 저장 슬롯 멀티: SaveManager.save 가 area/level/gold 메타 동봉, SlotPicker UI(load/save 양모드, 3 슬롯, 카드별 요약), MainMenu '이어하기'·PauseMenu '저장' 이 picker 호출. ② **D2** 상점: ShopManager autoload + ShopPanel UI(좌 구매·우 판매, 판매가는 정가 50%, 퀘스트 아이템 판매 차단), 대화 액션 `open_shop`, 대장간 어르신이 tiger_lord_resolved 이후 상점 해금. ③ **B2** 전투 폴리시: 회피 구르기(Shift, 무적 + dash + 0.6s 쿨다운), 보스 페이즈 2(HP ≤ 50% 에서 텔레그래프 0.70x · 회복 0.55x · 데미지 1.25x + 핏빛 톤). ④ **A2** 사이드 퀘스트 2종 추가(약초 5포기 수집·들판 서찰), Dialogue 조건 `if_has_item`/`if_inventory_at_least`, 액션 `take_item` 신규. ⑤ **F2** Locale 스캐폴드(ko/en JSON, MainMenu 시범 적용, locale_changed 시그널). ⑥ **C2/G2** 검증: 현 placeholder 박스가 사실상 ColorRect 기반 grid 역할을 수행 — 실제 TileMap 마이그레이션은 타일 텍스처 도착 후 사용자 PC에서. 헤드리스 테스트 +1종(test_shop_slots, 3건).

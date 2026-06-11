@@ -47,6 +47,14 @@ func _ready() -> void:
     get_tree().root.add_child(inst)
     get_tree().current_scene = inst
 
+    # --cam=x,y : 플레이어(=카메라 부모)를 옮겨 원하는 지점을 프레이밍
+    if args.has("cam"):
+        var parts := String(args["cam"]).split(",")
+        if parts.size() == 2:
+            var players := get_tree().get_nodes_in_group("player")
+            if not players.is_empty() and players[0] is Node2D:
+                (players[0] as Node2D).global_position = Vector2(float(parts[0]), float(parts[1]))
+
     await get_tree().create_timer(wait_s).timeout
     await RenderingServer.frame_post_draw
 
