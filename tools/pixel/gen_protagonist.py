@@ -28,17 +28,22 @@ SHEET = os.path.join(ROOT, "shots", "sheets", "protagonist_sheet.png")
 # ──────────────────────────────────────────────────────────────
 
 def hat(c, dx=0, dy=0):
-    """갓 — 넓은 챙(y15) + 원통 모정(y8..14)."""
+    """갓 — 넓은 챙(y15, 끝이 살짝 처짐) + 원통 모정(y8..14) + 금 정자."""
     bx = CX + dx
-    c.hline(bx - 8, 15 + dy, 17, P.INK_DEEPEST)            # 챙
-    c.hline(bx - 7, 16 + dy, 15, P.INK_DARK)               # 챙 아랫면
-    c.px(bx - 8, 15 + dy, P.INK_MID)                       # 챙 끝 투명감
-    c.px(bx + 8, 15 + dy, P.INK_MID)
+    c.hline(bx - 7, 15 + dy, 15, P.INK_DEEPEST)            # 챙
+    c.px(bx - 8, 16 + dy, P.INK_DEEPEST)                   # 챙 끝 곡선 (1px 처짐)
+    c.px(bx + 8, 16 + dy, P.INK_DEEPEST)
+    c.hline(bx - 6, 16 + dy, 13, P.INK_DARK)               # 챙 아랫면
+    c.px(bx - 8, 17 + dy, P.INK_MID)                       # 챙 끝 말총 투명감
+    c.px(bx + 8, 17 + dy, P.INK_MID)
     c.rect(bx - 4, 9 + dy, 9, 6, P.INK_DARK)               # 모정
+    c.vline(bx - 4, 10 + dy, 5, P.INK_MID)                 # 모정 좌측 결 (광원)
+    c.vline(bx + 4, 10 + dy, 5, P.INK_DEEPEST)             # 모정 우측 음영
     c.hline(bx - 3, 8 + dy, 7, P.INK_DARK)
     c.hline(bx - 3, 9 + dy, 7, P.INK_DEEPEST)              # 모정 윗단
     c.px(bx - 4, 9 + dy, P.TRANSPARENT)
     c.px(bx + 4, 9 + dy, P.TRANSPARENT)
+    c.px(bx, 7 + dy, P.GOLD_DEEP)                          # 정자(頂子) 장식
 
 
 def hat_fallen(c, x, y):
@@ -49,21 +54,26 @@ def hat_fallen(c, x, y):
 
 
 def head(c, dx=0, dy=0):
-    """얼굴 y16..26 — 옆머리는 뒤(왼쪽) 가장자리 밀착, 갓끈은 뺨 앞 3px."""
+    """얼굴 y16..26 — 눈썹·턱 그늘로 떠돌이 무사의 단단한 인상."""
     bx = CX + dx
     c.rect(bx - 4, 16 + dy, 8, 11, P.SKIN_BASE)            # 얼굴면 (y16 갓챙 바로 아래까지)
     c.px(bx - 4, 26 + dy, P.TRANSPARENT)                   # 턱 라운드
     c.px(bx + 3, 26 + dy, P.TRANSPARENT)
     c.rect(bx + 2, 19 + dy, 2, 7, P.SKIN_SHADE)            # 앞면(우) 음영
+    c.hline(bx - 3, 17 + dy, 6, P.SKIN_LIGHT)              # 갓챙 아래 이마 (밝은 면)
     c.rect(bx - 4, 16 + dy, 2, 7, P.INK_DARK)              # 옆머리 — 뒤쪽 가장자리, 챙에 밀착
-    c.hline(bx - 2, 16 + dy, 5, P.INK_DARK)                # 이마 위 머리선 (y16 공백 제거)
+    c.px(bx - 2, 21 + dy, P.INK_DARK)                      # 귀밑머리 한 가닥
+    c.hline(bx - 2, 16 + dy, 5, P.INK_DARK)                # 이마 위 머리선
+    c.hline(bx, 19 + dy, 2, P.INK_DARK)                    # 눈썹 (굳은 인상)
     c.px(bx + 1, 20 + dy, P.INK_DEEPEST)                   # 눈
     c.px(bx + 3, 22 + dy, P.SKIN_DEEP)                     # 코
-    c.px(bx + 1, 24 + dy, P.SKIN_DEEP)                     # 입
-    # 갓끈 — 뺨 앞쪽에 짧게 (3px, 목까지 내리지 않음)
-    c.px(bx + 3, 17 + dy, P.BLUE_BASE)
+    c.px(bx + 1, 24 + dy, P.SKIN_DEEP)                     # 입 (다문)
+    c.px(bx, 25 + dy, P.SKIN_SHADE)                        # 턱 그늘
+    # 갓끈 — 뺨 앞 라인을 따라 내려옴 + 끝 구슬
     c.px(bx + 3, 18 + dy, P.BLUE_BASE)
-    c.px(bx + 2, 19 + dy, P.BLUE_DEEP)
+    c.px(bx + 3, 19 + dy, P.BLUE_BASE)
+    c.px(bx + 3, 20 + dy, P.BLUE_DEEP)
+    c.px(bx + 3, 21 + dy, P.GOLD_DEEP)                     # 갓끈 구슬
 
 
 def neck(c, dx=0, dy=0):
@@ -71,19 +81,34 @@ def neck(c, dx=0, dy=0):
 
 
 def torso(c, dx=0, dy=0):
-    """도포 상체 — 윗단은 dy 로 움직이고 아랫단(y43)은 치마와 맞물려 고정."""
+    """상체 — 한지 도포 위에 청색 전복(소매 없는 쾌자) + 홍색 전대.
+    윗단은 dy 로 움직이고 아랫단(y43)은 치마와 맞물려 고정."""
     bx = CX + dx
     top = 29 + dy
-    c.rect(bx - 6, top, 12, 44 - top, P.PAPER_BASE)        # 어깨 12px (허리 10px 보다 1px+1px 넓음)
+    # ── 한지 도포 바탕 (소매 쪽 가장자리가 보임) ──
+    c.rect(bx - 6, top, 12, 44 - top, P.PAPER_BASE)        # 어깨 12px
     c.px(bx - 6, top, P.TRANSPARENT)                       # 어깨 라운드
     c.px(bx + 5, top, P.TRANSPARENT)
-    c.rect(bx + 3, top + 1, 3, 42 - top, P.PAPER_SHADE)    # 우측 음영
-    c.line(bx, top, bx + 4, top + 6, P.PAPER_BRIGHT)       # 동정(깃) 사선 여밈
-    c.line(bx, top + 1, bx + 4, top + 7, P.INK_SOFT)
+    c.vline(bx - 6, top + 1, 42 - top, P.PAPER_BRIGHT)     # 좌측 광원 하이라이트
+    c.rect(bx + 4, top + 1, 2, 42 - top, P.PAPER_SHADE)    # 우측 음영
+    # ── 전복(쾌자) — 청색 소매 없는 덧옷, 가슴~허리 ──
+    vtop = top + 2
+    c.rect(bx - 4, vtop, 8, 43 - vtop, P.BLUE_DEEP)
+    c.vline(bx - 4, vtop, 43 - vtop, P.BLUE_BASE)          # 좌측 광원
+    c.vline(bx - 3, vtop + 1, 42 - vtop, P.BLUE_BASE)
+    c.vline(bx, vtop + 1, 42 - vtop, P.INK_DARK)           # 가운데 여밈선 (부드럽게)
+    c.px(bx - 4, vtop, P.TRANSPARENT)                      # 어깨선 라운드
+    c.px(bx + 3, vtop, P.TRANSPARENT)
+    # ── 동정(깃) — 전복 위로 드러나는 흰 깃 ──
+    c.line(bx, top, bx + 4, top + 4, P.PAPER_BRIGHT)
+    c.line(bx - 1, top, bx + 3, top + 4, P.INK_SOFT)
+    # ── 전대(허리띠) — 홍색 포인트 + 늘어진 매듭 ──
     belt = min(42, top + 8)
-    c.hline(bx - 6, belt, 12, P.BLUE_DEEP)                 # 세조대
-    c.px(bx + 1, belt + 1, P.BLUE_DEEP)                    # 매듭
-    c.px(bx + 2, belt + 2, P.BLUE_DEEP)
+    c.hline(bx - 5, belt, 11, P.RED_DEEP)
+    c.px(bx - 2, belt, P.RED_BASE)                         # 매듭 중심 (광원)
+    c.px(bx + 1, belt + 1, P.RED_DEEP)                     # 늘어진 끈
+    c.px(bx + 1, belt + 2, P.RED_DEEP)
+    c.px(bx + 2, belt + 3, P.RED_BASE)
 
 
 def arm_front(c, dx=0, dy=0):
@@ -106,14 +131,19 @@ def arm_reach(c, sx, sy, hx, hy):
 
 
 def sword_hip(c, dx=0, dy=0, with_hilt=True):
-    """환도 — 왼 허리 칼집. 칼자루 금색 2px 가 칼집 끝(bx-2,37)에 변 접촉."""
+    """환도 — 왼 허리 칼집. 금장 코등이/끝장식 + 홍 칼수술로 장식."""
     bx = CX + dx
-    c.line(bx - 8, 42 + dy, bx - 2, 37 + dy, P.INK_MID)    # 칼집
-    c.line(bx - 8, 43 + dy, bx - 2, 38 + dy, P.INK_DARK)
-    c.px(bx - 8, 43 + dy, P.INK_DEEPEST)                   # 칼집 코등이쇠
+    c.line(bx - 10, 44 + dy, bx - 2, 37 + dy, P.INK_MID)   # 칼집 (길게)
+    c.line(bx - 10, 45 + dy, bx - 2, 38 + dy, P.INK_DARK)
+    c.px(bx - 6, 41 + dy, P.INK_FAINT)                     # 칼집 띠돈(금속 결)
+    c.px(bx - 10, 45 + dy, P.GOLD_DEEP)                    # 칼집 끝장식(금속 캡)
+    c.px(bx - 10, 44 + dy, P.GOLD_DEEP)
     if with_hilt:
-        c.px(bx - 1, 37 + dy, P.GOLD_BASE)                 # 칼집 끝과 변 접촉
-        c.px(bx, 36 + dy, P.GOLD_DEEP)                     # 대각 연속
+        c.px(bx - 2, 36 + dy, P.GOLD_BASE)                 # 코등이 (금장)
+        c.px(bx - 1, 37 + dy, P.GOLD_BASE)
+        c.px(bx, 35 + dy, P.GOLD_DEEP)                     # 칼자루 끝
+        c.px(bx - 2, 39 + dy, P.RED_BASE)                  # 칼수술 (홍)
+        c.px(bx - 2, 40 + dy, P.RED_DEEP)
 
 
 def blade(c, gx, gy, tx, ty, tip=None):
@@ -130,13 +160,24 @@ def arc(c, pts, col):
 
 
 def skirt(c, sway=0, top=44, bottom=59, low_only=True):
-    """도포 자락 사다리꼴 — sway 로 하단부 1px 흔들림."""
+    """도포 자락 사다리꼴 — 광원측 하이라이트 + 주름 골 2줄 + sway 흔들림."""
     for i, y in enumerate(range(top, bottom)):
         half = 5 + min(3, i // 4)
         sx = sway if (not low_only or y > 52) else 0
         c.hline(CX - half + sx, y, half * 2, P.PAPER_BASE)
+        c.px(CX - half + sx, y, P.PAPER_BRIGHT)                   # 좌측 광원 가장자리
         c.rect(CX + half - 2 + sx, y, 2, 1, P.PAPER_SHADE)
-    c.dither(CX - 2, 49, 2, max(0, bottom - 49), P.PAPER_SHADE)   # 가운데 주름
+    # 주름 골 — 좌우 두 줄 (몸의 둥근 결)
+    mid = (top + bottom) // 2
+    c.vline(CX - 3, mid, bottom - mid, P.PAPER_SHADE)
+    c.vline(CX + 1, top + 2, bottom - top - 2, P.PAPER_SHADE)
+    c.dither(CX + 2, mid, 1, bottom - mid, P.PAPER_SHADE)         # 우측 결 디더
+    # 전복 자락 — 청색 밑단이 치마 위로 넓고 짧게 겹침 (끝이 갈라짐)
+    c.rect(CX - 3, top, 7, 2, P.BLUE_DEEP)
+    c.hline(CX - 3, top, 3, P.BLUE_BASE)
+    c.px(CX - 3, top + 2, P.BLUE_DEEP)
+    c.px(CX - 2, top + 2, P.BLUE_DEEP)
+    c.px(CX + 2, top + 2, P.BLUE_DEEP)
     hb = 5 + min(3, max(0, bottom - top - 1) // 4)
     c.hline(CX - hb + sway, bottom, hb * 2, P.PAPER_SHADE)        # 밑단
 
