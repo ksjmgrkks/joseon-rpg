@@ -5,10 +5,28 @@ extends Control
 ## 입력(클릭/공격/점프)으로 타자기 스킵 가능.
 ##
 
-const EPILOGUE := """호환이 그치고, 산골에 다시 등불이 켜졌다.
+const EPILOGUE_BASE := """호환이 그치고, 산골에 다시 등불이 켜졌다.
 
+불탄 산신당 터에는 새 당이 서고,
 두령의 어금니는 대장간 화로에서 녹아
-호미가 되었다 전한다.
+호미가 되었다 전한다."""
+
+# 사이드 퀘스트 전부 완료 시 — 은혜의 문단
+const EPILOGUE_ALL_SIDES := """
+
+무사가 마을에 남긴 것은 칼자국만이 아니었다.
+임자 찾은 부적과 서찰, 약방의 약초 광주리,
+다시 불 댕긴 대장간의 풀무 소리 —
+작은 은혜들이 산골의 봄을 앞당겼다."""
+
+# 일부만 도왔을 때 — 여운의 문단
+const EPILOGUE_SOME_SIDES := """
+
+마을 사람들은 두고두고 아쉬워했다.
+그 길손에게 미처 다 갚지 못한
+신세가 남았노라고."""
+
+const EPILOGUE_TAIL := """
 
 떠돌이 무사는 갓끈을 고쳐 매고,
 아무 일 없었다는 듯 길을 나섰다.
@@ -16,7 +34,11 @@ const EPILOGUE := """호환이 그치고, 산골에 다시 등불이 켜졌다.
 — 후일 사람들은 이 일을 일러
    호환기담(虎患奇譚)이라 하였다."""
 
+const SIDE_QUESTS := ["side_lost_charm", "side_meet_blacksmith", "side_collect_herbs", "side_lost_scroll"]
+
 const CHAR_INTERVAL := 0.045
+
+var _epilogue: String = ""
 
 @onready var story: Label = $Scroll/Margin/VBox/Story
 @onready var credits: Label = $Scroll/Margin/VBox/Credits
@@ -31,6 +53,17 @@ var _done: bool = false
 func _ready() -> void:
     process_mode = Node.PROCESS_MODE_ALWAYS
     get_tree().paused = false
+    # 사이드 퀘스트 완료 수에 따라 에필로그 분기
+    var done := 0
+    for q in SIDE_QUESTS:
+        if QuestManager.is_completed(q):
+            done += 1
+    _epilogue = EPILOGUE_BASE
+    if done >= SIDE_QUESTS.size():
+        _epilogue += EPILOGUE_ALL_SIDES
+    elif done >= 1:
+        _epilogue += EPILOGUE_SOME_SIDES
+    _epilogue += EPILOGUE_TAIL
     # 두루마리 아트가 있으면 패널 뒤에 깐다 (없으면 어두운 한지 배경만)
     if ResourceLoader.exists("res://assets/ui/ending_scroll.png"):
         scroll_art.texture = load("res://assets/ui/ending_scroll.png")
@@ -46,14 +79,14 @@ func _ready() -> void:
 func _process(delta: float) -> void:
     if _done:
         return
-    if _shown >= EPILOGUE.length():
+    if _shown >= _epilogue.length():
         _finish()
         return
     _timer -= delta
     if _timer <= 0.0:
         _timer = CHAR_INTERVAL
         _shown += 1
-        story.text = EPILOGUE.substr(0, _shown)
+        story.text = _epilogue.substr(0, _shown)
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -61,8 +94,8 @@ func _unhandled_input(event: InputEvent) -> void:
         return
     var pressed: bool = (event is InputEventMouseButton) and event.is_pressed()
     if event.is_action_pressed("attack") or event.is_action_pressed("jump") or event.is_action_pressed("interact") or pressed:
-        _shown = EPILOGUE.length()
-        story.text = EPILOGUE
+        _shown = _epilogue.length()
+        story.text = _epilogue
         _finish()
 
 

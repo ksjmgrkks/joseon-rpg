@@ -6,19 +6,46 @@
       "speaker": "떠돌이 상인",
       "text": "달 뜨면 나타나는 게 우리 같은 사람들 일이지요. 야시장 구경 한번 하시겠소?",
       "choices": [
-        { "text": "보여 주시오.", "next": "open" },
-        { "text": "다음에 들르겠소.", "next": "later" }
+        {
+          "text": "보여 주시오.",
+          "next": "open"
+        },
+        {
+          "text": "호환에 대해 아는 게 있소?",
+          "next": "wanderer_lore",
+          "unless_flag": "tiger_lord_resolved"
+        },
+        {
+          "text": "이제 어디로 가시오?",
+          "next": "wanderer_leave",
+          "if_flag": "tiger_lord_resolved"
+        },
+        {
+          "text": "다음에 들르겠소.",
+          "next": "later"
+        }
       ]
     },
     "open": {
       "speaker": "떠돌이 상인",
       "text": "그럼 자, 우리 물건들이오.",
       "actions": [
-        { "type": "open_shop", "title": "야시장",
+        {
+          "type": "open_shop",
+          "title": "야시장",
           "items": [
-            { "id": "potion_major", "price": 65 },
-            { "id": "armor_robe", "price": 90 },
-            { "id": "rice_bun", "price": 4 }
+            {
+              "id": "potion_major",
+              "price": 65
+            },
+            {
+              "id": "armor_robe",
+              "price": 90
+            },
+            {
+              "id": "rice_bun",
+              "price": 4
+            }
           ]
         }
       ],
@@ -27,6 +54,16 @@
     "later": {
       "speaker": "떠돌이 상인",
       "text": "허허, 달이 떠 있을 적에만 보입니다요. 잘 다녀가시오.",
+      "next": null
+    },
+    "wanderer_lore": {
+      "speaker": "떠돌이 상인",
+      "text": "산 것의 엽전도 죽은 것의 엽전도 제겐 같은 돈입지요. …스무 해 전에도 이 마을서 한몫 잡았습죠. 사당 태운 재목을 사 갔거든요. 헤헤, 그 나무로 짠 궤짝은 아직도 밤마다 삐걱댑니다.",
+      "next": null
+    },
+    "wanderer_leave": {
+      "speaker": "떠돌이 상인",
+      "text": "한이 걷힌 마을엔 밤장사가 안 됩니다. …손님도 아시지 않습니까. 밤길을 걷는 건 산 사람만이 아니라는 걸.",
       "next": null
     }
   }

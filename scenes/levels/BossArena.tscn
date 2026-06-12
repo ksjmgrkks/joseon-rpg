@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3]
+[gd_scene load_steps=15 format=3]
 
 ; 호환 두령 보스 아레나 — 숲 깊은 곳. 좌측만 통로 있음(귀환), 우측은 막다른 절벽.
 ; 메인 퀘스트 단계 boss_arena 자동 진행.
@@ -10,6 +10,7 @@
 [ext_resource type="Script" path="res://scripts/scene/level_exit.gd" id="5_exit"]
 [ext_resource type="Script" path="res://scripts/scene/level_entry.gd" id="6_entry"]
 [ext_resource type="Script" path="res://scripts/quests/quest_trigger.gd" id="7_trigger"]
+[ext_resource type="Script" path="res://scripts/world/auto_dialogue.gd" id="8_autodlg"]
 [ext_resource type="PackedScene" path="res://scenes/world/Backdrop.tscn" id="bd"]
 [ext_resource type="Script" path="res://scripts/world/tiled_sprite.gd" id="tile"]
 [ext_resource type="Texture2D" path="res://assets/tilesets/pine.png" id="pine"]
@@ -93,6 +94,17 @@ quest_stage = "boss_arena"
 only_if_quest_active = "main_tiger_lord"
 
 [node name="TriggerShape" type="CollisionShape2D" parent="BossArenaTrigger"]
+shape = SubResource("RectangleShape2D_trigger")
+
+; 두령의 일갈 — 아레나 깊숙이 들어서면 한 번만
+[node name="BossIntroDialogue" type="Area2D" parent="."]
+collision_mask = 1
+position = Vector2(560, 620)
+script = ExtResource("8_autodlg")
+dialogue_path = "res://assets/dialogue/boss_arena_intro.json"
+once_flag = "boss_intro_seen"
+
+[node name="IntroShape" type="CollisionShape2D" parent="BossIntroDialogue"]
 shape = SubResource("RectangleShape2D_trigger")
 
 ; 좌측: 숲으로 돌아가기

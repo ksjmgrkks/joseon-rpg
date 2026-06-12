@@ -6,32 +6,63 @@
       "speaker": "마을 아낙",
       "text": "어머나, 외지 분이시구만요. 혹시… 부탁 하나만 들어주실 수 있을까요?",
       "choices": [
-        { "text": "말씀하시오.", "next": "ask_charm",
-          "unless_flag": "asked_charm" },
-        { "text": "(부적을 건넨다.) 이걸 찾았소.", "next": "give_back",
-          "if_quest_stage": "side_lost_charm:found" },
-        { "text": "약초도 좀 모아 드릴까?", "next": "ask_herbs",
-          "if_flag": "asked_charm", "unless_flag": "asked_herbs" },
-        { "text": "(들풀 약초 5포기를 내민다.)", "next": "herb_turnin",
+        {
+          "text": "말씀하시오.",
+          "next": "ask_charm",
+          "unless_flag": "asked_charm"
+        },
+        {
+          "text": "(부적을 건넨다.) 이걸 찾았소.",
+          "next": "give_back",
+          "if_quest_stage": "side_lost_charm:found"
+        },
+        {
+          "text": "약초도 좀 모아 드릴까?",
+          "next": "ask_herbs",
+          "if_flag": "asked_charm",
+          "unless_flag": "asked_herbs"
+        },
+        {
+          "text": "(들풀 약초 5포기를 내민다.)",
+          "next": "herb_turnin",
           "if_quest_active": "side_collect_herbs",
-          "if_inventory_at_least": "herb_field:5" },
-        { "text": "다음에 다시 오겠소.", "next": "later" }
+          "if_inventory_at_least": "herb_field:5"
+        },
+        {
+          "text": "다음에 다시 오겠소.",
+          "next": "later"
+        }
       ]
     },
     "ask_charm": {
       "speaker": "마을 아낙",
       "text": "숲 어귀에서 부적을 떨어뜨렸어요. 호랑이 그림이 그려진 작은 부적인데… 찾아 주시면 작은 답례라도 드릴게요.",
       "actions": [
-        { "type": "start_quest", "quest": "side_lost_charm" },
-        { "type": "set_flag", "key": "asked_charm", "value": true }
+        {
+          "type": "start_quest",
+          "quest": "side_lost_charm"
+        },
+        {
+          "type": "set_flag",
+          "key": "asked_charm",
+          "value": true
+        }
       ],
       "next": null
     },
     "give_back": {
       "speaker": "마을 아낙",
-      "text": "어머! 정말 찾으셨군요! 고마워요, 정말. 자, 쾌혈환 두 환이에요. 여행길에 쓰세요.",
+      "text": "어머! 정말 찾으셨군요! …이 부적, 본래 산신당에 걸려 있던 것이래요. 손님께 드릴게요. 지니고 계시면 한 번은 큰 화를 면하신답니다. (호신부 스킬 해금)",
       "actions": [
-        { "type": "complete_quest", "quest": "side_lost_charm" }
+        {
+          "type": "complete_quest",
+          "quest": "side_lost_charm"
+        },
+        {
+          "type": "set_flag",
+          "key": "charm_blessing",
+          "value": true
+        }
       ],
       "next": null
     },
@@ -39,8 +70,15 @@
       "speaker": "마을 아낙",
       "text": "사실… 시댁이 약방을 하는데, 요즘 들풀 약초가 동났어요. 5포기만 모아 주시면 좋은 환 하나랑 엽전을 드릴게요.",
       "actions": [
-        { "type": "start_quest", "quest": "side_collect_herbs" },
-        { "type": "set_flag", "key": "asked_herbs", "value": true }
+        {
+          "type": "start_quest",
+          "quest": "side_collect_herbs"
+        },
+        {
+          "type": "set_flag",
+          "key": "asked_herbs",
+          "value": true
+        }
       ],
       "next": null
     },
@@ -48,8 +86,15 @@
       "speaker": "마을 아낙",
       "text": "어머나, 정말 다 모아 주셨네요! 자, 약속한 대보회 한 환이랑 엽전입니다.",
       "actions": [
-        { "type": "take_item", "item": "herb_field", "count": 5 },
-        { "type": "complete_quest", "quest": "side_collect_herbs" }
+        {
+          "type": "take_item",
+          "item": "herb_field",
+          "count": 5
+        },
+        {
+          "type": "complete_quest",
+          "quest": "side_collect_herbs"
+        }
       ],
       "next": null
     },

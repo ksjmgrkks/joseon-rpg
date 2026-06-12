@@ -14,6 +14,8 @@ const WOMAN_DIALOG := "res://assets/dialogue/village_woman.json"
 
 func _ready() -> void:
     print("=== test_questline ===")
+    # 어금니 보고 → 엔딩 change_scene 액션이 테스트 씬을 갈아치우지 않게 차단
+    SceneManager.transitions_enabled = false
     var results: Array[Dictionary] = []
     _reset()
     results.append(_check_main_quest_stages())

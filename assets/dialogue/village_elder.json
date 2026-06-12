@@ -95,7 +95,7 @@
     },
     "tiger_status": {
       "speaker": "마을 어르신",
-      "text": "두령은 잡으셨는가? 어금니라도 한 짝 가져오면 내 직접 알아보겠네.",
+      "text": "두령이 궁금하신가? 보통 범이 아닐세. 눈빛이 꼭 사람 같다는 이들이 있어… 달 없는 밤이면 사당 터 쪽에서 운다네. 들판 너머 숲, 그 끝 절벽일세.",
       "next": null
     },
     "tooth_show": {
@@ -115,13 +115,9 @@
           "type": "set_flag",
           "key": "tiger_lord_resolved",
           "value": true
-        },
-        {
-          "type": "change_scene",
-          "scene": "res://scenes/ui/Ending.tscn"
         }
       ],
-      "next": null
+      "next": "confession"
     },
     "scroll_show": {
       "speaker": "마을 어르신",
@@ -139,6 +135,22 @@
         {
           "type": "complete_quest",
           "quest": "side_lost_scroll"
+        }
+      ],
+      "next": null
+    },
+    "confession": {
+      "speaker": "마을 어르신",
+      "text": "…이보게, 길손. 떠나기 전에 들어야 할 이야기가 있네. 스무 해 전 흉년이 들었을 때, 마을은 산신당을 헐어 그 재목으로 곳간을 지었네. 당을 지키던 늙은 범이 그날 밤 불 속에서 울었지.",
+      "next": "confession2"
+    },
+    "confession2": {
+      "speaker": "마을 어르신",
+      "text": "두령은 산짐승이 아니라 우리가 만든 업(業)이었네. 자네 칼이 끊은 건 범이 아니라 스무 해 묵은 한일세. …고맙네. 이 이야기는 자네 가슴에만 묻어 주게.",
+      "actions": [
+        {
+          "type": "change_scene",
+          "scene": "res://scenes/ui/Ending.tscn"
         }
       ],
       "next": null

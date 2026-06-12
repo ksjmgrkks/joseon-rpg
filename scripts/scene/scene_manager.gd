@@ -27,6 +27,9 @@ const NON_GAMEPLAY_SCENES := {
 
 @export var autosave_on_scene_change: bool = true
 
+# 헤드리스 테스트가 대화 change_scene 액션 등으로 씬이 갈리는 것을 막을 때 끔.
+var transitions_enabled: bool = true
+
 var _fade_layer: CanvasLayer
 var _fade_rect: ColorRect
 
@@ -59,7 +62,7 @@ func change_scene_to(path: String, entry: StringName, fade_seconds: float = DEFA
 
 
 func _do_change(path: String, entry: StringName, fade_seconds: float) -> bool:
-    if path.is_empty():
+    if path.is_empty() or not transitions_enabled:
         return false
     _pending_entry = entry
     # 떠나기 전 마지막 씬이 게임플레이라면 슬롯 0 (autosave) 에 저장.
