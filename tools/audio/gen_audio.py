@@ -150,65 +150,119 @@ def sfx_jingle_quest():
 
 
 # ════════════════════════════ BGM ════════════════════════════
+# 톤 방향 (2026-06-12 사용자 피드백): "가볍다" → 비장하게.
+# - 선법: 계면조 (A 단조 5음계: A C D E G) — 하강 선율 위주
+# - 음역 한 옥타브 하강, 깊은 드론(근음+5도) 토대
+# - 북(법고)·장구 타악, 대금풍 지속음(비브라토+숨결)
+
+def _drum_buk(g=1.0, seed=8):
+    """북 — 깊은 울림 (쿵...). 서브 스윕 + 가죽 노이즈."""
+    body = decay_exp(sine_sweep(82, 38, 0.45, "exp"), tau=0.16)
+    skin = gain(decay_exp(lowpass(noise(0.08, seed=seed), 300), tau=0.03), 0.35)
+    return gain(mix(body, skin), g)
+
+
+def _daegeum(freq, dur, vib=0.009, breath=0.10):
+    """대금풍 지속음 — 느린 어택, 5Hz 비브라토, 숨결 노이즈."""
+    n = int(SR * dur)
+    ph = 0.0
+    tone = []
+    for i in range(n):
+        t = i / SR
+        f = freq * (1.0 + vib * math.sin(2 * math.pi * 5.0 * t))
+        ph += 2 * math.pi * f / SR
+        tone.append(math.sin(ph) + 0.28 * math.sin(2 * ph) + 0.10 * math.sin(3 * ph))
+    br = gain(lowpass(noise(dur, seed=int(freq)), freq * 3.0), breath)
+    w = mix(tone, br)
+    return env_points(w, [(0, 0.0), (0.28, 1.0), (dur * 0.7, 0.85), (dur, 0.0)])
+
+
+def _drone_fifth(root_hz, total, lfo_period=8.0, g_root=0.30, g_fifth=0.12, g_oct=0.10):
+    """근음 + 5도 + 옥타브 드론, 느린 맥동."""
+    n = int(SR * total)
+    d1 = sine(root_hz, total)
+    d2 = sine(root_hz * 1.5, total)
+    d3 = sine(root_hz * 2.0, total)
+    out = []
+    for i in range(n):
+        t = i / SR
+        lfo = 1.0 + 0.18 * math.sin(2 * math.pi * t / lfo_period)
+        out.append((g_root * d1[i] + g_fifth * d2[i] + g_oct * d3[i]) * lfo)
+    return out
+
+
 def bgm_village():
-    """마을 — 평조 5음계 [G3 A3 C4 D4 E4] 가야금풍 플럭, 잔잔한 4/4.
-    80bpm(박 0.75s) × 32박 = 24.0s, 8마디."""
-    beat = 0.75
+    """마을 — 비장하게: 계면조 [A C D E G] 하강 가락, 60bpm, 깊은 드론+북.
+    60bpm(박 1.0s) × 32박 = 32.0s, 8마디."""
+    beat = 1.0
     total = 32 * beat
     out = silence(total)
-    melody = [  # (박, 음) — G 중심 평조 가락, 마지막은 여운으로 루프 연결
-        (0, "G3"), (1, "A3"), (2, "C4"), (3, "D4"),
-        (4, "E4"), (5, "D4"), (6, "C4"), (7, "A3"),
-        (8, "C4"), (9, "D4"), (10, "E4"),
-        (12, "D4"), (13, "C4"), (14, "A3"), (15, "G3"),
-        (16, "A3"), (17, "C4"), (18, "D4"), (19, "E4"),
-        (20, "E4"), (22, "D4"), (23, "C4"),
-        (24, "A3"), (25, "G3"), (26, "A3"), (27, "C4"),
-        (28, "A3"), (29, "G3"),
+    # 토대 — A2 드론 (근음+5도), 8s 주기 맥동 → 32s 에 4회 (루프 정합)
+    mix_at(out, _drone_fifth(110.0, total, lfo_period=8.0,
+                             g_root=0.26, g_fifth=0.10, g_oct=0.07), 0.0, 1.0)
+    # 가락 — 낮은 가야금, 하강 위주 (한이 서린 계면조)
+    melody = [
+        (0, "A3"), (2, "G3"), (3, "E3"),
+        (4, "A3"), (6, "C4"), (7, "A3"),
+        (8, "G3"), (10, "E3"), (11, "D3"),
+        (12, "E3"), (14, "A2"),
+        (16, "C4"), (18, "A3"), (19, "G3"),
+        (20, "E3"), (22, "G3"), (23, "A3"),
+        (24, "G3"), (26, "E3"), (27, "D3"),
+        (28, "C3"), (30, "A2"),
     ]
     rng = random.Random(7)
     for b, nm in melody:
-        g = 0.80 + rng.uniform(-0.08, 0.08)        # 사람 손맛 — 미세 강약
-        ring = min(1.9, total - b * beat - 0.02)
-        mix_at(out, ks_pluck(note(nm), ring, decay=0.9965, bright=0.55,
+        g = 0.72 + rng.uniform(-0.07, 0.07)
+        ring = min(2.6, total - b * beat - 0.02)
+        mix_at(out, ks_pluck(note(nm), ring, decay=0.9972, bright=0.42,
                              seed=100 + b), b * beat, g)
-    # 시김새 — 짧은 앞꾸밈음 2곳
-    for b, nm in [(2, "A3"), (18, "C4")]:
-        mix_at(out, ks_pluck(note(nm), 0.25, decay=0.994, bright=0.5,
-                             seed=300 + b), b * beat - 0.07, 0.30)
-    # 저음 — 마디 첫 박 G3 낮은 플럭 (둔하게)
-    for bar in range(8):
-        low = lowpass(ks_pluck(note("G3"), 2.2, decay=0.997, bright=0.35,
-                               seed=500 + bar), 600)
-        mix_at(out, low, bar * 4 * beat, 0.38)
+    # 시김새 — 앞꾸밈 (떠는 손)
+    for b, nm in [(4, "G3"), (16, "D4"), (24, "A3")]:
+        mix_at(out, ks_pluck(note(nm), 0.22, decay=0.994, bright=0.4,
+                             seed=300 + b), b * beat - 0.08, 0.26)
+    # 북 — 2마디마다 한 번, 깊게 (의식의 무게)
+    for k in range(4):
+        mix_at(out, _drum_buk(0.62, seed=8 + k), k * 8 * beat)
+    # 대금 — 후반 8박에 긴 한숨 한 가락 (루프 직전 여운)
+    mix_at(out, _daegeum(note("E3"), 3.5, breath=0.08), 24 * beat, 0.30)
+    mix_at(out, _daegeum(note("A2"), 4.0, breath=0.06), 28 * beat - 0.5, 0.26)
     return fade_io(trim(out, total), 0.005)
 
 
 def bgm_forest():
-    """숲 — 계면조 [A3 C4 D4 E4 G4] 낮은 드론 + 드문 플럭, 긴장. 24s."""
+    """숲 — 어둑한 긴장: 디튠 드론 + 심장박동 북 + 반음(Bb) 불협 스침. 24s."""
     total = 24.0
     n = int(SR * total)
-    # 드론: A2 디튠 페어 + A3 — 느린 LFO (8s 주기 → 24s 에 3회, 루프 정합)
+    # 드론: A2 디튠 페어 + A1 서브 — 느린 LFO (8s 주기 → 24s 에 3회)
     d1 = sine(110.0, total)
-    d2 = sine(110.7, total)
-    d3 = sine(220.3, total)
+    d2 = sine(110.8, total)
+    d0 = sine(55.0, total)
     out = []
     for i in range(n):
         t = i / SR
-        lfo = 1.0 + 0.25 * math.sin(2 * math.pi * t / 8.0)
-        out.append((0.20 * d1[i] + 0.20 * d2[i] + 0.07 * d3[i]) * lfo)
-    # 드문 플럭 — 불규칙 간격, 계면조 음만
-    events = [(1.2, "A3"), (3.8, "C4"), (6.4, "E4"), (8.6, "D4"),
-              (11.5, "A3"), (13.9, "G4"), (16.4, "E4"), (18.8, "C4"),
-              (21.0, "D4")]
+        lfo = 1.0 + 0.22 * math.sin(2 * math.pi * t / 8.0)
+        out.append((0.18 * d1[i] + 0.18 * d2[i] + 0.16 * d0[i]) * lfo)
+    # 심장박동 — 쿵-쿵 더블 비트, 3s 주기 (다가오는 것의 발소리처럼)
+    t = 0.6
+    while t < total - 1.0:
+        mix_at(out, _drum_buk(0.45, seed=int(t * 7)), t)
+        mix_at(out, _drum_buk(0.30, seed=int(t * 7) + 1), t + 0.42)
+        t += 3.0
+    # 드문 저음 플럭 — 계면조, 낮게
+    events = [(1.8, "A2"), (5.6, "C3"), (9.1, "E3"), (12.6, "D3"),
+              (16.2, "A2"), (19.7, "G3"), (21.8, "E3")]
     rng = random.Random(13)
-    for t, nm in events:
-        ring = min(2.4, total - t - 0.02)
-        g = 0.62 + rng.uniform(-0.10, 0.10)
-        mix_at(out, ks_pluck(note(nm), ring, decay=0.997, bright=0.45,
-                             seed=int(t * 10)), t, g)
-    # 긴장 — 아주 옅은 고역 노이즈 숨결
-    breath = gain(lowpass(noise(total, seed=99), 900), 0.05)
+    for et, nm in events:
+        ring = min(2.4, total - et - 0.02)
+        g = 0.55 + rng.uniform(-0.08, 0.08)
+        mix_at(out, ks_pluck(note(nm), ring, decay=0.997, bright=0.38,
+                             seed=int(et * 10)), et, g)
+    # 반음 불협 — Bb 가 두 번 스치고 사라짐 (괴담의 한기)
+    for et in (7.5, 18.4):
+        mix_at(out, _daegeum(note("Bb2"), 2.2, vib=0.012, breath=0.14), et, 0.16)
+    # 숨결 노이즈
+    breath = gain(lowpass(noise(total, seed=99), 700), 0.05)
     breath = env_points(breath, [(0, 0.6), (12.0, 1.0), (24.0, 0.6)])
     mix_at(out, breath, 0.0, 1.0)
     return fade_io(trim(out, total), 0.005)
@@ -233,37 +287,66 @@ def _drum_hat(g=1.0, seed=6):
 
 
 def bgm_boss():
-    """보스 — 장구 '덩-기덕-쿵-덕' + 노이즈 햇 + 반음 진행 드론.
-    120bpm(박 0.5s) × 32박 = 16.0s, 8마디."""
-    beat = 0.5
+    """보스 — 전고(戰鼓): 북+장구 중첩, 5도 드론 벽, 대금 하강 전호곡.
+    100bpm(박 0.6s) × 32박 = 19.2s, 8마디."""
+    beat = 0.6
     total = 32 * beat
     out = silence(total)
-    # 드론 — A2 ↔ Bb2 2마디 단위 반음 진행 (위상 연속이라 클릭 없음)
     n = int(SR * total)
+    # 드론 벽 — A1+E2+A2 적층, 2마디 단위로 A↔Bb 반음 상승 긴장
     freqs = []
     for i in range(n):
         bar = int((i / SR) / (4 * beat))
-        freqs.append(110.0 if (bar // 2) % 2 == 0 else note("Bb2"))
-    drone = mix(gain(sine_freqs(freqs), 0.5),
-                gain(sine_freqs(freqs, mul=2.0), 0.13),
-                gain(sine_freqs(freqs, mul=0.5), 0.22))
-    # 드론에 느린 맥동 (마디 주기)
+        freqs.append(55.0 if (bar // 2) % 2 == 0 else note("Bb1"))
+    drone = mix(gain(sine_freqs(freqs), 0.42),
+                gain(sine_freqs(freqs, mul=1.5), 0.18),
+                gain(sine_freqs(freqs, mul=2.0), 0.20),
+                gain(sine_freqs(freqs, mul=3.0), 0.07))
     drone = [s * (0.85 + 0.15 * math.sin(2 * math.pi * (i / SR) / (4 * beat)))
              for i, s in enumerate(drone)]
-    mix_at(out, drone, 0.0, 0.95)            # 드론을 타악과 맞먹게 — 위압감
-    # 장구 패턴 (8분음 위치): e0 덩 / e2 기 e3 덕 / e4 쿵 / e6 덕
+    mix_at(out, drone, 0.0, 0.9)
+    # 전고 — 북(법고)이 마디 머리를 치고 장구가 사이를 모는 구조
     for bar in range(8):
         t0 = bar * 4 * beat
         e = beat / 2.0
-        mix_at(out, _drum_kung(0.90), t0 + 0 * e)           # 덩 = 궁+채 동시
-        mix_at(out, _drum_deok(0.65), t0 + 0 * e)
-        mix_at(out, _drum_deok(0.45), t0 + 2 * e)           # 기
-        mix_at(out, _drum_deok(0.70), t0 + 3 * e)           # 덕
-        mix_at(out, _drum_kung(0.85), t0 + 4 * e)           # 쿵
-        mix_at(out, _drum_deok(0.75), t0 + 6 * e)           # 덕
-        for k in range(8):                                   # 햇 8분음
-            mix_at(out, _drum_hat(0.12 if k % 2 == 0 else 0.07,
+        mix_at(out, _drum_buk(1.0, seed=bar), t0)              # 쿵 (북)
+        mix_at(out, _drum_deok(0.55), t0 + 0 * e)
+        mix_at(out, _drum_deok(0.40), t0 + 2 * e)              # 기
+        mix_at(out, _drum_deok(0.62), t0 + 3 * e)              # 덕
+        mix_at(out, _drum_kung(0.75), t0 + 4 * e)              # 쿵 (장구)
+        mix_at(out, _drum_deok(0.66), t0 + 6 * e)              # 덕
+        if bar % 2 == 1:
+            mix_at(out, _drum_buk(0.7, seed=10 + bar), t0 + 6 * e)  # 몰아치는 겹북
+        for k in range(8):
+            mix_at(out, _drum_hat(0.10 if k % 2 == 0 else 0.06,
                                   seed=bar * 8 + k), t0 + k * e)
+    # 전호곡 — 대금풍 하강 외침 (E4→D4→C4→A3), 4마디마다
+    cry = [("E4", 0), ("D4", 1.0), ("C4", 2.0), ("A3", 3.0)]
+    for rep in (0, 4):
+        base = rep * 4 * beat + 0.3
+        for nm, dt in cry:
+            mix_at(out, _daegeum(note(nm), 1.3, vib=0.014, breath=0.12),
+                   base + dt * 1.05, 0.34)
+    return fade_io(trim(out, total), 0.005)
+
+
+def bgm_title():
+    """타이틀 — 비장한 서곡: 깊은 드론 + 대금 독주 + 먼 북. 24s."""
+    total = 24.0
+    out = silence(total)
+    # 드론 — A1 근음+5도, 12s 주기 맥동 → 2회 (루프 정합)
+    mix_at(out, _drone_fifth(55.0, total, lfo_period=12.0,
+                             g_root=0.34, g_fifth=0.14, g_oct=0.12), 0.0, 1.0)
+    # 대금 독주 — 긴 하강 가락 (한 서린 독백)
+    solo = [(1.0, "A3", 3.2), (4.6, "C4", 2.4), (7.4, "G3", 3.4),
+            (11.2, "E3", 3.8), (15.6, "D3", 2.6), (18.6, "A2", 4.6)]
+    for t, nm, d in solo:
+        mix_at(out, _daegeum(note(nm), d, vib=0.011, breath=0.10), t, 0.42)
+    # 먼 북 — 12s 마다 (산사의 법고처럼)
+    mix_at(out, _drum_buk(0.55, seed=3), 0.2)
+    mix_at(out, _drum_buk(0.55, seed=4), 12.2)
+    # 낮은 가야금 한 줄 — 루프 이음새 부드럽게
+    mix_at(out, ks_pluck(note("A2"), 3.0, decay=0.9975, bright=0.35, seed=900), 21.5, 0.30)
     return fade_io(trim(out, total), 0.005)
 
 
@@ -366,6 +449,7 @@ def main():
         (BGM, "forest", bgm_forest, True),
         (BGM, "boss", bgm_boss, True),
         (BGM, "night", bgm_night, True),
+        (BGM, "title", bgm_title, True),
     ]
     specs = []
     lines = ["hohwan-gidam audio spec  (22050 Hz / 16-bit / mono, peak limit -3 dBFS)",

@@ -77,23 +77,23 @@
   "bgm": {
     "village": {
       "file": "bgm/village.wav",
-      "duration_s": 24.0,
+      "duration_s": 32.0,
       "peak_dbfs": -3.2,
-      "rms_dbfs": -20.64,
+      "rms_dbfs": -17.59,
       "loop": true
     },
     "forest": {
       "file": "bgm/forest.wav",
       "duration_s": 24.0,
       "peak_dbfs": -3.2,
-      "rms_dbfs": -15.9,
+      "rms_dbfs": -17.17,
       "loop": true
     },
     "boss": {
       "file": "bgm/boss.wav",
-      "duration_s": 16.0,
+      "duration_s": 19.2,
       "peak_dbfs": -3.2,
-      "rms_dbfs": -17.28,
+      "rms_dbfs": -19.08,
       "loop": true
     },
     "night": {
@@ -101,6 +101,13 @@
       "duration_s": 20.0,
       "peak_dbfs": -3.2,
       "rms_dbfs": -12.65,
+      "loop": true
+    },
+    "title": {
+      "file": "bgm/title.wav",
+      "duration_s": 24.0,
+      "peak_dbfs": -3.2,
+      "rms_dbfs": -13.26,
       "loop": true
     }
   }
