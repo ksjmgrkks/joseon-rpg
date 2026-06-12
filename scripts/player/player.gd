@@ -45,17 +45,22 @@ var _base_modulate: Color = Color.WHITE
 var _dodging: bool = false
 var _dodge_timer: float = 0.0
 var _dodge_cd: float = 0.0
+# 스킬 상태 (일섬 돌진)
+var _skill_dash_timer: float = 0.0
+var _skill_dash_speed: float = 0.0
 
 
 func _ready() -> void:
     if health:
         health.hp_changed.connect(_on_hp_changed)
         health.died.connect(_on_died)
+        health.shield_broken.connect(_on_shield_broken)
     if sprite:
         _base_modulate = sprite.modulate
     if attack_hitbox:
         # 내가 친 게 적의 Hurtbox에 닿으면 화면 fx 발사
         attack_hitbox.area_entered.connect(_on_hitbox_landed)
+    SkillManager.skill_cast.connect(_on_skill_cast)
 
 
 func _physics_process(delta: float) -> void:
@@ -74,6 +79,22 @@ func _physics_process(delta: float) -> void:
     # 회피 시작
     if Input.is_action_just_pressed("dodge") and not _dodging and not _attacking and _dodge_cd <= 0.0:
         _start_dodge()
+
+    # 스킬 발동 (1/2/3) — SkillManager 가 해금·쿨다운 게이트, 효과는 _on_skill_cast
+    if not _dodging and not _attacking:
+        if Input.is_action_just_pressed("skill_1"):
+            SkillManager.try_cast("ilseom")
+        elif Input.is_action_just_pressed("skill_2"):
+            SkillManager.try_cast("hoecheon")
+        elif Input.is_action_just_pressed("skill_3"):
+            SkillManager.try_cast("hosinbu")
+
+    # 일섬 돌진 진행 — 돌진 동안 조작 잠금
+    if _skill_dash_timer > 0.0:
+        _skill_dash_timer = maxf(0.0, _skill_dash_timer - delta)
+        velocity.x = _skill_dash_speed if _facing_right else -_skill_dash_speed
+        move_and_slide()
+        return
 
     # 회피 중에는 이동/공격/콤보 윈도우 무시하고 dash 가속 유지
     if _dodging:
@@ -233,6 +254,79 @@ func _end_dodge() -> void:
         var c := _base_modulate
         c.a = 1.0
         sprite.modulate = c
+
+
+# ────────────────────────────── 스킬 효과 ──────────────────────────────
+
+func _on_skill_cast(id: String) -> void:
+    match id:
+        "ilseom":
+            _skill_ilseom()
+        "hoecheon":
+            _skill_hoecheon()
+        "hosinbu":
+            _skill_hosinbu()
+
+
+## 발도 일섬 — 전방 돌진 + 돌진 내내 강타 히트박스
+func _skill_ilseom() -> void:
+    var def := SkillManager.get_def("ilseom")
+    _attacking = true
+    _skill_dash_speed = float(def.get("dash_speed", 430.0))
+    var dur := float(def.get("dash_time", 0.22))
+    _skill_dash_timer = dur
+    var stored_damage: float = attack_hitbox.damage
+    var stored_knock: float = attack_hitbox.knockback
+    attack_hitbox.damage = Equipment.current_damage(stored_damage) * float(def.get("damage_mult", 1.8))
+    attack_hitbox.position.x = 16.0 if _facing_right else -16.0
+    Audio.play_sfx(Sfx.ATTACK)
+    ScreenFx.shake(7.0, 0.14)
+    await attack_hitbox.activate(dur)
+    attack_hitbox.damage = stored_damage
+    attack_hitbox.knockback = stored_knock
+    _attacking = false
+
+
+## 회천격 — 앞→뒤 연속 타격 (회전 베기)
+func _skill_hoecheon() -> void:
+    var def := SkillManager.get_def("hoecheon")
+    _attacking = true
+    var stored_damage: float = attack_hitbox.damage
+    var stored_knock: float = attack_hitbox.knockback
+    attack_hitbox.damage = Equipment.current_damage(stored_damage) * float(def.get("damage_mult", 1.4))
+    attack_hitbox.knockback = stored_knock * float(def.get("knock_mult", 1.8))
+    Audio.play_sfx(Sfx.ATTACK)
+    ScreenFx.shake(9.0, 0.18)
+    attack_hitbox.position.x = 16.0 if _facing_right else -16.0
+    await attack_hitbox.activate(0.12)
+    attack_hitbox.position.x = -16.0 if _facing_right else 16.0
+    Audio.play_sfx(Sfx.ATTACK)
+    await attack_hitbox.activate(0.12)
+    attack_hitbox.damage = stored_damage
+    attack_hitbox.knockback = stored_knock
+    await get_tree().create_timer(ATTACK_RECOVER).timeout
+    _attacking = false
+
+
+## 호신부 — 피해 1회 무효 가호
+func _skill_hosinbu() -> void:
+    var def := SkillManager.get_def("hosinbu")
+    health.shield_charges = int(def.get("shield_charges", 1))
+    Audio.play_sfx(Sfx.JINGLE)
+    if sprite:
+        sprite.modulate = _base_modulate.lerp(Color(1.0, 0.9, 0.5, 1.0), 0.5)
+        await get_tree().create_timer(0.25).timeout
+        if is_instance_valid(sprite) and health.shield_charges > 0:
+            sprite.modulate = _base_modulate.lerp(Color(1.0, 0.95, 0.7, 1.0), 0.2)  # 은은한 가호 빛
+    FloatingNumber.spawn(get_tree().current_scene, global_position + Vector2(0, -40), "護", Color(1, 0.9, 0.5))
+
+
+func _on_shield_broken() -> void:
+    Audio.play_sfx(Sfx.HIT)
+    ScreenFx.shake(5.0, 0.12)
+    FloatingNumber.spawn(get_tree().current_scene, global_position + Vector2(0, -40), "가호 소멸", Color(1, 0.85, 0.5))
+    if sprite:
+        sprite.modulate = _base_modulate
 
 
 func _on_hp_changed(hp: float, max_hp: float) -> void:

@@ -1,0 +1,34 @@
+{
+  "skills": {
+    "ilseom": {
+      "name": "발도 일섬",
+      "slot": 1,
+      "desc": "칼집에서 뽑는 그대로 전방을 꿰뚫는다. (돌진 강타)",
+      "cooldown": 6.0,
+      "unlock": { "type": "level", "value": 3 },
+      "unlock_text": "레벨 3 달성 시 해금",
+      "damage_mult": 1.8,
+      "dash_speed": 430.0,
+      "dash_time": 0.22
+    },
+    "hoecheon": {
+      "name": "회천격",
+      "slot": 2,
+      "desc": "몸을 크게 돌려 앞뒤를 모두 후려친다. (양방향 강타+넉백)",
+      "cooldown": 10.0,
+      "unlock": { "type": "level", "value": 5 },
+      "unlock_text": "레벨 5 달성 시 해금",
+      "damage_mult": 1.4,
+      "knock_mult": 1.8
+    },
+    "hosinbu": {
+      "name": "호신부",
+      "slot": 3,
+      "desc": "잃었던 부적의 가호 — 다음 한 번의 피해를 무효로 한다.",
+      "cooldown": 18.0,
+      "unlock": { "type": "flag", "value": "charm_blessing" },
+      "unlock_text": "아낙의 부적을 찾아주면 해금",
+      "shield_charges": 1
+    }
+  }
+}

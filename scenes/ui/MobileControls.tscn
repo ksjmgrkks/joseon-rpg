@@ -106,3 +106,71 @@ text = "E"
 label_settings = SubResource("LabelSettings_btn")
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="Dodge" type="TouchScreenButton" parent="."]
+position = Vector2(870, 600)
+scale = Vector2(1.1, 1.1)
+texture_normal = ExtResource("1_btn")
+shape = SubResource("RectangleShape2D_med")
+action = "dodge"
+
+[node name="Label" type="Label" parent="Dodge"]
+offset_left = 12.0
+offset_top = 14.0
+offset_right = 60.0
+offset_bottom = 50.0
+text = "회피"
+label_settings = SubResource("LabelSettings_btn")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Skill1" type="TouchScreenButton" parent="."]
+position = Vector2(940, 470)
+scale = Vector2(0.9, 0.9)
+texture_normal = ExtResource("1_btn")
+shape = SubResource("RectangleShape2D_small")
+action = "skill_1"
+
+[node name="Label" type="Label" parent="Skill1"]
+offset_left = 12.0
+offset_top = 14.0
+offset_right = 60.0
+offset_bottom = 50.0
+text = "일섬"
+label_settings = SubResource("LabelSettings_btn")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Skill2" type="TouchScreenButton" parent="."]
+position = Vector2(1030, 440)
+scale = Vector2(0.9, 0.9)
+texture_normal = ExtResource("1_btn")
+shape = SubResource("RectangleShape2D_small")
+action = "skill_2"
+
+[node name="Label" type="Label" parent="Skill2"]
+offset_left = 12.0
+offset_top = 14.0
+offset_right = 60.0
+offset_bottom = 50.0
+text = "회천"
+label_settings = SubResource("LabelSettings_btn")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Skill3" type="TouchScreenButton" parent="."]
+position = Vector2(1120, 380)
+scale = Vector2(0.9, 0.9)
+texture_normal = ExtResource("1_btn")
+shape = SubResource("RectangleShape2D_small")
+action = "skill_3"
+
+[node name="Label" type="Label" parent="Skill3"]
+offset_left = 12.0
+offset_top = 14.0
+offset_right = 60.0
+offset_bottom = 50.0
+text = "호신"
+label_settings = SubResource("LabelSettings_btn")
+horizontal_alignment = 1
+vertical_alignment = 1

@@ -51,3 +51,15 @@ size_flags_horizontal = 3
 [node name="GoldLabel" type="Label" parent="Panel/Margin/VBox/StatsRow"]
 text = "엽전 0"
 custom_minimum_size = Vector2(72, 0)
+
+[node name="SkillRow" type="HBoxContainer" parent="Panel/Margin/VBox"]
+theme_override_constants/separation = 10
+
+[node name="Skill1" type="Label" parent="Panel/Margin/VBox/SkillRow"]
+text = "[1] 일섬"
+
+[node name="Skill2" type="Label" parent="Panel/Margin/VBox/SkillRow"]
+text = "[2] 회천격"
+
+[node name="Skill3" type="Label" parent="Panel/Margin/VBox/SkillRow"]
+text = "[3] 호신부"

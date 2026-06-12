@@ -7,11 +7,13 @@ class_name HealthComponent
 
 signal hp_changed(hp: float, max_hp: float)
 signal died
+signal shield_broken
 
 @export var max_hp: float = 100.0
 @export var hurtbox_path: NodePath
 
 var hp: float
+var shield_charges: int = 0   # 호신부 등 — 피해 1회를 통째로 막는 가호
 
 
 func _ready() -> void:
@@ -29,6 +31,10 @@ func _on_hurt(damage: float, _knockback: float, attacker: Node) -> void:
 ## 외부에서도 직접 호출 가능. 부모가 'player' 그룹이면 Equipment 방어력만큼 자동 감산.
 func take_damage(amount: float, _source: Node = null) -> void:
     if hp <= 0.0:
+        return
+    if shield_charges > 0:
+        shield_charges -= 1
+        shield_broken.emit()
         return
     var effective := amount
     var parent := get_parent()

@@ -9,6 +9,13 @@ extends CanvasLayer
 @onready var level_label: Label = $Panel/Margin/VBox/StatsRow/LevelLabel
 @onready var xp_label: Label = $Panel/Margin/VBox/StatsRow/XpLabel
 @onready var gold_label: Label = $Panel/Margin/VBox/StatsRow/GoldLabel
+@onready var skill_labels: Dictionary = {
+    "ilseom": $Panel/Margin/VBox/SkillRow/Skill1,
+    "hoecheon": $Panel/Margin/VBox/SkillRow/Skill2,
+    "hosinbu": $Panel/Margin/VBox/SkillRow/Skill3,
+}
+
+const SKILL_KEYS := { "ilseom": "1", "hoecheon": "2", "hosinbu": "3" }
 
 
 func _ready() -> void:
@@ -28,6 +35,33 @@ func _ready() -> void:
     PlayerStats.level_up.connect(_on_level_up)
     _update_gold(PlayerStats.gold)
     PlayerStats.gold_changed.connect(_update_gold)
+
+    SkillManager.cooldowns_changed.connect(_update_skills)
+    PlayerStats.level_up.connect(func(_l: int) -> void: _update_skills())
+    Flags.flag_changed.connect(func(_k: String, _v) -> void: _update_skills())
+    _update_skills()
+
+
+## 스킬 줄 — 잠김: 회색 [잠김], 쿨다운: 남은 초, 준비: 흰색
+func _update_skills() -> void:
+    for id in skill_labels:
+        var lbl: Label = skill_labels[id]
+        if lbl == null:
+            continue
+        var def := SkillManager.get_def(id)
+        var sname := String(def.get("name", id))
+        var key: String = SKILL_KEYS.get(id, "?")
+        if not SkillManager.is_unlocked(id):
+            lbl.text = "[%s] %s(잠김)" % [key, sname]
+            lbl.modulate = Color(1, 1, 1, 0.35)
+        else:
+            var cd := SkillManager.cooldown_left(id)
+            if cd > 0.0:
+                lbl.text = "[%s] %s %.0f" % [key, sname, ceilf(cd)]
+                lbl.modulate = Color(1, 1, 1, 0.6)
+            else:
+                lbl.text = "[%s] %s" % [key, sname]
+                lbl.modulate = Color(1, 1, 1, 1)
 
 
 func _update_hp(hp: float, max_hp: float) -> void:
