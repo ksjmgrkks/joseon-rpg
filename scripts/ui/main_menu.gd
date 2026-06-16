@@ -4,7 +4,16 @@ extends Control
 ##
 
 const START_LEVEL_PATH := "res://scenes/levels/Village.tscn"
+const PROLOGUE_PATH := "res://scenes/ui/Prologue.tscn"
 const SETTINGS_PATH := "res://scenes/ui/SettingsMenu.tscn"
+
+# 저장 메타의 지역명(SaveManager.AREA_LABELS) → 씬 경로 역매핑 (이어하기 복귀용)
+const AREA_SCENES := {
+    "마을": "res://scenes/levels/Village.tscn",
+    "들판": "res://scenes/levels/TestLevel.tscn",
+    "숲": "res://scenes/levels/Forest.tscn",
+    "절벽 아레나": "res://scenes/levels/BossArena.tscn",
+}
 const SLOT_PICKER_SCENE := preload("res://scenes/ui/SlotPicker.tscn")
 
 @onready var title_label: Label = $Margin/VBox/Title
@@ -51,12 +60,13 @@ func _any_save_exists() -> bool:
 
 
 func _on_new() -> void:
-    # 새로 시작 — 진행 상태 초기화 후 시작 마을(Village)로
+    # 새로 시작 — 진행 상태 초기화 후 프롤로그(서사 도입) → 마을
     Flags.clear()
     Inventory.clear()
     if Equipment: Equipment.clear()
     PlayerStats.reset()
-    SceneManager.change_scene(START_LEVEL_PATH)
+    if SkillManager: SkillManager.reset_cooldowns()
+    SceneManager.change_scene(PROLOGUE_PATH)
 
 
 func _on_continue() -> void:
@@ -72,9 +82,12 @@ func _on_continue() -> void:
 func _on_slot_load(slot: int) -> void:
     if not SaveManager.has_save(slot):
         return
+    # 저장된 지역으로 복귀 (메타의 area 라벨 → 씬). 매칭 실패 시 마을로 폴백.
+    var info := SaveManager.get_slot_info(slot)
+    var dest := String(AREA_SCENES.get(String(info.get("area", "")), START_LEVEL_PATH))
     SaveManager.load(slot)
     _close_picker()
-    SceneManager.change_scene(START_LEVEL_PATH)
+    SceneManager.change_scene(dest)
 
 
 func _close_picker() -> void:

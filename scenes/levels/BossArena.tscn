@@ -113,7 +113,7 @@ collision_mask = 1
 position = Vector2(40, 620)
 script = ExtResource("5_exit")
 target_scene = "res://scenes/levels/Forest.tscn"
-target_entry = &"default"
+target_entry = &"from_boss"
 
 [node name="ExitShape" type="CollisionShape2D" parent="ExitToForest"]
 shape = SubResource("RectangleShape2D_exit")

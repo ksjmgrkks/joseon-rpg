@@ -23,6 +23,7 @@ const NON_GAMEPLAY_SCENES := {
     "MainMenu": true,
     "SettingsMenu": true,
     "Ending": true,
+    "Prologue": true,
 }
 
 @export var autosave_on_scene_change: bool = true
