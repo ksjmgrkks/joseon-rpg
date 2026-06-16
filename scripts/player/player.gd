@@ -54,6 +54,8 @@ var _skill_dash_speed: float = 0.0
 # 낙사 안전망 — 마지막으로 땅을 밟았던 안전 위치
 var _last_safe_pos: Vector2 = Vector2.ZERO
 var _has_safe_pos: bool = false
+# 호신부 오라 노드
+var _ward: Node2D = null
 
 
 func _ready() -> void:
@@ -245,6 +247,9 @@ func _on_hitbox_landed(area: Area2D) -> void:
     var landed_strength := 4.0 + 1.5 * float(_combo_step)
     ScreenFx.shake(landed_strength, 0.16)
     ScreenFx.hit_stop(0.04 if _combo_step < 3 else 0.08)
+    # 적중 임팩트 스파크 — 히트박스 위치 근처
+    var fx_pos := area.global_position if area else (global_position + Vector2(0, -16))
+    SkillFx.impact(fx_pos, _combo_step >= 3)
 
 
 # 회피 시작/종료 — Hurtbox 비활성으로 무적, sprite 반투명
@@ -297,6 +302,7 @@ func _skill_ilseom() -> void:
     attack_hitbox.position.x = 16.0 if _facing_right else -16.0
     Audio.play_sfx(Sfx.ATTACK)
     ScreenFx.shake(7.0, 0.14)
+    SkillFx.slash(global_position + Vector2(0, -16), _facing_right)
     await attack_hitbox.activate(dur)
     attack_hitbox.damage = stored_damage
     attack_hitbox.knockback = stored_knock
@@ -313,6 +319,7 @@ func _skill_hoecheon() -> void:
     attack_hitbox.knockback = stored_knock * float(def.get("knock_mult", 1.8))
     Audio.play_sfx(Sfx.ATTACK)
     ScreenFx.shake(9.0, 0.18)
+    SkillFx.spin(global_position)
     attack_hitbox.position.x = 16.0 if _facing_right else -16.0
     await attack_hitbox.activate(0.12)
     attack_hitbox.position.x = -16.0 if _facing_right else 16.0
@@ -329,18 +336,21 @@ func _skill_hosinbu() -> void:
     var def := SkillManager.get_def("hosinbu")
     health.shield_charges = int(def.get("shield_charges", 1))
     Audio.play_sfx(Sfx.JINGLE)
-    if sprite:
-        sprite.modulate = _base_modulate.lerp(Color(1.0, 0.9, 0.5, 1.0), 0.5)
-        await get_tree().create_timer(0.25).timeout
-        if is_instance_valid(sprite) and health.shield_charges > 0:
-            sprite.modulate = _base_modulate.lerp(Color(1.0, 0.95, 0.7, 1.0), 0.2)  # 은은한 가호 빛
+    # 부적 오라 부착 (이전 것이 남아 있으면 제거)
+    if _ward != null and is_instance_valid(_ward):
+        _ward.queue_free()
+    _ward = SkillFx.attach_ward(self)
     FloatingNumber.spawn(get_tree().current_scene, global_position + Vector2(0, -40), "護", Color(1, 0.9, 0.5))
 
 
 func _on_shield_broken() -> void:
     Audio.play_sfx(Sfx.HIT)
     ScreenFx.shake(5.0, 0.12)
+    SkillFx.impact(global_position + Vector2(0, -16), true)
     FloatingNumber.spawn(get_tree().current_scene, global_position + Vector2(0, -40), "가호 소멸", Color(1, 0.85, 0.5))
+    if _ward != null and is_instance_valid(_ward):
+        _ward.queue_free()
+        _ward = null
     if sprite:
         sprite.modulate = _base_modulate
 
