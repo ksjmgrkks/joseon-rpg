@@ -19,6 +19,14 @@ extends CharacterBody2D
 @export var drop_icon: String = "herb"
 @export var drop_chance: float = 0.40
 @export var drop_gold_chance: float = 0.30
+# 원거리 공격(저승사자 등) — 중거리에서 영혼 구슬을 쏜다.
+@export var ranged: bool = false
+@export var ranged_damage: float = 7.0
+@export var ranged_min: float = 90.0      # 이보다 가까우면 근접 우선
+@export var ranged_max: float = 320.0     # 이보다 멀면 안 쏨
+@export var ranged_cooldown: float = 2.2
+
+var _ranged_cd: float = 0.0
 
 @onready var sprite: AnimatedSprite2D = $Sprite2D
 @onready var hurtbox: Hurtbox = $Hurtbox
@@ -43,14 +51,33 @@ func _physics_process(delta: float) -> void:
         return
     if _atk_cd > 0.0:
         _atk_cd -= delta
+    if _ranged_cd > 0.0:
+        _ranged_cd -= delta
     if _attacking or _atk_cd > 0.0:
         return
     var p := get_player()
     if p == null or not (p is Node2D):
         return
     var pp := (p as Node2D).global_position
-    if global_position.distance_to(pp) <= attack_range and absf(pp.y - global_position.y) < 60.0:
+    var dist := global_position.distance_to(pp)
+    var level := absf(pp.y - global_position.y) < 70.0
+    if dist <= attack_range and absf(pp.y - global_position.y) < 60.0:
         _do_attack(p as Node2D)
+    elif ranged and level and _ranged_cd <= 0.0 and dist >= ranged_min and dist <= ranged_max:
+        _do_ranged(p as Node2D)
+
+
+# 원거리 — 영혼 구슬을 플레이어 방향으로 발사.
+func _do_ranged(player: Node2D) -> void:
+    _ranged_cd = ranged_cooldown
+    var facing := signf(player.global_position.x - global_position.x)
+    if sprite:
+        sprite.flip_h = facing < 0.0
+    var host := get_parent()
+    if host == null:
+        return
+    SpiritOrb.spawn(host, global_position + Vector2(facing * 16.0, -10.0), facing, ranged_damage)
+    Audio.play_sfx(Sfx.ATTACK)
 
 
 # 예비동작(번쩍) → 타격: 그 순간 플레이어가 사거리 안이면 데미지+넉백.
