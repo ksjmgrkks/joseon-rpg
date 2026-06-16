@@ -40,16 +40,20 @@ func _ready() -> void:
     if data.is_empty():
         push_error("[Stage] stage json 없음: %s" % stage_id)
         return
+    # 이미 클리어한 구간(게이트 flag 셋)이면 적·게이트를 다시 만들지 않음 — 되돌아가도 재전투 X.
+    var cleared := _is_cleared(data.get("gates", []))
     _build_backdrop(data.get("backdrop", {}))
     _build_ground(data.get("ground", {}))
     _build_props(data.get("props", []))
     _build_entries(data.get("entries", []))
-    _build_enemies(data.get("enemies", []))
+    if not cleared:
+        _build_enemies(data.get("enemies", []))
     _build_npcs(data.get("npcs", []))
     _build_pickups(data.get("pickups", []))
     _build_auto_dialogues(data.get("auto_dialogues", []))
     _build_quest_triggers(data.get("quest_triggers", []))
-    _build_gates(data.get("gates", []))
+    if not cleared:
+        _build_gates(data.get("gates", []))
     _build_exits(data.get("exits", []))
     _build_player(data)
     _build_ui()
@@ -255,6 +259,16 @@ func _build_exits(exits: Array) -> void:
         mark.offset_right = 16; mark.offset_bottom = 48
         area.add_child(mark)
         add_child(area)
+
+
+## 게이트 중 하나라도 open_flag 가 이미 셋이면 이 구간은 클리어된 것으로 본다.
+func _is_cleared(gates: Array) -> bool:
+    for g in gates:
+        if g is Dictionary:
+            var f := String(g.get("flag", ""))
+            if f != "" and Flags.has_flag(f):
+                return true
+    return false
 
 
 func _build_gates(gates: Array) -> void:
