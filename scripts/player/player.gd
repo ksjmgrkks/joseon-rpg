@@ -118,6 +118,8 @@ func _physics_process(delta: float) -> void:
             SkillManager.try_cast("hoecheon")
         elif Input.is_action_just_pressed("skill_3"):
             SkillManager.try_cast("hosinbu")
+        elif Input.is_action_just_pressed("skill_4"):
+            SkillManager.try_cast("guichang")
 
     # 일섬 돌진 진행 — 돌진 동안 조작 잠금
     if _skill_dash_timer > 0.0:
@@ -301,6 +303,34 @@ func _on_skill_cast(id: String) -> void:
             _skill_hoecheon()
         "hosinbu":
             _skill_hosinbu()
+        "guichang":
+            _skill_ultimate()
+
+
+## 궁극기 '귀창 강림' — 사방 모든 적에게 광역 대피해 + 매우 화려한 연출
+func _skill_ultimate() -> void:
+    var def := SkillManager.get_def("guichang")
+    _attacking = true
+    var radius := float(def.get("radius", 360.0))
+    var mult := float(def.get("damage_mult", 3.5))
+    var dmg := Equipment.current_damage(attack_hitbox.damage) * mult
+    Audio.play_sfx(Sfx.ATTACK)
+    Audio.play_sfx(Sfx.JINGLE)
+    SkillFx.ultimate(global_position)
+    ScreenFx.shake(16.0, 0.5)
+    ScreenFx.hit_stop(0.12)
+    # 사거리 안 모든 적에게 피해
+    for e in get_tree().get_nodes_in_group("enemy"):
+        if not (e is Node2D):
+            continue
+        if global_position.distance_to((e as Node2D).global_position) > radius:
+            continue
+        var hc: HealthComponent = e.get_node_or_null("HealthComponent")
+        if hc:
+            hc.take_damage(dmg, self)
+            SkillFx.impact((e as Node2D).global_position + Vector2(0, -16), true)
+    await get_tree().create_timer(0.5).timeout
+    _attacking = false
 
 
 ## 발도 일섬 — 전방 돌진 + 돌진 내내 강타 히트박스

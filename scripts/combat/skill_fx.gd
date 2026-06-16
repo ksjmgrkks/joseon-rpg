@@ -143,6 +143,78 @@ func _spear_spin(pos: Vector2) -> void:
     tw2.tween_callback(spikes.queue_free)
 
 
+# ════════════ 궁극기 '귀창 강림' — 매우 화려한 광역 연출 ════════════
+func ultimate(pos: Vector2) -> void:
+    var host := _host()
+    if host == null:
+        return
+    var center := pos + Vector2(0, -16)
+    # 1) 화면 섬광(보랏빛→흰빛 페이드)
+    var flash := ColorRect.new()
+    flash.color = Color(0.7, 0.6, 0.95, 0.0)
+    flash.anchor_right = 1.0
+    flash.anchor_bottom = 1.0
+    flash.z_index = 40
+    var cl := CanvasLayer.new()
+    cl.layer = 50
+    cl.add_child(flash)
+    host.add_child(cl)
+    var ft := flash.create_tween()
+    ft.tween_property(flash, "color:a", 0.55, 0.08)
+    ft.tween_property(flash, "color:a", 0.0, 0.5)
+    ft.tween_callback(cl.queue_free)
+    # 2) 확장하는 마기 충격파 링 3겹
+    for k in range(3):
+        var ring := Line2D.new()
+        ring.width = 8.0 - k * 1.5
+        ring.default_color = MAGE if k % 2 == 0 else BRIGHT
+        var rp := PackedVector2Array()
+        for i in range(33):
+            var a := TAU * i / 32.0
+            rp.append(Vector2(cos(a), sin(a)) * 40.0)
+        ring.points = rp
+        ring.global_position = center
+        ring.z_index = 38
+        ring.scale = Vector2(0.2, 0.2)
+        host.add_child(ring)
+        var tw := ring.create_tween()
+        tw.tween_interval(k * 0.1)
+        tw.tween_property(ring, "scale", Vector2(4.5, 4.5), 0.5).set_trans(Tween.TRANS_QUART).set_ease(Tween.EASE_OUT)
+        tw.parallel().tween_property(ring, "modulate:a", 0.0, 0.5)
+        tw.tween_callback(ring.queue_free)
+    # 3) 하늘에서 쏟아지는 귀신 창 12자루(방사)
+    var spears := Node2D.new()
+    spears.position = center
+    spears.z_index = 39
+    host.add_child(spears)
+    for i in range(12):
+        var a := TAU * i / 12.0 - PI / 2.0
+        var dirv := Vector2(cos(a), sin(a))
+        var sp := Line2D.new()
+        sp.width = 5.0
+        sp.default_color = BRIGHT
+        sp.begin_cap_mode = Line2D.LINE_CAP_ROUND
+        sp.end_cap_mode = Line2D.LINE_CAP_ROUND
+        sp.points = PackedVector2Array([dirv * 30.0, dirv * 300.0])
+        sp.modulate.a = 0.0
+        spears.add_child(sp)
+        var aura := sp.duplicate() as Line2D
+        aura.width = 12.0
+        aura.default_color = Color(MAGE.r, MAGE.g, MAGE.b, 0.5)
+        spears.add_child(aura)
+        for n: Line2D in [aura, sp]:
+            var tw := n.create_tween()
+            tw.tween_interval(0.05 + i * 0.02)
+            tw.tween_property(n, "modulate:a", 1.0, 0.06)
+            tw.tween_interval(0.18)
+            tw.tween_property(n, "modulate:a", 0.0, 0.22)
+    var clean := spears.create_tween()
+    clean.tween_interval(1.0)
+    clean.tween_callback(spears.queue_free)
+    # 4) 중심 기둥 섬광
+    impact(center, true)
+
+
 # ── 일섬: 전방으로 길게 베는 초승달 궤적 ──────────────────────
 func slash(pos: Vector2, facing_right: bool, color: Color = BRIGHT) -> void:
     var host := _host()

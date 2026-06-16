@@ -15,10 +15,14 @@ signal invuln_started   # 피격 무적 시작(피드백 연출용)
 @export var hurtbox_path: NodePath
 # 피격 후 짧은 무적(초). 0이면 없음. 플레이어는 무리에게 연타당하지 않게 0.5 권장.
 @export var invuln_on_hit: float = 0.0
+# 시간 경과 자연 회복 — 최근 피격 없을 때 초당 regen_rate 만큼 회복(0이면 없음).
+@export var regen_rate: float = 0.0           # HP/초
+@export var regen_delay: float = 5.0          # 마지막 피격 후 이 시간 지나야 회복 시작
 
 var hp: float
 var shield_charges: int = 0   # 호신부 등 — 피해 1회를 통째로 막는 가호
 var _invuln: float = 0.0
+var _since_hit: float = 999.0   # 마지막 피격 이후 경과(초)
 
 
 func _ready() -> void:
@@ -32,6 +36,11 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
     if _invuln > 0.0:
         _invuln = maxf(0.0, _invuln - delta)
+    # 시간 경과 자연 회복 — 마지막 피격 후 regen_delay 지났고 살아있으며 만피 아닐 때
+    _since_hit += delta
+    if regen_rate > 0.0 and hp > 0.0 and hp < max_hp and _since_hit >= regen_delay:
+        hp = minf(max_hp, hp + regen_rate * delta)
+        hp_changed.emit(hp, max_hp)
 
 
 func is_invulnerable() -> bool:
@@ -61,6 +70,7 @@ func take_damage(amount: float, _source: Node = null) -> void:
     if parent and parent.is_in_group("player") and Equipment:
         effective = maxf(1.0, amount - Equipment.current_defense())
     hp = maxf(0.0, hp - effective)
+    _since_hit = 0.0                # 피격 → 자연 회복 지연 리셋
     hp_changed.emit(hp, max_hp)
     if hp > 0.0 and invuln_on_hit > 0.0:
         _invuln = invuln_on_hit

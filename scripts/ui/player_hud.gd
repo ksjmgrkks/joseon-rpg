@@ -13,9 +13,10 @@ extends CanvasLayer
     "ilseom": $Panel/Margin/VBox/SkillRow/Skill1,
     "hoecheon": $Panel/Margin/VBox/SkillRow/Skill2,
     "hosinbu": $Panel/Margin/VBox/SkillRow/Skill3,
+    "guichang": $Panel/Margin/VBox/SkillRow/Skill4,
 }
 
-const SKILL_KEYS := { "ilseom": "1", "hoecheon": "2", "hosinbu": "3" }
+const SKILL_KEYS := { "ilseom": "1", "hoecheon": "2", "hosinbu": "3", "guichang": "4" }
 
 
 func _ready() -> void:

@@ -1,9 +1,9 @@
 {
   "skills": {
     "ilseom": {
-      "name": "발도 일섬",
+      "name": "마창 일섬",
       "slot": 1,
-      "desc": "칼집에서 뽑는 그대로 전방을 꿰뚫는다. (돌진 강타)",
+      "desc": "마(魔)를 실어 전방을 꿰뚫는 돌진 찌르기.",
       "cooldown": 6.0,
       "unlock": { "type": "level", "value": 1 },
       "unlock_text": "처음부터 사용 가능",
@@ -12,9 +12,9 @@
       "dash_time": 0.22
     },
     "hoecheon": {
-      "name": "회천격",
+      "name": "선풍 창무",
       "slot": 2,
-      "desc": "몸을 크게 돌려 앞뒤를 모두 후려친다. (양방향 강타+넉백)",
+      "desc": "창을 크게 휘둘러 앞뒤를 쓸어버린다. (양방향 강타+넉백)",
       "cooldown": 10.0,
       "unlock": { "type": "level", "value": 1 },
       "unlock_text": "처음부터 사용 가능",
@@ -29,6 +29,17 @@
       "unlock": { "type": "level", "value": 1 },
       "unlock_text": "처음부터 사용 가능",
       "shield_charges": 1
+    },
+    "guichang": {
+      "name": "귀창 강림",
+      "slot": 4,
+      "desc": "마창의 진정한 힘 — 사방의 모든 적에게 귀신 창이 쏟아진다. (궁극기·광역 대피해)",
+      "cooldown": 40.0,
+      "unlock": { "type": "level", "value": 1 },
+      "unlock_text": "처음부터 사용 가능",
+      "ultimate": true,
+      "damage_mult": 3.5,
+      "radius": 360.0
     }
   }
 }

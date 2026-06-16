@@ -44,3 +44,5 @@ script = ExtResource("4_health")
 max_hp = 100.0
 hurtbox_path = NodePath("../Hurtbox")
 invuln_on_hit = 0.55
+regen_rate = 2.5
+regen_delay = 6.0

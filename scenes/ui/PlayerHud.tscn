@@ -63,3 +63,6 @@ text = "[2] 회천격"
 
 [node name="Skill3" type="Label" parent="Panel/Margin/VBox/SkillRow"]
 text = "[3] 호신부"
+
+[node name="Skill4" type="Label" parent="Panel/Margin/VBox/SkillRow"]
+text = "[4] 귀창 강림"
