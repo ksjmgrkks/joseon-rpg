@@ -126,6 +126,11 @@
       "scene": "Reaper",
       "x": 1240,
       "y": 656
+    },
+    {
+      "scene": "GoblinKing",
+      "x": 1380,
+      "y": 628
     }
   ],
   "auto_dialogues": [
@@ -133,6 +138,11 @@
       "x": 600,
       "dialogue": "res://assets/dialogue/town_intro.json",
       "once_flag": "town_intro_seen"
+    },
+    {
+      "x": 1240,
+      "dialogue": "res://assets/dialogue/goblinking_intro.json",
+      "once_flag": "seen_goblinking"
     }
   ],
   "exits": [
