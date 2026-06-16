@@ -49,6 +49,8 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
     if _dying:
         return
+    if Dialogue and Dialogue.is_active():
+        return                      # 대화 중 공격 정지
     if _atk_cd > 0.0:
         _atk_cd -= delta
     if _ranged_cd > 0.0:

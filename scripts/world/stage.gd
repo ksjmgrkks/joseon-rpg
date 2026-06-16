@@ -168,6 +168,8 @@ func _build_npcs(npcs: Array) -> void:
             inst.dialogue_path = String(n.get("dialogue", ""))
         if n.has("sheet") and "sheet" in inst:
             inst.sheet = String(n["sheet"])
+        if n.has("once_flag") and "once_flag" in inst:
+            inst.once_flag = String(n["once_flag"])
         add_child(inst)
 
 

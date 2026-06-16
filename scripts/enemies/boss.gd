@@ -97,6 +97,12 @@ func _physics_process(delta: float) -> void:
     if not is_on_floor():
         velocity.y += GRAVITY * delta
 
+    # 대화 중에는 보스도 정지(중력만) — 연출 중 공격/이동 금지.
+    if _state != State.DEAD and Dialogue and Dialogue.is_active():
+        velocity.x = move_toward(velocity.x, 0.0, 400.0)
+        move_and_slide()
+        return
+
     _state_timer = maxf(0.0, _state_timer - delta)
     match _state:
         State.IDLE:

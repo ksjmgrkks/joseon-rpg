@@ -46,6 +46,15 @@ func _switch_to(s: AIState) -> void:
 func _physics_process(delta: float) -> void:
     if current == null:
         return
+    # 대화 중에는 적 이동/판단 정지 — 중력만 적용해 떠 있지 않게.
+    if Dialogue and Dialogue.is_active():
+        if _actor is CharacterBody2D:
+            var b := _actor as CharacterBody2D
+            b.velocity.x = 0.0
+            if not b.is_on_floor():
+                b.velocity.y += 980.0 * delta
+            b.move_and_slide()
+        return
     var next := current.process_physics(_actor, delta)
     if next != "":
         transition_to(next)

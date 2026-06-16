@@ -55,6 +55,8 @@ func _circle(r: float) -> PackedVector2Array:
 
 
 func _physics_process(delta: float) -> void:
+    if Dialogue and Dialogue.is_active():
+        return                      # 대화 중 투사체도 정지
     global_position += velocity * delta
     _life -= delta
     if _life <= 0.0:
