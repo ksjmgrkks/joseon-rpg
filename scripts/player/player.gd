@@ -215,6 +215,8 @@ func _do_combo_attack() -> void:
     attack_hitbox.knockback = base_knock * knock_mult
     attack_hitbox.position.x = 16.0 if _facing_right else -16.0
     Audio.play_sfx(Sfx.ATTACK)
+    # 콤보 단계별 창 이펙트(1 찌르기 / 2 횡소 / 3 회전베기)
+    SkillFx.combo(global_position + Vector2(0, -16), _facing_right, _combo_step)
     # 공격 휘두를 때마다 살짝 진동(피드백). 명중 시 추가 진동은 _on_hitbox_landed에서.
     ScreenFx.shake(shake_strength * 0.5, 0.08)
     await attack_hitbox.activate(duration)

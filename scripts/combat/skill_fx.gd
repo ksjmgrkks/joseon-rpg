@@ -16,6 +16,7 @@ const BRIGHT := Color(0.96, 0.92, 0.85)
 const RED := Color(0.66, 0.27, 0.25)
 const BLUE := Color(0.25, 0.42, 0.49)
 const INK := Color(0.10, 0.086, 0.07)
+const MAGE := Color(0.55, 0.42, 0.78)   # 마(魔)의 보랏빛 — 마창 기운
 
 
 func _host() -> Node:
@@ -23,6 +24,123 @@ func _host() -> Node:
     if tree == null:
         return null
     return tree.current_scene
+
+
+# ════════════ 창 마검사 콤보 — 1·2·3타 모션/이펙트 차별 ════════════
+func combo(pos: Vector2, facing_right: bool, step: int) -> void:
+    match step:
+        1: _spear_thrust(pos, facing_right)
+        2: _spear_sweep(pos, facing_right)
+        _: _spear_spin(pos)
+
+
+# 1타 — 빠른 직선 찌르기 (창대 + 보랏빛 기운 + 끝 섬광)
+func _spear_thrust(pos: Vector2, facing_right: bool) -> void:
+    var host := _host()
+    if host == null:
+        return
+    var dir := 1.0 if facing_right else -1.0
+    var shaft := Line2D.new()
+    shaft.width = 5.0
+    shaft.default_color = BRIGHT
+    shaft.begin_cap_mode = Line2D.LINE_CAP_ROUND
+    shaft.end_cap_mode = Line2D.LINE_CAP_ROUND
+    shaft.points = PackedVector2Array([Vector2(dir * 4, 0), Vector2(dir * 62, 0)])
+    shaft.global_position = pos
+    shaft.z_index = 30
+    host.add_child(shaft)
+    # 보랏빛 마기 잔상 + 창끝 마름모 섬광
+    var aura := shaft.duplicate() as Line2D
+    aura.width = 11.0
+    aura.default_color = Color(MAGE.r, MAGE.g, MAGE.b, 0.5)
+    host.add_child(aura); aura.global_position = pos
+    var tip := Polygon2D.new()
+    tip.polygon = PackedVector2Array([Vector2(0, -7), Vector2(11, 0), Vector2(0, 7), Vector2(-11, 0)])
+    tip.color = BRIGHT
+    tip.position = pos + Vector2(dir * 62, 0)
+    tip.z_index = 31
+    host.add_child(tip)
+    for n: Node2D in [shaft, aura, tip]:
+        var tw := n.create_tween()
+        tw.tween_property(n, "position:x", n.position.x + dir * 18.0, 0.12)
+        tw.parallel().tween_property(n, "modulate:a", 0.0, 0.14)
+        tw.tween_callback(n.queue_free)
+
+
+# 2타 — 넓은 횡소(가로 휘둘러베기) — 큰 초승달
+func _spear_sweep(pos: Vector2, facing_right: bool) -> void:
+    var host := _host()
+    if host == null:
+        return
+    var dir := 1.0 if facing_right else -1.0
+    var arc := Line2D.new()
+    arc.width = 8.0
+    arc.default_color = BRIGHT
+    arc.begin_cap_mode = Line2D.LINE_CAP_ROUND
+    arc.end_cap_mode = Line2D.LINE_CAP_ROUND
+    var pts := PackedVector2Array()
+    for i in range(11):
+        var t := i / 10.0
+        var a := lerpf(-1.1, 1.1, t)             # 위→아래 부채
+        pts.append(Vector2(dir * cos(a) * 60.0, sin(a) * 40.0))
+    arc.points = pts
+    var wc := Curve.new()
+    wc.add_point(Vector2(0.0, 0.15)); wc.add_point(Vector2(0.5, 1.0)); wc.add_point(Vector2(1.0, 0.15))
+    arc.width_curve = wc
+    arc.global_position = pos
+    arc.z_index = 30
+    host.add_child(arc)
+    var glow := arc.duplicate() as Line2D
+    glow.width = 3.0
+    glow.default_color = MAGE
+    host.add_child(glow); glow.global_position = pos
+    for n: Node2D in [arc, glow]:
+        var tw := n.create_tween()
+        tw.tween_property(n, "scale", Vector2(1.25, 1.25), 0.16)
+        tw.parallel().tween_property(n, "modulate:a", 0.0, 0.18)
+        tw.tween_callback(n.queue_free)
+
+
+# 3타 — 회전베기 피니시 (전방위 원 + 방사 마기 가시) — 가장 화려
+func _spear_spin(pos: Vector2) -> void:
+    var host := _host()
+    if host == null:
+        return
+    var ring := Line2D.new()
+    ring.width = 9.0
+    ring.default_color = BRIGHT
+    ring.begin_cap_mode = Line2D.LINE_CAP_ROUND
+    ring.end_cap_mode = Line2D.LINE_CAP_ROUND
+    var rp := PackedVector2Array()
+    for i in range(25):
+        var a := TAU * i / 24.0
+        rp.append(Vector2(cos(a), sin(a)) * 46.0)
+    ring.points = rp
+    ring.global_position = pos + Vector2(0, -16)
+    ring.z_index = 30
+    ring.scale = Vector2(0.4, 0.4)
+    host.add_child(ring)
+    # 방사 마기 가시 8방향
+    var spikes := Node2D.new()
+    spikes.position = pos + Vector2(0, -16)
+    spikes.z_index = 29
+    host.add_child(spikes)
+    for i in range(8):
+        var a := TAU * i / 8.0
+        var sp := Line2D.new()
+        sp.width = 4.0
+        sp.default_color = MAGE
+        sp.points = PackedVector2Array([Vector2(cos(a), sin(a)) * 20.0, Vector2(cos(a), sin(a)) * 58.0])
+        spikes.add_child(sp)
+    var tw := ring.create_tween()
+    tw.tween_property(ring, "scale", Vector2(1.5, 1.5), 0.24).set_trans(Tween.TRANS_QUAD)
+    tw.parallel().tween_property(ring, "rotation", TAU, 0.24)
+    tw.parallel().tween_property(ring, "modulate:a", 0.0, 0.24)
+    tw.tween_callback(ring.queue_free)
+    var tw2 := spikes.create_tween()
+    tw2.tween_property(spikes, "scale", Vector2(1.5, 1.5), 0.22)
+    tw2.parallel().tween_property(spikes, "modulate:a", 0.0, 0.22)
+    tw2.tween_callback(spikes.queue_free)
 
 
 # ── 일섬: 전방으로 길게 베는 초승달 궤적 ──────────────────────
