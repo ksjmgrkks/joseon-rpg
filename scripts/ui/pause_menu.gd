@@ -42,6 +42,7 @@ func open() -> void:
     dim.visible = true
     status_label.text = ""
     get_tree().paused = true
+    resume_btn.call_deferred("grab_focus")   # 키보드로 바로 조작
 
 
 func close() -> void:

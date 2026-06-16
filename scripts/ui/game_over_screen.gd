@@ -25,6 +25,11 @@ func show_screen() -> void:
     panel.visible = true
     dim.visible = true
     get_tree().paused = true
+    # 키보드 포커스 — 이어하기 가능하면 거기, 아니면 메뉴
+    if continue_btn.disabled:
+        menu_btn.call_deferred("grab_focus")
+    else:
+        continue_btn.call_deferred("grab_focus")
 
 
 func hide_screen() -> void:

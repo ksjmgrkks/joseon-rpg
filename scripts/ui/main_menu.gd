@@ -44,6 +44,7 @@ func _ready() -> void:
     quit_btn.pressed.connect(_on_quit)
     # 슬롯 1~3 중 하나라도 저장이 있어야 '이어하기' 활성화
     continue_btn.disabled = not _any_save_exists()
+    new_btn.call_deferred("grab_focus")   # 키보드로 바로 메뉴 조작
 
 
 func _apply_locale() -> void:
