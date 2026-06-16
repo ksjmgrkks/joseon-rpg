@@ -4,39 +4,68 @@
   "nodes": {
     "intro": {
       "speaker": "대장간 어르신",
-      "text": "쇠 두드리는 소리가 들리지 않던가? 무사라면 한 자루는 꿰차고 다녀야지.",
+      "text": "…그 눈매, 어디서 봤더라. 화로가 식은 지 오래네. 호환이 돌고부터 누구도 칼을 찾지 않으니.",
       "actions": [
-        { "type": "complete_quest", "quest": "side_meet_blacksmith" }
+        {
+          "type": "complete_quest",
+          "quest": "side_meet_blacksmith"
+        }
       ],
       "choices": [
-        { "text": "이 철검, 잘 쓰겠소.", "next": "thanks" },
-        { "text": "(혹시 더 좋은 무기가 있냐고 물어본다.)", "next": "shop_hint",
-          "unless_flag": "tiger_lord_resolved" },
-        { "text": "상점을 보고 싶소.", "next": "open_shop",
-          "if_flag": "tiger_lord_resolved" }
+        {
+          "text": "이 철검, 잘 쓰겠소.",
+          "next": "thanks"
+        },
+        {
+          "text": "(혹시 더 좋은 무기가 있냐고 물어본다.)",
+          "next": "shop_hint",
+          "unless_flag": "tiger_lord_resolved"
+        },
+        {
+          "text": "상점을 보고 싶소.",
+          "next": "open_shop",
+          "if_flag": "tiger_lord_resolved"
+        }
       ]
     },
     "thanks": {
       "speaker": "대장간 어르신",
-      "text": "베일 곳은 적이로되, 부러질 곳은 자네 자신이라네. 부디 잘 다루게.",
+      "text": "자네… 무당 단의 아들이지? 스무 해 전 그이가 맡긴 환도가 여태 내 손에 있네. 임자에게 돌아가야 할 칼이야. 받게.",
       "next": null
     },
     "shop_hint": {
       "speaker": "대장간 어르신",
-      "text": "더 좋은 물건은 큰 일을 한 자에게만 보이는 법이지. 마을에 호환이 사라지거든 다시 오게.",
+      "text": "이 산골 살림이 큰 칼 쓸 자에게나 어울리지. 호환만 잡히면 화로도 다시 달아오를 걸세.",
       "next": null
     },
     "open_shop": {
       "speaker": "대장간 어르신",
       "text": "물건들은 이렇다네. 엽전이 부족하면 잡동사니를 팔게나.",
       "actions": [
-        { "type": "open_shop", "title": "대장간",
+        {
+          "type": "open_shop",
+          "title": "대장간",
           "items": [
-            { "id": "potion_minor", "price": 25 },
-            { "id": "potion_major", "price": 80 },
-            { "id": "rice_bun", "price": 5 },
-            { "id": "armor_robe", "price": 120 },
-            { "id": "armor_brigandine", "price": 320 }
+            {
+              "id": "potion_minor",
+              "price": 25
+            },
+            {
+              "id": "potion_major",
+              "price": 80
+            },
+            {
+              "id": "rice_bun",
+              "price": 5
+            },
+            {
+              "id": "armor_robe",
+              "price": 120
+            },
+            {
+              "id": "armor_brigandine",
+              "price": 320
+            }
           ]
         }
       ],
