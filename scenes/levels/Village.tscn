@@ -102,6 +102,10 @@ script = ExtResource("6_entry")
 position = Vector2(1500, 400)
 script = ExtResource("6_entry")
 
+[node name="from_town" type="Marker2D" parent="."]
+position = Vector2(1500, 400)
+script = ExtResource("6_entry")
+
 ; 마을 NPC들 — 어르신/아낙/대장간
 [node name="Elder" parent="." instance=ExtResource("2_npc")]
 position = Vector2(280, 668)
