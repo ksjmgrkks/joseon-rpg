@@ -43,3 +43,4 @@ shape = SubResource("RectangleShape2D_hit")
 script = ExtResource("4_health")
 max_hp = 100.0
 hurtbox_path = NodePath("../Hurtbox")
+invuln_on_hit = 0.55

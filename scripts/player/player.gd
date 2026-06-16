@@ -56,6 +56,8 @@ var _last_safe_pos: Vector2 = Vector2.ZERO
 var _has_safe_pos: bool = false
 # 호신부 오라 노드
 var _ward: Node2D = null
+# 피격 연출용 직전 HP
+var _last_hp: float = 100.0
 
 
 func _ready() -> void:
@@ -373,7 +375,27 @@ func _recover_from_fall() -> void:
 
 
 func _on_hp_changed(hp: float, max_hp: float) -> void:
-    print("[Player] HP %.0f / %.0f" % [hp, max_hp])
+    # 피해를 입었을 때만 피격 연출(회복은 제외)
+    if hp < _last_hp:
+        Audio.play_sfx(Sfx.HURT)
+        ScreenFx.shake(4.0, 0.14)
+        _hurt_flash()
+    _last_hp = hp
+
+
+func _hurt_flash() -> void:
+    if not sprite:
+        return
+    # 피격 무적 동안 깜빡임(붉게)
+    for i in range(3):
+        sprite.modulate = Color(1.0, 0.45, 0.45, 1.0)
+        await get_tree().create_timer(0.09).timeout
+        if not is_instance_valid(sprite):
+            return
+        sprite.modulate = _base_modulate
+        await get_tree().create_timer(0.09).timeout
+        if not is_instance_valid(sprite):
+            return
 
 
 func _on_died() -> void:
