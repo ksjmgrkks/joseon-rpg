@@ -10,14 +10,15 @@ PoC(gen_protagonist_poc.base_idle) 대비 반영한 선행 비평:
 - 환도 칼자루(금색 2px)가 칼집 라인 끝과 변(edge) 접촉으로 연결
 - 어깨(12px)가 치마 허리(10px)보다 양쪽 1px 씩 넓게 — 남성 실루엣
 """
-import sys, os, json
+import sys, os, json, math
 sys.path.insert(0, os.path.dirname(__file__))
 import palette as P
 from core import Canvas, strip, contact_sheet
 from PIL import Image
 
-W, H = 32, 64
-CX = 16
+# 프레임을 48px 폭으로 넓혀 창(긴 무기)이 잘리지 않게 한다. 몸은 CX 기준 중앙 정렬.
+W, H = 48, 64
+CX = 24
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 OUT = os.path.join(ROOT, "assets", "sprites", "protagonist")
 SHEET = os.path.join(ROOT, "shots", "sheets", "protagonist_sheet.png")
@@ -28,22 +29,24 @@ SHEET = os.path.join(ROOT, "shots", "sheets", "protagonist_sheet.png")
 # ──────────────────────────────────────────────────────────────
 
 def hat(c, dx=0, dy=0):
-    """갓 — 넓은 챙(y15, 끝이 살짝 처짐) + 원통 모정(y8..14) + 금 정자."""
+    """갓(黑笠) — 넓은 말총 챙 + 사다리꼴 모정(통) + 금 정자(頂子). 좌상 광원 음영."""
     bx = CX + dx
-    c.hline(bx - 7, 15 + dy, 15, P.INK_DEEPEST)            # 챙
-    c.px(bx - 8, 16 + dy, P.INK_DEEPEST)                   # 챙 끝 곡선 (1px 처짐)
-    c.px(bx + 8, 16 + dy, P.INK_DEEPEST)
-    c.hline(bx - 6, 16 + dy, 13, P.INK_DARK)               # 챙 아랫면
-    c.px(bx - 8, 17 + dy, P.INK_MID)                       # 챙 끝 말총 투명감
-    c.px(bx + 8, 17 + dy, P.INK_MID)
-    c.rect(bx - 4, 9 + dy, 9, 6, P.INK_DARK)               # 모정
-    c.vline(bx - 4, 10 + dy, 5, P.INK_MID)                 # 모정 좌측 결 (광원)
-    c.vline(bx + 4, 10 + dy, 5, P.INK_DEEPEST)             # 모정 우측 음영
-    c.hline(bx - 3, 8 + dy, 7, P.INK_DARK)
-    c.hline(bx - 3, 9 + dy, 7, P.INK_DEEPEST)              # 모정 윗단
-    c.px(bx - 4, 9 + dy, P.TRANSPARENT)
-    c.px(bx + 4, 9 + dy, P.TRANSPARENT)
-    c.px(bx, 7 + dy, P.GOLD_DEEP)                          # 정자(頂子) 장식
+    yy = lambda r: r + dy
+    # ── 모정(통) y8..14 — 위가 살짝 좁은 사다리꼴 ──
+    c.rect(bx - 4, yy(9), 8, 6, P.INK_DARK)
+    c.hline(bx - 3, yy(8), 6, P.INK_DEEPEST)              # 윗면 림
+    c.vline(bx - 4, yy(9), 6, P.INK_MID)                  # 좌측 광원 결
+    c.vline(bx + 3, yy(9), 6, P.INK_DEEPEST)              # 우측 음영
+    c.hline(bx - 4, yy(14), 8, P.INK_MID)                 # 통-챙 사이 띠(은은한 결)
+    c.px(bx, yy(7), P.GOLD_DEEP)                          # 정자(頂子)
+    c.px(bx, yy(6), P.GOLD_BASE)                          # 정자 광
+    # ── 챙(brim) y15 — 넓고 끝이 처짐 ──
+    c.hline(bx - 8, yy(15), 17, P.INK_DEEPEST)            # 챙 윗면
+    c.hline(bx - 7, yy(16), 15, P.INK_DARK)               # 챙 아랫면(두께)
+    c.px(bx - 9, yy(16), P.INK_DEEPEST)                   # 좌 끝 처짐
+    c.px(bx + 9, yy(16), P.INK_DEEPEST)                   # 우 끝 처짐
+    c.px(bx - 8, yy(17), P.INK_MID)                       # 말총 투명감
+    c.px(bx + 8, yy(17), P.INK_MID)
 
 
 def hat_fallen(c, x, y):
@@ -54,30 +57,51 @@ def hat_fallen(c, x, y):
 
 
 def head(c, dx=0, dy=0):
-    """얼굴 y16..26 — 눈썹·턱 그늘로 떠돌이 무사의 단단한 인상."""
+    """얼굴(3/4 우향) y17..26 — 단정한 이목구비, 좌상 광원. 갓끈은 얼굴 밖에 드리움.
+    조잡한 코·눈썹 덩어리를 정리해 또렷하고 단단한 인상으로."""
     bx = CX + dx
-    c.rect(bx - 4, 16 + dy, 8, 11, P.SKIN_BASE)            # 얼굴면 (y16 갓챙 바로 아래까지)
-    c.px(bx - 4, 26 + dy, P.TRANSPARENT)                   # 턱 라운드
-    c.px(bx + 3, 26 + dy, P.TRANSPARENT)
-    c.rect(bx + 2, 19 + dy, 2, 7, P.SKIN_SHADE)            # 앞면(우) 음영
-    c.hline(bx - 3, 17 + dy, 6, P.SKIN_LIGHT)              # 갓챙 아래 이마 (밝은 면)
-    c.rect(bx - 4, 16 + dy, 2, 7, P.INK_DARK)              # 옆머리 — 뒤쪽 가장자리, 챙에 밀착
-    c.px(bx - 2, 21 + dy, P.INK_DARK)                      # 귀밑머리 한 가닥
-    c.hline(bx - 2, 16 + dy, 5, P.INK_DARK)                # 이마 위 머리선
-    c.hline(bx, 19 + dy, 2, P.INK_DARK)                    # 눈썹 (굳은 인상)
-    c.px(bx + 1, 20 + dy, P.INK_DEEPEST)                   # 눈
-    c.px(bx + 3, 22 + dy, P.SKIN_DEEP)                     # 코
-    c.px(bx + 1, 24 + dy, P.SKIN_DEEP)                     # 입 (다문)
-    c.px(bx, 25 + dy, P.SKIN_SHADE)                        # 턱 그늘
-    # 갓끈 — 뺨 앞 라인을 따라 내려옴 + 끝 구슬
-    c.px(bx + 3, 18 + dy, P.BLUE_BASE)
-    c.px(bx + 3, 19 + dy, P.BLUE_BASE)
-    c.px(bx + 3, 20 + dy, P.BLUE_DEEP)
-    c.px(bx + 3, 21 + dy, P.GOLD_DEEP)                     # 갓끈 구슬
+    yy = lambda r: r + dy
+    # 1) 얼굴 타원 (SKIN_BASE)
+    rows = {17: (-2, 2), 18: (-3, 3), 19: (-3, 3), 20: (-3, 3), 21: (-3, 3),
+            22: (-3, 3), 23: (-3, 3), 24: (-2, 3), 25: (-2, 2), 26: (-1, 1)}
+    for r, (a, b) in rows.items():
+        c.hline(bx + a, yy(r), b - a + 1, P.SKIN_BASE)
+    # 2) 광원면 (좌상) SKIN_LIGHT — 이마·광대
+    c.hline(bx - 2, yy(17), 4, P.SKIN_LIGHT)
+    c.hline(bx - 2, yy(18), 3, P.SKIN_LIGHT)
+    c.hline(bx - 2, yy(19), 2, P.SKIN_LIGHT)
+    c.px(bx - 2, yy(20), P.SKIN_LIGHT)
+    c.px(bx - 2, yy(21), P.SKIN_LIGHT)                     # 광대뼈 하이라이트
+    # 3) 음영면 (우하·턱밑) SKIN_SHADE
+    for r in (21, 22, 23, 24):
+        c.px(bx + 3, yy(r), P.SKIN_SHADE)
+    c.hline(bx, yy(25), 3, P.SKIN_SHADE)
+    c.px(bx + 1, yy(26), P.SKIN_SHADE)
+    c.px(bx, yy(26), P.SKIN_DEEP)                          # 턱끝 그늘
+    # 4) 옆머리·구레나룻 (INK_DARK) — 뒤(좌) 가장자리
+    for r in range(18, 24):
+        c.px(bx - 3, yy(r), P.INK_DARK)
+    c.px(bx - 2, yy(18), P.INK_DARK)                       # 살쩍
+    c.px(bx - 2, yy(23), P.INK_DARK)                       # 귀밑머리
+    # 5) 눈썹 (짧게 1px, 바깥쪽) + 눈 (almond) + 눈두덩 빛
+    c.px(bx + 2, yy(19), P.INK_DARK)                       # 눈썹 (한 점, 또렷)
+    c.px(bx + 1, yy(20), P.SKIN_LIGHT)                     # 눈두덩(쌍꺼풀 빛)
+    c.px(bx + 1, yy(21), P.INK_DEEPEST)                    # 눈
+    c.px(bx + 2, yy(21), P.INK_DEEPEST)
+    # 6) 코 — 콧대 끝 한 점만 (얼굴이 매끈하게)
+    c.px(bx + 2, yy(23), P.SKIN_SHADE)
+    # 7) 입 (다문, 한 점)
+    c.px(bx, yy(24), P.INK_SOFT)
+    # 8) 갓끈 — 얼굴 밖 우측에 드리워 매듭 구슬로 끝남
+    c.px(bx + 4, yy(17), P.INK_SOFT)
+    c.px(bx + 4, yy(18), P.BLUE_DEEP)
+    c.px(bx + 4, yy(19), P.BLUE_DEEP)
+    c.px(bx + 4, yy(20), P.GOLD_DEEP)                      # 갓끈 매듭 구슬
 
 
 def neck(c, dx=0, dy=0):
-    c.rect(CX + dx - 1, 27 + dy, 3, 2, P.SKIN_SHADE)
+    c.rect(CX + dx - 1, 27 + dy, 4, 2, P.SKIN_SHADE)       # 목 (넉넉히)
+    c.px(CX + dx - 1, 27 + dy, P.SKIN_BASE)                # 목 좌측 빛
 
 
 def torso(c, dx=0, dy=0):
@@ -190,6 +214,33 @@ def spear(c, gx, gy, tx, ty, trail=None):
     c.px(jx - 1, jy + 1, P.RED_DEEP)
     if trail:
         arc(c, trail, P.INK_FAINT)
+
+
+# 그립~창끝 길이를 모든 공격 프레임에서 '일정하게' 유지한다 (휘둘러도 창이 작아지지 않음).
+SPEAR_LEN = 24
+
+
+def _tip(gx, gy, deg, length=SPEAR_LEN):
+    rad = math.radians(deg)
+    return gx + int(round(math.cos(rad) * length)), gy + int(round(math.sin(rad) * length))
+
+
+def spear_angle(c, gx, gy, deg, length=SPEAR_LEN, sweep_from=None, sweep_col=None):
+    """일정 길이 창 — 그립(gx,gy)에서 각도 deg(도, 0=→ / -90=↑ / +90=↓)로 뻗는다.
+    sweep_from 을 주면 그 각도→현재 각도 사이 부채꼴 잔상(휘두름 궤적)을 그린다."""
+    tx, ty = _tip(gx, gy, deg, length)
+    # 휘두름 궤적 먼저(창 아래 깔리게)
+    if sweep_from is not None:
+        col = sweep_col or P.INK_FAINT
+        steps = max(2, int(abs(deg - sweep_from) / 12))
+        for k in range(1, steps + 1):
+            a = sweep_from + (deg - sweep_from) * k / (steps + 1)
+            ex, ey = _tip(gx, gy, a, length - 1)
+            mx, my = _tip(gx, gy, a, length - 6)
+            c.px(ex, ey, col)
+            c.px(mx, my, P.PAPER_SHADE if col == P.INK_FAINT else col)
+    spear(c, gx, gy, tx, ty)
+    return tx, ty
 
 
 def spear_stand(c, dx=0, dy=0, sway=0, tassel=0):
@@ -398,150 +449,119 @@ def _atk_base(c, crouch=0, lean=0, ffx=0, bfx=0, sway=0, head_lean=None):
 
 
 def anim_attack():
-    """1타 — 직선 찌르기(5f): 예비(뒤로 당김)→돌입→최대 찌름→여운→회수.
-    앞발이 깊게 들어가는 런지와 풍압 잔상으로 묵직함을 준다."""
+    """1타 — 직선 찌르기(5f): 창을 뒤로 슬라이드(물미가 뒤로)했다가 앞으로 내지른다.
+    창 '길이는 불변', 그립만 앞뒤로 이동 → 창이 작아지지 않고 묵직하게 뻗는다."""
     frames = []
-    # f0 예비 — 무게 뒤로, 창 깊이 당김, 살짝 숙임 준비
-    c = Canvas(W, H)
-    _atk_base(c, crouch=1, lean=-1, ffx=0, bfx=-1, sway=-1, head_lean=-1)
-    arm_reach(c, CX + 2, 32, CX - 1, 35)
-    spear(c, CX - 6, 36, CX + 4, 33)                       # 창 뒤로 장전
-    frames.append(finish(c))
-    # f1 돌입 — 앞발 내딛기 시작, 창 중간까지
-    c = Canvas(W, H)
-    _atk_base(c, crouch=0, lean=0, ffx=2, bfx=-2, sway=0)
-    arm_reach(c, CX + 3, 33, CX + 6, 33)
-    spear(c, CX - 3, 34, CX + 9, 33)
-    arc(c, [(CX + 5, 33)], P.PAPER_SHADE)
-    frames.append(finish(c))
-    # f2 최대 찌름 — 깊은 런지, 창 끝까지, 풍압 2줄
-    c = Canvas(W, H)
-    _atk_base(c, crouch=0, lean=1, ffx=5, bfx=-4, sway=2)
-    arm_reach(c, CX + 4, 33, CX + 9, 33)
-    spear(c, CX - 1, 34, CX + 15, 33)                      # 길게 찌름
-    arc(c, [(CX + 6, 35), (CX + 9, 34), (CX + 12, 34)], P.INK_FAINT)
-    arc(c, [(CX + 7, 32), (CX + 10, 32), (CX + 13, 32)], P.PAPER_SHADE)
-    frames.append(finish(c))
-    # f3 여운 — 창끝 진동(살짝 내려), 무게 앞
-    c = Canvas(W, H)
-    _atk_base(c, crouch=0, lean=1, ffx=4, bfx=-3, sway=1)
-    arm_reach(c, CX + 4, 33, CX + 8, 34)
-    spear(c, CX - 1, 35, CX + 14, 34)
-    arc(c, [(CX + 11, 35)], P.PAPER_SHADE)
-    frames.append(finish(c))
-    # f4 회수 — 중심 복귀, 창 절반 당김
-    c = Canvas(W, H)
-    _atk_base(c, crouch=0, lean=0, ffx=2, bfx=-2, sway=0)
-    arm_reach(c, CX + 4, 33, CX + 6, 34)
-    spear(c, CX - 2, 35, CX + 10, 33)
-    frames.append(finish(c))
+    GY = 34
+    # (그립x, 각도, crouch, lean, ffx, bfx, sway, 풍압?)
+    spec = [
+        (CX - 9, -6,  1, -1, -1, -1, -1, False),   # f0 장전(뒤로 당김, 물미 뒤로)
+        (CX - 6, -5,  0,  0,  1, -2,  0, False),   # f1 돌입
+        (CX - 2, -3,  0,  1,  5, -4,  2, True),    # f2 최대 찌름(깊은 런지)
+        (CX - 3, -4,  0,  1,  4, -3,  1, True),    # f3 여운
+        (CX - 7, -7,  0,  0,  2, -2,  0, False),   # f4 회수
+    ]
+    for gx, deg, cr, ln, ff, bf, sw, gust in spec:
+        c = Canvas(W, H)
+        _atk_base(c, crouch=cr, lean=ln, ffx=ff, bfx=bf, sway=sw,
+                  head_lean=(-1 if ln < 0 else None))
+        hx, hy = gx + 4, GY - 1
+        arm_reach(c, CX + 3, 32, hx, hy)                   # 앞손이 그립을 따라감
+        tx, ty = spear_angle(c, gx, GY, deg)
+        if gust:                                           # 찌름 풍압 잔상
+            arc(c, [(tx - 3, ty + 1), (tx - 6, ty + 1)], P.INK_FAINT)
+            arc(c, [(tx - 4, ty - 1), (tx - 7, ty - 1)], P.PAPER_SHADE)
+        frames.append(finish(c))
     return frames
 
 
 def anim_attack2():
-    """2타 — 넓은 횡쓸기(5f): 위로 감기→상단 시작→수평 강타→하단 마무리→회수.
-    창이 큰 호를 그리고 잔상이 호를 채워 휘두름의 궤적이 보인다."""
+    """2타 — 넓은 횡쓸기(5f): 머리 위에서 끌어와 큰 호로 쓸어친다.
+    창 길이 불변·각도만 회전, sweep 잔상이 호를 채운다."""
     frames = []
-    # f0 감기 — 창 우상단 뒤로 들어올림, 무게 뒤
-    c = Canvas(W, H)
-    _atk_base(c, crouch=0, lean=-1, ffx=1, bfx=-2, sway=-1, head_lean=-1)
-    arm_reach(c, CX + 3, 29, CX + 6, 26)
-    spear(c, CX + 4, 30, CX + 12, 18)                      # 창 비스듬 위 뒤로
-    frames.append(finish(c))
-    # f1 상단 시작 — 창 머리 위 지나기 시작
-    c = Canvas(W, H)
-    _atk_base(c, crouch=0, lean=0, ffx=2, bfx=-2, sway=0)
-    arm_reach(c, CX + 3, 29, CX + 6, 27)
-    spear(c, CX + 2, 30, CX + 14, 22)
-    arc(c, [(CX + 8, 17), (CX + 12, 19)], P.INK_FAINT)
-    frames.append(finish(c))
-    # f2 수평 강타 — 창 거의 수평, 넓은 윗 호
-    c = Canvas(W, H)
-    _atk_base(c, crouch=0, lean=1, ffx=4, bfx=-3, sway=2)
-    arm_reach(c, CX + 4, 31, CX + 8, 31)
-    spear(c, CX, 32, CX + 15, 30)                          # 수평 쓸기
-    arc(c, [(CX + 5, 21), (CX + 9, 22), (CX + 12, 24), (CX + 15, 27)], P.INK_FAINT)
-    arc(c, [(CX + 7, 19), (CX + 11, 20)], P.PAPER_SHADE)
-    frames.append(finish(c))
-    # f3 하단 마무리 — 창 우하단으로 흘려 호 완성
-    c = Canvas(W, H)
-    _atk_base(c, crouch=0, lean=1, ffx=3, bfx=-2, sway=1)
-    arm_reach(c, CX + 4, 33, CX + 7, 35)
-    spear(c, CX + 1, 33, CX + 14, 41)                      # 우하단
-    arc(c, [(CX + 13, 27), (CX + 15, 32), (CX + 15, 38)], P.INK_FAINT)
-    frames.append(finish(c))
-    # f4 회수 — 중심 복귀
-    c = Canvas(W, H)
-    _atk_base(c, crouch=0, lean=0, ffx=2, bfx=-2, sway=0)
-    arm_reach(c, CX + 4, 33, CX + 6, 33)
-    spear(c, CX - 1, 34, CX + 10, 34)
-    frames.append(finish(c))
+    GX, GY = CX - 2, 31
+    # (각도, 직전각도(잔상), crouch, lean, ffx, bfx, sway)
+    spec = [
+        (-105, None, 0, -1, 1, -2, -1),   # f0 감기(우상단 뒤로)
+        (-70,  -105, 0,  0, 2, -2,  0),   # f1 끌어내리기 시작
+        (-15,  -70,  0,  1, 4, -3,  2),   # f2 수평 강타(넓은 호)
+        (35,   -15,  0,  1, 3, -2,  1),   # f3 하단 마무리
+        (15,   None, 0,  0, 2, -2,  0),   # f4 회수
+    ]
+    for deg, prev, cr, ln, ff, bf, sw in spec:
+        c = Canvas(W, H)
+        _atk_base(c, crouch=cr, lean=ln, ffx=ff, bfx=bf, sway=sw,
+                  head_lean=(-1 if ln < 0 else None))
+        mx, my = _tip(GX, GY, deg, 8)
+        arm_reach(c, CX + 3, 30, mx, my)                   # 앞손이 자루 중간
+        spear_angle(c, GX, GY, deg, sweep_from=prev)
+        frames.append(finish(c))
     return frames
 
 
 def anim_attack3():
-    """3타 — 회전 내려찍기(선풍 일격, 6f): 치켜듦→회전1→회전2→내려꽂기→충격(홍 궤적)→회수.
-    마지막 타격 프레임에 RED 1px 궤적으로 '추가 피해'를 강조."""
+    """3타 — 회전 내려찍기(선풍 일격, 6f): 머리 위 치켜듦→한 바퀴 회전→땅에 내리꽂기.
+    창 길이 불변, 각도가 한 바퀴 돈다. 충격 프레임에 RED 궤적으로 '추가 피해' 강조."""
     frames = []
-    # f0 치켜듦 — 창 머리 위 수직, 살짝 뒤로 (예비)
+    GX, GY = CX - 1, 32
+    # f0 치켜듦 (수직 위)
     c = Canvas(W, H)
     _atk_base(c, crouch=0, lean=-1, ffx=1, bfx=-1, sway=-1, head_lean=-1)
-    arm_reach(c, CX + 3, 29, CX + 4, 25)
-    spear(c, CX + 3, 30, CX + 5, 11)                       # 창 수직 위
+    arm_reach(c, CX + 3, 30, CX + 2, 26)
+    spear_angle(c, GX, GY, -90)
     frames.append(finish(c))
-    # f1 회전1 — 창이 앞위→앞 대각으로 돌기 시작, 회전 링 잔상
+    # f1 회전1 (뒤로 넘어가며 — 좌상단)
     c = Canvas(W, H)
-    _atk_base(c, crouch=0, lean=1, ffx=2, bfx=-1, sway=1)
-    arm_reach(c, CX + 3, 30, CX + 6, 29)
-    spear(c, CX, 30, CX + 14, 24)
-    arc(c, [(CX + 4, 14), (CX + 8, 15), (CX + 11, 18), (CX + 13, 21)], P.INK_FAINT)
+    _atk_base(c, crouch=0, lean=0, ffx=2, bfx=-1, sway=1)
+    arm_reach(c, CX + 2, 30, CX, 28)
+    spear_angle(c, GX, GY, -150, sweep_from=-90)
     frames.append(finish(c))
-    # f2 회전2 — 창이 몸 가로질러 반대편까지(한 바퀴 도는 중), 링 잔상
+    # f2 회전2 (좌하단 지나 앞으로 — 한 바퀴)
     c = Canvas(W, H)
     _atk_base(c, crouch=1, lean=1, ffx=2, bfx=-1, sway=2)
-    arm_reach(c, CX + 3, 31, CX + 6, 31)
-    spear(c, CX - 8, 28, CX + 13, 32)                      # 창 몸 가로질러
-    arc(c, [(CX - 5, 19), (CX, 16), (CX + 5, 16), (CX + 10, 18), (CX + 13, 23)], P.INK_FAINT)
+    arm_reach(c, CX + 2, 31, CX + 4, 31)
+    spear_angle(c, GX, GY, -210, sweep_from=-150)          # = +150, 좌하단
     frames.append(finish(c))
 
     def impact(red_trail):
         c = Canvas(W, H)
         _atk_base(c, crouch=2, lean=1, ffx=3, bfx=-2, sway=1)
-        arm_reach(c, CX + 4, 34, CX + 6, 36)
-        spear(c, CX + 1, 33, CX + 13, 51)                  # 창끝 땅으로 꽂음
-        c.px(CX + 13, 53, P.PAPER_SHADE)                   # 흙먼지
-        c.px(CX + 15, 51, P.PAPER_SHADE)
-        c.px(CX + 11, 54, P.PAPER_SHADE)
+        arm_reach(c, CX + 4, 33, CX + 6, 35)
+        tx, ty = spear_angle(c, GX, GY + 1, 68, sweep_from=(120 if not red_trail else None))
+        c.px(tx, ty + 1, P.PAPER_SHADE)                    # 흙먼지
+        c.px(tx + 2, ty, P.PAPER_SHADE)
+        c.px(tx - 2, ty + 1, P.PAPER_SHADE)
         if red_trail:                                      # 회전 궤적 강조 (추가 피해)
-            arc(c, [(CX - 5, 20), (CX, 16), (CX + 6, 17), (CX + 11, 21),
-                    (CX + 14, 28), (CX + 15, 36), (CX + 14, 44)], P.RED_BASE)
-            c.px(CX + 13, 49, P.RED_BASE)                  # 창끝 핏빛 잔광
+            for a in range(-150, 80, 18):
+                ex, ey = _tip(GX, GY, a, SPEAR_LEN - 2)
+                c.px(ex, ey, P.RED_BASE)
+            c.px(tx, ty, P.RED_BASE)                       # 창끝 핏빛 잔광
         return finish(c)
 
     frames.append(impact(False))    # f3 내려꽂기
     frames.append(impact(True))     # f4 충격 + 홍 궤적
-    # f5 회수 — 창 땅에서 뽑아 반쯤 일어섬
+    # f5 회수 — 창 뽑아 반쯤 일어섬
     c = Canvas(W, H)
     _atk_base(c, crouch=1, lean=0, ffx=2, bfx=-2, sway=0)
-    arm_reach(c, CX + 4, 33, CX + 7, 35)
-    spear(c, CX + 1, 34, CX + 12, 40)
+    arm_reach(c, CX + 4, 33, CX + 6, 34)
+    spear_angle(c, GX, GY, 40)
     frames.append(finish(c))
     return frames
 
 
 def anim_charge():
-    """창에 기를 모으기 — 창끝 GOLD 점멸 (찌르기 장전 자세)."""
+    """창에 기를 모으기(3f) — 창을 앞으로 겨눈 채 창끝 GOLD 점멸."""
     def pose(sparks, tip_gold):
         c = Canvas(W, H)
         skirt(c)
         feet(c, ffx=2, bfx=-2)
         arm_back(c, 0, 1)
         torso(c, 0, 1)                                     # 낮은 자세
-        arm_reach(c, CX + 4, 32, CX + 7, 33)
-        spear(c, CX - 2, 34, CX + 11, 30)                  # 창 앞으로 겨눔
+        arm_reach(c, CX + 3, 32, CX + 5, 32)
+        tx, ty = spear_angle(c, CX - 4, 33, -12)           # 창 앞으로 겨눔(일정 길이)
         if tip_gold:
-            c.px(CX + 11, 30, P.GOLD_BASE)                 # 창끝 점화
-            c.px(CX + 12, 29, P.GOLD_DEEP)
+            c.px(tx, ty, P.GOLD_BASE)                      # 창끝 점화
+            c.px(tx - 1, ty - 1, P.GOLD_DEEP)
         for (x, y, col) in sparks:
             c.px(x, y, col)
         neck(c, 0, 1)
@@ -549,7 +569,6 @@ def anim_charge():
         hat(c, 0, 1)
         return finish(c)
 
-    # 3프레임 펄스 — 불씨가 모였다 터지는 호흡
     f0 = pose([(CX + 9, 27, P.GOLD_DEEP)], tip_gold=False)
     f1 = pose([(CX + 9, 27, P.GOLD_BASE), (CX + 13, 29, P.GOLD_BASE),
                (CX + 7, 28, P.GOLD_DEEP)], tip_gold=True)

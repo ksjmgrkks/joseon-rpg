@@ -1,5 +1,5 @@
 {
-  "frame_w": 32,
+  "frame_w": 48,
   "frame_h": 64,
   "anims": {
     "idle": {
