@@ -12,6 +12,7 @@ class_name CombatGate
 @export var gate_height: float = 200.0
 
 var _barrier: StaticBody2D
+var _label: Label
 var _open: bool = false
 var _grace: float = 0.4                    # 적 스폰 대기(시작 직후 오판 방지)
 
@@ -33,6 +34,16 @@ func _ready() -> void:
     rect.offset_right = 8
     rect.offset_bottom = gate_height / 2.0
     _barrier.add_child(rect)
+    # 남은 적 안내 라벨 (결계 위)
+    _label = Label.new()
+    _label.text = "결계가 막혀 있다"
+    _label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+    _label.position = Vector2(-80, -gate_height / 2.0 - 28)
+    _label.size = Vector2(160, 24)
+    _label.add_theme_color_override("font_color", Color(0.85, 0.92, 1.0))
+    _label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.7))
+    _label.add_theme_constant_override("outline_size", 4)
+    _barrier.add_child(_label)
 
 
 func _process(delta: float) -> void:
@@ -41,8 +52,11 @@ func _process(delta: float) -> void:
     if _grace > 0.0:
         _grace -= delta
         return
-    if get_tree().get_nodes_in_group("enemy").is_empty():
+    var remaining := get_tree().get_nodes_in_group("enemy").size()
+    if remaining <= 0:
         _open_gate()
+    elif _label:
+        _label.text = "남은 적 %d" % remaining
 
 
 func _open_gate() -> void:
