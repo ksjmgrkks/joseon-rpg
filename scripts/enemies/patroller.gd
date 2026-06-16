@@ -14,6 +14,11 @@ extends CharacterBody2D
 @export var attack_knockback: float = 170.0
 @export var attack_cooldown: float = 1.5
 @export var attack_telegraph: float = 0.28
+# 처치 보상 드롭 — 회복약(쌀떡)/엽전을 확률로 떨군다.
+@export var drop_item: String = "rice_bun"
+@export var drop_icon: String = "herb"
+@export var drop_chance: float = 0.40
+@export var drop_gold_chance: float = 0.30
 
 @onready var sprite: AnimatedSprite2D = $Sprite2D
 @onready var hurtbox: Hurtbox = $Hurtbox
@@ -111,6 +116,7 @@ func _on_died() -> void:
     if xp_reward > 0:
         PlayerStats.gain_xp(xp_reward)
         FloatingNumber.spawn(get_tree().current_scene, global_position, "+%d XP" % xp_reward, Color(1, 0.95, 0.6))
+    _drop_loot()
     # 더는 안 맞고, 죽음 애니메이션이 보이도록 잠깐 둔 뒤 제거
     if hurtbox:
         hurtbox.monitoring = false
@@ -118,3 +124,14 @@ func _on_died() -> void:
     velocity = Vector2.ZERO
     await get_tree().create_timer(0.6).timeout
     queue_free()
+
+
+# 처치 보상 — 부모(씬)에 픽업을 떨군다(적은 곧 사라지므로 부모에 부착).
+func _drop_loot() -> void:
+    var host := get_parent()
+    if host == null:
+        return
+    if drop_item != "" and randf() < drop_chance:
+        Pickup.spawn(host, global_position + Vector2(-8, -6), drop_item, 1, drop_icon, "")
+    if randf() < drop_gold_chance:
+        Pickup.spawn(host, global_position + Vector2(10, -6), "coin_pouch", 1, "coin", "")

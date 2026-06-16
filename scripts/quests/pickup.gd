@@ -29,6 +29,28 @@ class_name Pickup
 var _used: bool = false
 
 
+## 적 처치 드롭 등 — 런타임에 픽업 하나를 parent 에 떨군다.
+static func spawn(parent: Node, pos: Vector2, item_id: String, count: int = 1,
+                  icon: String = "", label: String = "") -> Area2D:
+    if parent == null or not is_instance_valid(parent):
+        return null
+    var a := Area2D.new()
+    a.set_script(load("res://scripts/quests/pickup.gd"))
+    a.collision_mask = 1
+    a.item_id = item_id
+    a.count = count
+    a.icon = icon
+    a.pickup_label = label
+    var cs := CollisionShape2D.new()
+    var shape := CircleShape2D.new()
+    shape.radius = 18.0
+    cs.shape = shape
+    a.add_child(cs)
+    parent.add_child(a)
+    a.global_position = pos
+    return a
+
+
 func _ready() -> void:
     monitoring = true
     body_entered.connect(_on_body_entered)
