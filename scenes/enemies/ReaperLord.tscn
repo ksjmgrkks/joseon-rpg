@@ -1,0 +1,61 @@
+[gd_scene load_steps=6 format=3]
+
+; 저승 군주 — 관아 동헌의 중간 보스. 느린 예비동작, 강한 일격.
+
+[ext_resource type="Script" path="res://scripts/enemies/boss.gd" id="1_boss"]
+[ext_resource type="Script" path="res://scripts/combat/hurtbox.gd" id="2_hurt"]
+[ext_resource type="Script" path="res://scripts/combat/health_component.gd" id="3_health"]
+[ext_resource type="Script" path="res://scripts/combat/hitbox.gd" id="4_hit"]
+[ext_resource type="Script" path="res://scripts/visual/enemy_visual.gd" id="5_vis"]
+
+[sub_resource type="RectangleShape2D" id="body"]
+size = Vector2(28, 56)
+
+[sub_resource type="RectangleShape2D" id="hurt"]
+size = Vector2(32, 60)
+
+[sub_resource type="RectangleShape2D" id="hit"]
+size = Vector2(56, 52)
+
+[node name="Boss" type="CharacterBody2D"]
+script = ExtResource("1_boss")
+display_name = "저승 군주"
+body_color = Color(0.6, 0.7, 0.85, 1)
+engage_distance = 380.0
+telegraph_seconds = 0.95
+attack_seconds = 0.4
+recover_seconds = 1.4
+dash_speed = 300.0
+attack_damage = 20.0
+attack_knockback = 320.0
+xp_reward = 180
+reward_item_id = "potion_major"
+reward_item_qty = 1
+
+[node name="Sprite2D" type="AnimatedSprite2D" parent="."]
+scale = Vector2(1.5, 1.5)
+script = ExtResource("5_vis")
+sheet = "enemies/reaper"
+foot_offset = -14.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("body")
+
+[node name="Hurtbox" type="Area2D" parent="."]
+script = ExtResource("2_hurt")
+
+[node name="HurtboxShape" type="CollisionShape2D" parent="Hurtbox"]
+shape = SubResource("hurt")
+
+[node name="HealthComponent" type="Node" parent="."]
+script = ExtResource("3_health")
+max_hp = 280.0
+hurtbox_path = NodePath("../Hurtbox")
+
+[node name="AttackHitbox" type="Area2D" parent="."]
+script = ExtResource("4_hit")
+damage = 20.0
+knockback = 320.0
+
+[node name="HitShape" type="CollisionShape2D" parent="AttackHitbox"]
+shape = SubResource("hit")

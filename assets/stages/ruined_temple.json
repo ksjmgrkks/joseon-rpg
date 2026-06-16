@@ -90,6 +90,11 @@
       "scene": "Goblin",
       "x": 1260,
       "y": 640
+    },
+    {
+      "scene": "FoxQueen",
+      "x": 1180,
+      "y": 628
     }
   ],
   "auto_dialogues": [

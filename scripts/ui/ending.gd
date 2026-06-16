@@ -5,16 +5,16 @@ extends Control
 ## 입력(클릭/공격/점프)으로 타자기 스킵 가능.
 ##
 
-const EPILOGUE_BASE := """신산 꼭대기, 대호(大虎)가 마침내 눈을 감았다.
+const EPILOGUE_BASE := """신산 꼭대기, 재앙의 근원이 마침내 스러졌다.
 
-사내는 아비의 진언을 외워 산신의 한을 달랬다.
-베어 없앤 것이 아니라, 잠재운 것이었다.
+마창(魔槍)이 꿰뚫은 것은 짐승도, 귀(鬼)도 아니었다.
+스무 해를 떠돌던 한(恨), 그리고 아비가 못다 푼 약속이었다.
 
-흰 범의 넋은 다시 산을 지키는 신이 되고,
-고을과 마을에 번지던 호환도 그제야 그쳤다.
+사내는 헐벗은 신당 터에 창을 꽂고,
+그 위에 새 당집을 세워 넋들을 달랬다.
 
-사람들은 헐었던 사당을 다시 세우고,
-철마다 신산에 절을 올렸다 전한다."""
+귀가 잦아든 땅에 다시 사람이 깃들고,
+사람들은 이 일을 일러 귀창록(鬼槍錄)이라 적었다."""
 
 # 사이드 퀘스트 전부 완료 시 — 은혜의 문단
 const EPILOGUE_ALL_SIDES := """
@@ -33,11 +33,11 @@ const EPILOGUE_SOME_SIDES := """
 
 const EPILOGUE_TAIL := """
 
-떠돌이 무사는 갓끈을 고쳐 매고,
-아무 일 없었다는 듯 길을 나섰다.
+마창잡이는 갓끈을 고쳐 매고,
+아무 일 없었다는 듯 다음 고개를 향했다.
 
-— 후일 사람들은 이 일을 일러
-   호환기담(虎患奇譚)이라 하였다."""
+— 귀가 있는 곳에 그 창이 닿으리니,
+   이 또한 귀창록(鬼槍錄)의 한 장(章)이라."""
 
 const SIDE_QUESTS := ["side_lost_charm", "side_meet_blacksmith", "side_collect_herbs", "side_lost_scroll"]
 
@@ -75,7 +75,7 @@ func _ready() -> void:
         scroll_art.visible = true
     story.text = ""
     credits.modulate.a = 0.0
-    credits.text = "「호환기담」\n\n제작 — 규성 & Claude\n그림·소리 — 생성 파이프라인 (tools/pixel · tools/audio)\n글꼴 — Galmuri (SIL OFL)\n엔진 — Godot 4.6.3"
+    credits.text = "「귀창록」(鬼槍錄)\n\n제작 — 규성 & Claude\n그림·소리 — 생성 파이프라인 (tools/pixel · tools/audio)\n글꼴 — Galmuri (SIL OFL)\n엔진 — Godot 4.6.3"
     menu_btn.visible = false
     menu_btn.pressed.connect(_on_menu)
     Audio.play_sfx(Sfx.JINGLE)
