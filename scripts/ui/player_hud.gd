@@ -68,6 +68,14 @@ func _update_hp(hp: float, max_hp: float) -> void:
     hp_bar.max_value = max_hp
     hp_bar.value = hp
     hp_label.text = "%d / %d" % [int(hp), int(max_hp)]
+    # 저체력 경고색 — 30% 이하면 붉게(위험 인지)
+    var ratio := hp / maxf(1.0, max_hp)
+    if ratio <= 0.3:
+        hp_bar.modulate = Color(1.0, 0.5, 0.5)
+        hp_label.modulate = Color(1.0, 0.55, 0.55)
+    else:
+        hp_bar.modulate = Color.WHITE
+        hp_label.modulate = Color.WHITE
 
 
 func _update_stats(xp: int, xp_to_next: int) -> void:

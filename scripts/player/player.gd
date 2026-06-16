@@ -71,6 +71,16 @@ func _ready() -> void:
         # 내가 친 게 적의 Hurtbox에 닿으면 화면 fx 발사
         attack_hitbox.area_entered.connect(_on_hitbox_landed)
     SkillManager.skill_cast.connect(_on_skill_cast)
+    if health:
+        _last_hp = health.hp
+    PlayerStats.level_up.connect(_on_level_up)
+
+
+# 레벨업 보상 — 체력 일부 회복(전투 지속·성장 보상감)
+func _on_level_up(_new_level: int) -> void:
+    if health:
+        health.heal(health.max_hp * 0.4)
+        FloatingNumber.spawn(get_tree().current_scene, global_position + Vector2(0, -44), "기력 회복", Color(0.6, 0.9, 0.6))
 
 
 func _physics_process(delta: float) -> void:
