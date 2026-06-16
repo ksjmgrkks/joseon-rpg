@@ -1,0 +1,179 @@
+[gd_scene load_steps=18 format=3]
+
+; 산신당 터 — 숲과 보스 절벽 사이. 불탄 사당 터에서 흰 여우(구미호 영물)가 아버지를 회상.
+; 미니보스 팩(호환 + 도깨비 2) + 보물 궤짝. 우측 → 보스 아레나.
+
+[ext_resource type="PackedScene" path="res://scenes/player/Player.tscn" id="1_player"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/Goblin.tscn" id="2_goblin"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/Tiger.tscn" id="3_tiger"]
+[ext_resource type="PackedScene" path="res://scenes/ui/MobileControls.tscn" id="4_mobile"]
+[ext_resource type="PackedScene" path="res://scenes/ui/PlayerHud.tscn" id="5_hud"]
+[ext_resource type="Script" path="res://scripts/scene/level_exit.gd" id="6_exit"]
+[ext_resource type="Script" path="res://scripts/scene/level_entry.gd" id="7_entry"]
+[ext_resource type="Script" path="res://scripts/quests/pickup.gd" id="8_pickup"]
+[ext_resource type="Script" path="res://scripts/world/auto_dialogue.gd" id="9_autodlg"]
+[ext_resource type="PackedScene" path="res://scenes/world/Backdrop.tscn" id="bd"]
+[ext_resource type="Script" path="res://scripts/world/tiled_sprite.gd" id="tile"]
+[ext_resource type="Texture2D" path="res://assets/tilesets/pine.png" id="pine"]
+[ext_resource type="Texture2D" path="res://assets/tilesets/shrine_ruin.png" id="shrine"]
+[ext_resource type="Texture2D" path="res://assets/tilesets/chest.png" id="chest"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ground"]
+size = Vector2(2800, 32)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_exit"]
+size = Vector2(32, 96)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_trigger"]
+size = Vector2(120, 110)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_chest"]
+radius = 22.0
+
+[node name="ShrineRuins" type="Node2D"]
+
+[node name="Backdrop" parent="." instance=ExtResource("bd")]
+sky_color = Color(0.36, 0.36, 0.40, 1)
+tint = Color(0.66, 0.66, 0.70, 1)
+far_scale = 0.10
+
+[node name="GroundDirt" type="Sprite2D" parent="."]
+position = Vector2(-600, 716)
+script = ExtResource("tile")
+tex_path = "res://assets/tilesets/ground_dirt.png"
+width = 2800
+height = 340
+
+[node name="GroundTiles" type="Sprite2D" parent="."]
+position = Vector2(-600, 684)
+script = ExtResource("tile")
+tex_path = "res://assets/tilesets/ground_dirt.png"
+width = 2800
+height = 36
+
+[node name="Ground" type="StaticBody2D" parent="."]
+position = Vector2(800, 700)
+
+[node name="GroundShape" type="CollisionShape2D" parent="Ground"]
+shape = SubResource("RectangleShape2D_ground")
+
+[node name="ShrineRuin" type="Sprite2D" parent="."]
+texture_filter = 1
+position = Vector2(800, 684)
+scale = Vector2(2.0, 2.0)
+texture = ExtResource("shrine")
+centered = false
+offset = Vector2(-48, -88)
+
+[node name="Pine0" type="Sprite2D" parent="."]
+texture_filter = 1
+position = Vector2(220, 686)
+scale = Vector2(2.0, 2.0)
+texture = ExtResource("pine")
+centered = false
+offset = Vector2(-28, -88)
+
+[node name="Pine1" type="Sprite2D" parent="."]
+texture_filter = 1
+position = Vector2(1320, 686)
+scale = Vector2(1.8, 1.8)
+texture = ExtResource("pine")
+centered = false
+offset = Vector2(-28, -88)
+
+[node name="Player" parent="." instance=ExtResource("1_player")]
+position = Vector2(120, 400)
+
+[node name="Camera2D" type="Camera2D" parent="Player"]
+
+[node name="default" type="Marker2D" parent="."]
+position = Vector2(120, 400)
+script = ExtResource("7_entry")
+
+[node name="from_forest" type="Marker2D" parent="."]
+position = Vector2(120, 400)
+script = ExtResource("7_entry")
+
+[node name="from_boss" type="Marker2D" parent="."]
+position = Vector2(1480, 400)
+script = ExtResource("7_entry")
+
+; 흰 여우(구미호 영물) 회상 — 사당 터 앞에서 한 번
+[node name="FoxSpiritDialogue" type="Area2D" parent="."]
+collision_mask = 1
+position = Vector2(560, 620)
+script = ExtResource("9_autodlg")
+dialogue_path = "res://assets/dialogue/shrine_fox.json"
+once_flag = "shrine_fox_seen"
+
+[node name="FoxShape" type="CollisionShape2D" parent="FoxSpiritDialogue"]
+shape = SubResource("RectangleShape2D_trigger")
+
+; 미니보스 팩 — 사당을 지키는 산짐승들
+[node name="GuardianTiger" parent="." instance=ExtResource("3_tiger")]
+position = Vector2(1000, 656)
+
+[node name="Goblin1" parent="." instance=ExtResource("2_goblin")]
+position = Vector2(900, 640)
+
+[node name="Goblin2" parent="." instance=ExtResource("2_goblin")]
+position = Vector2(1120, 640)
+
+; 보물 궤짝 — 무너진 사당의 봉납물
+[node name="ChestSprite" type="Sprite2D" parent="."]
+texture_filter = 1
+position = Vector2(800, 660)
+scale = Vector2(1.6, 1.6)
+texture = ExtResource("chest")
+
+[node name="Chest" type="Area2D" parent="."]
+collision_mask = 1
+position = Vector2(800, 660)
+script = ExtResource("8_pickup")
+item_id = "coin_pouch"
+count = 3
+pickup_label = "보물 궤짝 — 엽전 한 줌!"
+flag_key = "shrine_chest_opened"
+
+[node name="ChestShape" type="CollisionShape2D" parent="Chest"]
+shape = SubResource("CircleShape2D_chest")
+
+; 좌측 → 숲
+[node name="ExitToForest" type="Area2D" parent="."]
+collision_mask = 1
+position = Vector2(40, 620)
+script = ExtResource("6_exit")
+target_scene = "res://scenes/levels/Forest.tscn"
+target_entry = &"from_boss"
+
+[node name="ExitShape" type="CollisionShape2D" parent="ExitToForest"]
+shape = SubResource("RectangleShape2D_exit")
+
+[node name="ExitMark" type="ColorRect" parent="ExitToForest"]
+offset_left = -16.0
+offset_top = -48.0
+offset_right = 16.0
+offset_bottom = 48.0
+color = Color(0.40, 0.42, 0.40, 0.5)
+
+; 우측 → 보스 아레나
+[node name="ExitToBoss" type="Area2D" parent="."]
+collision_mask = 1
+position = Vector2(1560, 620)
+script = ExtResource("6_exit")
+target_scene = "res://scenes/levels/BossArena.tscn"
+target_entry = &"from_forest"
+
+[node name="BossExitShape" type="CollisionShape2D" parent="ExitToBoss"]
+shape = SubResource("RectangleShape2D_exit")
+
+[node name="BossExitMark" type="ColorRect" parent="ExitToBoss"]
+offset_left = -16.0
+offset_top = -48.0
+offset_right = 16.0
+offset_bottom = 48.0
+color = Color(0.55, 0.20, 0.18, 0.5)
+
+[node name="MobileControls" parent="." instance=ExtResource("4_mobile")]
+
+[node name="PlayerHud" parent="." instance=ExtResource("5_hud")]

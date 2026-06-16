@@ -55,6 +55,13 @@ func _ready() -> void:
             if not players.is_empty() and players[0] is Node2D:
                 (players[0] as Node2D).global_position = Vector2(float(parts[0]), float(parts[1]))
 
+    # 선택: 플레이어를 특정 x 로 옮겨 그 지점을 카메라에 담음
+    if args.has("player_x"):
+        await get_tree().process_frame
+        var players := get_tree().get_nodes_in_group("player")
+        if not players.is_empty() and players[0] is Node2D:
+            (players[0] as Node2D).global_position.x = float(args["player_x"])
+
     await get_tree().create_timer(wait_s).timeout
     await RenderingServer.frame_post_draw
 

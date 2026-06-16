@@ -18,11 +18,12 @@ const VERSION := 1
 
 # 슬롯 표시용 한국어 지역명 매핑. 씬 root 이름과 1:1.
 const AREA_LABELS := {
-    "Village":   "마을",
-    "TestLevel": "들판",
-    "Forest":    "숲",
-    "BossArena": "절벽 아레나",
-    "MainMenu":  "메인 메뉴",
+    "Village":     "마을",
+    "TestLevel":   "들판",
+    "Forest":      "숲",
+    "ShrineRuins": "산신당 터",
+    "BossArena":   "절벽 아레나",
+    "MainMenu":    "메인 메뉴",
 }
 
 

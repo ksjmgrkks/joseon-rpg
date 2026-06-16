@@ -12,8 +12,9 @@ const SCENE_BGM := {
     "Ending":    "res://assets/audio/bgm/title.wav",
     "Village":   "res://assets/audio/bgm/village.wav",
     "TestLevel": "res://assets/audio/bgm/village.wav",
-    "Forest":    "res://assets/audio/bgm/forest.wav",
-    "BossArena": "res://assets/audio/bgm/boss.wav",
+    "Forest":      "res://assets/audio/bgm/forest.wav",
+    "ShrineRuins": "res://assets/audio/bgm/forest.wav",
+    "BossArena":   "res://assets/audio/bgm/boss.wav",
 }
 const NIGHT_BGM := "res://assets/audio/bgm/night.wav"
 # 밤 BGM 으로 갈아타는 씬 (전투 지역은 밤에도 전투곡 유지)

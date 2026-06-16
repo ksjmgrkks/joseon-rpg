@@ -12,6 +12,7 @@ const AREA_SCENES := {
     "마을": "res://scenes/levels/Village.tscn",
     "들판": "res://scenes/levels/TestLevel.tscn",
     "숲": "res://scenes/levels/Forest.tscn",
+    "산신당 터": "res://scenes/levels/ShrineRuins.tscn",
     "절벽 아레나": "res://scenes/levels/BossArena.tscn",
 }
 const SLOT_PICKER_SCENE := preload("res://scenes/ui/SlotPicker.tscn")

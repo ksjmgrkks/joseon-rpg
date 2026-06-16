@@ -197,7 +197,7 @@ color = Color(0.40, 0.40, 0.25, 0.5)
 collision_mask = 1
 position = Vector2(1560, 620)
 script = ExtResource("8_exit")
-target_scene = "res://scenes/levels/BossArena.tscn"
+target_scene = "res://scenes/levels/ShrineRuins.tscn"
 target_entry = &"from_forest"
 
 [node name="BossExitShape" type="CollisionShape2D" parent="ExitToBoss"]
