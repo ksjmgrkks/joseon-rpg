@@ -15,16 +15,16 @@
       "heal": 80
     },
     "sword_iron": {
-      "name": "철검",
-      "description": "평범한 무사의 철검. 견고하다.",
+      "name": "무쇠창",
+      "description": "평범한 무사의 무쇠 창. 자루가 굵고 견고하다.",
       "type": "weapon",
       "max_stack": 1,
       "damage": 12,
       "slot": "weapon"
     },
     "sword_jade": {
-      "name": "옥장도",
-      "description": "옥으로 손잡이를 댄 단검. 가볍고 빠르다.",
+      "name": "옥자루 창",
+      "description": "옥으로 자루를 댄 단창. 가볍고 빠르게 찌른다.",
       "type": "weapon",
       "max_stack": 1,
       "damage": 18,
@@ -59,8 +59,8 @@
       "max_stack": 1
     },
     "tiger_tooth": {
-      "name": "호환 어금니",
-      "description": "호환 두령의 송곳니. 어르신께 증표로 가져갈 것.",
+      "name": "호귀 어금니",
+      "description": "호귀 두목의 송곳니. 한이 식어 차갑다.",
       "type": "quest",
       "max_stack": 4
     },
@@ -86,11 +86,19 @@
       "gold": 50
     },
     "sword_steel": {
-      "name": "강철 검",
-      "description": "잘 벼린 강철 검. 철검보다 묵직하다.",
+      "name": "강철 장창",
+      "description": "잘 벼린 강철 장창. 무쇠창보다 길고 묵직하다.",
       "type": "weapon",
       "max_stack": 1,
       "damage": 15,
+      "slot": "weapon"
+    },
+    "spear_demon": {
+      "name": "마창 · 각성(覺醒)",
+      "description": "산군(山君)의 한을 꿰뚫고 깨어난 마창(魔槍). 핏빛 술이 스스로 울며 귀(鬼)를 멸한다.",
+      "type": "weapon",
+      "max_stack": 1,
+      "damage": 26,
       "slot": "weapon"
     },
     "armor_leather": {

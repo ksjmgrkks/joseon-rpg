@@ -82,6 +82,7 @@
       },
       "rewards": {
         "items": [
+          { "id": "spear_demon", "count": 1 },
           { "id": "coin_pouch", "count": 3 }
         ]
       }
