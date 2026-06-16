@@ -30,6 +30,8 @@ class_name Boss
 @export var quest_stage_on_death: String = ""
 # 사망 시 set_flag 한 번(예: "tiger_lord_defeated").
 @export var flag_on_death: String = ""
+# 사망 후 전환할 씬(비우면 전환 안 함) — 최종 보스가 엔딩으로 갈 때.
+@export var scene_on_death: String = ""
 
 @onready var sprite: AnimatedSprite2D = $Sprite2D
 @onready var hurtbox: Hurtbox = $Hurtbox
@@ -225,4 +227,8 @@ func _on_died() -> void:
         hurtbox.monitoring = false
     # death 애니메이션(6프레임)이 끝까지 보이도록 충분히 둔 뒤 제거
     await get_tree().create_timer(1.1).timeout
+    if scene_on_death != "":
+        # 최종 보스 — 처치 연출 후 다음 씬(엔딩 등)으로
+        SceneManager.change_scene(scene_on_death)
+        return
     queue_free()

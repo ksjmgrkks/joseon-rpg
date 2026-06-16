@@ -18,6 +18,8 @@ func _ready() -> void:
     var results: Array[Dictionary] = []
     results.append(_check_full_main_quest())
     _reset()
+    results.append(_check_great_tiger_campaign())
+    _reset()
     results.append(_check_charm_unlocks_hosinbu())
     _reset()
     results.append(_check_ending_branches())
@@ -77,6 +79,26 @@ func _check_full_main_quest() -> Dictionary:
     if not QuestManager.is_completed("main_tiger_lord"):
         return _fail("full_main_quest", "메인 퀘스트 완료 처리 실패")
     return _pass("full_main_quest")
+
+
+# 2~3막 대호 캠페인 — main_great_tiger 6단계가 빠짐없이 이어지는지
+func _check_great_tiger_campaign() -> Dictionary:
+    _reset()
+    # 1막 완료 가정 → 어르신 confession2 가 start_quest(main_great_tiger)
+    QuestManager.start_quest("main_great_tiger")
+    if not QuestManager.is_active("main_great_tiger"):
+        return _fail("great_tiger_campaign", "대호 퀘스트 시작 실패")
+    var chain := ["to_town", "to_office", "to_temple", "to_mountain", "to_altar", "great_tiger_defeated"]
+    for st in chain:
+        if not QuestManager.set_stage("main_great_tiger", st):
+            return _fail("great_tiger_campaign", "단계 전이 실패: %s" % st)
+        if not QuestManager.is_stage("main_great_tiger", st):
+            return _fail("great_tiger_campaign", "단계 확인 실패: %s" % st)
+    # 최종 처치 → 완료
+    QuestManager.complete_quest("main_great_tiger")
+    if not QuestManager.is_completed("main_great_tiger"):
+        return _fail("great_tiger_campaign", "대호 퀘스트 완료 실패")
+    return _pass("great_tiger_campaign")
 
 
 # 부적 사이드 완료 → charm_blessing 플래그 → 호신부 해금

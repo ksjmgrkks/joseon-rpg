@@ -146,11 +146,25 @@
     },
     "confession2": {
       "speaker": "마을 어르신",
-      "text": "우리는 두려워 그이를 '미친 무당'으로 적고 죄를 덮었네. 매임이 풀린 범은 한이 되어 호환 두령이 되었고. …자네가 끊은 건 짐승이 아니라, 우리 마을이 스무 해 진 빚일세. 부디 아비의 넋이 편안하기를.",
+      "text": "우리는 두려워 그이를 '미친 무당'으로 적고 죄를 덮었네. 허나… 들리는가? 산울음이 잦아들지 않아. 두령은 시작일 뿐, 신산의 산신(山君)이 진노했다는 게야. 고을도, 다른 마을도 같은 화를 입고 있네.",
       "actions": [
         {
+          "type": "set_flag",
+          "key": "tiger_lord_resolved",
+          "value": true
+        },
+        {
+          "type": "set_flag",
+          "key": "act2_open",
+          "value": true
+        },
+        {
+          "type": "start_quest",
+          "quest": "main_great_tiger"
+        },
+        {
           "type": "change_scene",
-          "scene": "res://scenes/ui/Ending.tscn"
+          "scene": "res://scenes/levels/TownMarket.tscn"
         }
       ],
       "next": null

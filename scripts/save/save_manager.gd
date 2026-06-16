@@ -23,6 +23,11 @@ const AREA_LABELS := {
     "Forest":      "숲",
     "ShrineRuins": "산신당 터",
     "BossArena":   "절벽 아레나",
+    "TownMarket":       "고을 저잣거리",
+    "MagistrateOffice": "관아 동헌",
+    "RuinedTemple":     "폐사지",
+    "MountainPass":     "신산 산길",
+    "SacredAltar":      "신단 제단",
     "MainMenu":    "메인 메뉴",
 }
 

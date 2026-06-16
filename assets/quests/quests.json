@@ -51,6 +51,41 @@
         ]
       }
     },
+    "main_great_tiger": {
+      "name": "대호(大虎)의 진노",
+      "description": "호환은 한 마을의 일이 아니었다. 고을과 신산으로 번지는 재앙의 근원을 찾아 끊어라.",
+      "stages": {
+        "to_town": {
+          "title": "고을로",
+          "description": "재앙이 번진 고을 저잣거리로 향한다."
+        },
+        "to_office": {
+          "title": "관아 동헌으로",
+          "description": "사당을 팔아넘긴 사또를 동헌에서 추궁한다."
+        },
+        "to_temple": {
+          "title": "폐사지로",
+          "description": "버려진 옛 절터에서 재앙의 내력을 캔다."
+        },
+        "to_mountain": {
+          "title": "신산 산길로",
+          "description": "재앙의 근원, 신산으로 오른다."
+        },
+        "to_altar": {
+          "title": "신단 제단으로",
+          "description": "신산 꼭대기 제단에서 대호와 마주한다."
+        },
+        "great_tiger_defeated": {
+          "title": "대호를 잠재우다",
+          "description": "재앙의 근원을 끊었다. 산이 비로소 잠든다."
+        }
+      },
+      "rewards": {
+        "items": [
+          { "id": "coin_pouch", "count": 3 }
+        ]
+      }
+    },
     "side_lost_charm": {
       "name": "잃어버린 부적",
       "description": "마을 아낙이 숲 어귀에서 부적을 잃어버렸다고 한다.",

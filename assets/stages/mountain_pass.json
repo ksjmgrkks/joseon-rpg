@@ -1,0 +1,144 @@
+{
+  "backdrop": {
+    "sky": [
+      0.44,
+      0.48,
+      0.54
+    ],
+    "tint": [
+      0.66,
+      0.7,
+      0.76
+    ],
+    "far_scale": 0.08
+  },
+  "ground": {
+    "tex": "stone",
+    "width": 2800,
+    "x": -600
+  },
+  "player_x": 120,
+  "entries": [
+    {
+      "name": "default",
+      "x": 120
+    },
+    {
+      "name": "from_temple",
+      "x": 120
+    },
+    {
+      "name": "from_altar",
+      "x": 1480
+    }
+  ],
+  "props": [
+    {
+      "tex": "pine",
+      "x": 300,
+      "y": 686,
+      "scale": 2.2,
+      "offset": [
+        -28,
+        -88
+      ]
+    },
+    {
+      "tex": "pine",
+      "x": 820,
+      "y": 686,
+      "scale": 1.6,
+      "offset": [
+        -28,
+        -88
+      ]
+    },
+    {
+      "tex": "pine",
+      "x": 1300,
+      "y": 686,
+      "scale": 2.0,
+      "offset": [
+        -28,
+        -88
+      ]
+    },
+    {
+      "tex": "jangseung",
+      "x": 560,
+      "y": 628,
+      "scale": 1.5,
+      "offset": [
+        -12,
+        -56
+      ]
+    }
+  ],
+  "npcs": [],
+  "enemies": [
+    {
+      "scene": "Goblin",
+      "x": 520,
+      "y": 640
+    },
+    {
+      "scene": "Fox",
+      "x": 760,
+      "y": 656
+    },
+    {
+      "scene": "Reaper",
+      "x": 980,
+      "y": 656
+    },
+    {
+      "scene": "Goblin",
+      "x": 1140,
+      "y": 640
+    },
+    {
+      "scene": "Tiger",
+      "x": 1320,
+      "y": 656
+    }
+  ],
+  "auto_dialogues": [
+    {
+      "x": 380,
+      "dialogue": "res://assets/dialogue/pass_intro.json",
+      "once_flag": "pass_intro_seen"
+    }
+  ],
+  "quest_triggers": [
+    {
+      "x": 220,
+      "quest": "main_great_tiger",
+      "stage": "to_mountain",
+      "only_active": "main_great_tiger"
+    }
+  ],
+  "exits": [
+    {
+      "x": 40,
+      "target": "res://scenes/levels/RuinedTemple.tscn",
+      "entry": "from_mountain",
+      "color": [
+        0.45,
+        0.45,
+        0.5,
+        0.5
+      ]
+    },
+    {
+      "x": 1560,
+      "target": "res://scenes/levels/SacredAltar.tscn",
+      "entry": "from_mountain",
+      "color": [
+        0.55,
+        0.6,
+        0.7,
+        0.5
+      ]
+    }
+  ]
+}

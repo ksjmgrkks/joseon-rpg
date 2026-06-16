@@ -14,6 +14,11 @@ const AREA_SCENES := {
     "숲": "res://scenes/levels/Forest.tscn",
     "산신당 터": "res://scenes/levels/ShrineRuins.tscn",
     "절벽 아레나": "res://scenes/levels/BossArena.tscn",
+    "고을 저잣거리": "res://scenes/levels/TownMarket.tscn",
+    "관아 동헌": "res://scenes/levels/MagistrateOffice.tscn",
+    "폐사지": "res://scenes/levels/RuinedTemple.tscn",
+    "신산 산길": "res://scenes/levels/MountainPass.tscn",
+    "신단 제단": "res://scenes/levels/SacredAltar.tscn",
 }
 const SLOT_PICKER_SCENE := preload("res://scenes/ui/SlotPicker.tscn")
 

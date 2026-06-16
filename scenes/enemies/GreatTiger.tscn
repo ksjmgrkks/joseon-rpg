@@ -1,0 +1,65 @@
+[gd_scene load_steps=6 format=3]
+
+; 대호(大虎) — 신산의 산신(백호)이 한에 잠겨 변한 최종 보스. 호환 두령보다 크고 강함.
+
+[ext_resource type="Script" path="res://scripts/enemies/boss.gd" id="1_boss"]
+[ext_resource type="Script" path="res://scripts/combat/hurtbox.gd" id="2_hurt"]
+[ext_resource type="Script" path="res://scripts/combat/health_component.gd" id="3_health"]
+[ext_resource type="Script" path="res://scripts/combat/hitbox.gd" id="4_hit"]
+[ext_resource type="Script" path="res://scripts/visual/enemy_visual.gd" id="5_vis"]
+
+[sub_resource type="RectangleShape2D" id="body"]
+size = Vector2(56, 72)
+
+[sub_resource type="RectangleShape2D" id="hurt"]
+size = Vector2(60, 76)
+
+[sub_resource type="RectangleShape2D" id="hit"]
+size = Vector2(80, 64)
+
+[node name="Boss" type="CharacterBody2D"]
+script = ExtResource("1_boss")
+display_name = "대호"
+body_color = Color(0.78, 0.86, 0.95, 1)
+engage_distance = 380.0
+telegraph_seconds = 0.78
+attack_seconds = 0.40
+recover_seconds = 1.3
+dash_speed = 330.0
+attack_damage = 22.0
+attack_knockback = 360.0
+xp_reward = 240
+reward_item_id = "tiger_tooth"
+reward_item_qty = 1
+quest_id_on_death = "main_great_tiger"
+quest_stage_on_death = "great_tiger_defeated"
+flag_on_death = "great_tiger_defeated"
+scene_on_death = "res://scenes/ui/Ending.tscn"
+
+[node name="Sprite2D" type="AnimatedSprite2D" parent="."]
+scale = Vector2(1.4, 1.4)
+script = ExtResource("5_vis")
+sheet = "enemies/boss"
+foot_offset = -2.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("body")
+
+[node name="Hurtbox" type="Area2D" parent="."]
+script = ExtResource("2_hurt")
+
+[node name="HurtboxShape" type="CollisionShape2D" parent="Hurtbox"]
+shape = SubResource("hurt")
+
+[node name="HealthComponent" type="Node" parent="."]
+script = ExtResource("3_health")
+max_hp = 680.0
+hurtbox_path = NodePath("../Hurtbox")
+
+[node name="AttackHitbox" type="Area2D" parent="."]
+script = ExtResource("4_hit")
+damage = 22.0
+knockback = 360.0
+
+[node name="HitShape" type="CollisionShape2D" parent="AttackHitbox"]
+shape = SubResource("hit")
