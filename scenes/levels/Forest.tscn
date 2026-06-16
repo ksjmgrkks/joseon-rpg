@@ -19,7 +19,7 @@
 [ext_resource type="Texture2D" path="res://assets/tilesets/pine.png" id="pine"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ground"]
-size = Vector2(1600, 32)
+size = Vector2(2800, 32)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_exit"]
 size = Vector2(32, 96)

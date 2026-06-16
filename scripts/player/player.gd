@@ -14,6 +14,9 @@ const SPEED: float = 220.0           # px/s
 const SPEED_CHARGING: float = 80.0   # 차지 중 이동 속도
 const JUMP_VELOCITY: float = -380.0  # px/s (위쪽이 음수)
 const GRAVITY: float = 980.0         # px/s²
+const MAX_FALL_SPEED: float = 900.0  # 종단 낙하 속도 — 얇은 지면 터널링 방지
+# 낙사 안전망: 이 y 보다 아래로 떨어지면 마지막으로 땅을 밟았던 지점으로 복귀.
+const FALL_LIMIT_Y: float = 1100.0
 
 # 공격 파라미터
 const ATTACK_DURATION: float = 0.18      # hitbox 활성 시간 (콤보 1~2타)
@@ -48,6 +51,9 @@ var _dodge_cd: float = 0.0
 # 스킬 상태 (일섬 돌진)
 var _skill_dash_timer: float = 0.0
 var _skill_dash_speed: float = 0.0
+# 낙사 안전망 — 마지막으로 땅을 밟았던 안전 위치
+var _last_safe_pos: Vector2 = Vector2.ZERO
+var _has_safe_pos: bool = false
 
 
 func _ready() -> void:
@@ -64,9 +70,19 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
-    # 중력
+    # 중력 (종단 속도 제한 — 얇은 지면 터널링 방지)
     if not is_on_floor():
-        velocity.y += GRAVITY * delta
+        velocity.y = minf(velocity.y + GRAVITY * delta, MAX_FALL_SPEED)
+    else:
+        # 땅 위 + 공격/회피 중이 아닐 때의 위치를 안전 지점으로 기록
+        if not _attacking and not _dodging and _skill_dash_timer <= 0.0:
+            _last_safe_pos = global_position
+            _has_safe_pos = true
+
+    # 낙사 안전망 — 어떤 이유로든 지면 아래로 떨어지면 마지막 안전 지점으로 복귀
+    if global_position.y > FALL_LIMIT_Y:
+        _recover_from_fall()
+        return
 
     # 회피 진행/쿨다운 카운트다운
     if _dodge_timer > 0.0:
@@ -327,6 +343,23 @@ func _on_shield_broken() -> void:
     FloatingNumber.spawn(get_tree().current_scene, global_position + Vector2(0, -40), "가호 소멸", Color(1, 0.85, 0.5))
     if sprite:
         sprite.modulate = _base_modulate
+
+
+# 낙사 복구 — 마지막 안전 지점(없으면 현재 x, 화면 위)으로 되돌리고 속도 0
+func _recover_from_fall() -> void:
+    velocity = Vector2.ZERO
+    if _dodging:
+        _end_dodge()
+    _skill_dash_timer = 0.0
+    _attacking = false
+    if _has_safe_pos:
+        global_position = _last_safe_pos
+    else:
+        global_position = Vector2(global_position.x, 200.0)
+    ScreenFx.shake(4.0, 0.15)
+    # 작은 불이익만 — 추락은 사망이 아니라 '미끄러짐'으로 처리(버그 구제 성격)
+    if health and health.hp > 0.0:
+        health.take_damage(5.0)
 
 
 func _on_hp_changed(hp: float, max_hp: float) -> void:
