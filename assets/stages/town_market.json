@@ -1,0 +1,37 @@
+{
+  "backdrop": { "sky": [0.80, 0.78, 0.70], "tint": [0.86, 0.84, 0.78], "far_scale": 0.12 },
+  "ground":   { "tex": "ground_dirt", "width": 2800, "x": -600 },
+  "player_x": 120,
+  "entries": [
+    { "name": "default", "x": 120 },
+    { "name": "from_field", "x": 120 },
+    { "name": "from_office", "x": 1480 }
+  ],
+  "props": [
+    { "tex": "house_tile",   "x": 240, "y": 684, "scale": 1.8, "offset": [-48, -80] },
+    { "tex": "house_thatch", "x": 520, "y": 684, "scale": 1.7, "offset": [-48, -72] },
+    { "tex": "lantern",      "x": 470, "y": 612, "scale": 1.5, "offset": [-8, -24] },
+    { "tex": "house_tile",   "x": 980, "y": 684, "scale": 1.8, "offset": [-48, -80] },
+    { "tex": "well",         "x": 760, "y": 648, "scale": 1.6, "offset": [-20, -20] },
+    { "tex": "fence",        "x": 1180, "y": 660, "scale": 1.6, "offset": [-32, -12] },
+    { "tex": "jangseung",    "x": 1320, "y": 628, "scale": 1.6, "offset": [-12, -56] }
+  ],
+  "npcs": [
+    { "x": 360, "dialogue": "res://assets/dialogue/town_crier.json", "sheet": "npc/wanderer" },
+    { "x": 860, "dialogue": "res://assets/dialogue/town_widow.json", "sheet": "npc/woman" }
+  ],
+  "enemies": [
+    { "scene": "Goblin", "x": 1040, "y": 640 },
+    { "scene": "Reaper", "x": 1240, "y": 656 }
+  ],
+  "auto_dialogues": [
+    { "x": 600, "dialogue": "res://assets/dialogue/town_intro.json", "once_flag": "town_intro_seen" }
+  ],
+  "quest_triggers": [
+    { "x": 220, "quest": "main_tiger_lord", "stage": "to_town", "only_active": "main_tiger_lord" }
+  ],
+  "exits": [
+    { "x": 40,   "target": "res://scenes/levels/Village.tscn", "entry": "from_town", "color": [0.4, 0.42, 0.35, 0.5] },
+    { "x": 1560, "target": "res://scenes/levels/MagistrateOffice.tscn", "entry": "from_town", "color": [0.45, 0.3, 0.25, 0.5] }
+  ]
+}
