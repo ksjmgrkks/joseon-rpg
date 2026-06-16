@@ -118,6 +118,11 @@
       "x": 420,
       "dialogue": "res://assets/dialogue/office_intro.json",
       "once_flag": "office_intro_seen"
+    },
+    {
+      "x": 1040,
+      "dialogue": "res://assets/dialogue/reaperlord_intro.json",
+      "once_flag": "seen_reaperlord"
     }
   ],
   "quest_triggers": [

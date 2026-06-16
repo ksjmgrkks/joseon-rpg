@@ -102,6 +102,11 @@
       "x": 420,
       "dialogue": "res://assets/dialogue/temple_fox.json",
       "once_flag": "temple_fox_seen"
+    },
+    {
+      "x": 1040,
+      "dialogue": "res://assets/dialogue/foxqueen_intro.json",
+      "once_flag": "seen_foxqueen"
     }
   ],
   "quest_triggers": [
