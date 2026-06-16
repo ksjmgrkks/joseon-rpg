@@ -1,0 +1,53 @@
+{
+  "id": "hill_merchant",
+  "start": "a",
+  "nodes": {
+    "a": {
+      "speaker": "떠돌이 행상",
+      "text": "허허, 이런 산중에 손님이라니. 호환이 돌아 길이 험하니 약이며 칼이며 챙겨 두시구려.",
+      "choices": [
+        {
+          "text": "물건을 보겠소.",
+          "next": "shop"
+        },
+        {
+          "text": "되었소.",
+          "next": null
+        }
+      ]
+    },
+    "shop": {
+      "speaker": "떠돌이 행상",
+      "text": "잘 고르시오.",
+      "actions": [
+        {
+          "type": "open_shop",
+          "title": "떠돌이 행상",
+          "items": [
+            {
+              "id": "rice_bun",
+              "price": 5
+            },
+            {
+              "id": "potion_minor",
+              "price": 25
+            },
+            {
+              "id": "potion_major",
+              "price": 80
+            },
+            {
+              "id": "sword_iron",
+              "price": 90
+            },
+            {
+              "id": "armor_robe",
+              "price": 120
+            }
+          ]
+        }
+      ],
+      "next": null
+    }
+  }
+}
