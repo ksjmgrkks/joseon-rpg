@@ -11,9 +11,7 @@ func _ready() -> void:
     print("=== test_skills ===")
     var results: Array[Dictionary] = []
     _reset()
-    results.append(_check_unlock_by_level())
-    _reset()
-    results.append(_check_unlock_by_flag())
+    results.append(_check_all_unlocked_from_start())
     _reset()
     results.append(_check_cooldown_gate())
     _reset()
@@ -38,33 +36,15 @@ func _reset() -> void:
     SkillManager.reset_cooldowns()
 
 
-func _check_unlock_by_level() -> Dictionary:
-    if SkillManager.is_unlocked("ilseom"):
-        return _fail("unlock_by_level", "레벨 1인데 일섬이 풀려 있음")
-    # 레벨 3 만들기
-    while PlayerStats.level < 3:
-        PlayerStats.gain_xp(200)
-    if not SkillManager.is_unlocked("ilseom"):
-        return _fail("unlock_by_level", "레벨 %d인데 일섬 잠김" % PlayerStats.level)
-    if PlayerStats.level >= 5:
-        return _fail("unlock_by_level", "테스트 전제 깨짐 (이미 레벨 5)")
-    if SkillManager.is_unlocked("hoecheon"):
-        return _fail("unlock_by_level", "레벨 5 미만인데 회천격이 풀려 있음")
-    return _pass("unlock_by_level")
-
-
-func _check_unlock_by_flag() -> Dictionary:
-    if SkillManager.is_unlocked("hosinbu"):
-        return _fail("unlock_by_flag", "플래그 없는데 호신부가 풀려 있음")
-    Flags.set_flag("charm_blessing", true)
-    if not SkillManager.is_unlocked("hosinbu"):
-        return _fail("unlock_by_flag", "charm_blessing 셋인데 호신부 잠김")
-    return _pass("unlock_by_flag")
+func _check_all_unlocked_from_start() -> Dictionary:
+    # 2026-06-12 사용자 요청 — 스킬 3종 모두 처음(레벨 1, 플래그 무관)부터 해금.
+    for id in ["ilseom", "hoecheon", "hosinbu"]:
+        if not SkillManager.is_unlocked(id):
+            return _fail("all_unlocked_from_start", "%s 가 레벨 1에서 잠김" % id)
+    return _pass("all_unlocked_from_start")
 
 
 func _check_cooldown_gate() -> Dictionary:
-    while PlayerStats.level < 3:
-        PlayerStats.gain_xp(200)
     if not SkillManager.try_cast("ilseom"):
         return _fail("cooldown_gate", "첫 발동 실패")
     if SkillManager.cooldown_left("ilseom") <= 0.0:
