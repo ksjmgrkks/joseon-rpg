@@ -64,9 +64,35 @@ def mound_near(x):
     return sines(x, 316, [(10, 3, 1.8), (5, 7, 4.7), (2, 13, 0.3)])
 
 
-# ── ① bg_far — 먼 산 2겹 ─────────────────────────────────────
+def _moon(c, cx, cy, r):
+    """보름달 — 한지빛 원반 + 옅은 무리(halo). 능선보다 위(하늘)."""
+    for y in range(cy - r - 3, cy + r + 4):
+        for x in range(cx - r - 3, cx + r + 4):
+            d2 = (x - cx) ** 2 + (y - cy) ** 2
+            if d2 <= r * r:
+                c.px(x % W, y, P.PAPER_BRIGHT)
+            elif d2 <= (r + 1) * (r + 1):
+                c.px(x % W, y, P.PAPER_DEEP)            # 달 가장자리
+            elif d2 <= (r + 3) * (r + 3) and (x + y) % 2 == 0:
+                c.px(x % W, y, P.INK_FAINT)             # 옅은 무리(디더)
+
+
+def _cloud_band(c, base_y, amp, k, ph, col, thick=3):
+    """동양화 구름띠 — 가로로 길게 흐르는 디더 띠 (주기 W 라 타일링)."""
+    for x in range(W):
+        cy = int(round(base_y + amp * math.sin(TAU * k * x / W + ph)))
+        for dy in range(thick):
+            if (x + 2 * dy) % 3 != 0:                   # 성긴 디더 → 안개구름 느낌
+                c.px(x, cy + dy, col)
+
+
 def gen_far() -> Canvas:
     c = Canvas(W, H)
+    # 보름달 — 좌상단 하늘 (능선 위)
+    _moon(c, 150, 70, 26)
+    # 구름띠 2겹 — 달 주변/중턱
+    _cloud_band(c, 110, 6, 2, 0.6, P.PAPER_DEEP, thick=2)
+    _cloud_band(c, 150, 8, 3, 3.1, P.INK_FAINT, thick=2)
     # 뒤 능선: 능선 2px 만 실선, 몸체는 50% 체커 디더 → 옅게 읽힘
     for x in range(W):
         y0 = int(round(ridge_far_back(x)))
