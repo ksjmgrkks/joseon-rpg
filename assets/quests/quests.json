@@ -20,28 +20,28 @@
       }
     },
     "main_tiger_lord": {
-      "name": "호환 두령 토벌",
-      "description": "마을 가축을 잡아간다는 호환의 두목을 처치하라.",
+      "name": "호귀(虎鬼) 두목 토벌",
+      "description": "마을을 덮친 호귀 — 한이 서린 범의 넋. 그 두목을 마창으로 끊으라.",
       "stages": {
         "start": {
-          "title": "어르신께서 부탁하시다",
-          "description": "마을 어르신이 호환 두령 처치를 부탁했다. 들판을 지나 숲으로."
+          "title": "마을의 흉사",
+          "description": "산신당이 헐린 뒤로 호귀가 들끓는다. 들판을 지나 숲으로 향한다."
         },
         "to_forest": {
           "title": "숲으로 향함",
           "description": "들판을 지나 숲 깊은 곳으로 들어가야 한다."
         },
         "boss_arena": {
-          "title": "절벽 앞 호환 두령",
-          "description": "절벽 앞에서 호환 두령과 마주쳤다. 결단을 내릴 때."
+          "title": "절벽 앞 호귀 두목",
+          "description": "절벽 앞에서 호귀 두목과 마주쳤다. 마창을 고쳐 쥘 때."
         },
         "boss_defeated": {
-          "title": "호환 두령 처치",
-          "description": "두령의 어금니를 손에 넣었다. 마을로 돌아가 어르신께 보이자."
+          "title": "호귀 두목 진압",
+          "description": "맺힌 한을 끊고 호귀를 잠재웠다. 더 깊은 근원이 산 위에 있다."
         },
         "return_to_elder": {
-          "title": "마을로 귀환",
-          "description": "어르신께 어금니를 전해 일을 마무리한다."
+          "title": "다음 고개로",
+          "description": "재앙의 뿌리를 좇아 고을로 발길을 옮긴다."
         }
       },
       "rewards": {
@@ -52,8 +52,8 @@
       }
     },
     "main_great_tiger": {
-      "name": "대호(大虎)의 진노",
-      "description": "호환은 한 마을의 일이 아니었다. 고을과 신산으로 번지는 재앙의 근원을 찾아 끊어라.",
+      "name": "산군(山君)의 진노",
+      "description": "호귀는 한 마을의 일이 아니었다. 헐린 산신당의 주인 — 산군(山君)이 호귀로 화해 고을과 신산을 덮친다. 그 근원을 마창으로 끊어라.",
       "stages": {
         "to_town": {
           "title": "고을로",
@@ -73,11 +73,11 @@
         },
         "to_altar": {
           "title": "신단 제단으로",
-          "description": "신산 꼭대기 제단에서 대호와 마주한다."
+          "description": "신산 꼭대기 제단에서 호귀로 화한 산군과 마주한다."
         },
         "great_tiger_defeated": {
-          "title": "대호를 잠재우다",
-          "description": "재앙의 근원을 끊었다. 산이 비로소 잠든다."
+          "title": "산군을 잠재우다",
+          "description": "마창으로 한을 꿰뚫어 근원을 끊었다. 산이 비로소 잠든다."
         }
       },
       "rewards": {
