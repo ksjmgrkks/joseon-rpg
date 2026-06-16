@@ -39,7 +39,7 @@ func _on_dialogue_event(speaker: String, text: String, choices: Array) -> void:
         child.queue_free()
 
     if choices.is_empty():
-        advance_hint.text = "[E / Space] 다음"
+        advance_hint.text = "[Space] 다음"
         choices_container.visible = false
     else:
         advance_hint.text = ""

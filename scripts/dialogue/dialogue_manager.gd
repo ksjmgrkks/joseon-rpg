@@ -84,8 +84,10 @@ func advance() -> void:
     if not _active:
         return
     var node := _current_node()
-    if node.has("choices") and (node.choices as Array).size() > 0:
-        # choices 있는 노드는 선택만 가능
+    # 조건으로 걸러진 뒤 '보이는' 선택지가 있을 때만 선택 대기.
+    # 모든 선택지가 숨겨졌으면 일반 노드처럼 next 로 진행(없으면 종료) — 교착 방지.
+    var visible := _filter_choices(node.get("choices", []))
+    if visible.size() > 0:
         return
     _advance_to(node.get("next", null))
 
