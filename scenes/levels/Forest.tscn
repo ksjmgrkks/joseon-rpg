@@ -118,6 +118,7 @@ collision_mask = 1
 position = Vector2(680, 660)
 script = ExtResource("10_pickup")
 item_id = "charm_lost"
+icon = "charm"
 count = 1
 quest_id = "side_lost_charm"
 quest_stage = "found"
@@ -140,6 +141,7 @@ collision_mask = 1
 position = Vector2(380, 660)
 script = ExtResource("10_pickup")
 item_id = "herb_field"
+icon = "herb"
 count = 1
 pickup_label = "+1 들풀 약초"
 
@@ -158,6 +160,7 @@ collision_mask = 1
 position = Vector2(1180, 660)
 script = ExtResource("10_pickup")
 item_id = "herb_field"
+icon = "herb"
 count = 1
 pickup_label = "+1 들풀 약초"
 

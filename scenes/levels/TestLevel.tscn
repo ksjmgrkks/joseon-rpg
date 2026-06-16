@@ -94,6 +94,7 @@ collision_mask = 1
 position = Vector2(360, 660)
 script = ExtResource("9_pickup")
 item_id = "herb_field"
+icon = "herb"
 count = 1
 pickup_label = "+1 들풀 약초"
 
@@ -112,6 +113,7 @@ collision_mask = 1
 position = Vector2(900, 660)
 script = ExtResource("9_pickup")
 item_id = "herb_field"
+icon = "herb"
 count = 1
 pickup_label = "+1 들풀 약초"
 
@@ -130,6 +132,7 @@ collision_mask = 1
 position = Vector2(1260, 660)
 script = ExtResource("9_pickup")
 item_id = "herb_field"
+icon = "herb"
 count = 1
 pickup_label = "+1 들풀 약초"
 
@@ -149,6 +152,7 @@ collision_mask = 1
 position = Vector2(640, 660)
 script = ExtResource("9_pickup")
 item_id = "scroll_old"
+icon = "scroll"
 count = 1
 pickup_label = "+1 낡은 서찰"
 

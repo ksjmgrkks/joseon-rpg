@@ -22,6 +22,9 @@ class_name Pickup
 @export var pickup_label: String = ""
 # 비워두면 항상 동작. 채워져 있으면 그 퀘스트가 active 일 때만 픽업 가능.
 @export var requires_quest_active: String = ""
+# assets/sprites/pickups/<icon>.png 아이콘. 지정 시 기존 placeholder(ColorRect)는 숨기고
+# 스프라이트를 띄워 살짝 부유시킨다. (charm/herb/coin/scroll)
+@export var icon: String = ""
 
 var _used: bool = false
 
@@ -29,6 +32,29 @@ var _used: bool = false
 func _ready() -> void:
     monitoring = true
     body_entered.connect(_on_body_entered)
+    _setup_icon()
+
+
+func _setup_icon() -> void:
+    if icon == "":
+        return
+    var tex_path := "res://assets/sprites/pickups/%s.png" % icon
+    if not ResourceLoader.exists(tex_path):
+        return
+    # placeholder ColorRect 자식이 있으면 숨김
+    for child in get_children():
+        if child is ColorRect:
+            (child as ColorRect).visible = false
+    var spr := Sprite2D.new()
+    spr.texture = load(tex_path)
+    spr.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+    spr.scale = Vector2(1.5, 1.5)
+    spr.position = Vector2(0, -10)
+    add_child(spr)
+    # 위아래 부유 연출
+    var tw := create_tween().set_loops()
+    tw.tween_property(spr, "position:y", -16.0, 0.9).set_trans(Tween.TRANS_SINE)
+    tw.tween_property(spr, "position:y", -10.0, 0.9).set_trans(Tween.TRANS_SINE)
 
 
 func _on_body_entered(body: Node) -> void:
