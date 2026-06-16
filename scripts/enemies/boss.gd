@@ -12,7 +12,7 @@ class_name Boss
 ## Boss 는 HP/XP 보상이 크고 사망 시 옵션으로 보상 아이템(reward_item_id × qty)을 인벤토리에 지급.
 ##
 
-@export var display_name: String = "호환 두령"
+@export var display_name: String = "호귀 두목"
 @export var body_color: Color = Color(0.85, 0.55, 0.20, 1)
 @export var engage_distance: float = 320.0
 @export var telegraph_seconds: float = 0.85

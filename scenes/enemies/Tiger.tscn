@@ -22,7 +22,7 @@ size = Vector2(22, 30)
 
 [node name="Tiger" type="CharacterBody2D"]
 script = ExtResource("1_p")
-display_name = "호환"
+display_name = "호귀"
 attack_damage = 11.0
 drop_item = "potion_minor"
 drop_icon = "herb"

@@ -128,7 +128,7 @@ def balloon_tail() -> Canvas:
 # ── ⑤ title_logo — 「호환기담」 Galmuri11 64px ──────────────────
 def title_logo() -> Canvas:
     font = ImageFont.truetype(FONT_PATH, 64)
-    text = "호환기담"
+    text = "귀창록"
     # 넉넉한 캔버스에 렌더 후 내용 bbox 로 크롭
     tmp = Image.new("L", (64 * 6, 160), 0)
     d = ImageDraw.Draw(tmp)
@@ -157,7 +157,7 @@ def title_logo() -> Canvas:
 # ── ⑤b title_logo_menu — 어두운 타이틀 배경용 (밝은 한지 글자 + 먹 그림자) ──
 def title_logo_menu() -> Canvas:
     font = ImageFont.truetype(FONT_PATH, 64)
-    text = "호환기담"
+    text = "귀창록"
     tmp = Image.new("L", (64 * 6, 160), 0)
     d = ImageDraw.Draw(tmp)
     d.text((16, 16), text, font=font, fill=255)

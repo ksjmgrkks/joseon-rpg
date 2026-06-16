@@ -19,7 +19,7 @@ size = Vector2(80, 64)
 
 [node name="Boss" type="CharacterBody2D"]
 script = ExtResource("1_boss")
-display_name = "대호"
+display_name = "산군(山君)"
 body_color = Color(0.78, 0.86, 0.95, 1)
 engage_distance = 380.0
 telegraph_seconds = 0.78

@@ -11,7 +11,7 @@
           "next": "open"
         },
         {
-          "text": "호환에 대해 아는 게 있소?",
+          "text": "호귀에 대해 아는 게 있소?",
           "next": "wanderer_lore",
           "unless_flag": "tiger_lord_resolved"
         },
