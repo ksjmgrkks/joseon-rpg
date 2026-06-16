@@ -50,9 +50,15 @@ func _process(_delta: float) -> void:
 
     if not p.is_on_floor():
         play_safe("jump")
-        # 상승/하강 프레임 수동 선택
-        if sprite_frames.has_animation("jump") and sprite_frames.get_frame_count("jump") >= 2:
-            frame = 0 if p.velocity.y < 0.0 else 1
+        # 수직 속도로 프레임 수동 선택: 상승(0) → 정점(1) → 하강(2)
+        if sprite_frames.has_animation("jump"):
+            var jc := sprite_frames.get_frame_count("jump")
+            if jc >= 3:
+                if p.velocity.y < -120.0:   frame = 0   # 빠르게 상승
+                elif p.velocity.y > 120.0:  frame = 2   # 하강
+                else:                       frame = 1   # 정점 근처
+            elif jc >= 2:
+                frame = 0 if p.velocity.y < 0.0 else 1
             pause()
         return
 
