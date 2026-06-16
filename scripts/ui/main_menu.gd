@@ -9,6 +9,9 @@ const SETTINGS_PATH := "res://scenes/ui/SettingsMenu.tscn"
 
 # 저장 메타의 지역명(SaveManager.AREA_LABELS) → 씬 경로 역매핑 (이어하기 복귀용)
 const AREA_SCENES := {
+    "마을 어귀": "res://scenes/levels/VillageIntro.tscn",
+    "산기슭": "res://scenes/levels/Foothills.tscn",
+    "깊은 숲": "res://scenes/levels/ForestDeep.tscn",
     "마을": "res://scenes/levels/Village.tscn",
     "들판": "res://scenes/levels/TestLevel.tscn",
     "숲": "res://scenes/levels/Forest.tscn",

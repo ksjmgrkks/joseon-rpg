@@ -1,0 +1,16 @@
+{
+  "id": "tut_attack",
+  "start": "a",
+  "nodes": {
+    "a": {
+      "speaker": "",
+      "text": "〔Ctrl 로 벤다. 세 번 이어 베면 마지막에 강하게 내리친다.〕",
+      "next": "b"
+    },
+    "b": {
+      "speaker": "",
+      "text": "길 끝을 도깨비들이 막고 있다. 모두 베어야 결계가 풀린다.",
+      "next": null
+    }
+  }
+}

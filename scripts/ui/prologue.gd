@@ -7,7 +7,7 @@ extends Control
 ## 엔딩과 같은 두루마리/한지 톤. BGM 은 BgmDirector 가 MainMenu·Ending 과 같은 title.wav 재생.
 ##
 
-const VILLAGE_PATH := "res://scenes/levels/Village.tscn"
+const VILLAGE_PATH := "res://scenes/levels/VillageIntro.tscn"
 
 const BEATS := [
     "호환(虎患).\n사람을 해치는 호랑이의 재앙을 옛사람은 그리 불렀다.",

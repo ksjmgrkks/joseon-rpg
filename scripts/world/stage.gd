@@ -49,9 +49,19 @@ func _ready() -> void:
     _build_pickups(data.get("pickups", []))
     _build_auto_dialogues(data.get("auto_dialogues", []))
     _build_quest_triggers(data.get("quest_triggers", []))
+    _build_gates(data.get("gates", []))
     _build_exits(data.get("exits", []))
     _build_player(data)
     _build_ui()
+    # 스테이지 진입 시 퀘스트 자동 시작/단계 설정 (퀘스트 받으러 다니지 않게)
+    var aq = data.get("auto_quest", {})
+    if aq is Dictionary and aq.has("id"):
+        var qid := String(aq["id"])
+        if not QuestManager.is_completed(qid):
+            if not QuestManager.is_active(qid):
+                QuestManager.start_quest(qid)
+            if aq.has("stage"):
+                QuestManager.set_stage(qid, String(aq["stage"]))
 
 
 func _load() -> Dictionary:
@@ -245,6 +255,19 @@ func _build_exits(exits: Array) -> void:
         mark.offset_right = 16; mark.offset_bottom = 48
         area.add_child(mark)
         add_child(area)
+
+
+func _build_gates(gates: Array) -> void:
+    var gate_script: Script = load("res://scripts/world/combat_gate.gd")
+    for g in gates:
+        if not (g is Dictionary):
+            continue
+        var gate := Node2D.new()
+        gate.set_script(gate_script)
+        gate.position = Vector2(float(g.get("x", 1400)), float(g.get("y", 600)))
+        gate.open_flag = String(g.get("flag", ""))
+        gate.gate_height = float(g.get("height", 200))
+        add_child(gate)
 
 
 func _build_player(data: Dictionary) -> void:

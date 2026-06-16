@@ -83,6 +83,7 @@ script = ExtResource("6_entry")
 
 [node name="Boss" parent="." instance=ExtResource("2_boss")]
 position = Vector2(1200, 640)
+scene_on_death = "res://scenes/levels/TownMarket.tscn"
 
 ; 메인 퀘스트 boss_arena 단계 자동 진행
 [node name="BossArenaTrigger" type="Area2D" parent="."]

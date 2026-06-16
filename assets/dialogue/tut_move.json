@@ -1,0 +1,16 @@
+{
+  "id": "tut_move",
+  "start": "a",
+  "nodes": {
+    "a": {
+      "speaker": "",
+      "text": "고개를 넘으니 안개 걷힌 마을. 인적은 드물고, 집집마다 부적이 나붙었다.",
+      "next": "b"
+    },
+    "b": {
+      "speaker": "",
+      "text": "〔← → 또는 A·D 로 걷는다. Alt 로 뛰어넘는다.〕",
+      "next": null
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "id": "tut_jump",
+  "start": "a",
+  "nodes": {
+    "a": {
+      "speaker": "",
+      "text": "산기슭. 바위와 비탈이 길을 끊는다.",
+      "next": "b"
+    },
+    "b": {
+      "speaker": "",
+      "text": "〔Alt 로 뛰어 넘는다. C 또는 Shift 로 구른다 — 구르는 동안은 베이지 않는다.〕",
+      "next": null
+    }
+  }
+}

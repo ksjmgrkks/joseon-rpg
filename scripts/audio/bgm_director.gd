@@ -10,6 +10,9 @@ const POLL := 0.5
 const SCENE_BGM := {
     "MainMenu":  "res://assets/audio/bgm/title.wav",
     "Ending":    "res://assets/audio/bgm/title.wav",
+    "VillageIntro": "res://assets/audio/bgm/village.wav",
+    "Foothills":    "res://assets/audio/bgm/village.wav",
+    "ForestDeep":   "res://assets/audio/bgm/forest.wav",
     "Village":   "res://assets/audio/bgm/village.wav",
     "TestLevel": "res://assets/audio/bgm/village.wav",
     "Forest":      "res://assets/audio/bgm/forest.wav",

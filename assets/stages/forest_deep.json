@@ -1,0 +1,145 @@
+{
+  "auto_quest": {
+    "id": "main_tiger_lord",
+    "stage": "boss_arena"
+  },
+  "backdrop": {
+    "sky": [
+      0.5,
+      0.56,
+      0.5
+    ],
+    "tint": [
+      0.72,
+      0.78,
+      0.72
+    ],
+    "far_scale": 0.1
+  },
+  "ground": {
+    "tex": "ground_grass",
+    "width": 2800,
+    "x": -600
+  },
+  "player_x": 100,
+  "entries": [
+    {
+      "name": "default",
+      "x": 100
+    },
+    {
+      "name": "from_field",
+      "x": 100
+    }
+  ],
+  "props": [
+    {
+      "tex": "pine",
+      "x": 240,
+      "y": 686,
+      "scale": 2.2,
+      "offset": [
+        -28,
+        -88
+      ]
+    },
+    {
+      "tex": "pine",
+      "x": 680,
+      "y": 686,
+      "scale": 1.7,
+      "offset": [
+        -28,
+        -88
+      ]
+    },
+    {
+      "tex": "pine",
+      "x": 1180,
+      "y": 686,
+      "scale": 2.0,
+      "offset": [
+        -28,
+        -88
+      ]
+    },
+    {
+      "tex": "shrine_ruin",
+      "x": 860,
+      "y": 684,
+      "scale": 1.6,
+      "offset": [
+        -48,
+        -88
+      ]
+    }
+  ],
+  "auto_dialogues": [
+    {
+      "x": 150,
+      "dialogue": "res://assets/dialogue/tut_skill.json",
+      "once_flag": "tut_skill_seen",
+      "w": 90
+    },
+    {
+      "x": 560,
+      "dialogue": "res://assets/dialogue/forest_omen.json",
+      "once_flag": "forest_omen_seen",
+      "w": 110
+    }
+  ],
+  "enemies": [
+    {
+      "scene": "Goblin",
+      "x": 700,
+      "y": 640
+    },
+    {
+      "scene": "Fox",
+      "x": 920,
+      "y": 656
+    },
+    {
+      "scene": "Reaper",
+      "x": 1080,
+      "y": 656
+    },
+    {
+      "scene": "Tiger",
+      "x": 1260,
+      "y": 656
+    }
+  ],
+  "gates": [
+    {
+      "x": 1360,
+      "y": 600,
+      "flag": "forest_cleared",
+      "height": 260
+    }
+  ],
+  "exits": [
+    {
+      "x": 40,
+      "target": "res://scenes/levels/Foothills.tscn",
+      "entry": "from_village",
+      "color": [
+        0.45,
+        0.5,
+        0.4,
+        0.5
+      ]
+    },
+    {
+      "x": 1490,
+      "target": "res://scenes/levels/BossArena.tscn",
+      "entry": "from_forest",
+      "color": [
+        0.55,
+        0.25,
+        0.2,
+        0.5
+      ]
+    }
+  ]
+}

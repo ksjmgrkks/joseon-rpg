@@ -1,0 +1,147 @@
+{
+  "auto_quest": {
+    "id": "main_tiger_lord",
+    "stage": "start"
+  },
+  "backdrop": {
+    "sky": [
+      0.86,
+      0.82,
+      0.72
+    ],
+    "tint": [
+      0.92,
+      0.9,
+      0.84
+    ],
+    "far_scale": 0.12
+  },
+  "ground": {
+    "tex": "ground_grass",
+    "width": 2800,
+    "x": -600
+  },
+  "player_x": 100,
+  "entries": [
+    {
+      "name": "default",
+      "x": 100
+    }
+  ],
+  "props": [
+    {
+      "tex": "house_tile",
+      "x": 300,
+      "y": 684,
+      "scale": 1.9,
+      "offset": [
+        -48,
+        -80
+      ]
+    },
+    {
+      "tex": "house_thatch",
+      "x": 560,
+      "y": 684,
+      "scale": 1.7,
+      "offset": [
+        -48,
+        -72
+      ]
+    },
+    {
+      "tex": "jangseung",
+      "x": 150,
+      "y": 628,
+      "scale": 1.5,
+      "offset": [
+        -12,
+        -56
+      ]
+    },
+    {
+      "tex": "sotdae",
+      "x": 470,
+      "y": 612,
+      "scale": 1.6,
+      "offset": [
+        -8,
+        -64
+      ]
+    },
+    {
+      "tex": "well",
+      "x": 720,
+      "y": 648,
+      "scale": 1.5,
+      "offset": [
+        -20,
+        -20
+      ]
+    },
+    {
+      "tex": "lantern",
+      "x": 380,
+      "y": 600,
+      "scale": 1.4,
+      "offset": [
+        -8,
+        -24
+      ]
+    }
+  ],
+  "npcs": [
+    {
+      "x": 230,
+      "dialogue": "res://assets/dialogue/intro_elder.json",
+      "sheet": "npc/elder"
+    }
+  ],
+  "auto_dialogues": [
+    {
+      "x": 120,
+      "dialogue": "res://assets/dialogue/tut_move.json",
+      "once_flag": "tut_move_seen",
+      "w": 80
+    },
+    {
+      "x": 640,
+      "dialogue": "res://assets/dialogue/tut_attack.json",
+      "once_flag": "tut_attack_seen",
+      "w": 90
+    }
+  ],
+  "enemies": [
+    {
+      "scene": "Goblin",
+      "x": 900,
+      "y": 640
+    },
+    {
+      "scene": "Goblin",
+      "x": 1080,
+      "y": 640
+    }
+  ],
+  "gates": [
+    {
+      "x": 1320,
+      "y": 600,
+      "flag": "village_cleared",
+      "height": 260
+    }
+  ],
+  "exits": [
+    {
+      "x": 1480,
+      "target": "res://scenes/levels/Foothills.tscn",
+      "entry": "from_village",
+      "color": [
+        0.5,
+        0.55,
+        0.4,
+        0.5
+      ]
+    }
+  ]
+}

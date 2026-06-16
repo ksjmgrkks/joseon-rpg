@@ -1,0 +1,134 @@
+{
+  "auto_quest": {
+    "id": "main_tiger_lord",
+    "stage": "to_forest"
+  },
+  "backdrop": {
+    "sky": [
+      0.74,
+      0.74,
+      0.66
+    ],
+    "tint": [
+      0.86,
+      0.86,
+      0.8
+    ],
+    "far_scale": 0.12
+  },
+  "ground": {
+    "tex": "ground_dirt",
+    "width": 2800,
+    "x": -600
+  },
+  "player_x": 100,
+  "entries": [
+    {
+      "name": "default",
+      "x": 100
+    },
+    {
+      "name": "from_village",
+      "x": 100
+    }
+  ],
+  "props": [
+    {
+      "tex": "pine",
+      "x": 260,
+      "y": 686,
+      "scale": 2.0,
+      "offset": [
+        -28,
+        -88
+      ]
+    },
+    {
+      "tex": "pine",
+      "x": 900,
+      "y": 686,
+      "scale": 1.6,
+      "offset": [
+        -28,
+        -88
+      ]
+    },
+    {
+      "tex": "jangseung",
+      "x": 560,
+      "y": 628,
+      "scale": 1.4,
+      "offset": [
+        -12,
+        -56
+      ]
+    },
+    {
+      "tex": "fence",
+      "x": 420,
+      "y": 660,
+      "scale": 1.5,
+      "offset": [
+        -32,
+        -12
+      ]
+    }
+  ],
+  "auto_dialogues": [
+    {
+      "x": 150,
+      "dialogue": "res://assets/dialogue/tut_jump.json",
+      "once_flag": "tut_jump_seen",
+      "w": 90
+    }
+  ],
+  "enemies": [
+    {
+      "scene": "Goblin",
+      "x": 760,
+      "y": 640
+    },
+    {
+      "scene": "Fox",
+      "x": 1000,
+      "y": 656
+    },
+    {
+      "scene": "Goblin",
+      "x": 1180,
+      "y": 640
+    }
+  ],
+  "gates": [
+    {
+      "x": 1330,
+      "y": 600,
+      "flag": "foothills_cleared",
+      "height": 260
+    }
+  ],
+  "exits": [
+    {
+      "x": 40,
+      "target": "res://scenes/levels/VillageIntro.tscn",
+      "entry": "default",
+      "color": [
+        0.5,
+        0.55,
+        0.4,
+        0.5
+      ]
+    },
+    {
+      "x": 1480,
+      "target": "res://scenes/levels/ForestDeep.tscn",
+      "entry": "from_field",
+      "color": [
+        0.45,
+        0.5,
+        0.4,
+        0.5
+      ]
+    }
+  ]
+}

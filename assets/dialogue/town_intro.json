@@ -4,12 +4,32 @@
   "nodes": {
     "a": {
       "speaker": "",
-      "text": "고을 저잣거리. 한낮인데도 인적이 드물다. 문마다 부적이 나붙고, 골목 끝에서 짐승 비린내가 풍긴다.",
+      "text": "두령은 쓰러졌다. 그러나 산울음은 그치지 않았다. 어금니를 쥔 손이 떨린다.",
       "next": "b"
     },
     "b": {
-      "speaker": "",
-      "text": "호환은 산골 한 마을의 일이 아니었다. 재앙은 고을 전체로 번지고 있었다.",
+      "speaker": "흰 여우",
+      "text": "보았느냐. 두령은 시작일 뿐. 신산의 산신이 진노해 호환이 고을로, 다른 마을로 번지고 있다.",
+      "next": "c"
+    },
+    "c": {
+      "speaker": "흰 여우",
+      "text": "네 아비가 매었던 건 산신의 분노 그 자체. 이 저잣거리를 지나, 관아로, 끝내 신산 꼭대기로 올라야 한다.",
+      "actions": [
+        {
+          "type": "complete_quest",
+          "quest": "main_tiger_lord"
+        },
+        {
+          "type": "start_quest",
+          "quest": "main_great_tiger"
+        },
+        {
+          "type": "set_flag",
+          "key": "act2_open",
+          "value": true
+        }
+      ],
       "next": null
     }
   }

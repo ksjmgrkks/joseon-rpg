@@ -18,6 +18,9 @@ const VERSION := 1
 
 # 슬롯 표시용 한국어 지역명 매핑. 씬 root 이름과 1:1.
 const AREA_LABELS := {
+    "VillageIntro": "마을 어귀",
+    "Foothills":    "산기슭",
+    "ForestDeep":   "깊은 숲",
     "Village":     "마을",
     "TestLevel":   "들판",
     "Forest":      "숲",
