@@ -75,6 +75,21 @@ func _ready() -> void:
     # 보스는 폭이 더 넓게 잘 보이도록 y_offset 만 살짝 위. 폭은 EnemyHpBar 기본값 유지.
     var bar := EnemyHpBar.attach_to(self, health)
     bar.position.y = -44
+    _make_warn()
+
+
+# 돌진 예고 경고 표시 — 머리 위 붉은 '!' (텔레그래프 중에만)
+var _warn: Label
+func _make_warn() -> void:
+    _warn = Label.new()
+    _warn.text = "!"
+    _warn.position = Vector2(-10, -78)
+    _warn.add_theme_font_size_override("font_size", 32)
+    _warn.add_theme_color_override("font_color", Color(0.95, 0.25, 0.2))
+    _warn.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.8))
+    _warn.add_theme_constant_override("outline_size", 5)
+    _warn.visible = false
+    add_child(_warn)
 
 
 func _physics_process(delta: float) -> void:
@@ -139,9 +154,25 @@ func _tick_recover(_delta: float) -> void:
 func _enter_telegraph() -> void:
     _state = State.TELEGRAPH
     _state_timer = telegraph_seconds * _phase_mult_telegraph()
+    if _warn:
+        _warn.visible = true
+        _warn.modulate.a = 1.0
+        var tw := create_tween().set_loops()   # 깜빡이는 경고
+        tw.tween_property(_warn, "modulate:a", 0.2, 0.15)
+        tw.tween_property(_warn, "modulate:a", 1.0, 0.15)
+        _warn.set_meta("tw", tw)
+
+
+func _hide_warn() -> void:
+    if _warn:
+        var tw = _warn.get_meta("tw", null)
+        if tw and tw.is_valid():
+            tw.kill()
+        _warn.visible = false
 
 
 func _enter_attack() -> void:
+    _hide_warn()
     _state = State.ATTACK
     var dur := attack_seconds * _phase_mult_attack()
     _state_timer = dur
@@ -208,6 +239,7 @@ func _on_hurt(damage: float, knockback: float, _attacker: Node) -> void:
 
 func _on_died() -> void:
     _state = State.DEAD
+    _hide_warn()
     print("[%s] died" % display_name)
     Audio.play_sfx(Sfx.DIE)
     if xp_reward > 0:
