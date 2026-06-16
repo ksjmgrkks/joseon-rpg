@@ -23,6 +23,9 @@ size = Vector2(18, 32)
 [node name="Fox" type="CharacterBody2D"]
 script = ExtResource("1_p")
 display_name = "구미호"
+attack_damage = 5.0
+attack_cooldown = 1.0
+attack_telegraph = 0.20
 body_color = Color(0.88, 0.52, 0.28, 1)
 detect_range = 260.0
 xp_reward = 22
