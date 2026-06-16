@@ -43,6 +43,14 @@
             {
               "id": "armor_robe",
               "price": 120
+            },
+            {
+              "id": "sword_steel",
+              "price": 210
+            },
+            {
+              "id": "armor_leather",
+              "price": 180
             }
           ]
         }

@@ -84,6 +84,22 @@
       "type": "consumable",
       "max_stack": 99,
       "gold": 50
+    },
+    "sword_steel": {
+      "name": "강철 검",
+      "description": "잘 벼린 강철 검. 철검보다 묵직하다.",
+      "type": "weapon",
+      "max_stack": 1,
+      "damage": 15,
+      "slot": "weapon"
+    },
+    "armor_leather": {
+      "name": "가죽 갑옷",
+      "description": "질긴 가죽을 덧댄 갑옷. 무명도포보다 단단하다.",
+      "type": "armor",
+      "max_stack": 1,
+      "defense": 9,
+      "slot": "armor"
     }
   }
 }
