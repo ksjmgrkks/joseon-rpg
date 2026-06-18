@@ -32,6 +32,23 @@ const BACKDROP_SCENE := "res://scenes/world/Backdrop.tscn"
 const GROUND_Y := 700.0
 const GROUND_TOP := 684          # 지면 윗면 y (시각 타일 상단)
 
+# ─────────── 게임성 우선 모드(스토리 제거): 전투-클리어 전용 ───────────
+# true 면 NPC·대사·퀘스트·스토리 픽업·자동퀘스트를 빌드하지 않고,
+# 아래 CHAIN(전투 스테이지 직선 흐름)대로 전진 게이트+출구만 합성한다.
+# 스토리를 되살리려면 GAMEPLAY_ONLY 를 false 로만 바꾸면 기존 데이터 흐름이 복구된다.
+const GAMEPLAY_ONLY := true
+const CHAIN := ["foothills", "forest_deep", "ruined_temple", "mountain_pass", "sacred_altar"]
+const CHAIN_TSCN := {
+    "foothills": "res://scenes/levels/Foothills.tscn",
+    "forest_deep": "res://scenes/levels/ForestDeep.tscn",
+    "ruined_temple": "res://scenes/levels/RuinedTemple.tscn",
+    "mountain_pass": "res://scenes/levels/MountainPass.tscn",
+    "sacred_altar": "res://scenes/levels/SacredAltar.tscn",
+}
+const CLEAR_SCENE := "res://scenes/ui/Clear.tscn"
+const FWD_GATE_X := 1360.0       # 전진 차단 결계 x
+const FWD_EXIT_X := 1500.0       # 전진 출구 x (결계 너머)
+
 @export var stage_id: String = ""
 
 
@@ -39,6 +56,9 @@ func _ready() -> void:
     var data := _load()
     if data.is_empty():
         push_error("[Stage] stage json 없음: %s" % stage_id)
+        return
+    if GAMEPLAY_ONLY:
+        _build_gameplay(data)
         return
     # 이미 클리어한 구간(게이트 flag 셋)이면 적·게이트를 다시 만들지 않음 — 되돌아가도 재전투 X.
     var cleared := _is_cleared(data.get("gates", []))
@@ -239,28 +259,80 @@ func _build_quest_triggers(items: Array) -> void:
 
 
 func _build_exits(exits: Array) -> void:
-    var exit_script: Script = load("res://scripts/scene/level_exit.gd")
     for x in exits:
         if not (x is Dictionary):
             continue
-        var area := Area2D.new()
-        area.collision_mask = 1
-        area.set_script(exit_script)
-        area.position = Vector2(float(x.get("x", 1560)), float(x.get("y", 620)))
-        area.target_scene = String(x.get("target", ""))
-        area.target_entry = StringName(String(x.get("entry", "default")))
-        var cs := CollisionShape2D.new()
-        var shape := RectangleShape2D.new()
-        shape.size = Vector2(32, 96)
-        cs.shape = shape
-        area.add_child(cs)
-        # 표식 (반투명 기둥)
-        var mark := ColorRect.new()
-        mark.color = _col(x.get("color", null), Color(0.55, 0.5, 0.3, 0.5))
-        mark.offset_left = -16; mark.offset_top = -48
-        mark.offset_right = 16; mark.offset_bottom = 48
-        area.add_child(mark)
-        add_child(area)
+        _spawn_exit(float(x.get("x", 1560)), String(x.get("target", "")),
+            String(x.get("entry", "default")), _col(x.get("color", null), Color(0.55, 0.5, 0.3, 0.5)),
+            float(x.get("y", 620)))
+
+
+## 출구 영역 1개 생성(전진/스토리 공용).
+func _spawn_exit(x: float, target: String, entry: String, color: Color, y: float = 620.0) -> void:
+    if target.is_empty():
+        return
+    var area := Area2D.new()
+    area.collision_mask = 1
+    area.set_script(load("res://scripts/scene/level_exit.gd"))
+    area.position = Vector2(x, y)
+    area.target_scene = target
+    area.target_entry = StringName(entry)
+    var cs := CollisionShape2D.new()
+    var shape := RectangleShape2D.new()
+    shape.size = Vector2(32, 96)
+    cs.shape = shape
+    area.add_child(cs)
+    var mark := ColorRect.new()
+    mark.color = color
+    mark.offset_left = -16; mark.offset_top = -48
+    mark.offset_right = 16; mark.offset_bottom = 48
+    area.add_child(mark)
+    add_child(area)
+
+
+# ─────────── 게임성 우선(전투-클리어 전용) 빌드 ───────────
+func _build_gameplay(data: Dictionary) -> void:
+    var clear_flag := _clear_flag(data)
+    var cleared := clear_flag != "" and Flags.has_flag(clear_flag)
+    _build_backdrop(data.get("backdrop", {}))
+    _build_ground(data.get("ground", {}))
+    _build_props(data.get("props", []))
+    _build_entries(data.get("entries", []))
+    var has_enemies := (data.get("enemies", []) as Array).size() > 0
+    if not cleared:
+        _build_enemies(data.get("enemies", []))
+    # 전진 차단 결계 — 신규 진입 + 적이 있을 때만(적 0 처치 시 자동 개방)
+    if not cleared and has_enemies:
+        var gate := Node2D.new()
+        gate.set_script(load("res://scripts/world/combat_gate.gd"))
+        gate.position = Vector2(FWD_GATE_X, 600)
+        gate.open_flag = clear_flag
+        gate.gate_height = 260
+        add_child(gate)
+    # 전진 출구 — 다음 전투 스테이지, 마지막이면 클리어 화면
+    _spawn_exit(FWD_EXIT_X, _next_target(), "default", Color(0.5, 0.55, 0.4, 0.5))
+    _build_player(data)
+    _build_ui()
+
+
+## 클리어 판정 플래그: JSON 게이트에 명시돼 있으면 그걸, 없으면 "<stage_id>_cleared".
+func _clear_flag(data: Dictionary) -> String:
+    var gates = data.get("gates", [])
+    if gates is Array and gates.size() > 0 and gates[0] is Dictionary:
+        var f := String(gates[0].get("flag", ""))
+        if f != "":
+            return f
+    return stage_id + "_cleared"
+
+
+## 체인상의 다음 목적지(.tscn). 마지막이면 클리어 화면, 체인 밖이면 체인 시작.
+func _next_target() -> String:
+    var idx := CHAIN.find(stage_id)
+    if idx >= 0 and idx + 1 < CHAIN.size():
+        return CHAIN_TSCN[CHAIN[idx + 1]]
+    if idx == CHAIN.size() - 1:
+        return CLEAR_SCENE
+    return CHAIN_TSCN[CHAIN[0]]
 
 
 ## 게이트 중 하나라도 open_flag 가 이미 셋이면 이 구간은 클리어된 것으로 본다.

@@ -3,8 +3,7 @@ extends Control
 ## 메인 메뉴 — 새로 시작·이어하기(슬롯 선택)·설정·종료.
 ##
 
-const START_LEVEL_PATH := "res://scenes/levels/Village.tscn"
-const PROLOGUE_PATH := "res://scenes/ui/Prologue.tscn"
+const START_LEVEL_PATH := "res://scenes/levels/Foothills.tscn"   # 전투 체인 1번
 const SETTINGS_PATH := "res://scenes/ui/SettingsMenu.tscn"
 
 # 저장 메타의 지역명(SaveManager.AREA_LABELS) → 씬 경로 역매핑 (이어하기 복귀용)
@@ -37,6 +36,12 @@ var _picker: Control = null
 
 func _ready() -> void:
     _apply_locale()
+    # 게임성 우선 단계: 제목·로고·컨셉 부제 숨김(스토리 추가 시 되살림).
+    if title_label:    title_label.visible = false
+    if subtitle_label: subtitle_label.visible = false
+    var logo := get_node_or_null("TitleLogo")
+    if logo:
+        logo.visible = false
     Locale.locale_changed.connect(_on_locale_changed)
     new_btn.pressed.connect(_on_new)
     continue_btn.pressed.connect(_on_continue)
@@ -70,13 +75,13 @@ func _any_save_exists() -> bool:
 
 
 func _on_new() -> void:
-    # 새로 시작 — 진행 상태 초기화 후 프롤로그(서사 도입) → 마을
+    # 새로 시작 — 진행 상태 초기화 후 곧장 첫 전투 스테이지(스토리/프롤로그 없음)
     Flags.clear()
     Inventory.clear()
     if Equipment: Equipment.clear()
     PlayerStats.reset()
     if SkillManager: SkillManager.reset_cooldowns()
-    SceneManager.change_scene(PROLOGUE_PATH)
+    SceneManager.change_scene(START_LEVEL_PATH)
 
 
 func _on_continue() -> void:
