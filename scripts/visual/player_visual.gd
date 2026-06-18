@@ -13,7 +13,7 @@ func _ready() -> void:
     # 외부 제작(AI) 커스텀 스프라이트 우선 — 있으면 그걸 쓰고, 없으면 코드 생성 폴백.
     if SpriteDb.frames("protagonist_custom") != null:
         sheet = "protagonist_custom"
-        foot_offset = -21.0
+        foot_offset = -28.0   # 92px PixelLab 프레임: 발 y=90, 콜리전 바닥 +16 정렬
     else:
         sheet = "protagonist"
     super._ready()

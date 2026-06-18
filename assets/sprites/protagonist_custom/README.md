@@ -1,4 +1,17 @@
-# 주인공 커스텀 스프라이트 드롭인 자리
+# 주인공 커스텀 스프라이트 (PixelLab MCP 생성 — 2026-06-18)
+
+> **현재 에셋 출처:** PixelLab MCP. 측면(side-view) 조선 마창 무사.
+> 캐릭터 ID `f5fd2830-c0f3-48c3-aa17-6171e3559da4` ("Joseon Spearman", 4dir/side/92px).
+> **생성 애니(east 1방향, 좌향은 코드 flip_h):** idle(breathing-idle)·walk(walking-6-frames)·
+> jump(jumping-1)·hurt(taking-punch)·death(falling-back-death) 템플릿 + attack(v3 창 찌름).
+> **파생(무크레딧):** run(=walk 가속)·attack2/attack3(=attack 재사용, 콤보 차별은 SkillFx)·
+> charge(=attack 윈드업 홀드)·dodge(=jump 웅크림/착지 발췌).
+> **재생성/통합 스크립트:** `tools/pixel/integrate_pixellab.py` (zip→스트립+manifest, foot_offset 산출).
+> 프레임 92×92, foot_offset −28(콜리전 바닥 +16 정렬). 트라이얼 크레딧 7/40 소모.
+
+---
+
+# (참고) 외부 이미지 드롭인 자리
 
 외부에서 만든(또는 의뢰한) **진짜 주인공 그림**을 여기에 넣으면, Claude가 게임에
 통합(슬라이싱·매니페스트·SpriteDb 배선·애니·스크린샷 검증)합니다.
