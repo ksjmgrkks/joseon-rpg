@@ -10,7 +10,12 @@ var _dead: bool = false
 
 
 func _ready() -> void:
-    sheet = "protagonist"
+    # 외부 제작(AI) 커스텀 스프라이트 우선 — 있으면 그걸 쓰고, 없으면 코드 생성 폴백.
+    if SpriteDb.frames("protagonist_custom") != null:
+        sheet = "protagonist_custom"
+        foot_offset = -21.0
+    else:
+        sheet = "protagonist"
     super._ready()
 
 
