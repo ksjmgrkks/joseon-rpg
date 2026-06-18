@@ -21,7 +21,8 @@ func _ready() -> void:
 
 
 func show_screen() -> void:
-    continue_btn.disabled = not SaveManager.has_save(1)
+    # 자동 저장(슬롯 0)에서 이어하기 — 스테이지 진입마다 체크포인트가 찍힌다.
+    continue_btn.disabled = not SaveManager.has_save(0)
     panel.visible = true
     dim.visible = true
     get_tree().paused = true
@@ -39,9 +40,9 @@ func hide_screen() -> void:
 
 
 func _on_continue() -> void:
-    if not SaveManager.has_save(1):
+    if not SaveManager.has_save(0):
         return
-    SaveManager.load(1)
+    SaveManager.load(0)
     hide_screen()
     get_tree().reload_current_scene()
 

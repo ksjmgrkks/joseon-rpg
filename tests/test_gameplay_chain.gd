@@ -6,9 +6,9 @@ const FAIL := "FAIL"
 
 const CHAIN := {
 	"res://scenes/levels/Foothills.tscn": "res://scenes/levels/ForestDeep.tscn",
-	"res://scenes/levels/ForestDeep.tscn": "res://scenes/levels/RuinedTemple.tscn",
-	"res://scenes/levels/RuinedTemple.tscn": "res://scenes/levels/MountainPass.tscn",
-	"res://scenes/levels/MountainPass.tscn": "res://scenes/levels/SacredAltar.tscn",
+	"res://scenes/levels/ForestDeep.tscn": "res://scenes/levels/MountainPass.tscn",
+	"res://scenes/levels/MountainPass.tscn": "res://scenes/levels/RuinedTemple.tscn",
+	"res://scenes/levels/RuinedTemple.tscn": "res://scenes/levels/SacredAltar.tscn",
 	"res://scenes/levels/SacredAltar.tscn": "res://scenes/ui/Clear.tscn",
 }
 

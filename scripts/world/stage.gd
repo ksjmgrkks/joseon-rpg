@@ -37,7 +37,8 @@ const GROUND_TOP := 684          # 지면 윗면 y (시각 타일 상단)
 # 아래 CHAIN(전투 스테이지 직선 흐름)대로 전진 게이트+출구만 합성한다.
 # 스토리를 되살리려면 GAMEPLAY_ONLY 를 false 로만 바꾸면 기존 데이터 흐름이 복구된다.
 const GAMEPLAY_ONLY := true
-const CHAIN := ["foothills", "forest_deep", "ruined_temple", "mountain_pass", "sacred_altar"]
+# 난이도 곡선: 잡몹 → 잡몹+호랑이 → 더 많은 잡몹 → 중간보스(구미호 여왕) → 최종보스(대호)
+const CHAIN := ["foothills", "forest_deep", "mountain_pass", "ruined_temple", "sacred_altar"]
 const CHAIN_TSCN := {
     "foothills": "res://scenes/levels/Foothills.tscn",
     "forest_deep": "res://scenes/levels/ForestDeep.tscn",

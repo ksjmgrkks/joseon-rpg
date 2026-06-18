@@ -80,6 +80,9 @@ func _do_change(path: String, entry: StringName, fade_seconds: float) -> bool:
     # 새 씬이 _ready 끝낼 시간을 한 프레임 줌
     await get_tree().process_frame
     _apply_pending_entry()
+    # 진입 즉시 체크포인트 — 새 씬이 게임플레이면 슬롯 0 자동 저장.
+    # (첫 스테이지처럼 '떠난 적 없는' 구간도 사망 시 이어하기가 되도록.)
+    _try_autosave()
     await _fade_to(0.0, fade_seconds)
     return true
 
