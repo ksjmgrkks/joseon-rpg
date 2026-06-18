@@ -219,6 +219,11 @@ func _do_combo_attack() -> void:
     Audio.play_sfx(Sfx.ATTACK)
     # 콤보 단계별 창 이펙트(1 찌르기 / 2 횡소 / 3 회전베기)
     SkillFx.combo(global_position + Vector2(0, -16), _facing_right, _combo_step)
+    # 콤보 동작 잔상 트레일 — 새 PixelLab 모션을 강조(3타가 가장 화려)
+    if sprite:
+        var trail_tint: Color = SkillFx.MAGE if _combo_step < 3 else SkillFx.MAGE_HOT
+        var trail_n := 3 if _combo_step < 3 else 5
+        SkillFx.afterimage_burst(sprite, trail_tint, trail_n, duration + ATTACK_RECOVER * 0.6)
     # 공격 휘두를 때마다 살짝 진동(피드백). 명중 시 추가 진동은 _on_hitbox_landed에서.
     ScreenFx.shake(shake_strength * 0.5, 0.08)
     await attack_hitbox.activate(duration)
@@ -248,6 +253,8 @@ func _do_charged_attack() -> void:
     attack_hitbox.position.x = 16.0 if _facing_right else -16.0
     Audio.play_sfx(Sfx.ATTACK)
     ScreenFx.shake(10.0, 0.18)
+    if sprite:
+        SkillFx.afterimage_burst(sprite, SkillFx.MAGE_HOT, 4, 0.28)
     await attack_hitbox.activate(ATTACK_DURATION_FINISH)
     attack_hitbox.damage = stored_damage
     attack_hitbox.knockback = stored_knock
@@ -279,6 +286,7 @@ func _start_dodge() -> void:
         var c := _base_modulate
         c.a = 0.55
         sprite.modulate = c
+        SkillFx.afterimage_burst(sprite, SkillFx.BLUE, 4, DODGE_DURATION)
     ScreenFx.shake(2.0, 0.08)
 
 
@@ -317,6 +325,8 @@ func _skill_ultimate() -> void:
     Audio.play_sfx(Sfx.ATTACK)
     Audio.play_sfx(Sfx.JINGLE)
     SkillFx.ultimate(global_position)
+    if sprite:
+        SkillFx.afterimage_burst(sprite, SkillFx.MAGE_HOT, 6, 0.4)
     ScreenFx.shake(16.0, 0.5)
     ScreenFx.hit_stop(0.12)
     # 사거리 안 모든 적에게 피해
@@ -347,6 +357,8 @@ func _skill_ilseom() -> void:
     Audio.play_sfx(Sfx.ATTACK)
     ScreenFx.shake(7.0, 0.14)
     SkillFx.slash(global_position + Vector2(0, -16), _facing_right)
+    if sprite:
+        SkillFx.afterimage_burst(sprite, SkillFx.BRIGHT, 5, dur + 0.06)
     await attack_hitbox.activate(dur)
     attack_hitbox.damage = stored_damage
     attack_hitbox.knockback = stored_knock
@@ -364,6 +376,8 @@ func _skill_hoecheon() -> void:
     Audio.play_sfx(Sfx.ATTACK)
     ScreenFx.shake(9.0, 0.18)
     SkillFx.spin(global_position)
+    if sprite:
+        SkillFx.afterimage_burst(sprite, SkillFx.MAGE_HOT, 5, 0.3)
     attack_hitbox.position.x = 16.0 if _facing_right else -16.0
     await attack_hitbox.activate(0.12)
     attack_hitbox.position.x = -16.0 if _facing_right else 16.0
