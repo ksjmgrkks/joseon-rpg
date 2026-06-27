@@ -42,12 +42,14 @@ func shake(intensity: float = 6.0, duration: float = 0.18) -> void:
     _active_tween = tween
 
 
-func hit_stop(duration: float = 0.06) -> void:
+## 히트스톱 — duration 초 동안 시간을 scale 배로 늦춘다.
+## scale 이 작을수록 더 '딱' 멈춘다(묵직한 타격). 가벼운 타격은 scale 을 키워 살짝만.
+func hit_stop(duration: float = 0.06, scale: float = 0.05) -> void:
     if _hit_stopping:
         return
     _hit_stopping = true
     var prev := Engine.time_scale
-    Engine.time_scale = 0.05
+    Engine.time_scale = clampf(scale, 0.01, 1.0)
     # 시간 스케일이 줄어든 상태에서 await 하면 너무 길어지므로 real-time 타이머 사용.
     var t := get_tree().create_timer(duration, true, false, true)
     await t.timeout

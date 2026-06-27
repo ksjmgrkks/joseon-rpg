@@ -355,7 +355,11 @@ func _on_hitbox_landed(area: Area2D) -> void:
     # 적 부모를 침. (자기 자신은 Hurtbox._on_area_entered 에서 이미 걸러짐.)
     var landed_strength := 4.0 + 1.5 * float(_combo_step)
     ScreenFx.shake(landed_strength, 0.16)
-    ScreenFx.hit_stop(0.04 if _combo_step < 3 else 0.08)
+    # 등급별 히트스톱 — 1·2타는 짧고 얕게(경쾌), 3타(마무리)는 길고 '딱' 멈춤(묵직).
+    match _combo_step:
+        1: ScreenFx.hit_stop(0.035, 0.18)
+        2: ScreenFx.hit_stop(0.05, 0.10)
+        _: ScreenFx.hit_stop(0.09, 0.03)
     # 적중 임팩트 스파크 — 히트박스 위치 근처
     var fx_pos := area.global_position if area else (global_position + Vector2(0, -16))
     SkillFx.impact(fx_pos, _combo_step >= 3)

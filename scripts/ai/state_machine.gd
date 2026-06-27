@@ -8,6 +8,9 @@ class_name StateMachine
 @export var initial_state: NodePath
 @export var actor_path: NodePath
 
+# 피격 경직 중 넉백 감쇠(px/s²) — 클수록 빨리 멈춤.
+const KNOCK_FRICTION: float = 900.0
+
 var current: AIState = null
 var states: Dictionary = {}
 var _actor: Node = null
@@ -54,6 +57,16 @@ func _physics_process(delta: float) -> void:
             if not b.is_on_floor():
                 b.velocity.y += 980.0 * delta
             b.move_and_slide()
+        return
+    # 피격 경직(hitstun) — AI 가 velocity 를 덮어쓰지 않게 정지시키고, 넉백이 마찰로
+    # 감쇠하며 실제로 밀려나게 한다(손맛). actor 에 hitstun(float) 필드가 있을 때만.
+    if _actor is CharacterBody2D and "hitstun" in _actor and _actor.hitstun > 0.0:
+        var hb := _actor as CharacterBody2D
+        hb.hitstun = maxf(0.0, hb.hitstun - delta)
+        hb.velocity.x = move_toward(hb.velocity.x, 0.0, KNOCK_FRICTION * delta)
+        if not hb.is_on_floor():
+            hb.velocity.y += 980.0 * delta
+        hb.move_and_slide()
         return
     var next := current.process_physics(_actor, delta)
     if next != "":

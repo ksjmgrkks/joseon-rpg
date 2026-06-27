@@ -35,6 +35,9 @@ var _ranged_cd: float = 0.0
 var _dying: bool = false
 var _attacking: bool = false
 var _atk_cd: float = 0.0
+# 피격 경직 — >0 인 동안 StateMachine 이 AI 를 멈추고 넉백을 감쇠시킨다(손맛 2차).
+var hitstun: float = 0.0
+var _spr_base_scale: Vector2 = Vector2.ONE   # 피격 squash 복귀 기준(드리프트 방지)
 
 
 func _ready() -> void:
@@ -43,12 +46,16 @@ func _ready() -> void:
     health.hp_changed.connect(_on_hp_changed)
     health.died.connect(_on_died)
     EnemyHpBar.attach_to(self, health)
+    if sprite:
+        _spr_base_scale = sprite.scale
     # 실제 스프라이트(EnemyVisual) 사용 — 색 틴트 없이 원본 표시.
 
 
 func _physics_process(delta: float) -> void:
     if _dying:
         return
+    if hitstun > 0.0:
+        return                      # 피격 경직 중엔 새 공격 판단 정지(이동·넉백은 StateMachine)
     if Dialogue and Dialogue.is_active():
         return                      # 대화 중 공격 정지
     if _atk_cd > 0.0:
@@ -121,11 +128,23 @@ func can_see_player() -> bool:
 
 
 func _on_hurt(damage: float, knockback: float, _attacker: Node) -> void:
+    # 넉백 세기에 비례한 경직(작은 타격 짧게, 강타 길게). StateMachine 이 이 동안 AI 정지.
+    hitstun = clampf(0.12 + absf(knockback) / 1400.0, 0.12, 0.4)
     velocity.x = knockback
-    velocity.y = -160.0
+    velocity.y = -90.0          # 살짝만 뜸(예전 -160 은 붕 떠 둔탁)
     Audio.play_sfx(Sfx.HIT)
     FloatingNumber.spawn(get_tree().current_scene, global_position, "-%d" % int(damage), Color(1, 0.6, 0.55))
     SkillFx.hit_flash(sprite, Color.WHITE)
+    _hit_jolt()
+
+
+# 피격 움찔 — 스프라이트를 가로로 납작 눌렀다 되돌린다(squash). 타격의 살점 느낌.
+func _hit_jolt() -> void:
+    if sprite == null or not is_instance_valid(sprite):
+        return
+    sprite.scale = _spr_base_scale * Vector2(1.22, 0.8)
+    var tw := sprite.create_tween()
+    tw.tween_property(sprite, "scale", _spr_base_scale, 0.16).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 
 func _on_hp_changed(hp: float, max_hp: float) -> void:
