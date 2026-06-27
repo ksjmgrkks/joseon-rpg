@@ -22,3 +22,6 @@ Thumbs.db
 
 # 스크린샷 산출물 (검증용 로컬 아티팩트)
 /shots/
+
+# PixelLab 다운로드 임시 캐시 (integrate 스크립트 작업 디렉터리)
+.pl_tmp/

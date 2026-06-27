@@ -23,6 +23,63 @@ const INK := Color(0.10, 0.086, 0.07)
 const MAGE := Color(0.55, 0.42, 0.78)   # 마(魔)의 보랏빛 — 마창 기운
 const MAGE_HOT := Color(0.72, 0.55, 0.98)
 
+# ── PixelLab 페인티드 VFX 텍스처 (지연 로드·캐시) ──
+# 파일이 없으면 null 을 캐시 → 페인티드 레이어만 건너뛰고 기존 코드 이펙트는 그대로.
+var _tex_cache: Dictionary = {}
+
+func _fx_tex(tex_name: String) -> Texture2D:
+    if _tex_cache.has(tex_name):
+        return _tex_cache[tex_name]
+    var path := "res://assets/sprites/fx/%s.png" % tex_name
+    var t: Texture2D = null
+    if ResourceLoader.exists(path):
+        t = load(path)
+    _tex_cache[tex_name] = t
+    return t
+
+
+## 페인티드 VFX 스프라이트 1장 — PixelLab 아트를 스케일 업/회전/페이드로 짧게 연출.
+## scale_from→scale_to 로 커지며 사라진다. spin!=0 이면 회전, drift 로 진행 방향 이동.
+func _painted(tex_name: String, pos: Vector2, scale_from: float, scale_to: float, life: float,
+        flip: bool = false, rot: float = 0.0, spin: float = 0.0, tint: Color = Color.WHITE,
+        z: int = 32, drift: Vector2 = Vector2.ZERO) -> Sprite2D:
+    var host := _host()
+    var tex := _fx_tex(tex_name)
+    if host == null or tex == null:
+        return null
+    var s := Sprite2D.new()
+    s.texture = tex
+    s.global_position = pos
+    s.flip_h = flip
+    s.rotation = rot
+    s.scale = Vector2(scale_from, scale_from)
+    s.modulate = tint
+    s.z_index = z
+    s.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+    host.add_child(s)
+    var tw := s.create_tween()
+    tw.tween_property(s, "scale", Vector2(scale_to, scale_to), life).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+    if spin != 0.0:
+        tw.parallel().tween_property(s, "rotation", rot + spin, life)
+    if drift != Vector2.ZERO:
+        tw.parallel().tween_property(s, "global_position", pos + drift, life).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+    tw.parallel().tween_property(s, "modulate:a", 0.0, life)
+    tw.tween_callback(s.queue_free)
+    return s
+
+
+## 몬스터 출혈 — 피격 지점에서 핏방울이 진행 방향으로 튀고, 작은 얼룩이 남는다.
+## 게임 톤(은은한 괴담)에 맞춰 절제: 작게·짧게.
+func bleed(pos: Vector2, facing_right: bool, big: bool = false) -> void:
+    var dir := 1.0 if facing_right else -1.0
+    var spray := 0.62 if big else 0.46
+    # 튀는 핏방울(진행 방향으로 약간 드리프트)
+    _painted("blood_spray", pos, spray * 0.7, spray, 0.32, not facing_right, 0.0, 0.0,
+        Color(1, 1, 1, 0.9), 33, Vector2(dir * 14.0, -4.0))
+    # 작게 남는 얼룩(아래로 살짝 가라앉으며 사라짐)
+    _painted("blood_splat", pos + Vector2(dir * 6.0, 4.0), (0.5 if big else 0.36), (0.62 if big else 0.46), 0.5,
+        false, 0.0, 0.0, Color(1, 1, 1, 0.85), 18, Vector2(0, 6.0))
+
 
 func _host() -> Node:
     var tree := get_tree()
@@ -110,6 +167,9 @@ func _spear_thrust(pos: Vector2, facing_right: bool) -> void:
     root.global_position = pos
     root.z_index = 30
     host.add_child(root)
+    # PixelLab 페인티드 창격(주역) — 기존 코드 창대/속도선이 받쳐줌. tip 이 진행 방향을 향하게 flip.
+    _painted("thrust_lance", pos + Vector2(dir * 30.0, 0), 0.42, 0.56, 0.16, facing_right, 0.0, 0.0,
+        Color(1, 1, 1, 0.95), 31, Vector2(dir * 18.0, 0))
     # 굵은 보랏빛 마기 잔상 → 그 위에 밝은 창대
     var aura := _line(PackedVector2Array([Vector2(dir * 2, 0), Vector2(dir * 70, 0)]), 13.0,
         Color(MAGE.r, MAGE.g, MAGE.b, 0.45), 29)
@@ -144,6 +204,8 @@ func _spear_sweep(pos: Vector2, facing_right: bool) -> void:
     root.global_position = pos
     root.z_index = 30
     host.add_child(root)
+    # PixelLab 페인티드 초승달(주역) — 아래 코드 디테일(꽃잎/잔상)이 받쳐줌
+    _painted("slash_wide", pos, 0.42, 0.66, 0.2, not facing_right, -0.12 * dir, 0.0, Color(1, 1, 1, 0.95), 31)
     var wc := _belly_curve()
     # 3겹 초승달(보라 굵게 → 밝게) — 약간씩 각도 오프셋해 잔상감
     var layers := [
@@ -186,6 +248,8 @@ func _spear_spin(pos: Vector2) -> void:
     root.global_position = center
     root.z_index = 30
     host.add_child(root)
+    # PixelLab 페인티드 소용돌이(주역) — 회전하며 커진다
+    _painted("slash_swirl", center, 0.45, 0.82, 0.26, false, 0.0, TAU * 0.6, Color(1, 1, 1, 0.95), 31)
     # 2겹 회전 링
     for k in range(2):
         var rp := PackedVector2Array()
@@ -302,6 +366,8 @@ func slash(pos: Vector2, facing_right: bool, color: Color = BRIGHT) -> void:
     root.global_position = pos
     root.z_index = 30
     host.add_child(root)
+    # PixelLab 페인티드 초승달(주역, 일섬 참격)
+    _painted("slash_crescent", pos, 0.4, 0.7, 0.2, not facing_right, -0.1 * dir, 0.0, Color(1, 1, 1, 0.95), 31)
     var wc := _belly_curve()
     # 보라 잔상 호 → 밝은 코어 호
     for L in [[10.0, Color(MAGE.r, MAGE.g, MAGE.b, 0.45)], [7.0, color], [2.0, GOLD]]:
@@ -335,6 +401,8 @@ func spin(pos: Vector2, color: Color = BRIGHT) -> void:
     root.global_position = center
     root.z_index = 30
     host.add_child(root)
+    # PixelLab 페인티드 소용돌이(주역, 회천격 회전베기)
+    _painted("slash_swirl", center, 0.42, 0.78, 0.24, false, 0.0, TAU, Color(1, 1, 1, 0.95), 31)
     for k in range(2):
         var pts := PackedVector2Array()
         var seg := 22
@@ -366,6 +434,9 @@ func impact(pos: Vector2, big: bool = false) -> void:
     root.global_position = pos
     root.z_index = 31
     host.add_child(root)
+    # PixelLab 페인티드 스파크 별(주역) — 적중 섬광
+    _painted("spark_burst" if big else "spark_star", pos, 0.26, (0.6 if big else 0.46),
+        (0.22 if big else 0.16), false, 0.0, (0.5 if big else 0.0), Color(1, 1, 1, 0.95), 33)
     # 중심 섬광 점
     var core := Polygon2D.new()
     var cpts := PackedVector2Array()

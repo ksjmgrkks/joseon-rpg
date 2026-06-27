@@ -349,6 +349,7 @@ func _on_hitbox_landed(area: Area2D) -> void:
     # 적중 임팩트 스파크 — 히트박스 위치 근처
     var fx_pos := area.global_position if area else (global_position + Vector2(0, -16))
     SkillFx.impact(fx_pos, _combo_step >= 3)
+    SkillFx.bleed(fx_pos, _facing_right, _combo_step >= 3)
 
 
 # 회피 시작/종료 — Hurtbox 비활성으로 무적, sprite 반투명
@@ -414,7 +415,9 @@ func _skill_ultimate() -> void:
         var hc: HealthComponent = e.get_node_or_null("HealthComponent")
         if hc:
             hc.take_damage(dmg, self)
-            SkillFx.impact((e as Node2D).global_position + Vector2(0, -16), true)
+            var epos: Vector2 = (e as Node2D).global_position + Vector2(0, -16)
+            SkillFx.impact(epos, true)
+            SkillFx.bleed(epos, _facing_right, true)
     await get_tree().create_timer(0.5).timeout
     _attacking = false
 

@@ -21,7 +21,7 @@ BASE = ("https://backblaze.pixellab.ai/file/pixellab-characters/"
 NEW = {
     "attack":  ("0dc846a9-c360-44c0-ba59-fa12800630ea", 9, 24, False),  # 1타 폭발 찌름
     "attack2": ("daae20c2-78ec-4981-920b-30dfb41bc409", 9, 24, False),  # 2타 횡쓸기
-    "attack3": ("eae6e8c5-56f9-429a-9406-8c9514039421", 11, 24, False), # 3타 회전 내려찍기
+    "attack3": ("1552a702-6a0c-40cd-9f77-d19ce309bd5f", 13, 24, False), # 3타 도약 회전 내려찍기 v2(역동 강화)
     "charge":  ("8baf25cc-7d2b-4efe-b3c3-080335cbdd99", 7, 9, True),    # 기 모으기(루프)
 }
 
