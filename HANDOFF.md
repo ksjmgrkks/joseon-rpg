@@ -125,20 +125,27 @@
 > 6. 🟢 **UI/HUD 한지·먹 스킨 폴리시** — 스킬바·체력바·클리어 화면 미감.
 > 7. 🟢 **새 스테이지/적 콘텐츠** — `stage.gd` 데이터(JSON) 기반 양산.
 
-## 🖥️ PC에서 해야 할 일 (지금 밀린 반영·검증 — 폰/WSL 세션엔 Godot·PIL 없음)
-> **[16차·최우선] 적·보스 PixelLab 아트 통합** — `python tools/pixel/integrate_enemies.py` 한 번 실행.
-> → `assets/sprites/enemies/{goblin,reaper,fox,tiger}/` 의 idle/walk/attack/death/telegraph 스트립+manifest 가 새로 생성되고, 그 시트를 쓰는 씬들(Patroller/Goblin/Dummy/GoblinKing/Reaper/ReaperLord/Fox/FoxQueen/Tiger/GreatTiger)의 `foot_offset` 이 자동 패치됨. 그 뒤 `플레이.bat`/헤드리스로 **접지(발이 땅에 닿는지)·방향(우향)·미감** 확인. 접지가 뜨거나 잠기면 `tools/pixel/enemy_pl.json` 의 해당 적 `coll_half`(기본 16) 를 ±로 조정하고 재실행. (구버전 `gen_goblin_fox.py`/`gen_reaper_tiger.py`/`gen_boss.py` 는 이제 폴백용 — 재실행 불필요.)
-> 최근 폰 세션에서 코드/아트는 다 커밋·푸시했지만, **아래는 Godot 또는 이미지툴이 필요해 PC에서만 가능**. 끝낸 항목은 `[x]` 로 바꿔 주세요.
-> - [ ] **새 FX PNG import** — Godot로 프로젝트 한 번 열기 → `assets/sprites/fx/*.png`(슬래시·창격·스파크·출혈·궁극기 버스트·부적 진법) 자동 import(.import 생성). 안 하면 페인티드 이펙트가 폴백(코드 드로잉)으로만 나옴.
-> - [ ] **3타 모션 strip 반영** — `python tools/pixel/integrate_combos.py` 실행 → `attack3.png` 13프레임(attack3_spin_v2)+manifest 갱신. 안 하면 이펙트는 나와도 3타 *모션*은 옛 11프레임.
-> - [ ] **헤드리스 테스트** — `godot --headless res://tests/test_player_movement.tscn`(신규 variable_jump/coyote_jump 포함) + 전체 스위트 그린 확인. (13차 손맛 로직 변경분 검증.)
-> - [ ] **실제 플레이(`플레이.bat`) 손맛·미감 확인**:
->     - 13차 조작 손맛: 점프 단타/풀점프 구분, 이동 발구름·관성(미끄러우면 `player.gd` 상단 FRICTION↑), 공격 런지 강약, 묵직한 낙하.
->     - 14차 VFX: 콤보1/2/3·일섬·회천격·적중 임팩트·**출혈**·**궁극기**(바닥 부적 진법+폭발) 페인티드 이펙트가 제대로 합성되는지, 크기/수명 과하지 않은지(`skill_fx.gd` `_painted(...)` 인자로 조정).
-> - [ ] 위 확인 후 불만 지점 피드백 → 폰 세션에서 수치/재생성으로 후속 대응.
-> - [ ] **15차 전투 마무리 VFX 확인** — 차지 길게 눌렀을 때 '기 모으기' 오라(완전차지 금빛), 적 피격 흰빛 번쩍, 적/보스 사망 시 '혼 흩어짐'(창백한 넋), 보스 첫 접근 시 등장 연출(마기 솟구침+흔들림). 과하면: `skill_fx.gd` 의 해당 함수 알갱이 수/수명/크기 인자 조정. (PNG 재생성 불필요, 코드만)
-> - [ ] **15차 배경 개선 확인** — 그라데이션 하늘, 떠다니는 구름, 먼 산 흐림(대기 원근), 야간 스테이지(폐사지·제단) 별·반딧불. 톤/속도 조절: `parallax_backdrop.gd` export 변수(`aerial`/`cloud_drift`/`night_luminance`) 또는 stage JSON `backdrop.sky/tint`. 하늘 그라데이션 세로 위치가 어긋나면 `_add_sky()` 의 `tr.size/position` 미세조정. (PNG 재생성 불필요)
-> - [ ] **15차 배경 아트 재생성(PIL 필요 — PC에서만)** — `gen_background.py` 를 풍부하게 개선해 둠(최원경 능선 1겹 추가·구름띠 3겹·먼 하늘 새 떼·근경 납작돌·풀잎 밀도↑·소나무 1그루↑). **PC에서 `python tools/pixel/gen_background.py` 실행해야 `assets/sprites/bg/bg_*.png` 가 새 그림으로 갱신**됨(안 돌리면 코드는 있어도 옛 PNG 유지). 실행 후 `shots/bg_composite.png`·`shots/bg_seam_check.png`(이음매)·`shots/sheets/background_sheet.png` 로 눈 확인. 팔레트 위반 시 save 가 예외 → 색 조정. 과하면 새 떼/돌 좌표 리스트나 farthest 능선 루프만 빼면 됨.
+## 🖥️ PC에서 해야 할 일 — "HANDOFF 읽고 바로 실행" 런북
+> 폰/WSL 세션엔 **Godot·PIL 이 없어** 코드·데이터만 커밋해 둠. 아래 **A→B→C 를 순서대로** 하면 폰에서 한 작업(13~16차)이 전부 인게임에 반영된다. 먼저 `git pull`. 끝낸 항목은 `[x]`.
+>
+> ### A. 명령 실행 (프로젝트 루트에서, 각 1회)
+> ```bash
+> git pull
+> python tools/pixel/integrate_enemies.py   # 16차 적·보스 아트: 스트립+manifest 생성 + 씬 foot_offset 자동 패치(scale 보정)
+> python tools/pixel/gen_background.py       # 15차 배경 아트: bg_far/mid/near PNG 갱신(최원경 능선·구름 3겹·새 떼·돌·풀)
+> python tools/pixel/integrate_combos.py     # 14차 3타 모션: attack3.png 13프레임+manifest 갱신
+> ```
+> ### B. Godot 에디터로 1회 열기 (import 생성)
+> - [ ] 프로젝트를 Godot로 한 번 열어 **새 PNG 자동 import**(.import 생성): `assets/sprites/fx/*.png`(VFX) + `assets/sprites/enemies/{goblin,reaper,fox,tiger}/*.png`(새 적). 안 열면 적/이펙트가 옛 폴백으로 나옴.
+> ### C. 검증 (`플레이.bat` + 헤드리스)
+> - [ ] **헤드리스 그린**: `godot --headless res://tests/test_player_movement.tscn` + 전체 스위트.
+> - [ ] **16차 적·보스**: 도깨비·저승사자·구미호·대호(최종보스) 새 측면 아트, **발 접지·우향** OK? → 뜨거나 잠기면 `tools/pixel/enemy_pl.json` 의 그 적 `coll_half`(기본 16) ±조정 후 `integrate_enemies.py` 재실행.
+> - [ ] **14·15차 VFX**: 콤보1/2/3·일섬·회천격·적중·출혈·궁극기 + **차지 오라**·**피격 흰빛**·**혼 흩어짐**·**보스 등장**. 과하면 `skill_fx.gd` 인자 조정.
+> - [ ] **15차 배경**: 그라데이션 하늘·떠다니는 구름·대기원근·야간 별/반딧불 + 재생성된 산 능선/새 떼. 톤·속도는 `parallax_backdrop.gd` export(`aerial`/`cloud_drift`/`night_luminance`)·stage JSON `backdrop.sky/tint`. 하늘 위치 어긋나면 `_add_sky()` 의 `tr.size/position`.
+> - [ ] **13차 손맛**: 점프 단타/풀점프·관성·공격 런지·묵직 낙하 (`player.gd` 상단 "조작 손맛 튜닝" const).
+> ### D. 메모
+> - 구버전 적 gen 스크립트(`gen_goblin_fox.py`/`gen_reaper_tiger.py`/`gen_boss.py`)는 이제 폴백 — 재실행 불필요.
+> - 배경 재생성 후 `shots/bg_composite.png`·`shots/bg_seam_check.png` 로 이음매 눈확인.
 
 ## 대기 / 막힌 것 (Blocked / Waiting)
 > - **미감 최종 판단은 사용자 몫** — 스크린샷으로 정적 화면은 검증했으나 애니메이션 타이밍·손맛·전투 밸런스는 실제 플레이 필요.
