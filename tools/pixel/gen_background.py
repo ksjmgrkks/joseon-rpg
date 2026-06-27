@@ -48,6 +48,11 @@ def peaks(x, amp, k, ph):
     return -amp * (1.0 - abs(s))
 
 
+def ridge_far_farthest(x):
+    # 최원경 능선 — 가장 높고 옅게(25% 디더). 깊이감용.
+    return sines(x, 150, [(5, 2, 0.4), (3, 6, 2.2)]) + peaks(x, 16, 1, 1.7)
+
+
 def ridge_far_back(x):
     return sines(x, 168, [(7, 3, 2.0), (3, 8, 4.0)]) + peaks(x, 22, 1, 0.9)
 
@@ -86,13 +91,27 @@ def _cloud_band(c, base_y, amp, k, ph, col, thick=3):
                 c.px(x, cy + dy, col)
 
 
+def _bird(c, x, y, col):
+    """먼 하늘 갈매기형 새 1마리 — 가운데가 낮고 날개가 살짝 올라간 V 실루엣.
+    x 는 wpx 로 래핑 → 좌우 이음매 안전."""
+    for dx, dy in ((0, 0), (-1, -1), (-2, -1), (-3, -2), (1, -1), (2, -1), (3, -2)):
+        wpx(c, x + dx, y + dy, col)
+
+
 def gen_far() -> Canvas:
     c = Canvas(W, H)
     # 보름달 — 좌상단 하늘 (능선 위)
     _moon(c, 150, 70, 26)
-    # 구름띠 2겹 — 달 주변/중턱
+    # 구름띠 3겹 — 위(옅게)·달 주변·중턱
+    _cloud_band(c, 88, 5, 4, 1.8, P.PAPER_DEEP, thick=2)
     _cloud_band(c, 110, 6, 2, 0.6, P.PAPER_DEEP, thick=2)
     _cloud_band(c, 150, 8, 3, 3.1, P.INK_FAINT, thick=2)
+    # 최원경 능선 — 가장 옅게(25% 디더)부터 그려 뒤로 깔린다(깊이감).
+    for x in range(W):
+        yb = int(round(ridge_far_farthest(x)))
+        for y in range(yb, H):
+            if (x + y) % 4 == 0:
+                c.px(x, y, P.INK_FAINT)
     # 뒤 능선: 능선 2px 만 실선, 몸체는 50% 체커 디더 → 옅게 읽힘
     for x in range(W):
         y0 = int(round(ridge_far_back(x)))
@@ -106,6 +125,10 @@ def gen_far() -> Canvas:
         y1 = int(round(ridge_far_front(x)))
         for y in range(y1, H):
             c.px(x, y, P.INK_FAINT)
+    # 먼 하늘 새 떼 — 수묵 갈매기 실루엣(옅게). 달 부근에 느슨한 한 무리 + 우측 둘.
+    for bx, by in ((96, 52), (114, 46), (132, 56), (152, 43), (172, 50),
+                   (322, 60), (342, 53)):
+        _bird(c, bx, by, P.INK_FAINT)
     return c
 
 
@@ -167,7 +190,7 @@ def gen_mid(rnd) -> Canvas:
         for y in range(y0 + 4, H):
             c.px(x, y, P.INK_SOFT)
     # 소나무 — 봉우리마다 큰 나무 + 곁나무 (능선 위 하늘에 실루엣이 걸리도록)
-    for px_ in _peak_spots(ridge, n=5, min_gap=80):
+    for px_ in _peak_spots(ridge, n=6, min_gap=70):
         big_h = rnd.randint(17, 22)
         _pine(c, rnd, px_, ridge[px_] + 3, big_h)
         if rnd.random() < 0.75:               # 곁나무 (작게, 옆에)
@@ -209,6 +232,14 @@ def _reed(c, rnd, x, ground_y, h, lean, col):
     wpx(c, hx, hy - 1, col)
 
 
+def _rock(c, x, base_y, w, col):
+    """둔덕 위 납작한 돌 — 둥근 윗면(가운데가 높음). 주기 W 래핑."""
+    for dx in range(-w, w + 1):
+        h = int((w - abs(dx)) * 0.6)
+        for dy in range(0, h + 1):
+            wpx(c, x + dx, base_y - dy, col)
+
+
 def gen_near(rnd) -> Canvas:
     c = Canvas(W, H)
     mound = [int(round(mound_near(x))) for x in range(W)]
@@ -227,10 +258,13 @@ def gen_near(rnd) -> Canvas:
             else:
                 col = P.INK_MID
             c.px(x, y, col)
-    # 능선 위 풀잎 1~2px
+    # 근경 돌 몇 개 — 둔덕 위 먹빛 납작돌(풀·갈대가 앞에 겹치도록 먼저).
+    for rx, rw in ((95, 6), (210, 5), (355, 7), (470, 4), (560, 6)):
+        _rock(c, rx, mound[rx % W] + 2, rw, P.INK_MID)
+    # 능선 위 풀잎 1~3px (밀도 약간 상향)
     for x in range(W):
-        if rnd.random() < 0.10:
-            hgt = rnd.randint(1, 2)
+        if rnd.random() < 0.14:
+            hgt = rnd.randint(1, 3)
             col = P.GRASS_DEEP if rnd.random() < 0.8 else P.INK_MID
             for k in range(hgt):
                 c.px(x, mound[x] - 1 - k, col)
@@ -291,11 +325,11 @@ def main():
         },
         "parallax": {
             "bg_far":  {"file": "bg_far.png",  "scroll_factor": 0.10, "tile_x": True,
-                        "desc": "먼 산 2겹 INK_FAINT — 뒤 능선은 50% 디더로 옅게. 하늘 투명"},
+                        "desc": "먼 산 3겹 INK_FAINT(최원경 25%·뒤 50% 디더) + 구름 3겹 + 새 떼. 하늘 투명"},
             "bg_mid":  {"file": "bg_mid.png",  "scroll_factor": 0.35, "tile_x": True,
                         "desc": "중경 산+소나무 INK_SOFT — 능선/산허리 안개 디더"},
             "bg_near": {"file": "bg_near.png", "scroll_factor": 0.70, "tile_x": True,
-                        "desc": "근경 둔덕 GRASS_DEEP→INK_MID + 갈대 실루엣"},
+                        "desc": "근경 둔덕 GRASS_DEEP→INK_MID + 갈대 + 납작돌 + 풀잎"},
         },
     }
     for name in ("bg_far", "bg_mid", "bg_near"):
