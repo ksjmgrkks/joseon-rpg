@@ -25,3 +25,7 @@ Thumbs.db
 
 # PixelLab 다운로드 임시 캐시 (integrate 스크립트 작업 디렉터리)
 .pl_tmp/
+
+# Python
+__pycache__/
+*.pyc

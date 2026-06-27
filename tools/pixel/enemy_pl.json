@@ -1,0 +1,50 @@
+{
+  "_note": "PixelLab 적/보스 측면 아트 통합 데이터. integrate_enemies.py 가 읽음. JSON 키 = 시트 폴더명(assets/sprites/enemies/<키>). east 1방향만(코드 flip). 보스는 같은 시트 확대 재사용. telegraph 는 attack 윈드업에서 무크레딧 파생.",
+  "account": "0f5aa30e-1cc6-4d3a-8f94-f19d68385f1b",
+  "enemies": {
+    "goblin": {
+      "character": "b14e5e2a-bc18-41f1-b9f3-ed3cfa7151e1",
+      "scenes": ["Goblin", "Patroller", "Dummy", "GoblinKing"],
+      "anims": {
+        "idle":   {"uuid": "eb660edc-3470-411d-a3c9-a16f2f9f1eb9", "frames": 4, "fps": 5,  "loop": true},
+        "walk":   {"uuid": "f0231192-2d7d-4a1e-b315-9f4365682658", "frames": 6, "fps": 11, "loop": true},
+        "attack": {"uuid": "c65f9ab1-8306-4430-ab79-9df4df29082a", "frames": 9, "fps": 16, "loop": false},
+        "death":  {"uuid": "4748ba8e-074a-4ec8-bf32-55d04b826f26", "frames": 7, "fps": 10, "loop": false}
+      },
+      "derived": { "telegraph": {"from": "attack", "slice": [0, 3], "fps": 7, "loop": true} }
+    },
+    "reaper": {
+      "character": "9976b5e3-28b7-4796-bfa4-98f7454b2d3b",
+      "scenes": ["Reaper", "ReaperLord"],
+      "anims": {
+        "idle":   {"uuid": "0055f8c6-f179-4c07-8554-0425249bed73", "frames": 4, "fps": 5,  "loop": true},
+        "walk":   {"uuid": "9b0e18ca-c768-4f6b-b715-d238b772c0a4", "frames": 6, "fps": 10, "loop": true},
+        "attack": {"uuid": "5a4bc34c-d313-4ad3-b428-321e9519a4d3", "frames": 9, "fps": 14, "loop": false},
+        "death":  {"uuid": "c74dc993-3afd-4088-a7a1-87df5c63d2e6", "frames": 7, "fps": 10, "loop": false}
+      },
+      "derived": { "telegraph": {"from": "attack", "slice": [0, 3], "fps": 7, "loop": true} }
+    },
+    "fox": {
+      "character": "a080890f-6726-441c-af73-a6be3c2dbcb9",
+      "scenes": ["Fox", "FoxQueen"],
+      "anims": {
+        "idle":   {"uuid": "44c64b30-0300-4317-a39f-90ef5c28df13", "frames": 4, "fps": 5,  "loop": true},
+        "walk":   {"uuid": "375800f9-d3e8-4063-abf0-39c1b787f285", "frames": 6, "fps": 11, "loop": true},
+        "attack": {"uuid": "59ed8c28-da3e-4148-837b-7655955d024b", "frames": 9, "fps": 16, "loop": false},
+        "death":  {"uuid": "8fa13e2d-066f-4ce5-9331-e4cb0b028459", "frames": 7, "fps": 10, "loop": false}
+      },
+      "derived": { "telegraph": {"from": "attack", "slice": [0, 3], "fps": 7, "loop": true} }
+    },
+    "tiger": {
+      "character": "b2fea988-df8d-4f27-b447-b0812d9b474c",
+      "scenes": ["Tiger", "GreatTiger"],
+      "anims": {
+        "idle":   {"uuid": "f086e379-3f2d-4ad6-8faf-22a2ea7c46bf", "frames": 9, "fps": 6,  "loop": true},
+        "walk":   {"uuid": "a767547b-736d-4dc6-b7fa-65337039966f", "frames": 6, "fps": 12, "loop": true},
+        "attack": {"uuid": "ade26aa0-406a-45f4-b917-3fa7b048b3ec", "frames": 9, "fps": 16, "loop": false},
+        "death":  {"uuid": "6011202f-7f46-4a39-959b-13cf052ef8a2", "frames": 9, "fps": 10, "loop": false}
+      },
+      "derived": { "telegraph": {"from": "attack", "slice": [0, 3], "fps": 7, "loop": true} }
+    }
+  }
+}

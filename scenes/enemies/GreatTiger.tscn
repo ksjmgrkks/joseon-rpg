@@ -39,7 +39,7 @@ scene_on_death = "res://scenes/ui/Ending.tscn"
 [node name="Sprite2D" type="AnimatedSprite2D" parent="."]
 scale = Vector2(1.4, 1.4)
 script = ExtResource("5_vis")
-sheet = "enemies/boss"
+sheet = "enemies/tiger"
 foot_offset = -2.0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
