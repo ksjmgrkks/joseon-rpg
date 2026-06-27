@@ -13,6 +13,12 @@ func _ready() -> void:
     SkillFx.slash(Vector2(870, y), true)
     SkillFx.spin(Vector2(1050, y))
     SkillFx.impact(Vector2(1190, y), true)
+    # 전투 마무리 VFX — 차지 오라 / 혼 흩어짐 / 보스 등장
+    SkillFx.charge_aura_tick(Vector2(170, y + 150), 1)
+    SkillFx.charge_aura_tick(Vector2(400, y + 150), 2)
+    SkillFx.death_scatter(Vector2(650, y + 150))
+    SkillFx.death_scatter(Vector2(870, y + 150), Color(0.82, 0.84, 0.92), true)
+    SkillFx.boss_entrance(Vector2(1100, y + 150))
     # 효과가 한창일 때 캡처
     await get_tree().create_timer(0.09).timeout
     await RenderingServer.frame_post_draw

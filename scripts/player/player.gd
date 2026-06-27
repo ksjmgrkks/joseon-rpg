@@ -67,6 +67,7 @@ var _combo_step: int = 0                 # 0=무, 1/2/3=콤보 단계
 var _combo_timer: float = 0.0            # 콤보 유지 카운트다운
 var _hold_time: float = 0.0              # attack 키 누른 누적 시간(차지용)
 var _charge_started: bool = false        # 이번 누름이 차지로 인식됐는가
+var _charge_fx_timer: float = 0.0        # 차지 오라 이펙트 분사 간격 타이머
 var _base_modulate: Color = Color.WHITE
 # 회피 상태
 var _dodging: bool = false
@@ -221,6 +222,15 @@ func _physics_process(delta: float) -> void:
             sprite.modulate = _base_modulate.lightened(0.15)
         else:
             sprite.modulate = _base_modulate
+    # 차지 오라 — 임계 이상 누르는 동안 주기적으로 '기 모으기' 이펙트 분사
+    if _hold_time >= CHARGE_THRESHOLD:
+        _charge_fx_timer -= delta
+        if _charge_fx_timer <= 0.0:
+            _charge_fx_timer = 0.1
+            SkillFx.charge_aura_tick(global_position + Vector2(0, -18),
+                2 if _hold_time >= CHARGE_FULL else 1)
+    else:
+        _charge_fx_timer = 0.0
 
     # 좌우 이동 — 가속/마찰 기반(즉시 스냅 대신 발구름·관성). 차지 중엔 목표 속도가 느림.
     var move_speed := SPEED_CHARGING if (_hold_time >= CHARGE_THRESHOLD) else SPEED

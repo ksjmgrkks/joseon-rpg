@@ -42,11 +42,7 @@ func _on_hurt(damage: float, knockback: float, _attacker: Node) -> void:
     velocity.y = -160.0
     Audio.play_sfx(Sfx.HIT)
     FloatingNumber.spawn(get_tree().current_scene, global_position, "-%d" % int(damage), Color(1, 0.6, 0.55))
-    if sprite:
-        sprite.modulate = Color(1, 0.5, 0.5, 1)
-        await get_tree().create_timer(0.08).timeout
-        if is_instance_valid(sprite):
-            sprite.modulate = Color.WHITE
+    SkillFx.hit_flash(sprite, Color.WHITE)
 
 
 func _on_hp_changed(hp: float, max_hp: float) -> void:
@@ -56,6 +52,7 @@ func _on_hp_changed(hp: float, max_hp: float) -> void:
 func _on_died() -> void:
     print("[Dummy] died")
     Audio.play_sfx(Sfx.DIE)
+    SkillFx.death_scatter(global_position + Vector2(0, -10))
     if xp_reward > 0:
         PlayerStats.gain_xp(xp_reward)
         FloatingNumber.spawn(get_tree().current_scene, global_position, "+%d XP" % xp_reward, Color(1, 0.95, 0.6))

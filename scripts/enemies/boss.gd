@@ -49,6 +49,8 @@ var _attacking_blink: bool = false
 var _phase: int = 1
 # 스프라이트 기본 틴트 — 평소 흰색(원본색), 페이즈 2 에서 핏빛.
 var _tint_base: Color = Color.WHITE
+# 플레이어를 처음 교전하는 순간 등장 연출을 한 번만 재생.
+var _engaged: bool = false
 
 
 ## EnemyVisual 이 읽는 애니메이션 힌트. 빈 문자열이면 visual 이 velocity 로 idle/walk 결정.
@@ -126,6 +128,10 @@ func _tick_idle(_delta: float) -> void:
     var d := global_position.distance_to(p.global_position)
     if d <= engage_distance:
         _facing_right = p.global_position.x >= global_position.x
+        if not _engaged:
+            _engaged = true
+            SkillFx.boss_entrance(global_position)
+            ScreenFx.shake(12.0, 0.4)
         _enter_telegraph()
 
 
@@ -236,7 +242,7 @@ func _on_hurt(damage: float, knockback: float, _attacker: Node) -> void:
     FloatingNumber.spawn(get_tree().current_scene, global_position, "-%d" % int(damage), Color(1, 0.55, 0.50))
     if sprite and not _attacking_blink:
         _attacking_blink = true
-        sprite.modulate = Color(1, 0.5, 0.5, 1)
+        sprite.modulate = Color(1.7, 1.7, 1.7, 1)   # 흰빛 번쩍(과노출)
         await get_tree().create_timer(0.08).timeout
         if is_instance_valid(sprite):
             sprite.modulate = _tint_base
@@ -248,6 +254,8 @@ func _on_died() -> void:
     _hide_warn()
     print("[%s] died" % display_name)
     Audio.play_sfx(Sfx.DIE)
+    SkillFx.death_scatter(global_position + Vector2(0, -16), Color(0.82, 0.84, 0.92), true)
+    ScreenFx.shake(16.0, 0.5)
     if xp_reward > 0:
         PlayerStats.gain_xp(xp_reward)
         FloatingNumber.spawn(get_tree().current_scene, global_position, "+%d XP" % xp_reward, Color(1, 0.95, 0.6))

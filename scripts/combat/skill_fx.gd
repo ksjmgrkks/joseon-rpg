@@ -520,3 +520,134 @@ func attach_ward(player: Node2D) -> Node2D:
     var tw := ward.create_tween().set_loops()
     tw.tween_property(ward, "rotation", TAU, 2.2)
     return ward
+
+
+# ════════════ 전투 마무리 VFX (차지 오라 / 피격 플래시 / 혼 흩어짐 / 보스 등장) ════════════
+
+## 원 둘레 점 — 링/궤도 계산 공통(닫힌 폴리라인: segs+1 점).
+func _circle_pts(radius: float, segs: int = 16) -> PackedVector2Array:
+    var pts := PackedVector2Array()
+    for i in range(segs + 1):
+        var a := TAU * i / float(segs)
+        pts.append(Vector2(cos(a), sin(a)) * radius)
+    return pts
+
+
+## 빛 알갱이(마름모) 1개 — start→end 로 이동하며 페이드. ease_in 이면 가속(빨려듦).
+func _mote(host: Node, start: Vector2, end: Vector2, size: float, color: Color,
+        life: float, z: int = 32, ease_in: bool = false) -> void:
+    var m := Polygon2D.new()
+    m.polygon = PackedVector2Array([
+        Vector2(0, -size), Vector2(size, 0), Vector2(0, size), Vector2(-size, 0)])
+    m.color = color
+    m.global_position = start
+    m.z_index = z
+    host.add_child(m)
+    var e := Tween.EASE_IN if ease_in else Tween.EASE_OUT
+    var tw := m.create_tween()
+    tw.tween_property(m, "global_position", end, life).set_trans(Tween.TRANS_QUAD).set_ease(e)
+    tw.parallel().tween_property(m, "modulate:a", 0.0, life)
+    tw.tween_callback(m.queue_free)
+
+
+## 수축/확장 링 1개 — global_position 에 두고 scale 트윈으로 조이거나 퍼뜨린다.
+func _pulse_ring(host: Node, pos: Vector2, radius: float, width: float, color: Color,
+        scale_to: float, life: float, z: int = 31) -> void:
+    var ring := _line(_circle_pts(radius, 18), width, color, z)
+    ring.global_position = pos
+    host.add_child(ring)
+    var tw := ring.create_tween()
+    tw.tween_property(ring, "scale", Vector2(scale_to, scale_to), life).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+    tw.parallel().tween_property(ring, "modulate:a", 0.0, life)
+    tw.tween_callback(ring.queue_free)
+
+
+## 차지(기 모으기) 오라 — 주변 기운이 중심으로 빨려드는 알갱이 + 수축 링.
+## 차지 중 매 틱(약 0.1s) 호출. level: 1=차지, 2=완전차지(금빛·더 화려).
+func charge_aura_tick(pos: Vector2, level: int = 1) -> void:
+    var host := _host()
+    if host == null:
+        return
+    var hot := level >= 2
+    var base := MAGE_HOT if hot else MAGE
+    var ring_r := 30.0
+    var n := 3 if hot else 2
+    for i in range(n):
+        var a := randf() * TAU
+        var start := pos + Vector2(cos(a), sin(a)) * (ring_r + randf() * 8.0)
+        var col := GOLD if (hot and i == 0) else base
+        _mote(host, start, pos + Vector2(randf_range(-3, 3), randf_range(-3, 3)),
+            (2.5 if hot else 2.0), col, 0.34, 33, true)
+    # 수축 링 — 기운이 조여드는 느낌
+    var ring := _line(_circle_pts(ring_r, 18), (2.0 if hot else 1.5),
+        Color(base.r, base.g, base.b, 0.55), 31)
+    ring.global_position = pos
+    host.add_child(ring)
+    var tw := ring.create_tween()
+    tw.tween_property(ring, "scale", Vector2(0.25, 0.25), 0.34).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+    tw.parallel().tween_property(ring, "modulate:a", 0.0, 0.34)
+    tw.tween_callback(ring.queue_free)
+
+
+## 피격 플래시 — 흰빛으로 번쩍 → 핏빛 → 원래색. 논블로킹(트윈).
+## base_color: 플래시 후 복귀할 색(적 기본 WHITE).
+func hit_flash(sprite: CanvasItem, base_color: Color = Color.WHITE, dur: float = 0.12) -> void:
+    if sprite == null or not is_instance_valid(sprite):
+        return
+    sprite.modulate = Color(1.9, 1.9, 1.9, 1.0)            # 흰빛 번쩍(과노출)
+    var tw := sprite.create_tween()
+    tw.tween_property(sprite, "modulate", Color(1, 0.5, 0.5, 1), dur * 0.35).set_trans(Tween.TRANS_QUAD)
+    tw.tween_property(sprite, "modulate", base_color, dur * 0.65)
+
+
+## 사망 연출 — 혼(魂)이 흩어지는 은은한 괴담 톤. 핏빛 대신 창백한 넋.
+## tint: 넋 색(기본 창백한 한지빛). big: 보스용(크게).
+func death_scatter(pos: Vector2, tint: Color = Color(0.78, 0.82, 0.88), big: bool = false) -> void:
+    var host := _host()
+    if host == null:
+        return
+    var sc := 1.7 if big else 1.0
+    var n := int(10 * sc)
+    # 흩어지는 넋 알갱이 — 대체로 위쪽으로 퍼지며 사라짐
+    for i in range(n):
+        var a := -PI * 0.5 + randf_range(-1.1, 1.1)
+        var dist := (18.0 + randf() * 22.0) * sc
+        var end := pos + Vector2(cos(a), sin(a)) * dist + Vector2(0, -10 * sc)
+        _mote(host, pos + Vector2(randf_range(-4, 4), randf_range(-4, 4)), end,
+            randf_range(1.5, 3.0) * sc, tint, randf_range(0.4, 0.7), 33, false)
+    # 솟아오르는 넋 줄기(soul wisp) — 위로 길게 흐려짐
+    var wisp := _line(PackedVector2Array([
+        Vector2.ZERO, Vector2(2, -22 * sc), Vector2(-2, -40 * sc)]),
+        4.0 * sc, Color(tint.r, tint.g, tint.b, 0.7), 32)
+    wisp.global_position = pos
+    host.add_child(wisp)
+    var tw := wisp.create_tween()
+    tw.tween_property(wisp, "global_position", pos + Vector2(0, -28 * sc), 0.6).set_ease(Tween.EASE_OUT)
+    tw.parallel().tween_property(wisp, "modulate:a", 0.0, 0.6)
+    tw.tween_callback(wisp.queue_free)
+    # 바닥 먹 번짐 링 — 퍼지며 사라짐
+    _pulse_ring(host, pos, 10.0 * sc, 2.0, Color(INK.r, INK.g, INK.b, 0.5), 2.4, 0.5, 30)
+
+
+## 보스 등장 연출 — 바닥에서 마기(魔氣)가 솟고 흙먼지 링 + 머리 위 마기 무리.
+## (화면 흔들림은 호출부에서 ScreenFx.shake 로 추가.)
+func boss_entrance(pos: Vector2) -> void:
+    var host := _host()
+    if host == null:
+        return
+    # 바닥 먼지 링(빠르게 확장)
+    _pulse_ring(host, pos, 16.0, 4.0, Color(INK.r, INK.g, INK.b, 0.7), 4.0, 0.45, 30)
+    # 솟아오르는 마기 줄기(여러 가닥)
+    for i in range(7):
+        var ox := randf_range(-26, 26)
+        var up := randf_range(60, 110)
+        _mote(host, pos + Vector2(ox, 6), pos + Vector2(ox * 0.5, -up),
+            randf_range(2.5, 4.5), Color(MAGE.r, MAGE.g, MAGE.b, 0.9), randf_range(0.5, 0.8), 33, false)
+    # 머리 위로 번지는 마기 무리
+    var halo := _line(_circle_pts(20.0, 20), 3.0, Color(MAGE_HOT.r, MAGE_HOT.g, MAGE_HOT.b, 0.8), 31)
+    halo.global_position = pos + Vector2(0, -30)
+    host.add_child(halo)
+    var tw := halo.create_tween()
+    tw.tween_property(halo, "scale", Vector2(2.2, 2.2), 0.5).set_trans(Tween.TRANS_QUAD)
+    tw.parallel().tween_property(halo, "modulate:a", 0.0, 0.5)
+    tw.tween_callback(halo.queue_free)
