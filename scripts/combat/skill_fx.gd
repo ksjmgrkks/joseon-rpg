@@ -298,6 +298,27 @@ func ultimate(pos: Vector2) -> void:
     if host == null:
         return
     var center := pos + Vector2(0, -16)
+    # 0) 바닥 부적 진법(탑다운 텍스처 → 세로 납작하게 깔아 원근감) — 솟아오르며 회전 후 소멸
+    var tex_rune := _fx_tex("rune_circle")
+    if tex_rune != null:
+        var rune := Sprite2D.new()
+        rune.texture = tex_rune
+        rune.global_position = pos + Vector2(0, 4)
+        rune.scale = Vector2(0.2, 0.1)
+        rune.modulate = Color(1, 1, 1, 0.0)
+        rune.z_index = 19
+        rune.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+        host.add_child(rune)
+        var rt := rune.create_tween()
+        rt.tween_property(rune, "scale", Vector2(1.05, 0.52), 0.25).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+        rt.parallel().tween_property(rune, "modulate:a", 0.9, 0.18)
+        rt.parallel().tween_property(rune, "rotation", 0.7, 0.75)
+        rt.tween_interval(0.18)
+        rt.tween_property(rune, "modulate:a", 0.0, 0.32)
+        rt.tween_callback(rune.queue_free)
+    # 0b) 중심 데몬 폭발 버스트(주역) + 보조 스파크 섬광
+    _painted("ult_burst", center, 0.3, 1.7, 0.5, false, 0.0, PI, Color(1, 1, 1, 1.0), 41)
+    _painted("spark_burst", center, 0.4, 2.0, 0.42, false, 0.0, 0.0, Color(1, 1, 1, 0.85), 42)
     # 1) 화면 섬광(보랏빛→흰빛 페이드)
     var flash := ColorRect.new()
     flash.color = Color(0.7, 0.6, 0.95, 0.0)
