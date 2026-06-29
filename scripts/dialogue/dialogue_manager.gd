@@ -33,14 +33,21 @@ signal dialogue_ended()
 var _data: Dictionary = {}
 var _node_id: String = ""
 var _active: bool = false
+## 이번 대화의 '상대' 노드(말풍선이 화자 위치를 잡을 때 사용). 플레이어가 아닌 화자는 보통 이 노드.
+var _partner: Node = null
 
 
 func is_active() -> bool:
     return _active
 
 
-## 대화 시작. 성공하면 true.
-func start(json_path: String) -> bool:
+## 말풍선용 — 이번 대화의 상대(NPC/적) 노드. 없으면 null.
+func partner_node() -> Node:
+    return _partner if is_instance_valid(_partner) else null
+
+
+## 대화 시작. 성공하면 true. partner = 화자 위치 추적용 상대 노드(NPC 등, 선택).
+func start(json_path: String, partner: Node = null) -> bool:
     if _active:
         push_warning("[Dialogue] already active, ignoring start: %s" % json_path)
         return false
@@ -57,6 +64,7 @@ func start(json_path: String) -> bool:
     _data = parsed
     _node_id = String(parsed.start)
     _active = true
+    _partner = partner
     var node := _current_node()
     if node.is_empty():
         _end()
@@ -184,4 +192,5 @@ func _end() -> void:
     _active = false
     _data = {}
     _node_id = ""
+    _partner = null
     dialogue_ended.emit()

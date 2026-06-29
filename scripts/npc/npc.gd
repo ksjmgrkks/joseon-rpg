@@ -14,6 +14,7 @@ var _played: bool = false
 
 
 func _ready() -> void:
+    add_to_group("npc")   # 말풍선이 화자 이름→노드 매칭에 쓰임
     body_entered.connect(_on_body_entered)
     body_exited.connect(_on_body_exited)
     _setup_visual()
@@ -52,7 +53,7 @@ func _on_body_entered(body: Node) -> void:
     _played = true
     if once_flag != "":
         Flags.set_flag(once_flag, true)
-    Dialogue.start(dialogue_path)
+    Dialogue.start(dialogue_path, self)
 
 
 func _on_body_exited(_body: Node) -> void:
