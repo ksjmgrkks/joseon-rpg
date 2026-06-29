@@ -6,7 +6,8 @@ config_version=5
 
 [application]
 
-config/name="귀창록"
+config/name="해원"
+config/description="떠도는 원혼을 달래며 제 기억을 하나씩 잃는 자 — 조선 수묵 횡스크롤 진혼 RPG"
 run/main_scene="res://scenes/ui/MainMenu.tscn"
 run/flush_stdout_on_print=true
 config/features=PackedStringArray("4.6", "GL Compatibility")
@@ -26,6 +27,7 @@ Inventory="*res://scripts/inventory/inventory_manager.gd"
 Equipment="*res://scripts/inventory/equipment_manager.gd"
 TimeManager="*res://scripts/world/time_manager.gd"
 WorldTint="*res://scripts/world/world_tint.gd"
+InkWash="*res://scripts/world/ink_wash.gd"
 SpriteDb="*res://scripts/visual/sprite_db.gd"
 BgmDirector="*res://scripts/audio/bgm_director.gd"
 SkillManager="*res://scripts/skills/skill_manager.gd"

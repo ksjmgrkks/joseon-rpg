@@ -105,6 +105,8 @@ func _wire_haewon(data: Dictionary, cleared: bool) -> void:
     if gut < 0:
         return
     var clear_dialogue := String(data.get("clear_dialogue", ""))
+    # 진혼 후 대사를 '걷는 회상/정적'(수묵 흑백 오버랩)으로 감쌀지.
+    var clear_inkwash := bool(data.get("clear_inkwash", false))
     # 이미 클리어한 구간을 되돌아온 경우: 소거는 세이브에 남아 있으니 다시 하지 않는다.
     if cleared:
         return
@@ -114,19 +116,27 @@ func _wire_haewon(data: Dictionary, cleared: bool) -> void:
             gate = c
             break
     if gate != null:
-        gate.opened.connect(_on_gut_cleared.bind(gut, clear_dialogue))
+        gate.opened.connect(_on_gut_cleared.bind(gut, clear_dialogue, clear_inkwash))
     else:
         # 전투 없는 굽이 — 진입 직후 한 박자 뒤 소거(자동 대사가 정황을 깔도록).
         await get_tree().create_timer(0.6).timeout
-        _on_gut_cleared(gut, clear_dialogue)
+        _on_gut_cleared(gut, clear_dialogue, clear_inkwash)
 
 
-func _on_gut_cleared(gut: int, clear_dialogue: String) -> void:
+func _on_gut_cleared(gut: int, clear_dialogue: String, ink: bool = false) -> void:
     MemoryLedger.erase_for_gut(gut)
+    if ink and InkWash:
+        InkWash.enter()
     if clear_dialogue != "" and ResourceLoader.exists(clear_dialogue):
         # 결계 개방 연출과 겹치지 않게 살짝 뒤에 진혼 후 독백.
         await get_tree().create_timer(0.5).timeout
         Dialogue.start(clear_dialogue)
+        if ink and InkWash:
+            await Dialogue.dialogue_ended   # 회상/정적 대사가 끝나면 색 복귀
+            InkWash.exit()
+    elif ink and InkWash:
+        await get_tree().create_timer(2.0).timeout
+        InkWash.exit()
 
 
 func _load() -> Dictionary:

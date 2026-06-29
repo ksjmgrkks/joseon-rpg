@@ -13,6 +13,7 @@
     { "tex": "fence", "x": 1140, "y": 660, "scale": 1.4, "offset": [-32, -12] }
   ],
   "clear_dialogue": "res://assets/dialogue/haewon/recall_yunseul.json",
+  "clear_inkwash": true,
   "auto_dialogues": [
     { "x": 360, "dialogue": "res://assets/dialogue/haewon/ferry_omen.json", "once_flag": "haewon_ferry_omen_seen", "w": 110 },
     { "x": 700, "dialogue": "res://assets/dialogue/haewon/ferryman_spirit.json", "once_flag": "haewon_ferryman_seen", "w": 110 }

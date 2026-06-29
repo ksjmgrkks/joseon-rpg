@@ -12,6 +12,7 @@
     { "tex": "stone", "x": 520, "y": 678, "scale": 1.2, "offset": [-16, -12] }
   ],
   "clear_dialogue": "res://assets/dialogue/haewon/yunseul_release.json",
+  "clear_inkwash": true,
   "auto_dialogues": [
     { "x": 240, "dialogue": "res://assets/dialogue/haewon/yunseul_approach.json", "once_flag": "haewon_yunseul_approach_seen", "w": 110 }
   ],
