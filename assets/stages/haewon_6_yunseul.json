@@ -1,0 +1,25 @@
+{
+  "_note": "6굽이(최종) — 그 문, 다시 · 윤슬. 수문 밖에 두고 온 사랑하는 이 윤슬의 넋(가장 큰 마지막 한). 의미 전복: '전투=진혼'의 진짜 의미가 드러남 — 사랑하는 이를 떠나보냄 + 자기 자신 천도(길손도 그날 죽은 원혼). 끝: 마지막 물등(=윤슬의 등=자기 등)을 띄우면 '윤슬'마저 화면에서 지워지고 모든 글자가 빔(MemoryLedger.erase yunseul → last_name_released → 엔딩). 첫 햇살이 강에 닿아 물비늘이 반짝이고, 그 빛이 곧 윤슬. 회상 대사 회수('물에 빛 드는 걸 보셔요, 거기 제가 있을 터이니'). 동틀녘 — 하늘이 옅은 금빛.",
+  "gut": 6,
+  "backdrop": { "sky": [0.78, 0.7, 0.56], "tint": [0.92, 0.86, 0.74], "far_scale": 0.12 },
+  "ground": { "tex": "ground_dirt", "width": 2200, "x": -400 },
+  "player_x": 120,
+  "entries": [ { "name": "default", "x": 120 } ],
+  "props": [
+    { "tex": "wood_platform", "x": 1140, "y": 624, "scale": 3.0, "offset": [-32, -8] },
+    { "tex": "lantern", "x": 320, "y": 600, "scale": 1.4, "offset": [-12, -40] },
+    { "tex": "lantern", "x": 700, "y": 600, "scale": 1.4, "offset": [-12, -40] },
+    { "tex": "stone", "x": 520, "y": 678, "scale": 1.2, "offset": [-16, -12] }
+  ],
+  "auto_dialogues": [
+    { "x": 240, "dialogue": "res://assets/dialogue/haewon/yunseul_approach.json", "once_flag": "haewon_yunseul_approach_seen", "w": 110 },
+    { "x": 1080, "dialogue": "res://assets/dialogue/haewon/yunseul_release.json", "once_flag": "haewon_yunseul_release_seen", "w": 120 }
+  ],
+  "enemies": [
+    { "scene": "FoxQueen", "x": 1060, "y": 612 }
+  ],
+  "gates": [ { "x": 1300, "y": 600, "flag": "haewon_6_cleared", "height": 280 } ],
+  "exits": [
+    { "x": 1460, "target": "res://scenes/ui/Clear.tscn", "entry": "default", "color": [0.86, 0.78, 0.6, 0.5] }
+  ]
+}

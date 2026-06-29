@@ -1,0 +1,8 @@
+{
+  "id": "haewon_watergate_approach",
+  "start": "a",
+  "nodes": {
+    "a": { "speaker": "", "text": "거대한 목제 수문이 강을 가로막고 있다. 그 앞에, 물에 잠겨 죽은 이들의 한이 한 덩어리로 뭉쳐 일어선다.", "next": "b" },
+    "b": { "speaker": "군중의 한", "text": "문을 열어라. 수문을, 열어—", "next": null }
+  }
+}

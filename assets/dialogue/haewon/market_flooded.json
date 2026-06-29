@@ -1,0 +1,9 @@
+{
+  "id": "haewon_market_flooded",
+  "start": "a",
+  "nodes": {
+    "a": { "speaker": "", "text": "물에 잠겼던 저잣거리. 진흙 위로 떠내려간 좌판과 신발들이 널렸다.", "next": "b" },
+    "b": { "speaker": "잠긴 넋들", "text": "물이… 물이 차오르는데 문이 닫혔소. 어찌 우리만 가두었소…", "next": "c" },
+    "c": { "speaker": "길손", "text": "(이 통문의 수결이… 어찌 이리 낯이 익은가.)", "next": null }
+  }
+}

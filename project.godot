@@ -16,6 +16,7 @@ config/icon="res://icon.svg"
 
 SaveManager="*res://scripts/save/save_manager.gd"
 Flags="*res://scripts/flags/flag_manager.gd"
+MemoryLedger="*res://scripts/memory/memory_ledger.gd"
 Audio="*res://scripts/audio/audio_manager.gd"
 ScreenFx="*res://scripts/combat/screen_fx.gd"
 SkillFx="*res://scripts/combat/skill_fx.gd"

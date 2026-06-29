@@ -1,0 +1,8 @@
+{
+  "id": "haewon_emptytown_enter",
+  "start": "a",
+  "nodes": {
+    "a": { "speaker": "", "text": "강을 거슬러 오른 끝, 그가 지키려던 고을. 한데 인기척이 없다. 물은 결국 둑을 넘어 성안마저 휩쓸었다.", "next": "b" },
+    "b": { "speaker": "길손", "text": "…아무도 없다. 내가 무엇을 위해 문을 닫았던가.", "next": null }
+  }
+}

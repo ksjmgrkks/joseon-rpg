@@ -1,0 +1,8 @@
+{
+  "id": "haewon_prologue_open",
+  "start": "a",
+  "nodes": {
+    "a": { "speaker": "", "text": "황혼이 강에 내려앉는다. 나루 끝에서 한 넋이 미쳐 울부짖는다.", "next": "b" },
+    "b": { "speaker": "길손", "text": "…또 한 넋이 길을 잃었구나. 내, 보내 주마.", "next": null }
+  }
+}

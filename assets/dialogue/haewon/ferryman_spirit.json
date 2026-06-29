@@ -1,0 +1,9 @@
+{
+  "id": "haewon_ferryman_spirit",
+  "start": "a",
+  "nodes": {
+    "a": { "speaker": "뱃사공 넋", "text": "원님… 삯은 됐소. 강만, 강만 건네주오…", "next": "b" },
+    "b": { "speaker": "길손", "text": "…네 강은, 내 이미 닫은 강이다.", "next": "c" },
+    "c": { "speaker": "길손", "text": "(닫았다…? 내가, 무엇을 닫았단 말이냐.)", "next": null }
+  }
+}

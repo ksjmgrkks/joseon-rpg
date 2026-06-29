@@ -1,0 +1,9 @@
+{
+  "id": "haewon_village_drowned",
+  "start": "a",
+  "nodes": {
+    "a": { "speaker": "", "text": "둑 밖 저지대 강마을. 지붕만 남기고 잠겼던 집들이 물 빠진 진창 위에 엎드려 있다.", "next": "b" },
+    "b": { "speaker": "저승차사", "text": "길손. 또 막아서려는가. 이 넋들은 내가 데려가야 할 자들이네.", "next": "c" },
+    "c": { "speaker": "길손", "text": "…아직 아니다. 이들은 내 손으로 보내야 한다.", "next": null }
+  }
+}

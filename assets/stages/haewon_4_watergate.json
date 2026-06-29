@@ -1,0 +1,26 @@
+{
+  "_note": "4굽이 — 닫힌 수문(중간 보스). 물에 휩쓸려 죽은 이들의 한이 뭉친 거대 원혼(첫 보스급 진혼). 반전 1: 이 수문을 닫은 장본인이 길손 — 진혼하는 모든 넋이 제 선택으로 죽은 이들임이 확정. 연출: 보스 직후 BGM 끊고 정적+수묵 한 폭(차오르는 물). 지워지는 기억: 누구를 위해(고을을 위해) 그랬는지 = 명분(gut 4). 보스=거대 원혼(ReaperLord 재활용, 진혼 톤 재해석). 새 props 후보(PixelLab): 수문(목제 갑문)·둑.",
+  "gut": 4,
+  "backdrop": { "sky": [0.12, 0.13, 0.22], "tint": [0.42, 0.46, 0.56], "far_scale": 0.12, "night_luminance": 0.3 },
+  "ground": { "tex": "ground_dirt", "width": 2400, "x": -400 },
+  "player_x": 120,
+  "entries": [ { "name": "default", "x": 120 } ],
+  "props": [
+    { "tex": "wood_platform", "x": 1180, "y": 620, "scale": 3.0, "offset": [-32, -8] },
+    { "tex": "stone", "x": 420, "y": 678, "scale": 1.4, "offset": [-16, -12] },
+    { "tex": "stone", "x": 760, "y": 678, "scale": 1.2, "offset": [-16, -12] },
+    { "tex": "lantern", "x": 300, "y": 600, "scale": 1.3, "offset": [-12, -40] }
+  ],
+  "auto_dialogues": [
+    { "x": 240, "dialogue": "res://assets/dialogue/haewon/watergate_approach.json", "once_flag": "haewon_watergate_approach_seen", "w": 110 },
+    { "x": 1140, "dialogue": "res://assets/dialogue/haewon/watergate_reveal.json", "once_flag": "haewon_watergate_reveal_seen", "w": 120 }
+  ],
+  "enemies": [
+    { "scene": "ReaperLord", "x": 1080, "y": 600 }
+  ],
+  "gates": [ { "x": 1330, "y": 600, "flag": "haewon_4_cleared", "height": 280 } ],
+  "exits": [
+    { "x": 40, "target": "res://scenes/levels/Haewon3Village.tscn", "entry": "default", "color": [0.3, 0.32, 0.4, 0.5] },
+    { "x": 1500, "target": "res://scenes/levels/Haewon5EmptyTown.tscn", "entry": "default", "color": [0.3, 0.34, 0.42, 0.5] }
+  ]
+}

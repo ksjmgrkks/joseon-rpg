@@ -1,0 +1,25 @@
+{
+  "_note": "「해원」 프롤로그 — 첫 등. 황혼의 나루. 한 원혼을 진혼하고 물등 하나를 띄운다. 진혼 직후 HUD 글자 하나가 흐려짐(MemoryLedger.erase_for_gut 0). 적=미쳐 날뛰는 넋(Reaper 재활용, 진혼 톤으로 재해석). 새 props 후보(PixelLab): 물등(floating river lantern)·나룻배·물 표면.",
+  "gut": 0,
+  "backdrop": { "sky": [0.46, 0.36, 0.34], "tint": [0.7, 0.6, 0.58], "far_scale": 0.12 },
+  "ground": { "tex": "ground_dirt", "width": 2400, "x": -500 },
+  "player_x": 120,
+  "entries": [ { "name": "default", "x": 120 } ],
+  "props": [
+    { "tex": "wood_platform", "x": 360, "y": 672, "scale": 2.0, "offset": [-32, -8] },
+    { "tex": "lantern", "x": 300, "y": 600, "scale": 1.4, "offset": [-12, -40] },
+    { "tex": "stone", "x": 720, "y": 678, "scale": 1.2, "offset": [-16, -12] },
+    { "tex": "lantern", "x": 1180, "y": 600, "scale": 1.4, "offset": [-12, -40] }
+  ],
+  "auto_dialogues": [
+    { "x": 200, "dialogue": "res://assets/dialogue/haewon/prologue_open.json", "once_flag": "haewon_prologue_open_seen", "w": 110 },
+    { "x": 1240, "dialogue": "res://assets/dialogue/haewon/prologue_after.json", "once_flag": "haewon_prologue_after_seen", "w": 110 }
+  ],
+  "enemies": [
+    { "scene": "Reaper", "x": 820, "y": 632 }
+  ],
+  "gates": [ { "x": 1330, "y": 600, "flag": "haewon_0_cleared", "height": 260 } ],
+  "exits": [
+    { "x": 1480, "target": "res://scenes/levels/Haewon1Ferry.tscn", "entry": "default", "color": [0.3, 0.34, 0.42, 0.5] }
+  ]
+}

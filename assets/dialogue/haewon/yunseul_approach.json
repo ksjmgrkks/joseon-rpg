@@ -1,0 +1,9 @@
+{
+  "id": "haewon_yunseul_approach",
+  "start": "a",
+  "nodes": {
+    "a": { "speaker": "", "text": "그 수문 앞, 다시. 동이 트려 한다. 물안개 속에서 한 넋이 그를 향해 돌아선다 — 윤슬.", "next": "b" },
+    "b": { "speaker": "윤슬의 넋", "text": "원님… 어찌 이리 늦으셨소.", "next": "c" },
+    "c": { "speaker": "길손", "text": "…미안하다. 이제야, 너를 보내러 왔다.", "next": null }
+  }
+}

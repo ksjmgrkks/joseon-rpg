@@ -1,0 +1,8 @@
+{
+  "id": "haewon_ferry_omen",
+  "start": "a",
+  "nodes": {
+    "a": { "speaker": "", "text": "부서진 나룻배가 갈대에 걸려 있다. 떠내려온 세간이 진흙에 박혔다.", "next": "b" },
+    "b": { "speaker": "떠도는 소리", "text": "윗고을은… 진작 수문을 닫았다더라. 우리만, 우리만 몰랐어…", "next": null }
+  }
+}
