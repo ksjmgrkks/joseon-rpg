@@ -28,8 +28,10 @@ jobs:
         id: cache-godot
         uses: actions/cache@v4
         with:
-          path: ~/godot-bin
-          key: godot-${{ env.GODOT_VERSION }}
+          path: |
+            ~/godot-bin
+            ~/.local/share/godot/export_templates
+          key: godot-tpl-${{ env.GODOT_VERSION }}
 
       - name: Download Godot binary + templates
         if: steps.cache-godot.outputs.cache-hit != 'true'
@@ -40,10 +42,12 @@ jobs:
           unzip -q godot.zip -d ~/godot-bin
           chmod +x ~/godot-bin/Godot_v${GODOT_VERSION}_linux.x86_64
           mv ~/godot-bin/Godot_v${GODOT_VERSION}_linux.x86_64 ~/godot-bin/godot
-          # 익스포트 템플릿
+          # 익스포트 템플릿 — Godot 가 기대하는 디렉터리명은 점 표기(4.6.3.stable),
+          # GODOT_VERSION(4.6.3-stable)의 마지막 '-'를 '.'로 바꿔야 함. (이게 안 맞아 web export 가 줄곧 실패했음.)
+          TPL="${GODOT_VERSION/-/.}"
           wget -q "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_export_templates.tpz" -O templates.tpz
-          mkdir -p ~/.local/share/godot/export_templates/${GODOT_VERSION}
-          unzip -q -j templates.tpz -d ~/.local/share/godot/export_templates/${GODOT_VERSION}
+          mkdir -p ~/.local/share/godot/export_templates/${TPL}
+          unzip -q -j templates.tpz -d ~/.local/share/godot/export_templates/${TPL}
 
       - name: Make Godot available on PATH
         run: |
@@ -51,11 +55,12 @@ jobs:
 
       - name: Ensure templates path (cached run)
         run: |
-          # 캐시 적중 시 export templates 가 없을 수 있으므로 한 번 더 확인
-          if [ ! -d "$HOME/.local/share/godot/export_templates/${GODOT_VERSION}" ]; then
+          # 캐시 적중 시 export templates 가 없을 수 있으므로 한 번 더 확인 (디렉터리명은 점 표기)
+          TPL="${GODOT_VERSION/-/.}"
+          if [ ! -d "$HOME/.local/share/godot/export_templates/${TPL}" ]; then
             wget -q "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_export_templates.tpz" -O templates.tpz
-            mkdir -p "$HOME/.local/share/godot/export_templates/${GODOT_VERSION}"
-            unzip -q -j templates.tpz -d "$HOME/.local/share/godot/export_templates/${GODOT_VERSION}"
+            mkdir -p "$HOME/.local/share/godot/export_templates/${TPL}"
+            unzip -q -j templates.tpz -d "$HOME/.local/share/godot/export_templates/${TPL}"
           fi
 
       - name: Import assets
