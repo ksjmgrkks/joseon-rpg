@@ -10,7 +10,7 @@ extends CanvasLayer
 const REVEAL_CPS: float = 34.0          # 초당 드러나는 글자 수(타이핑 속도)
 const TAIL_W: float = 16.0
 const TAIL_H: float = 10.0
-const GAP_ABOVE: float = 4.0            # 머리 위 말풍선 간격(꼬리 높이 포함)
+const HEAD_MARGIN: float = 10.0         # 꼬리 끝을 머리 꼭대기보다 살짝 안쪽으로(+면 더 내림 → 말풍선 낮아짐)
 
 # 한지·먹 팔레트
 const BG := Color(0.96, 0.93, 0.85)        # 한지 크림
@@ -222,18 +222,63 @@ func _process(_delta: float) -> void:
 func _place_above_target() -> void:
     var node := _target as Node2D
     var ct := get_viewport().get_canvas_transform()
-    var world_head := node.global_position + Vector2(0, _head_offset(node))
-    var sp: Vector2 = ct * world_head            # 카메라 보정된 화면 좌표
+    var head_world := _head_world(node)          # 실제 스프라이트 머리 꼭대기(월드)
+    var sp: Vector2 = ct * head_world            # 카메라 보정된 화면 좌표
     var sz := bubble.size
     var vp := get_viewport().get_visible_rect().size
-    var x := clampf(sp.x - sz.x * 0.5, 8.0, maxf(8.0, vp.x - sz.x - 8.0))
-    var y := clampf(sp.y - sz.y - GAP_ABOVE, 8.0, maxf(8.0, vp.y - sz.y - 8.0))
+    # 꼬리 끝(아래 꼭짓점)을 머리 꼭대기 바로 위에 둔다 → 말풍선은 꼬리 위로.
+    var tip := sp + Vector2(0, HEAD_MARGIN)
+    var x := clampf(tip.x - sz.x * 0.5, 8.0, maxf(8.0, vp.x - sz.x - 8.0))
+    var y := clampf(tip.y - TAIL_H - sz.y, 8.0, maxf(8.0, vp.y - sz.y - 8.0))
     bubble.position = Vector2(x, y)
-    # 꼬리 — 말풍선 아래변에서 화자 쪽(sp.x)을 가리킨다.
-    var tip_x := clampf(sp.x, x + 12.0, x + sz.x - 12.0)
-    tail.position = Vector2(tip_x - TAIL_W * 0.5, y + sz.y - 1.0)
+    # 꼬리 — 말풍선 아래변에서 화자 머리(tip.x) 쪽을 가리킨다.
+    var tip_x := clampf(tip.x, x + 10.0, x + sz.x - 10.0)
+    tail.position = Vector2(tip_x - TAIL_W * 0.5, y + sz.y)
     tail.visible = true
     tail.queue_redraw()
+
+
+## 화자 스프라이트의 머리 꼭대기 월드 좌표(없으면 원점 기준 근사).
+func _head_world(node: Node2D) -> Vector2:
+    var spr := _find_sprite(node)
+    if spr != null:
+        var h := _sprite_frame_h(spr)
+        if h > 0.0:
+            var local_top := Vector2.ZERO
+            if "offset" in spr:
+                local_top = spr.offset
+            var centered := true
+            if "centered" in spr:
+                centered = spr.centered
+            if centered:
+                local_top.y -= h * 0.5
+            return spr.get_global_transform() * local_top
+    return node.global_position + Vector2(0, _fallback_offset(node))
+
+
+func _find_sprite(node: Node) -> Node2D:
+    var v := node.get_node_or_null("Visual")
+    if v is AnimatedSprite2D or v is Sprite2D:
+        return v
+    for c in node.get_children():
+        if c is AnimatedSprite2D or c is Sprite2D:
+            return c
+    return null
+
+
+func _sprite_frame_h(spr: Node2D) -> float:
+    if spr is AnimatedSprite2D:
+        var asp := spr as AnimatedSprite2D
+        if asp.sprite_frames == null or not asp.sprite_frames.has_animation(asp.animation):
+            return 0.0
+        var tex := asp.sprite_frames.get_frame_texture(asp.animation, asp.frame)
+        return float(tex.get_height()) if tex != null else 0.0
+    if spr is Sprite2D:
+        var ssp := spr as Sprite2D
+        if ssp.texture == null:
+            return 0.0
+        return float(ssp.texture.get_height()) / float(maxi(1, ssp.vframes))
+    return 0.0
 
 
 func _place_centered() -> void:
@@ -243,13 +288,13 @@ func _place_centered() -> void:
     tail.visible = false
 
 
-## 화자 머리 위 오프셋(월드 기준, 음수=위).
-func _head_offset(node: Node) -> float:
+## 스프라이트를 못 찾았을 때의 머리 높이 근사(월드 기준, 음수=위).
+func _fallback_offset(node: Node) -> float:
     if node.is_in_group("player"):
-        return -28.0
+        return -74.0
     if node.is_in_group("enemy"):
-        return -26.0
-    return -28.0
+        return -56.0
+    return -64.0
 
 
 func _draw_tail() -> void:
