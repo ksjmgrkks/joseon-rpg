@@ -10,7 +10,7 @@ extends CanvasLayer
 const REVEAL_CPS: float = 34.0          # 초당 드러나는 글자 수(타이핑 속도)
 const TAIL_W: float = 16.0
 const TAIL_H: float = 10.0
-const GAP_ABOVE: float = 12.0           # 머리 위 말풍선 간격(꼬리 높이 포함)
+const GAP_ABOVE: float = 4.0            # 머리 위 말풍선 간격(꼬리 높이 포함)
 
 # 한지·먹 팔레트
 const BG := Color(0.96, 0.93, 0.85)        # 한지 크림
@@ -21,6 +21,7 @@ const HINT_COL := Color(0.45, 0.39, 0.32)
 
 @onready var bubble: PanelContainer = $Bubble
 @onready var tail: Control = $Tail
+@onready var tap_catcher: Button = $TapCatcher
 @onready var speaker_label: Label = $Bubble/Margin/VBox/HBox/SpeakerLabel
 @onready var text_label: RichTextLabel = $Bubble/Margin/VBox/TextLabel
 @onready var choices_container: VBoxContainer = $Bubble/Margin/VBox/ChoicesContainer
@@ -35,8 +36,11 @@ func _ready() -> void:
     _apply_skin()
     bubble.visible = false
     tail.visible = false
+    tap_catcher.visible = false
     set_process(false)
     tail.draw.connect(_draw_tail)
+    # 모바일 터치/마우스로 대화 넘기기 — 전체화면 투명 버튼(중복 입력 없이 1탭 1회).
+    tap_catcher.pressed.connect(_on_tap_advance)
     Dialogue.dialogue_started.connect(_on_dialogue_event)
     Dialogue.dialogue_advanced.connect(_on_dialogue_event)
     Dialogue.dialogue_ended.connect(_on_dialogue_ended)
@@ -65,11 +69,24 @@ func _unhandled_input(event: InputEvent) -> void:
         _handle_choice_input(event)
         return
     if event.is_action_pressed("interact") or event.is_action_pressed("jump"):
-        if _revealing:
-            _finish_reveal()                 # 타이핑 중이면 먼저 즉시 완성(스킵)
-        else:
-            Dialogue.advance()
+        _advance_or_skip()
         get_viewport().set_input_as_handled()
+
+
+## 화면 탭(모바일/마우스)으로 진행. 선택지가 있으면 탭으로 넘기지 않는다(버튼으로 고름).
+func _on_tap_advance() -> void:
+    if not bubble.visible:
+        return
+    if choices_container.get_child_count() > 0:
+        return
+    _advance_or_skip()
+
+
+func _advance_or_skip() -> void:
+    if _revealing:
+        _finish_reveal()                     # 타이핑 중이면 먼저 즉시 완성(스킵)
+    else:
+        Dialogue.advance()
 
 
 func _handle_choice_input(event: InputEvent) -> void:
@@ -117,6 +134,7 @@ func _move_focus(step: int) -> void:
 # ════════════ 대사 표시 ════════════
 func _on_dialogue_event(speaker: String, text: String, choices: Array) -> void:
     bubble.visible = true
+    tap_catcher.visible = true
     set_process(true)
     _target = _resolve_speaker_node(speaker)
 
@@ -132,10 +150,10 @@ func _on_dialogue_event(speaker: String, text: String, choices: Array) -> void:
         child.queue_free()
     if choices.is_empty():
         choices_container.visible = false
-        advance_hint.text = "[Space] 다음"
+        advance_hint.text = "탭 ▶"
     else:
         choices_container.visible = true
-        advance_hint.text = "[1~%d/↑↓] 선택" % choices.size()
+        advance_hint.text = "골라서 탭"
         for i in range(choices.size()):
             var btn := Button.new()
             btn.text = "%d. %s" % [i + 1, String(choices[i].get("text", "..."))]
@@ -184,6 +202,7 @@ func _on_dialogue_ended() -> void:
     _revealing = false
     bubble.visible = false
     tail.visible = false
+    tap_catcher.visible = false
     set_process(false)
     _target = null
     for child in choices_container.get_children():
@@ -227,10 +246,10 @@ func _place_centered() -> void:
 ## 화자 머리 위 오프셋(월드 기준, 음수=위).
 func _head_offset(node: Node) -> float:
     if node.is_in_group("player"):
-        return -54.0
+        return -28.0
     if node.is_in_group("enemy"):
-        return -48.0
-    return -52.0
+        return -26.0
+    return -28.0
 
 
 func _draw_tail() -> void:

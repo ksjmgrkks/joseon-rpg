@@ -6,6 +6,13 @@
 layer = 10
 script = ExtResource("1_balloon")
 
+[node name="TapCatcher" type="Button" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+focus_mode = 0
+flat = true
+modulate = Color(1, 1, 1, 0)
+
 [node name="Tail" type="Control" parent="."]
 mouse_filter = 2
 
