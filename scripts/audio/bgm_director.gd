@@ -23,6 +23,15 @@ const SCENE_BGM := {
     "RuinedTemple":     "res://assets/audio/bgm/night.wav",
     "MountainPass":     "res://assets/audio/bgm/forest.wav",
     "SacredAltar":      "res://assets/audio/bgm/boss.wav",
+    # 「해원」 6굽이 — 강·밤·진혼의 비장한 톤. 보스 굽이(수문/윤슬)는 전투곡, 엔딩은 잔잔.
+    "Haewon0Prologue": "res://assets/audio/bgm/night.wav",
+    "Haewon1Ferry":    "res://assets/audio/bgm/night.wav",
+    "Haewon2Market":   "res://assets/audio/bgm/night.wav",
+    "Haewon3Village":  "res://assets/audio/bgm/night.wav",
+    "Haewon4Watergate":"res://assets/audio/bgm/boss.wav",
+    "Haewon5EmptyTown":"res://assets/audio/bgm/night.wav",
+    "Haewon6Yunseul":  "res://assets/audio/bgm/boss.wav",
+    "HaewonEnding":    "res://assets/audio/bgm/title.wav",
 }
 const NIGHT_BGM := "res://assets/audio/bgm/night.wav"
 # 밤 BGM 으로 갈아타는 씬 (전투 지역은 밤에도 전투곡 유지)

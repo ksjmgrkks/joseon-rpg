@@ -43,9 +43,9 @@ var _picker: Control = null
 
 func _ready() -> void:
     _apply_locale()
-    # 게임성 우선 단계: 제목·로고·컨셉 부제 숨김(스토리 추가 시 되살림).
-    if title_label:    title_label.visible = false
-    if subtitle_label: subtitle_label.visible = false
+    # 「해원」 타이틀(텍스트) 표시. 옛 그래픽 로고(TitleLogo)는 '귀창록' 잔재라 숨김 유지.
+    if title_label:    title_label.visible = true
+    if subtitle_label: subtitle_label.visible = true
     var logo := get_node_or_null("TitleLogo")
     if logo:
         logo.visible = false
