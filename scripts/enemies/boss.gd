@@ -226,6 +226,7 @@ func _enter_phase2() -> void:
     _tint_base = Color.WHITE.lerp(Color(1, 0.45, 0.40, 1), 0.3)
     if sprite:
         sprite.modulate = _tint_base
+    SkillFx.boss_enrage(global_position)
     ScreenFx.shake(14.0, 0.32)
 
 

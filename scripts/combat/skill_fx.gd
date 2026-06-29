@@ -651,3 +651,50 @@ func boss_entrance(pos: Vector2) -> void:
     tw.tween_property(halo, "scale", Vector2(2.2, 2.2), 0.5).set_trans(Tween.TRANS_QUAD)
     tw.parallel().tween_property(halo, "modulate:a", 0.0, 0.5)
     tw.tween_callback(halo.queue_free)
+
+
+## 보스 분노(페이즈2 전환) — 핏빛 마기가 바깥으로 터지는 격발.
+## 등장(boss_entrance)이 '솟아오름'이라면, 분노는 '바깥으로 터짐'으로 대비된다.
+func boss_enrage(pos: Vector2) -> void:
+    var host := _host()
+    if host == null:
+        return
+    var hot := Color(0.86, 0.36, 0.32)   # 성난 핏빛
+    var deep := Color(0.60, 0.20, 0.20)
+    # 바깥으로 터지는 핏빛 폭발 링 2겹(빠르게 확장)
+    _pulse_ring(host, pos + Vector2(0, -14), 14.0, 5.0, Color(hot.r, hot.g, hot.b, 0.85), 4.5, 0.4, 32)
+    _pulse_ring(host, pos + Vector2(0, -14), 20.0, 3.0, Color(deep.r, deep.g, deep.b, 0.7), 3.2, 0.55, 31)
+    # 사방으로 흩뿌려지는 핏빛 마기 알갱이(바깥으로 가속하며 사라짐)
+    for i in range(12):
+        var a := TAU * i / 12.0 + randf_range(-0.18, 0.18)
+        var dist := randf_range(34.0, 64.0)
+        var end := pos + Vector2(0, -14) + Vector2(cos(a), sin(a)) * dist
+        var col := GOLD if i % 4 == 0 else hot
+        _mote(host, pos + Vector2(0, -14), end, randf_range(2.5, 4.5), col, randf_range(0.4, 0.65), 33, false)
+    # 머리 위로 솟구쳤다 흩어지는 분노 기둥
+    var col_pillar := Color(hot.r, hot.g, hot.b, 0.9)
+    for i in range(5):
+        var ox := randf_range(-18, 18)
+        _mote(host, pos + Vector2(ox, -8), pos + Vector2(ox * 0.6, -randf_range(70, 120)),
+            randf_range(3.0, 5.0), col_pillar, randf_range(0.5, 0.75), 33, false)
+
+
+## 완전 차지 도달 순간 — '기 다 모였다' 한 방 피드백(1회성).
+## 매 틱 분사되는 charge_aura_tick 과 달리, 임계 통과 순간 딱 한 번 터진다.
+func charge_ready(pos: Vector2) -> void:
+    var host := _host()
+    if host == null:
+        return
+    # 안으로 빨려들었다 튕겨나가는 금빛 번쩍 링
+    var ring := _line(_circle_pts(8.0, 20), 3.0, Color(GOLD.r, GOLD.g, GOLD.b, 0.95), 33)
+    ring.global_position = pos
+    host.add_child(ring)
+    var tw := ring.create_tween()
+    tw.tween_property(ring, "scale", Vector2(3.4, 3.4), 0.28).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+    tw.parallel().tween_property(ring, "modulate:a", 0.0, 0.28)
+    tw.tween_callback(ring.queue_free)
+    # 사방으로 짧게 튀는 금빛 불티
+    for i in range(8):
+        var a := TAU * i / 8.0
+        var end := pos + Vector2(cos(a), sin(a)) * randf_range(16.0, 26.0)
+        _mote(host, pos, end, randf_range(1.8, 2.8), GOLD, randf_range(0.22, 0.36), 34, false)

@@ -68,6 +68,7 @@ var _combo_timer: float = 0.0            # 콤보 유지 카운트다운
 var _hold_time: float = 0.0              # attack 키 누른 누적 시간(차지용)
 var _charge_started: bool = false        # 이번 누름이 차지로 인식됐는가
 var _charge_fx_timer: float = 0.0        # 차지 오라 이펙트 분사 간격 타이머
+var _charge_full_fired: bool = false     # 완전 차지 도달 한 방 연출을 이번 누름에 이미 터뜨렸나
 var _base_modulate: Color = Color.WHITE
 # 회피 상태
 var _dodging: bool = false
@@ -213,6 +214,7 @@ func _physics_process(delta: float) -> void:
             _do_charged_attack()
         _hold_time = 0.0
         _charge_started = false
+        _charge_full_fired = false
 
     # 차지 인디케이터(시각 강조) — 일정 시간 이상 누르고 있으면 sprite 밝아짐
     if sprite:
@@ -222,6 +224,10 @@ func _physics_process(delta: float) -> void:
             sprite.modulate = _base_modulate.lightened(0.15)
         else:
             sprite.modulate = _base_modulate
+    # 완전 차지 도달 순간 — '기 다 모였다' 한 방 연출(누름당 1회)
+    if _hold_time >= CHARGE_FULL and not _charge_full_fired:
+        _charge_full_fired = true
+        SkillFx.charge_ready(global_position + Vector2(0, -18))
     # 차지 오라 — 임계 이상 누르는 동안 주기적으로 '기 모으기' 이펙트 분사
     if _hold_time >= CHARGE_THRESHOLD:
         _charge_fx_timer -= delta
@@ -339,6 +345,9 @@ func _do_charged_attack() -> void:
     _lunge_vel = 150.0 * (1.0 if _facing_right else -1.0)
     Audio.play_sfx(Sfx.ATTACK)
     ScreenFx.shake(10.0, 0.18)
+    # 기 모은 한 방 — 금빛 일섬으로 일반 콤보와 확실히 구분(차지 준비→발동 시각 루프 완성)
+    var slash_x := 22.0 if _facing_right else -22.0
+    SkillFx.slash(global_position + Vector2(slash_x, -10), _facing_right, SkillFx.GOLD)
     if sprite:
         SkillFx.afterimage_burst(sprite, SkillFx.MAGE_HOT, 4, 0.28)
     await attack_hitbox.activate(ATTACK_DURATION_FINISH)
