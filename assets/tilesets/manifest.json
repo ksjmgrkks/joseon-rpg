@@ -77,6 +77,20 @@
       "frame_w": 16,
       "frame_h": 24,
       "frames": 1
+    },
+    "mul_deung": {
+      "file": "mul_deung.png",
+      "frame_w": 96,
+      "frame_h": 96,
+      "frames": 1,
+      "_note": "물등(유등) — 강에 띄우는 위령 등. PixelLab(d98e6f43) 뗏목 받침형, 한지 '평안' 패널. 「해원」 매 굽이·엔딩 핵심 모티프."
+    },
+    "mul_deung_stand": {
+      "file": "mul_deung_stand.png",
+      "frame_w": 96,
+      "frame_h": 96,
+      "frames": 1,
+      "_note": "물등 — PixelLab(e996de1e) 받침대형. 제단/빈집 안에 둘 때."
     }
   }
 }

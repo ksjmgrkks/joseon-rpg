@@ -7,8 +7,8 @@
   "entries": [ { "name": "default", "x": 120 } ],
   "props": [
     { "tex": "wood_platform", "x": 1140, "y": 624, "scale": 3.0, "offset": [-32, -8] },
-    { "tex": "lantern", "x": 320, "y": 600, "scale": 1.4, "offset": [-12, -40] },
-    { "tex": "lantern", "x": 700, "y": 600, "scale": 1.4, "offset": [-12, -40] },
+    { "tex": "mul_deung", "x": 320, "y": 686, "scale": 0.85, "offset": [-48, -96] },
+    { "tex": "mul_deung", "x": 700, "y": 686, "scale": 0.85, "offset": [-48, -96] },
     { "tex": "stone", "x": 520, "y": 678, "scale": 1.2, "offset": [-16, -12] }
   ],
   "auto_dialogues": [

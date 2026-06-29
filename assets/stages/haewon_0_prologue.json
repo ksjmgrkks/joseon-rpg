@@ -7,9 +7,9 @@
   "entries": [ { "name": "default", "x": 120 } ],
   "props": [
     { "tex": "wood_platform", "x": 360, "y": 672, "scale": 2.0, "offset": [-32, -8] },
-    { "tex": "lantern", "x": 300, "y": 600, "scale": 1.4, "offset": [-12, -40] },
+    { "tex": "mul_deung", "x": 300, "y": 686, "scale": 0.8, "offset": [-48, -96] },
     { "tex": "stone", "x": 720, "y": 678, "scale": 1.2, "offset": [-16, -12] },
-    { "tex": "lantern", "x": 1180, "y": 600, "scale": 1.4, "offset": [-12, -40] }
+    { "tex": "mul_deung", "x": 1180, "y": 686, "scale": 0.8, "offset": [-48, -96] }
   ],
   "auto_dialogues": [
     { "x": 200, "dialogue": "res://assets/dialogue/haewon/prologue_open.json", "once_flag": "haewon_prologue_open_seen", "w": 110 },
