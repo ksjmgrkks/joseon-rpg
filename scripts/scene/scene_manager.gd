@@ -25,6 +25,7 @@ const NON_GAMEPLAY_SCENES := {
     "Ending": true,
     "Prologue": true,
     "Clear": true,
+    "HaewonEnding": true,
 }
 
 @export var autosave_on_scene_change: bool = true

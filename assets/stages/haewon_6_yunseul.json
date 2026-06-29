@@ -21,6 +21,6 @@
   ],
   "gates": [ { "x": 1300, "y": 600, "flag": "haewon_6_cleared", "height": 280 } ],
   "exits": [
-    { "x": 1460, "target": "res://scenes/ui/Clear.tscn", "entry": "default", "color": [0.86, 0.78, 0.6, 0.5] }
+    { "x": 1460, "target": "res://scenes/ui/HaewonEnding.tscn", "entry": "default", "color": [0.86, 0.78, 0.6, 0.5] }
   ]
 }

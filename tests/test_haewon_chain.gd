@@ -18,7 +18,7 @@ const CHAIN := {
     "res://scenes/levels/Haewon3Village.tscn": "res://scenes/levels/Haewon4Watergate.tscn",
     "res://scenes/levels/Haewon4Watergate.tscn": "res://scenes/levels/Haewon5EmptyTown.tscn",
     "res://scenes/levels/Haewon5EmptyTown.tscn": "res://scenes/levels/Haewon6Yunseul.tscn",
-    "res://scenes/levels/Haewon6Yunseul.tscn": "res://scenes/ui/Clear.tscn",
+    "res://scenes/levels/Haewon6Yunseul.tscn": "res://scenes/ui/HaewonEnding.tscn",
 }
 
 
