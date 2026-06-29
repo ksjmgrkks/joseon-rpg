@@ -58,7 +58,11 @@ func _ready() -> void:
     if data.is_empty():
         push_error("[Stage] stage json 없음: %s" % stage_id)
         return
-    if GAMEPLAY_ONLY:
+    # 「해원」 스토리 스테이지는 JSON 에 "gut"(굽이 번호)을 둔다 — 전투-클리어 전용 모드여도
+    # 이 스테이지들은 항상 스토리 빌드 경로로 가서 기억 소거 배선을 받는다.
+    # (옛 전투 체인 스테이지엔 "gut"이 없어 GAMEPLAY_ONLY 동작 그대로 — test_gameplay_chain 유지.)
+    var is_story := data.has("gut")
+    if GAMEPLAY_ONLY and not is_story:
         _build_gameplay(data)
         return
     # 이미 클리어한 구간(게이트 flag 셋)이면 적·게이트를 다시 만들지 않음 — 되돌아가도 재전투 X.
@@ -87,6 +91,42 @@ func _ready() -> void:
                 QuestManager.start_quest(qid)
             if aq.has("stage"):
                 QuestManager.set_stage(qid, String(aq["stage"]))
+    # 「해원」: 이 굽이의 진혼이 끝나면(결계 열림) 기억 한 조각을 지우고 진혼 후 대사를 연다.
+    if is_story:
+        _wire_haewon(data, cleared)
+
+
+# ─────────── 「해원」 기억 소거 배선 ───────────
+## 스토리 스테이지(JSON "gut")의 진혼 완료를 MemoryLedger 에 잇는다.
+## 전투가 있는 굽이: 결계(CombatGate).opened → 소거 + clear_dialogue.
+## 전투가 없는 굽이(예: 빈 고을): 진입 직후(이미 클리어 아닐 때) 소거.
+func _wire_haewon(data: Dictionary, cleared: bool) -> void:
+    var gut := int(data.get("gut", -1))
+    if gut < 0:
+        return
+    var clear_dialogue := String(data.get("clear_dialogue", ""))
+    # 이미 클리어한 구간을 되돌아온 경우: 소거는 세이브에 남아 있으니 다시 하지 않는다.
+    if cleared:
+        return
+    var gate: CombatGate = null
+    for c in get_children():
+        if c is CombatGate:
+            gate = c
+            break
+    if gate != null:
+        gate.opened.connect(_on_gut_cleared.bind(gut, clear_dialogue))
+    else:
+        # 전투 없는 굽이 — 진입 직후 한 박자 뒤 소거(자동 대사가 정황을 깔도록).
+        await get_tree().create_timer(0.6).timeout
+        _on_gut_cleared(gut, clear_dialogue)
+
+
+func _on_gut_cleared(gut: int, clear_dialogue: String) -> void:
+    MemoryLedger.erase_for_gut(gut)
+    if clear_dialogue != "" and ResourceLoader.exists(clear_dialogue):
+        # 결계 개방 연출과 겹치지 않게 살짝 뒤에 진혼 후 독백.
+        await get_tree().create_timer(0.5).timeout
+        Dialogue.start(clear_dialogue)
 
 
 func _load() -> Dictionary:

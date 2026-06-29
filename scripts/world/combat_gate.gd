@@ -8,6 +8,9 @@ class_name CombatGate
 ## 스테이지 시작 시 적이 없으면(0) 즉시 열림.
 ##
 
+## 결계가 열리는 순간(구역 적 전멸 = 진혼 완료) 1회 발화. 「해원」 기억 소거 배선이 듣는다.
+signal opened
+
 @export var open_flag: String = ""        # 열릴 때 set_flag (선택)
 @export var gate_height: float = 200.0
 
@@ -63,6 +66,7 @@ func _open_gate() -> void:
     _open = true
     if open_flag != "":
         Flags.set_flag(open_flag, true)
+    opened.emit()
     if QuestToast:
         QuestToast._show("길이 열렸다 — 나아가라")
     if ScreenFx:

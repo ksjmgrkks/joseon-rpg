@@ -12,10 +12,10 @@
     { "tex": "stone", "x": 980, "y": 678, "scale": 1.3, "offset": [-16, -12] },
     { "tex": "fence", "x": 1140, "y": 660, "scale": 1.4, "offset": [-32, -12] }
   ],
+  "clear_dialogue": "res://assets/dialogue/haewon/recall_yunseul.json",
   "auto_dialogues": [
     { "x": 360, "dialogue": "res://assets/dialogue/haewon/ferry_omen.json", "once_flag": "haewon_ferry_omen_seen", "w": 110 },
-    { "x": 700, "dialogue": "res://assets/dialogue/haewon/ferryman_spirit.json", "once_flag": "haewon_ferryman_seen", "w": 110 },
-    { "x": 1200, "dialogue": "res://assets/dialogue/haewon/recall_yunseul.json", "once_flag": "haewon_recall_yunseul_seen", "w": 130 }
+    { "x": 700, "dialogue": "res://assets/dialogue/haewon/ferryman_spirit.json", "once_flag": "haewon_ferryman_seen", "w": 110 }
   ],
   "enemies": [
     { "scene": "Reaper", "x": 840, "y": 632 }

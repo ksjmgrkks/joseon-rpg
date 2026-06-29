@@ -17,7 +17,7 @@
     { "x": 1180, "dialogue": "res://assets/dialogue/haewon/empty_house.json", "once_flag": "haewon_empty_house_seen", "w": 130 }
   ],
   "pickups": [
-    { "x": 1160, "item": "yunseul_binyeo", "icon": "", "count": 1, "label": "윤슬의 비녀", "flag": "haewon_yunseul_token_found" }
+    { "x": 1160, "label": "윤슬의 비녀", "flag": "haewon_yunseul_token_found" }
   ],
   "enemies": [],
   "exits": [

@@ -11,9 +11,9 @@
     { "tex": "stone", "x": 720, "y": 678, "scale": 1.2, "offset": [-16, -12] },
     { "tex": "mul_deung", "x": 1180, "y": 686, "scale": 0.8, "offset": [-48, -96] }
   ],
+  "clear_dialogue": "res://assets/dialogue/haewon/prologue_after.json",
   "auto_dialogues": [
-    { "x": 200, "dialogue": "res://assets/dialogue/haewon/prologue_open.json", "once_flag": "haewon_prologue_open_seen", "w": 110 },
-    { "x": 1240, "dialogue": "res://assets/dialogue/haewon/prologue_after.json", "once_flag": "haewon_prologue_after_seen", "w": 110 }
+    { "x": 200, "dialogue": "res://assets/dialogue/haewon/prologue_open.json", "once_flag": "haewon_prologue_open_seen", "w": 110 }
   ],
   "enemies": [
     { "scene": "Reaper", "x": 820, "y": 632 }

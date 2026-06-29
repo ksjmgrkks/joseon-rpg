@@ -12,9 +12,9 @@
     { "tex": "lantern", "x": 520, "y": 600, "scale": 1.3, "offset": [-12, -40] },
     { "tex": "jangseung", "x": 1180, "y": 628, "scale": 1.4, "offset": [-12, -56] }
   ],
+  "clear_dialogue": "res://assets/dialogue/haewon/village_confession.json",
   "auto_dialogues": [
-    { "x": 300, "dialogue": "res://assets/dialogue/haewon/village_drowned.json", "once_flag": "haewon_village_seen", "w": 110 },
-    { "x": 1220, "dialogue": "res://assets/dialogue/haewon/village_confession.json", "once_flag": "haewon_village_confession_seen", "w": 120 }
+    { "x": 300, "dialogue": "res://assets/dialogue/haewon/village_drowned.json", "once_flag": "haewon_village_seen", "w": 110 }
   ],
   "enemies": [
     { "scene": "Reaper", "x": 780, "y": 632 },

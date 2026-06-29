@@ -3,7 +3,7 @@ extends Control
 ## 메인 메뉴 — 새로 시작·이어하기(슬롯 선택)·설정·종료.
 ##
 
-const START_LEVEL_PATH := "res://scenes/levels/Foothills.tscn"   # 전투 체인 1번
+const START_LEVEL_PATH := "res://scenes/levels/Haewon0Prologue.tscn"   # 「해원」 프롤로그 — 첫 등
 const SETTINGS_PATH := "res://scenes/ui/SettingsMenu.tscn"
 
 # 저장 메타의 지역명(SaveManager.AREA_LABELS) → 씬 경로 역매핑 (이어하기 복귀용)
@@ -21,6 +21,13 @@ const AREA_SCENES := {
     "폐사지": "res://scenes/levels/RuinedTemple.tscn",
     "신산 산길": "res://scenes/levels/MountainPass.tscn",
     "신단 제단": "res://scenes/levels/SacredAltar.tscn",
+    "나루 — 첫 등": "res://scenes/levels/Haewon0Prologue.tscn",
+    "나루의 뱃사공": "res://scenes/levels/Haewon1Ferry.tscn",
+    "물에 잠긴 저잣거리": "res://scenes/levels/Haewon2Market.tscn",
+    "물에 잠긴 강마을": "res://scenes/levels/Haewon3Village.tscn",
+    "닫힌 수문": "res://scenes/levels/Haewon4Watergate.tscn",
+    "빈 고을": "res://scenes/levels/Haewon5EmptyTown.tscn",
+    "그 문, 다시": "res://scenes/levels/Haewon6Yunseul.tscn",
 }
 const SLOT_PICKER_SCENE := preload("res://scenes/ui/SlotPicker.tscn")
 
@@ -81,6 +88,7 @@ func _on_new() -> void:
     if Equipment: Equipment.clear()
     PlayerStats.reset()
     if SkillManager: SkillManager.reset_cooldowns()
+    if MemoryLedger: MemoryLedger.reset()   # 「해원」: 기억은 온전한 상태에서 시작
     SceneManager.change_scene(START_LEVEL_PATH)
 
 

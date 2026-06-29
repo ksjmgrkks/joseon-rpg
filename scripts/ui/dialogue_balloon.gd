@@ -71,7 +71,10 @@ func _move_focus(step: int) -> void:
 func _on_dialogue_event(speaker: String, text: String, choices: Array) -> void:
     panel.visible = true
     speaker_label.text = speaker
-    text_label.text = text
+    # 「해원」 시그니처: 기억이 지워질수록 대사 글자도 함께 흐려진다(진행도 비례).
+    # seed 를 (화자+대사)로 고정 → 같은 줄은 깜빡이지 않고 일관되게 바램. RichTextLabel bbcode.
+    var ratio := MemoryLedger.progress() if MemoryLedger else 0.0
+    text_label.text = MemoryGlyph.dissolve(text, ratio, hash(speaker + text))
 
     # 기존 선택 버튼 정리
     for child in choices_container.get_children():

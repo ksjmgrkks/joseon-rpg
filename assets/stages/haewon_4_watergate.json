@@ -11,9 +11,9 @@
     { "tex": "stone", "x": 760, "y": 678, "scale": 1.2, "offset": [-16, -12] },
     { "tex": "lantern", "x": 300, "y": 600, "scale": 1.3, "offset": [-12, -40] }
   ],
+  "clear_dialogue": "res://assets/dialogue/haewon/watergate_reveal.json",
   "auto_dialogues": [
-    { "x": 240, "dialogue": "res://assets/dialogue/haewon/watergate_approach.json", "once_flag": "haewon_watergate_approach_seen", "w": 110 },
-    { "x": 1140, "dialogue": "res://assets/dialogue/haewon/watergate_reveal.json", "once_flag": "haewon_watergate_reveal_seen", "w": 120 }
+    { "x": 240, "dialogue": "res://assets/dialogue/haewon/watergate_approach.json", "once_flag": "haewon_watergate_approach_seen", "w": 110 }
   ],
   "enemies": [
     { "scene": "ReaperLord", "x": 1080, "y": 600 }

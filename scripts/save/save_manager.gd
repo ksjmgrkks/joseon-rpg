@@ -31,6 +31,13 @@ const AREA_LABELS := {
     "RuinedTemple":     "폐사지",
     "MountainPass":     "신산 산길",
     "SacredAltar":      "신단 제단",
+    "Haewon0Prologue":  "나루 — 첫 등",
+    "Haewon1Ferry":     "나루의 뱃사공",
+    "Haewon2Market":    "물에 잠긴 저잣거리",
+    "Haewon3Village":   "물에 잠긴 강마을",
+    "Haewon4Watergate": "닫힌 수문",
+    "Haewon5EmptyTown": "빈 고을",
+    "Haewon6Yunseul":   "그 문, 다시",
     "MainMenu":    "메인 메뉴",
 }
 
