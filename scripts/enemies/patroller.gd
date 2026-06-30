@@ -132,7 +132,7 @@ func _on_hurt(damage: float, knockback: float, _attacker: Node) -> void:
     hitstun = clampf(0.12 + absf(knockback) / 1400.0, 0.12, 0.4)
     velocity.x = knockback
     velocity.y = -90.0          # 살짝만 뜸(예전 -160 은 붕 떠 둔탁)
-    Audio.play_sfx(Sfx.HIT)
+    # 피격음은 공격자(플레이어) 측 _on_hitbox_landed 에서 1회 — 광역타에 적마다 중복 재생 안 되게.
     FloatingNumber.spawn(get_tree().current_scene, global_position, "-%d" % int(damage), Color(1, 0.6, 0.55))
     SkillFx.hit_flash(sprite, Color.WHITE)
     _hit_jolt()

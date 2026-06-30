@@ -38,7 +38,7 @@ const LAND_SHAKE: float = 2.0
 const ATTACK_DURATION: float = 0.18      # hitbox 활성 시간 (콤보 1~2타)
 const ATTACK_DURATION_FINISH: float = 0.24
 const ATTACK_RECOVER: float = 0.18       # 한 타 끝나고 다음 타까지 최소 간격
-const COMBO_WINDOW: float = 0.45         # 콤보 입력 허용 윈도우
+const COMBO_WINDOW: float = 1.0          # 콤보 입력 허용 윈도우 — 1초 안에 다시 치면 콤보 이어짐(관대)
 const CHARGE_THRESHOLD: float = 0.45     # 이 시간보다 길게 누르고 있으면 차지로 인식
 const CHARGE_FULL: float = 0.95          # 완전 차지(시각 강조용)
 
@@ -69,6 +69,7 @@ var _lunge_vel: float = 0.0
 var _attacking: bool = false             # 한 타가 끝날 때까지 true
 var _combo_step: int = 0                 # 0=무, 1/2/3=콤보 단계
 var _combo_timer: float = 0.0            # 콤보 유지 카운트다운
+var _combo_buffered: bool = false        # 공격 중 누른 입력 — 현재 타 끝나면 다음 타로 이어감(판정 관대)
 var _hold_time: float = 0.0              # attack 키 누른 누적 시간(차지용)
 var _charge_started: bool = false        # 이번 누름이 차지로 인식됐는가
 var _charge_fx_timer: float = 0.0        # 차지 오라 이펙트 분사 간격 타이머
@@ -249,9 +250,11 @@ func _physics_process(delta: float) -> void:
     var direction := Input.get_axis("move_left", "move_right")
     var accel := ACCEL if on_floor else AIR_ACCEL
     var fric := FRICTION if on_floor else AIR_FRICTION
-    # 공격 중엔 마찰을 크게 줄여 런지(전방 임펄스)가 살아 흐르게 — 바라보는 쪽으로 역동적 전진 3타
+    # 공격 중엔 방향키 이동을 막고(콤보 도중 걸어다님 방지) 마찰을 크게 줄여
+    # 런지(전방 임펄스)만 살아 흐르게 한다 — 바라보는 쪽으로 역동적 전진 3타.
     if _attacking:
-        fric *= 0.2
+        direction = 0.0
+        fric *= 0.12
     # 점프 정점 부근에서는 가로 가속을 살짝 키워 공중 미세 제어가 잘 먹게(체공 제어감)
     if not on_floor and absf(velocity.y) < APEX_THRESHOLD:
         accel *= APEX_BONUS_ACCEL
@@ -267,10 +270,13 @@ func _physics_process(delta: float) -> void:
     else:
         velocity.x = move_toward(velocity.x, 0.0, fric * delta)
 
-    # 일반/콤보 공격 — '눌리는 순간'만 발동. 단, 이미 차지 임계점을 넘었으면 일반 발동 막음.
+    # 일반/콤보 공격 — '눌리는 순간' 발동. 공격 중에 누르면 버퍼링해 두었다가
+    # 현재 타가 끝나는 즉시 다음 타로 이어간다(타이밍 빡빡함 해소 → 콤보가 잘 나감).
     if Input.is_action_just_pressed("attack"):
-        # 임계점 도달 시점에만 차지로 간주(릴리스 때 강타). 일반 콤보는 즉시 발동.
-        _do_combo_attack()
+        if _attacking:
+            _combo_buffered = true
+        else:
+            _do_combo_attack()
     # 일반 콤보를 즉시 쳤더라도 그 이후로 계속 누르고 있으면 다음 공격은 차지로 동작.
     if attack_held and _hold_time >= CHARGE_THRESHOLD:
         _charge_started = true
@@ -303,20 +309,20 @@ func _do_combo_attack() -> void:
     var shake_strength := 4.0
     var duration := ATTACK_DURATION
     var hb_w := 28.0          # 히트박스 폭(앞으로 뻗는 사거리) — 1타는 좁은 찌름
-    var lunge_amt := 110.0    # 전방 런지(바라보는 쪽으로 치고 나감)
+    var lunge_amt := 200.0    # 전방 런지(바라보는 쪽으로 크게 치고 나감)
     if _combo_step == 2:
         damage_mult = 1.35
         knock_mult = 1.2
         shake_strength = 6.0
         hb_w = 44.0           # 2타 — 넓은 횡베기
-        lunge_amt = 150.0
+        lunge_amt = 280.0
     elif _combo_step == 3:
         damage_mult = 2.0
         knock_mult = 1.7
         shake_strength = 9.0
         duration = ATTACK_DURATION_FINISH
         hb_w = 70.0           # 3타 — 광역 회전 마무리(여러 적 동시 타격)
-        lunge_amt = 240.0
+        lunge_amt = 420.0
     attack_hitbox.damage = base_damage * damage_mult
     attack_hitbox.knockback = base_knock * knock_mult
     # 히트박스를 단계별로 넓혀 '범위 공격'화 — 폭이 커질수록 세로도 살짝 키워 회전 마무리를 광역으로.
@@ -351,6 +357,13 @@ func _do_combo_attack() -> void:
     if _combo_step >= 3:
         _combo_step = 0
         _combo_timer = 0.0
+        _combo_buffered = false
+    # 공격 중 눌러둔 입력이 있고 콤보가 아직 살아있으면 곧장 다음 타로 이어간다.
+    elif _combo_buffered and _combo_timer > 0.0:
+        _combo_buffered = false
+        _do_combo_attack()
+    else:
+        _combo_buffered = false
 
 
 # 차지 강타(눌렀다 떼는 순간 발동)
@@ -386,6 +399,8 @@ func _on_hitbox_landed(area: Area2D) -> void:
     if not (area is Hurtbox):
         return
     # 적 부모를 침. (자기 자신은 Hurtbox._on_area_entered 에서 이미 걸러짐.)
+    # 타격이 적중하는 순간 '퍽' 하는 피격음(적 측에서 내던 걸 공격자 측으로 모음 → 허공 스윙엔 안 남).
+    Audio.play_sfx(Sfx.HIT)
     var landed_strength := 4.0 + 1.5 * float(_combo_step)
     ScreenFx.shake(landed_strength, 0.16)
     # 등급별 히트스톱 — 1·2타는 짧고 얕게(경쾌), 3타(마무리)는 길고 '딱' 멈춤(묵직).
@@ -453,7 +468,8 @@ func _skill_ultimate() -> void:
         SkillFx.afterimage_burst(sprite, SkillFx.MAGE_HOT, 6, 0.4)
     ScreenFx.shake(16.0, 0.5)
     ScreenFx.hit_stop(0.12)
-    # 사거리 안 모든 적에게 피해
+    # 사거리 안 모든 적에게 피해 (궁극기는 히트박스를 안 거치므로 피격음을 1회 직접 재생)
+    var hit_any := false
     for e in get_tree().get_nodes_in_group("enemy"):
         if not (e is Node2D):
             continue
@@ -462,9 +478,12 @@ func _skill_ultimate() -> void:
         var hc: HealthComponent = e.get_node_or_null("HealthComponent")
         if hc:
             hc.take_damage(dmg, self)
+            hit_any = true
             var epos: Vector2 = (e as Node2D).global_position + Vector2(0, -16)
             SkillFx.impact(epos, true)
             SkillFx.bleed(epos, _facing_right, true)
+    if hit_any:
+        Audio.play_sfx(Sfx.HIT)
     await get_tree().create_timer(0.5).timeout
     _attacking = false
 

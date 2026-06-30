@@ -40,7 +40,7 @@ func _physics_process(delta: float) -> void:
 func _on_hurt(damage: float, knockback: float, _attacker: Node) -> void:
     _knockback_vel = knockback
     velocity.y = -160.0
-    Audio.play_sfx(Sfx.HIT)
+    # 피격음은 공격자(플레이어) 측 _on_hitbox_landed 에서 1회 재생.
     FloatingNumber.spawn(get_tree().current_scene, global_position, "-%d" % int(damage), Color(1, 0.6, 0.55))
     SkillFx.hit_flash(sprite, Color.WHITE)
 

@@ -239,7 +239,7 @@ func _on_hurt(damage: float, knockback: float, _attacker: Node) -> void:
     if _state == State.DEAD:
         return
     velocity.x += knockback * 0.3   # 보스는 잘 안 밀림
-    Audio.play_sfx(Sfx.HIT)
+    # 피격음은 공격자(플레이어) 측 _on_hitbox_landed 에서 1회 재생.
     FloatingNumber.spawn(get_tree().current_scene, global_position, "-%d" % int(damage), Color(1, 0.55, 0.50))
     if sprite and not _attacking_blink:
         _attacking_blink = true
