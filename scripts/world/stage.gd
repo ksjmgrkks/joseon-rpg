@@ -107,6 +107,9 @@ func _wire_haewon(data: Dictionary, cleared: bool) -> void:
     var clear_dialogue := String(data.get("clear_dialogue", ""))
     # 진혼 후 대사를 '걷는 회상/정적'(수묵 흑백 오버랩)으로 감쌀지.
     var clear_inkwash := bool(data.get("clear_inkwash", false))
+    # 진혼 후 '회상 컷' — 전투맵 위 말풍선 대신 전용 회상 씬으로 컷 전환했다가 복귀.
+    # (있으면 clear_dialogue/clear_inkwash 대신 이 경로로 간다 — 대사는 컷씬 JSON 안에서 재생.)
+    var clear_cutscene := String(data.get("clear_cutscene", ""))
     # 이미 클리어한 구간을 되돌아온 경우: 소거는 세이브에 남아 있으니 다시 하지 않는다.
     if cleared:
         return
@@ -116,15 +119,23 @@ func _wire_haewon(data: Dictionary, cleared: bool) -> void:
             gate = c
             break
     if gate != null:
-        gate.opened.connect(_on_gut_cleared.bind(gut, clear_dialogue, clear_inkwash))
+        gate.opened.connect(_on_gut_cleared.bind(gut, clear_dialogue, clear_inkwash, clear_cutscene))
     else:
         # 전투 없는 굽이 — 진입 직후 한 박자 뒤 소거(자동 대사가 정황을 깔도록).
         await get_tree().create_timer(0.6).timeout
-        _on_gut_cleared(gut, clear_dialogue, clear_inkwash)
+        _on_gut_cleared(gut, clear_dialogue, clear_inkwash, clear_cutscene)
 
 
-func _on_gut_cleared(gut: int, clear_dialogue: String, ink: bool = false) -> void:
+func _on_gut_cleared(gut: int, clear_dialogue: String, ink: bool = false, clear_cutscene: String = "") -> void:
     MemoryLedger.erase_for_gut(gut)
+    # 회상 컷이 지정돼 있으면 — 잠깐 뒤 전용 회상 씬으로 컷 전환(복귀 대상 = 이 전투 씬).
+    if clear_cutscene != "" and ResourceLoader.exists(clear_cutscene) and SceneManager:
+        await get_tree().create_timer(0.5).timeout
+        var ret := ""
+        if get_tree().current_scene != null:
+            ret = get_tree().current_scene.scene_file_path
+        SceneManager.play_cutscene(clear_cutscene, ret, &"from_recall")
+        return
     if ink and InkWash:
         InkWash.enter()
     if clear_dialogue != "" and ResourceLoader.exists(clear_dialogue):

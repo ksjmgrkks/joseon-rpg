@@ -40,6 +40,11 @@ var _fade_rect: ColorRect
 # 새 씬 _ready 후 한 프레임 뒤에 적용 + 클리어.
 var _pending_entry: StringName = &""
 
+# 회상 컷 복귀 컨텍스트 — play_cutscene 가 '돌아갈 전투 씬+entry'를 기억해 둔다.
+# 컷씬이 끝나면 cutscene.gd 가 return_from_cutscene() 으로 이 값을 써서 되돌아온다.
+var _cut_return_path: String = ""
+var _cut_return_entry: StringName = &""
+
 
 func _ready() -> void:
     process_mode = Node.PROCESS_MODE_ALWAYS
@@ -62,6 +67,29 @@ func change_scene(path: String, fade_seconds: float = DEFAULT_FADE) -> bool:
 ## 씬 교체 후 entry 이름에 맞는 LevelEntry 로 플레이어를 옮긴다.
 func change_scene_to(path: String, entry: StringName, fade_seconds: float = DEFAULT_FADE) -> bool:
     return await _do_change(path, entry, fade_seconds)
+
+
+# ─────────────────────────── 회상 컷 ───────────────────────────
+## 「해원」 회상 컷 — 전투맵 위 말풍선 대신 전용 회상 씬으로 컷 전환했다가,
+## 컷이 끝나면 원래 전투 씬(return_path)의 return_entry 로 되돌아온다.
+##  · 전투맵은 굽이를 이미 클리어한 상태(게이트 flag set)라 되돌아와도 적·결계가 다시 안 생긴다.
+##  · 떠나기 직전 autosave 가 '클리어한 전투맵'을 체크포인트로 남기고(컷씬 Cut* 는 저장 제외),
+##    되돌아올 때 다시 그 전투맵이 체크포인트가 된다 → 컷 도중 종료해도 컷이 아니라 전투맵으로 복귀.
+func play_cutscene(path: String, return_path: String, return_entry: StringName = &"", fade_seconds: float = DEFAULT_FADE) -> bool:
+    _cut_return_path = return_path
+    _cut_return_entry = return_entry
+    return await change_scene(path, fade_seconds)
+
+
+## 회상 컷이 끝나면 호출 — 기억해 둔 전투 씬/entry 로 복귀. 복귀 대상 없으면 false.
+func return_from_cutscene(fade_seconds: float = DEFAULT_FADE) -> bool:
+    var p := _cut_return_path
+    var e := _cut_return_entry
+    _cut_return_path = ""
+    _cut_return_entry = &""
+    if p.is_empty():
+        return false
+    return await change_scene_to(p, e, fade_seconds)
 
 
 func _do_change(path: String, entry: StringName, fade_seconds: float) -> bool:
@@ -97,7 +125,7 @@ func _try_autosave() -> void:
     if tree == null or tree.current_scene == null:
         return
     var nm := String(tree.current_scene.name)
-    if NON_GAMEPLAY_SCENES.has(nm):
+    if NON_GAMEPLAY_SCENES.has(nm) or nm.begins_with("Cut"):
         return
     SaveManager.save(AUTOSAVE_SLOT)
 

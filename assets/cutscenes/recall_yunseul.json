@@ -1,0 +1,17 @@
+{
+  "_note": "회상 컷 — 윤슬 강가 동틀녘(1굽이 진혼 후). 전투맵 위 오버레이가 아니라 전용 '기억 맵'으로 컷 전환. 따뜻한 동틀녘 톤(수묵 아님 — '물에 빛 드는' 빛을 살림). 젊은 길손(현감)+윤슬 두 인물. 대사는 recall_yunseul.json(윤슬 이름의 뜻, 엔딩 회수). figure PNG 없으면 cutscene.gd 가 수묵 실루엣 폴백. 컷 끝나면 SceneManager 가 Haewon1Ferry 의 from_recall 로 복귀.",
+  "backdrop": { "sky": [0.74, 0.66, 0.52], "tint": [0.92, 0.86, 0.72], "far_scale": 0.12 },
+  "ground": { "tex": "ground_dirt", "width": 2000, "x": -200 },
+  "props": [
+    { "tex": "mul_deung", "x": 360, "y": 686, "scale": 0.8, "offset": [-48, -96] },
+    { "tex": "wood_platform", "x": 880, "y": 690, "scale": 2.0, "offset": [-32, -8] },
+    { "tex": "stone", "x": 1000, "y": 678, "scale": 1.1, "offset": [-16, -12] }
+  ],
+  "figures": [
+    { "sprite": "res://assets/sprites/cutscene/gilson_young/idle.png", "x": 560, "y": 684, "scale": 1.8, "flip": false },
+    { "sprite": "res://assets/sprites/cutscene/yunseul/idle.png", "x": 760, "y": 684, "scale": 1.8, "flip": true }
+  ],
+  "camera": { "x": 660, "y": 430 },
+  "tone": "",
+  "dialogue": "res://assets/dialogue/haewon/recall_yunseul.json"
+}
