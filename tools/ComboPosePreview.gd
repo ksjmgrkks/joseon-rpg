@@ -8,7 +8,7 @@ func _ready() -> void:
     if sf == null:
         push_error("custom frames 없음"); get_tree().quit(1); return
     # 1타·2타·3타 포즈를 가로로 배치
-    var specs := [["attack", 5, 320.0], ["attack2", 5, 640.0], ["attack3", 7, 960.0]]
+    var specs := [["attack", 7, 320.0], ["attack2", 7, 640.0], ["attack3", 10, 960.0]]
     var steps := [1, 2, 3]
     for i in range(specs.size()):
         var spec: Array = specs[i]

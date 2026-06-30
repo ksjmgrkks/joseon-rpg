@@ -49,8 +49,12 @@ const DODGE_COOLDOWN: float = 0.6
 
 @onready var sprite: AnimatedSprite2D = $Visual
 @onready var attack_hitbox: Hitbox = $AttackHitbox
+@onready var attack_shape: CollisionShape2D = $AttackHitbox/HitboxShape
 @onready var hurtbox: Hurtbox = $Hurtbox
 @onready var health: HealthComponent = $HealthComponent
+
+# 콤보 단계별로 히트박스를 넓혔다가 되돌릴 기준 크기(씬에 박힌 기본값).
+var _hitbox_base_size: Vector2 = Vector2(24, 24)
 
 var _facing_right: bool = true
 # 점프 손맛 상태 (코요테/버퍼/가변 점프)
@@ -96,6 +100,8 @@ func _ready() -> void:
     if attack_hitbox:
         # 내가 친 게 적의 Hurtbox에 닿으면 화면 fx 발사
         attack_hitbox.area_entered.connect(_on_hitbox_landed)
+    if attack_shape and attack_shape.shape is RectangleShape2D:
+        _hitbox_base_size = (attack_shape.shape as RectangleShape2D).size
     SkillManager.skill_cast.connect(_on_skill_cast)
     if health:
         _last_hp = health.hp
@@ -243,6 +249,9 @@ func _physics_process(delta: float) -> void:
     var direction := Input.get_axis("move_left", "move_right")
     var accel := ACCEL if on_floor else AIR_ACCEL
     var fric := FRICTION if on_floor else AIR_FRICTION
+    # 공격 중엔 마찰을 크게 줄여 런지(전방 임펄스)가 살아 흐르게 — 바라보는 쪽으로 역동적 전진 3타
+    if _attacking:
+        fric *= 0.2
     # 점프 정점 부근에서는 가로 가속을 살짝 키워 공중 미세 제어가 잘 먹게(체공 제어감)
     if not on_floor and absf(velocity.y) < APEX_THRESHOLD:
         accel *= APEX_BONUS_ACCEL
@@ -288,24 +297,36 @@ func _do_combo_attack() -> void:
     # 무기 장착돼 있으면 그 데미지를 베이스로 사용.
     var base_damage: float = Equipment.current_damage(stored_damage)
     var base_knock: float = stored_knock
-    # 콤보 단계별 보너스. 3타에서 데미지·넉백·shake 증가.
+    # 콤보 단계별 점증 — 1→2→3 으로 데미지·범위·넉백·전진 모두 커진다(범위 공격화).
     var damage_mult := 1.0
     var knock_mult := 1.0
     var shake_strength := 4.0
     var duration := ATTACK_DURATION
+    var hb_w := 28.0          # 히트박스 폭(앞으로 뻗는 사거리) — 1타는 좁은 찌름
+    var lunge_amt := 110.0    # 전방 런지(바라보는 쪽으로 치고 나감)
     if _combo_step == 2:
-        damage_mult = 1.10
-        shake_strength = 5.0
+        damage_mult = 1.35
+        knock_mult = 1.2
+        shake_strength = 6.0
+        hb_w = 44.0           # 2타 — 넓은 횡베기
+        lunge_amt = 150.0
     elif _combo_step == 3:
-        damage_mult = 1.6
-        knock_mult = 1.6
-        shake_strength = 8.0
+        damage_mult = 2.0
+        knock_mult = 1.7
+        shake_strength = 9.0
         duration = ATTACK_DURATION_FINISH
+        hb_w = 70.0           # 3타 — 광역 회전 마무리(여러 적 동시 타격)
+        lunge_amt = 240.0
     attack_hitbox.damage = base_damage * damage_mult
     attack_hitbox.knockback = base_knock * knock_mult
-    attack_hitbox.position.x = 16.0 if _facing_right else -16.0
-    # 전방 런지 — 3타에서 가장 크게 치고 나가 타격감 강조
-    var lunge_amt := 70.0 if _combo_step < 3 else 130.0
+    # 히트박스를 단계별로 넓혀 '범위 공격'화 — 폭이 커질수록 세로도 살짝 키워 회전 마무리를 광역으로.
+    var hb_h := 26.0 + (hb_w - 28.0) * 0.34
+    if attack_shape and attack_shape.shape is RectangleShape2D:
+        (attack_shape.shape as RectangleShape2D).size = Vector2(hb_w, hb_h)
+    # 근거리 가장자리는 몸 앞에 고정하고 폭만 앞으로 확장(중심 = 6 + 폭/2).
+    var reach_x := 6.0 + hb_w * 0.5
+    attack_hitbox.position.x = reach_x if _facing_right else -reach_x
+    # 전방 런지 — 3타가 가장 크게 치고 나가 타격감·역동 강조(공격 중 마찰↓로 글라이드).
     _lunge_vel = lunge_amt * (1.0 if _facing_right else -1.0)
     Audio.play_sfx(Sfx.ATTACK)
     # 콤보 단계별 창 이펙트(1 찌르기 / 2 횡소 / 3 회전베기)
@@ -318,9 +339,12 @@ func _do_combo_attack() -> void:
     # 공격 휘두를 때마다 살짝 진동(피드백). 명중 시 추가 진동은 _on_hitbox_landed에서.
     ScreenFx.shake(shake_strength * 0.5, 0.08)
     await attack_hitbox.activate(duration)
-    # 원래 베이스(씬에 박힌 기본값)로 복귀
+    # 원래 베이스(씬에 박힌 기본값)로 복귀 — 데미지·넉백·히트박스 크기·위치
     attack_hitbox.damage = stored_damage
     attack_hitbox.knockback = stored_knock
+    attack_hitbox.position.x = 16.0 if _facing_right else -16.0
+    if attack_shape and attack_shape.shape is RectangleShape2D:
+        (attack_shape.shape as RectangleShape2D).size = _hitbox_base_size
     await get_tree().create_timer(ATTACK_RECOVER).timeout
     _attacking = false
     # 3타까지 갔으면 콤보 즉시 리셋(다음 입력은 1타부터)

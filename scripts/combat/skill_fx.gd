@@ -167,14 +167,14 @@ func _spear_thrust(pos: Vector2, facing_right: bool) -> void:
     root.global_position = pos
     root.z_index = 30
     host.add_child(root)
-    # PixelLab 페인티드 창격(주역) — 기존 코드 창대/속도선이 받쳐줌. tip 이 진행 방향을 향하게 flip.
-    _painted("thrust_lance", pos + Vector2(dir * 30.0, 0), 0.42, 0.56, 0.16, facing_right, 0.0, 0.0,
-        Color(1, 1, 1, 0.95), 31, Vector2(dir * 18.0, 0))
+    # PixelLab 페인티드 창격(주역) — 텍스처가 우향(east)이라 좌향일 때만 뒤집어 진행 방향을 향하게.
+    _painted("combo_thrust", pos + Vector2(dir * 36.0, 0), 0.6, 0.95, 0.18, not facing_right, 0.0, 0.0,
+        Color(1, 1, 1, 0.95), 31, Vector2(dir * 26.0, 0))
     # 굵은 보랏빛 마기 잔상 → 그 위에 밝은 창대
-    var aura := _line(PackedVector2Array([Vector2(dir * 2, 0), Vector2(dir * 70, 0)]), 13.0,
+    var aura := _line(PackedVector2Array([Vector2(dir * 2, 0), Vector2(dir * 84, 0)]), 15.0,
         Color(MAGE.r, MAGE.g, MAGE.b, 0.45), 29)
     root.add_child(aura)
-    var shaft := _line(PackedVector2Array([Vector2(dir * 4, 0), Vector2(dir * 66, 0)]), 5.0, BRIGHT, 31)
+    var shaft := _line(PackedVector2Array([Vector2(dir * 4, 0), Vector2(dir * 80, 0)]), 6.0, BRIGHT, 31)
     root.add_child(shaft)
     # 속도선 3가닥(위/중/아래)
     for off in [-9.0, 0.0, 9.0]:
@@ -185,11 +185,11 @@ func _spear_thrust(pos: Vector2, facing_right: bool) -> void:
     var tip := Polygon2D.new()
     tip.polygon = PackedVector2Array([Vector2(0, -8), Vector2(13, 0), Vector2(0, 8), Vector2(-13, 0)])
     tip.color = MAGE_HOT
-    tip.position = Vector2(dir * 70, 0)
+    tip.position = Vector2(dir * 84, 0)
     tip.z_index = 32
     root.add_child(tip)
     var tw := root.create_tween()
-    tw.tween_property(root, "position:x", root.position.x + dir * 22.0, 0.12)
+    tw.tween_property(root, "position:x", root.position.x + dir * 30.0, 0.12)
     tw.parallel().tween_property(root, "modulate:a", 0.0, 0.15)
     tw.tween_callback(root.queue_free)
 
@@ -205,35 +205,35 @@ func _spear_sweep(pos: Vector2, facing_right: bool) -> void:
     root.z_index = 30
     host.add_child(root)
     # PixelLab 페인티드 초승달(주역) — 아래 코드 디테일(꽃잎/잔상)이 받쳐줌
-    _painted("slash_wide", pos, 0.42, 0.66, 0.2, not facing_right, -0.12 * dir, 0.0, Color(1, 1, 1, 0.95), 31)
+    _painted("combo_sweep", pos, 0.62, 1.05, 0.22, not facing_right, -0.12 * dir, 0.0, Color(1, 1, 1, 0.95), 31)
     var wc := _belly_curve()
     # 3겹 초승달(보라 굵게 → 밝게) — 약간씩 각도 오프셋해 잔상감
     var layers := [
-        [13.0, Color(MAGE.r, MAGE.g, MAGE.b, 0.40), -0.18],
-        [8.0, MAGE_HOT, -0.07],
-        [4.0, BRIGHT, 0.0],
+        [16.0, Color(MAGE.r, MAGE.g, MAGE.b, 0.40), -0.18],
+        [10.0, MAGE_HOT, -0.07],
+        [5.0, BRIGHT, 0.0],
     ]
     for L in layers:
         var pts := PackedVector2Array()
         for i in range(13):
             var t := i / 12.0
-            var a := lerpf(-1.15, 1.15, t) + float(L[2])
-            pts.append(Vector2(dir * cos(a) * 62.0, sin(a) * 42.0))
+            var a := lerpf(-1.2, 1.2, t) + float(L[2])
+            pts.append(Vector2(dir * cos(a) * 76.0, sin(a) * 52.0))
         var arc := _line(pts, float(L[0]), L[1], 30)
         arc.width_curve = wc
         root.add_child(arc)
     # 호를 따라 튀는 꽃잎 스파크
-    for i in range(6):
-        var t := (i + 0.5) / 6.0
-        var a := lerpf(-1.0, 1.0, t)
+    for i in range(8):
+        var t := (i + 0.5) / 8.0
+        var a := lerpf(-1.05, 1.05, t)
         var petal := Polygon2D.new()
-        petal.polygon = PackedVector2Array([Vector2(0, -3), Vector2(5, 0), Vector2(0, 3), Vector2(-5, 0)])
+        petal.polygon = PackedVector2Array([Vector2(0, -4), Vector2(6, 0), Vector2(0, 4), Vector2(-6, 0)])
         petal.color = GOLD if i % 2 == 0 else BRIGHT
-        petal.position = Vector2(dir * cos(a) * 66.0, sin(a) * 46.0)
+        petal.position = Vector2(dir * cos(a) * 80.0, sin(a) * 56.0)
         petal.z_index = 31
         root.add_child(petal)
     var tw := root.create_tween()
-    tw.tween_property(root, "scale", Vector2(1.3, 1.3), 0.18).set_trans(Tween.TRANS_QUAD)
+    tw.tween_property(root, "scale", Vector2(1.5, 1.5), 0.2).set_trans(Tween.TRANS_QUAD)
     tw.parallel().tween_property(root, "modulate:a", 0.0, 0.2)
     tw.tween_callback(root.queue_free)
 
@@ -248,26 +248,33 @@ func _spear_spin(pos: Vector2) -> void:
     root.global_position = center
     root.z_index = 30
     host.add_child(root)
-    # PixelLab 페인티드 소용돌이(주역) — 회전하며 커진다
-    _painted("slash_swirl", center, 0.45, 0.82, 0.26, false, 0.0, TAU * 0.6, Color(1, 1, 1, 0.95), 31)
-    # 2겹 회전 링
-    for k in range(2):
+    # PixelLab 페인티드 소용돌이(주역) — 회전하며 크게 커진다(콤보 피니시 = 가장 화려)
+    _painted("combo_burst", center, 0.7, 1.5, 0.3, false, 0.0, TAU * 0.6, Color(1, 1, 1, 1.0), 31)
+    # 3겹 회전 링(밝게 → 보라 → 금) — 광역감
+    var ring_cols := [BRIGHT, MAGE_HOT, GOLD]
+    for k in range(3):
         var rp := PackedVector2Array()
         for i in range(25):
             var a := TAU * i / 24.0
-            rp.append(Vector2(cos(a), sin(a)) * (50.0 - k * 12.0))
-        var ring := _line(rp, 9.0 - k * 3.0, BRIGHT if k == 0 else MAGE_HOT, 31 - k)
+            rp.append(Vector2(cos(a), sin(a)) * (66.0 - k * 14.0))
+        var ring := _line(rp, 10.0 - k * 2.5, ring_cols[k], 31 - k)
         root.add_child(ring)
-    # 방사 마기 가시 12
-    for i in range(12):
-        var a := TAU * i / 12.0
-        var sp := _line(PackedVector2Array([Vector2(cos(a), sin(a)) * 18.0, Vector2(cos(a), sin(a)) * 60.0]),
-            4.0, MAGE, 29)
+    # 방사 마기 가시 16(더 길게 뻗음)
+    for i in range(16):
+        var a := TAU * i / 16.0
+        var sp := _line(PackedVector2Array([Vector2(cos(a), sin(a)) * 20.0, Vector2(cos(a), sin(a)) * 82.0]),
+            4.5, MAGE if i % 2 == 0 else MAGE_HOT, 29)
         root.add_child(sp)
+    # 사방으로 튀는 금빛 불티(광역 마무리 강조) — _mote 는 전역 좌표계
+    for i in range(10):
+        var a := TAU * i / 10.0 + 0.3
+        var end := center + Vector2(cos(a), sin(a)) * randf_range(60.0, 92.0)
+        _mote(host, center, end, randf_range(2.5, 4.0), GOLD if i % 2 == 0 else BRIGHT,
+            randf_range(0.26, 0.4), 32, false)
     var tw := root.create_tween()
-    tw.tween_property(root, "scale", Vector2(1.55, 1.55), 0.26).set_trans(Tween.TRANS_QUAD)
-    tw.parallel().tween_property(root, "rotation", TAU, 0.26)
-    tw.parallel().tween_property(root, "modulate:a", 0.0, 0.26)
+    tw.tween_property(root, "scale", Vector2(1.9, 1.9), 0.3).set_trans(Tween.TRANS_QUAD)
+    tw.parallel().tween_property(root, "rotation", TAU, 0.3)
+    tw.parallel().tween_property(root, "modulate:a", 0.0, 0.3)
     tw.tween_callback(root.queue_free)
     # 지면 먼지(아래 좌우로 퍼지는 납작 호)
     _ground_dust(pos)

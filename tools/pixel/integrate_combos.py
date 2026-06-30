@@ -18,11 +18,12 @@ BASE = ("https://backblaze.pixellab.ai/file/pixellab-characters/"
         "f5fd2830-c0f3-48c3-aa17-6171e3559da4/animations/%s/east/%d.png")
 
 # name -> (anim_uuid, frame_count, fps, loop)
+# 2026-06-30(3차): 1·2·3타를 '바라보는 쪽으로 역동적 전진'하는 모션으로 재생성(lunge/stride/leap).
 NEW = {
-    "attack":  ("0dc846a9-c360-44c0-ba59-fa12800630ea", 9, 24, False),  # 1타 폭발 찌름
-    "attack2": ("daae20c2-78ec-4981-920b-30dfb41bc409", 9, 24, False),  # 2타 횡쓸기
-    "attack3": ("1552a702-6a0c-40cd-9f77-d19ce309bd5f", 13, 24, False), # 3타 도약 회전 내려찍기 v2(역동 강화)
-    "charge":  ("8baf25cc-7d2b-4efe-b3c3-080335cbdd99", 7, 9, True),    # 기 모으기(루프)
+    "attack":  ("2a881a59-8b57-4ac6-84c0-19dd41fedf02", 9, 24, False),  # 1타 전진 펜싱 런지 찌름(v2)
+    "attack2": ("7d977231-8145-42ba-8fb2-a00a4898db4b", 9, 24, False),  # 2타 전진 수평 횡베기(v2)
+    "attack3": ("ee0f899b-657e-4393-9204-0559f803d8a8", 13, 24, False), # 3타 도약 회전 내려찍기(leap smash)
+    "charge":  ("8baf25cc-7d2b-4efe-b3c3-080335cbdd99", 7, 9, True),    # 기 모으기(루프) — 유지
 }
 
 
