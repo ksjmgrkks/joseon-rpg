@@ -16,7 +16,7 @@
     { "x": 300, "dialogue": "res://assets/dialogue/haewon/market_flooded.json", "once_flag": "haewon_market_seen", "w": 110 }
   ],
   "pickups": [
-    { "x": 1180, "label": "진흙에 묻힌 통문", "flag": "haewon_tongmun_found" }
+    { "x": 1180, "label": "진흙에 묻힌 통문", "flag": "haewon_tongmun_found", "icon": "scroll" }
   ],
   "enemies": [
     { "scene": "Goblin", "x": 760, "y": 640 },

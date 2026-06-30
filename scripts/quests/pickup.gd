@@ -87,7 +87,8 @@ func _on_body_entered(body: Node) -> void:
     if requires_quest_active != "" and not QuestManager.is_active(requires_quest_active):
         return
     _used = true
-    if item_id != "" and count > 0:
+    var gave_item := item_id != "" and count > 0
+    if gave_item:
         # 'gold' 속성이 정의된 아이템은 인벤토리에 넣지 않고 PlayerStats.add_gold 로 환산.
         var def := Inventory.get_def(item_id)
         var gold_per := int(def.get("gold", 0))
@@ -110,5 +111,10 @@ func _on_body_entered(body: Node) -> void:
             QuestManager.start_quest(quest_id)
     if flag_key != "":
         Flags.set_flag(flag_key, flag_value)
+    # 아이템 없이 단서·플래그만 줍는 픽업(예: 「해원」 통문·비녀)도 라벨·소리로 발견을 알린다.
+    # (없으면 조용히 사라져 플레이어가 단서를 주웠는지 모른다 — 엔딩 단서 변주가 죽는다.)
+    if not gave_item and pickup_label != "":
+        FloatingNumber.spawn(get_tree().current_scene, global_position, pickup_label, Color(0.95, 0.9, 0.7))
+        Audio.play_sfx(Sfx.PICKUP)
     if destroy_on_pickup:
         queue_free()
