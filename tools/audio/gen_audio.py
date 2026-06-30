@@ -350,6 +350,291 @@ def _drum_buk(g=1.0, seed=8):
     skin = gain(decay_exp(lowpass(noise(0.08, seed=seed), 300), tau=0.03), 0.35)
     return gain(mix(body, skin), g)
 
+
+# ════════════════════════ 해원(解冤) 전용 BGM ════════════════════════
+# 서사 정서: 산나비식 비장미 · 강·물·등불 모티프 · 계면조(단조풍) 중심.
+# 음계 핵심: 계면조 A C D E G (A 단조풍). 시김새(꺾는 음) 적극 사용.
+# 장단: river/grief → 느린 3박 세마치 또는 무박 독주.
+#        requiem → 중간 4박 굿거리 → 후반 잔잔.
+
+def _water_shimmer(dur, g=0.06, seed=200):
+    """물 흐름 배경 — 고역 노이즈를 아주 낮게 깔아 강물 감촉 표현.
+    lowpass 800Hz 로 쉿쉿 소리 죽이고, 매우 낮은 게인으로 적막감 유지."""
+    n = noise(dur, seed=seed)
+    n = lowpass(n, 800)
+    env = []
+    total = int(SR * dur)
+    for i in range(total):
+        t = i / SR
+        # 숨결처럼 천천히 오가는 진폭 변동 (주기 ~7초)
+        env.append(n[i] * (0.7 + 0.3 * math.sin(2 * math.pi * t / 7.0)))
+    return gain(env, g)
+
+
+def _jinggling_drone(freq, dur, g=0.18):
+    """느린 드론 — sine 에 삼각파 살짝 섞어 가야금 공명함 질감 추가."""
+    s = sine(freq, dur)
+    t = gain(triangle(freq * 0.998, dur), 0.15)   # 미세 이조로 살짝 떨림
+    return gain(mix(s, t), g)
+
+
+def _seomachi_janggu(out, beat, bars, t0=0.0, g=1.0):
+    """세마치 장단(3박 단위) — 느린 진혼 장단.
+    궁(1박) · 공박(2박) · 채(3박) 구조로 성기고 무거움."""
+    cyc = beat * 3
+    for bar in range(bars):
+        base = t0 + bar * cyc
+        if base >= len(out) / SR:
+            break
+        mix_at(out, _janggu_kung(0.8 * g), base + 0.0 * beat)
+        mix_at(out, _janggu_deok(0.45 * g), base + 2.0 * beat)
+
+
+def _hollow_wind(dur, g=0.05, seed=300):
+    """텅 빈 바람 — 5굽이용 극저음 노이즈 베드.
+    highpass 120Hz → 중역 잡소리 없는 바람 질감."""
+    n = noise(dur, seed=seed)
+    n = highpass(n, 120)
+    n = lowpass(n, 600)
+    # 2~4초 주기 완만한 숨결
+    total = int(SR * dur)
+    env = []
+    for i in range(total):
+        t = i / SR
+        env.append(n[i] * (0.5 + 0.5 * abs(math.sin(math.pi * t / 3.2))))
+    return gain(env, g)
+
+
+def bgm_haewon_river():
+    """강가 진혼 — 프롤로그·1굽이·2굽이.
+    계면조 A C D E G 느린 가야금 독주 + 옅은 세마치 장단 + 물 흐름 질감.
+    정서: 비장+쓸쓸. 혼 달래는 강가 새벽.
+    구조: 전반(0~20s) 독주 위주, 후반(20s~) 장단 합류 → 감쇠 마무리. 약 40s."""
+    beat = 0.52           # 느린 세마치 — 1박 0.52s, 3박 = 1.56s
+    total = 40.0
+    out = silence(total)
+
+    # 선율: 계면조 A 중심. 낮은 음역(E4~D5)으로 무게감.
+    # 시김새 강조 — 꺾는 음을 4~5곳에 배치.
+    R = [
+        # 1절 (0~15s): 홀로 강가에 선 느낌. 음들 사이 공백 넓게.
+        (0,  "A4", 3, .80),
+        (3,  "G4", 1, .72),
+        (4,  "E4", 4, .78),
+        (8,  "A4", 2, .80),
+        (10, "C5", 2, .82),
+        (12, "A4", 3, .75),
+        (15, "G4", 1, .70),
+        # 2절 (16~28s): 조금 더 움직임. 강물 위 등불이 흔들리듯.
+        (16, "E4", 2, .72),
+        (18, "G4", 1, .75),
+        (19, "A4", 2, .80),
+        (21, "C5", 1, .80),
+        (22, "D5", 2, .82),
+        (24, "C5", 1, .78),
+        (25, "A4", 2, .76),
+        (27, "G4", 2, .70),
+        # 3절 (29~39s): 점차 수그러듦 — 혼 가라앉음.
+        (29, "E4", 2, .68),
+        (31, "A4", 3, .72),
+        (34, "G4", 2, .64),
+        (36, "E4", 3, .60),
+    ]
+    _melody(out, R, beat, base_seed=110, gmul=0.90)
+
+    # 시김새: G4→A4, A4→C5, C5→D5 — 계면조 특유의 상행 꺾음
+    for b, (f0, f1) in [
+        (4,  ("F#4", "G4")),   # E4 뒤 G4 진입 꺾음 (F#4는 계면 경과음)
+        (12, ("B4",  "C5")),   # A4→C5 꺾음
+        (22, ("C#5", "D5")),   # D5 진입 꺾음
+        (34, ("A4",  "G4")),   # 하행 꺾음 — 내려놓음
+    ]:
+        mix_at(out, _bend(note(f0), note(f1), beat * 1.6, 0.45, b + 100), b * beat - 0.04, 0.50)
+
+    # 세마치 장단 — 20s 이후부터 합류, 아주 가볍게 (g=0.45)
+    _seomachi_janggu(out, beat, bars=13, t0=20.0, g=0.45)
+
+    # 저음 토대: A2 E2 D2 A2 — 계면조 뿌리음
+    _soft_bass(out, ["A2", "E2", "D2", "A2"], beat, bars_per=3)
+
+    # 물 흐름 질감 — 전체 깔기
+    mix_at(out, _water_shimmer(total, g=0.055, seed=211), 0.0, 1.0)
+
+    # 저음 드론 — A2 옥타브. 아주 낮게 공간감.
+    mix_at(out, _jinggling_drone(note("A2"), total, g=0.12), 0.0, 1.0)
+
+    return fade_io(trim(out, total), 0.008)
+
+
+def bgm_haewon_grief():
+    """3굽이 죄의 확인 — 더 어둡고 가라앉은 진혼.
+    계면조 A 낮은 음역(E3~A4). 느린 세마치. 시김새(하행 꺾음) 강조.
+    정서: 무겁게 가라앉음. 고개 숙인 채 걷는 음악.
+    구조: 전반 거의 단음 독주(공백 극대화), 후반 장단+저음 드론. 약 38s."""
+    beat = 0.58           # 더 느림 — 무게감
+    total = 38.0
+    out = silence(total)
+
+    # 선율: A3 옥타브 낮춤. E3~A4 좁은 음역.
+    # 공백을 넓게 — 침묵이 죄책감.
+    GR = [
+        (0,  "E4", 4, .78),
+        (4,  "A4", 2, .80),
+        (6,  "G4", 2, .72),
+        (8,  "E4", 4, .75),
+        (13, "A4", 3, .78),
+        (16, "G4", 2, .70),
+        (18, "E4", 2, .72),
+        (20, "D4", 4, .75),    # D4 — 계면조 하행의 무게
+        (25, "A3", 3, .70),    # A3 저음 — 최저점 도달
+        (28, "C4", 2, .72),
+        (30, "E4", 2, .74),
+        (32, "A4", 3, .72),
+        (35, "G4", 2, .62),    # 수그러듦
+    ]
+    _melody(out, GR, beat, base_seed=120, gmul=0.88)
+
+    # 시김새: 하행 꺾음 강조(내려놓음·죄책)
+    for b, (f0, f1) in [
+        (4,  ("B4",  "A4")),   # A4 도달 꺾음
+        (13, ("Bb4", "A4")),   # 반음 하행 — 더 쓸쓸
+        (28, ("Db4", "C4")),   # C4 진입 반음 꺾음
+        (32, ("B4",  "A4")),
+    ]:
+        mix_at(out, _bend(note(f0), note(f1), beat * 1.8, 0.50, b + 120), b * beat - 0.04, 0.55)
+
+    # 세마치 — 처음부터 있되 극히 낮게(g=0.35), 15s 이후 약간 강해짐
+    _seomachi_janggu(out, beat, bars=8, t0=0.0, g=0.35)
+    _seomachi_janggu(out, beat, bars=8, t0=14.0, g=0.50)
+
+    # 저음 토대: E2 A2 D2 A2 — 계면조 뿌리. 더 저음.
+    _soft_bass(out, ["E2", "A2", "D2", "A2"], beat, bars_per=3)
+
+    # 아주 저음 드론 — E2. 죄책감의 무게.
+    mix_at(out, _jinggling_drone(note("E2"), total, g=0.10), 0.0, 1.0)
+
+    # 물 흐름 — 더 옅게 (강이 멀어진 느낌)
+    mix_at(out, _water_shimmer(total, g=0.035, seed=220), 0.0, 1.0)
+
+    return fade_io(trim(out, total), 0.008)
+
+
+def bgm_haewon_hollow():
+    """5굽이 빈 고을·빈 집 — 공허·적막.
+    선율 최소화: 띄엄띄엄 단음만. 장단 없음.
+    침묵과 바람 노이즈가 핵심. 약 42s.
+    정서: 희생이 헛됨. 텅 빈 안방, 윤슬의 비녀."""
+    beat = 0.65          # 쓰지만 음표 간격이 넓어 장단 느낌 없음
+    total = 42.0
+    out = silence(total)
+
+    # 선율: 극소수 음표, 간격 넓게, 낮은 음역, 낮은 게인
+    # 각 음 뒤 긴 침묵 — 빈 공간이 표현의 핵심.
+    HL = [
+        (0,  "E4",  5, .62),
+        (6,  "A4",  3, .60),
+        (11, "G4",  4, .55),
+        (17, "E4",  3, .58),
+        (22, "A3",  5, .55),   # A3 저음 — 텅 빈 방
+        (30, "C4",  3, .52),
+        (35, "E4",  4, .50),
+        (40, "A3",  2, .45),   # 마지막 — 사라지듯
+    ]
+    _melody(out, HL, beat, base_seed=130, gmul=0.80)
+
+    # 시김새 단 2곳 — 위로가 아니라 탄식
+    for b, (f0, f1) in [
+        (6,  ("Bb4", "A4")),   # 반음 하행 탄식
+        (30, ("Db4", "C4")),
+    ]:
+        mix_at(out, _bend(note(f0), note(f1), beat * 2.0, 0.40, b + 130), b * beat - 0.04, 0.40)
+
+    # 바람 노이즈 베드 — 전체. 선율보다 이게 주인공.
+    mix_at(out, _hollow_wind(total, g=0.055, seed=310), 0.0, 1.0)
+
+    # 드론 없음 — 진짜 공허. 저음 토대도 없음.
+    # 단, 아주 낮은 A2 sine 한 번 — 윤슬 이름이 처음 또렷이 떠오르는 순간(22s)
+    yun_moment = silence(8.0)
+    mix_at(yun_moment, gain(sine(note("A2"), 6.0), 0.10), 0.0, 1.0)
+    yun_moment = env_points(yun_moment, [(0, 0.0), (1.5, 1.0), (6.0, 1.0), (8.0, 0.0)])
+    mix_at(out, yun_moment, 22.0, 1.0)
+
+    return fade_io(trim(out, total), 0.010)
+
+
+def bgm_haewon_requiem():
+    """6굽이·엔딩 최종 진혼 — 비장하게 흐르다 승화.
+    계면조 A. 전반(0~22s): 가야금 + 굿거리 장단 + 북. 비장한 클라이맥스.
+    후반(22s~): 장단 빠지고 가야금 독주만 → 잔잔히 마무리. 약 44s.
+    정서: 용서·놓아줌·승화. 첫 햇살이 강에 닿음."""
+    beat = 0.40           # 굿거리 4박 = 1.6s. 전반은 단호하게.
+    total = 44.0
+    out = silence(total)
+
+    # 전반 선율(0~22s): 계면조 A — 비장하되 흔들림 없이.
+    # 보스곡(bgm_boss)보다 느리고 숙연함. E5까지 상행 → 절정.
+    RQ1 = [
+        (0,  "A4", 2, .88),
+        (2,  "C5", 1, .85),
+        (3,  "A4", 1, .80),
+        (4,  "G4", 2, .82),
+        (6,  "E4", 2, .80),
+        (8,  "A4", 2, .88),
+        (10, "D5", 2, .90),
+        (12, "E5", 3, .95),   # 절정 1 — 비장의 정점
+        (15, "D5", 1, .88),
+        (16, "C5", 2, .85),
+        (18, "A4", 4, .88),   # 넓은 여운
+        # 재현부 (22s≒22/beat 박)
+        (28, "E4", 2, .80),
+        (30, "G4", 1, .78),
+        (31, "A4", 2, .82),
+        (33, "C5", 2, .80),
+        (35, "A4", 3, .78),
+    ]
+    _melody(out, RQ1, beat, base_seed=140, gmul=0.95)
+
+    # 후반 선율(~38s): 게인 낮추고 음 성기게 — 승화·고요
+    RQ2 = [
+        (39, "G4", 2, .65),
+        (41, "E4", 2, .62),
+        (43, "A3", 2, .55),   # A3 — 마지막 내려놓음
+        (46, "A4", 3, .50),   # 아주 낮게 사라지듯
+    ]
+    _melody(out, RQ2, beat, base_seed=145, gmul=0.80)
+
+    # 시김새
+    for b, (f0, f1) in [
+        (0,  ("G4",  "A4")),   # 첫 A4 진입 꺾음
+        (10, ("C#5", "D5")),   # D5 상행 꺾음
+        (12, ("D#5", "E5")),   # 절정 E5 꺾음
+        (33, ("B4",  "C5")),
+    ]:
+        mix_at(out, _bend(note(f0), note(f1), beat * 1.5, 0.50, b + 140), b * beat - 0.04, 0.55)
+
+    # 전반 굿거리 장단(0~22s) — bgm_forest 수준 게인
+    _gutgeori(out, beat, bars=14, t0=0.0, g=0.65)
+
+    # 북(전고) — 비장한 포인트: 4박마다 한 번
+    t_buk = 0.0
+    bi = 0
+    while t_buk < 22.0:
+        mix_at(out, _drum_buk(0.55, seed=bi + 10), t_buk)
+        t_buk += beat * 4
+        bi += 1
+
+    # 저음 토대(전반)
+    _soft_bass(out, ["A2", "E2", "A2", "D2"], beat, bars_per=4)
+
+    # 후반(22s~) — 드론 빠지고 물 질감 + 아주 낮은 A2 드론만
+    mix_at(out, _water_shimmer(total - 22.0, g=0.06, seed=230), 22.0, 1.0)
+    ending_drone = gain(sine(note("A2"), total - 22.0), 0.08)
+    ending_drone = env_points(ending_drone, [(0, 0.0), (3.0, 1.0), (total - 24.0, 1.0), (total - 22.0, 0.0)])
+    mix_at(out, ending_drone, 22.0, 1.0)
+
+    return fade_io(trim(out, total), 0.010)
+
+
 # ═══════════════════════ 파형 오버뷰 PNG ═══════════════════════
 def waveform_sheet(specs, png_path):
     """파형 미리보기 — 눈으로 엔벨로프/클릭/무음 검수 (Pillow 있을 때만)."""
@@ -409,6 +694,11 @@ def main():
         (BGM, "boss", bgm_boss, True),
         (BGM, "night", bgm_night, True),
         (BGM, "title", bgm_title, True),
+        # 해원(解冤) 전용 BGM — 굽이별 정서 분화
+        (BGM, "haewon_river",   bgm_haewon_river,   True),
+        (BGM, "haewon_grief",   bgm_haewon_grief,   True),
+        (BGM, "haewon_hollow",  bgm_haewon_hollow,  True),
+        (BGM, "haewon_requiem", bgm_haewon_requiem, True),
     ]
     specs = []
     lines = ["hohwan-gidam audio spec  (22050 Hz / 16-bit / mono, peak limit -3 dBFS)",

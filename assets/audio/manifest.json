@@ -109,6 +109,34 @@
       "peak_dbfs": -3.2,
       "rms_dbfs": -24.61,
       "loop": true
+    },
+    "haewon_river": {
+      "file": "bgm/haewon_river.wav",
+      "duration_s": 40.0,
+      "peak_dbfs": -3.2,
+      "rms_dbfs": -19.12,
+      "loop": true
+    },
+    "haewon_grief": {
+      "file": "bgm/haewon_grief.wav",
+      "duration_s": 38.0,
+      "peak_dbfs": -3.2,
+      "rms_dbfs": -21.31,
+      "loop": true
+    },
+    "haewon_hollow": {
+      "file": "bgm/haewon_hollow.wav",
+      "duration_s": 42.0,
+      "peak_dbfs": -3.2,
+      "rms_dbfs": -24.42,
+      "loop": true
+    },
+    "haewon_requiem": {
+      "file": "bgm/haewon_requiem.wav",
+      "duration_s": 44.0,
+      "peak_dbfs": -3.2,
+      "rms_dbfs": -27.15,
+      "loop": true
     }
   }
 }
