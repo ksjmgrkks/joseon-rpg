@@ -48,8 +48,8 @@
     "jump": {
       "file": "sfx/jump.wav",
       "duration_s": 0.16,
-      "peak_dbfs": -3.2,
-      "rms_dbfs": -9.41,
+      "peak_dbfs": -7.5,
+      "rms_dbfs": -13.71,
       "loop": false
     },
     "dodge": {
@@ -71,6 +71,20 @@
       "duration_s": 1.0,
       "peak_dbfs": -3.2,
       "rms_dbfs": -14.16,
+      "loop": false
+    },
+    "ultimate": {
+      "file": "sfx/ultimate.wav",
+      "duration_s": 1.15,
+      "peak_dbfs": -3.2,
+      "rms_dbfs": -18.93,
+      "loop": false
+    },
+    "ward": {
+      "file": "sfx/ward.wav",
+      "duration_s": 0.7,
+      "peak_dbfs": -3.2,
+      "rms_dbfs": -17.23,
       "loop": false
     }
   },
@@ -108,6 +122,34 @@
       "duration_s": 26.0,
       "peak_dbfs": -3.2,
       "rms_dbfs": -24.61,
+      "loop": true
+    },
+    "haewon_river": {
+      "file": "bgm/haewon_river.wav",
+      "duration_s": 40.0,
+      "peak_dbfs": -3.2,
+      "rms_dbfs": -19.12,
+      "loop": true
+    },
+    "haewon_grief": {
+      "file": "bgm/haewon_grief.wav",
+      "duration_s": 38.0,
+      "peak_dbfs": -3.2,
+      "rms_dbfs": -21.31,
+      "loop": true
+    },
+    "haewon_hollow": {
+      "file": "bgm/haewon_hollow.wav",
+      "duration_s": 42.0,
+      "peak_dbfs": -3.2,
+      "rms_dbfs": -24.42,
+      "loop": true
+    },
+    "haewon_requiem": {
+      "file": "bgm/haewon_requiem.wav",
+      "duration_s": 44.0,
+      "peak_dbfs": -3.2,
+      "rms_dbfs": -27.15,
       "loop": true
     }
   }
