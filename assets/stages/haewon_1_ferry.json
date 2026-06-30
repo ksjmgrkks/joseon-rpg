@@ -16,7 +16,8 @@
   "clear_inkwash": true,
   "auto_dialogues": [
     { "x": 360, "dialogue": "res://assets/dialogue/haewon/ferry_omen.json", "once_flag": "haewon_ferry_omen_seen", "w": 110 },
-    { "x": 700, "dialogue": "res://assets/dialogue/haewon/ferryman_spirit.json", "once_flag": "haewon_ferryman_seen", "w": 110 }
+    { "x": 700, "dialogue": "res://assets/dialogue/haewon/ferryman_spirit.json", "once_flag": "haewon_ferryman_seen", "w": 110 },
+    { "x": 1080, "dialogue": "res://assets/dialogue/haewon/ferry_boat.json", "once_flag": "haewon_clue_boat", "w": 120 }
   ],
   "enemies": [
     { "scene": "Reaper", "x": 840, "y": 632 }

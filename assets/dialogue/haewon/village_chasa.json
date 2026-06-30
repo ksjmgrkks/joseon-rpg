@@ -1,0 +1,10 @@
+{
+  "id": "haewon_village_chasa",
+  "_note": "3굽이 환경 서사 — 못 떠난 넋(데리러 온 저승차사를 길손이 자꾸 거부해 풀려나지 못함, STORY_BIBLE 3굽이). 단서 발견은 auto_dialogue once_flag=haewon_clue_chasa 로 기록(엔딩 등불 변주).",
+  "start": "a",
+  "nodes": {
+    "a": { "speaker": "", "text": "당산나무 가지마다 무명천이 묶여 있다. 넋을 붙들어 두려 매단 매듭들.", "next": "b" },
+    "b": { "speaker": "잠긴 넋", "text": "차사 나리가 데려가려 할 적마다… 누가 자꾸 길을 막았소. 어찌 우릴 못 가게 하오…", "next": "c" },
+    "c": { "speaker": "길손", "text": "(…보내지 못하여 붙들어 둔 것이, 나였더냐.)", "next": null }
+  }
+}

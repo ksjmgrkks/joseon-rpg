@@ -14,7 +14,8 @@
   ],
   "clear_dialogue": "res://assets/dialogue/haewon/village_confession.json",
   "auto_dialogues": [
-    { "x": 300, "dialogue": "res://assets/dialogue/haewon/village_drowned.json", "once_flag": "haewon_village_seen", "w": 110 }
+    { "x": 300, "dialogue": "res://assets/dialogue/haewon/village_drowned.json", "once_flag": "haewon_village_seen", "w": 110 },
+    { "x": 520, "dialogue": "res://assets/dialogue/haewon/village_chasa.json", "once_flag": "haewon_clue_chasa", "w": 120 }
   ],
   "enemies": [
     { "scene": "Reaper", "x": 780, "y": 632 },

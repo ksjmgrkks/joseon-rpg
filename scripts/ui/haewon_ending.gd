@@ -8,6 +8,15 @@ extends Control
 const MENU := "res://scenes/ui/MainMenu.tscn"
 const FIRST := "res://scenes/levels/Haewon0Prologue.tscn"
 const LANTERN_TEX := "res://assets/tilesets/mul_deung.png"
+## 6굽이에 흩어둔 환경 단서 플래그(발견할수록 등불↑·마지막 줄 변주). STORY_BIBLE '환경 서사'.
+const CLUE_FLAGS := [
+    "haewon_clue_boat",            # 1굽이 — 부서진 나룻배
+    "haewon_tongmun_found",        # 2굽이 — 진흙에 묻힌 통문
+    "haewon_clue_chasa",           # 3굽이 — 못 떠난 넋(차사 매듭)
+    "haewon_clue_shoe",            # 5굽이 — 한 짝뿐인 꽃신
+    "haewon_clue_ring",            # 5굽이 — 정표 가락지
+    "haewon_yunseul_token_found",  # 5굽이 — 윤슬의 비녀
+]
 
 var _t := 0.0
 var _horizon := 0.62          # 화면 높이 대비 지평선 비율
@@ -20,13 +29,13 @@ func _ready() -> void:
     set_anchors_preset(Control.PRESET_FULL_RECT)
     resized.connect(queue_redraw)
 
-    # 발견한 단서(통문·비녀) 수 → 정성의 척도. 등불 개수·마지막 한 줄 변주.
+    # 발견한 환경 단서 수 → 정성의 척도. 등불 개수·마지막 한 줄 변주.
+    # (각 굽이에 흩어둔 흔적: 나룻배·통문·차사매듭·꽃신·가락지·비녀. STORY_BIBLE '환경 서사'.)
     var found := 0
-    if Flags.has_flag("haewon_tongmun_found"):
-        found += 1
-    if Flags.has_flag("haewon_yunseul_token_found"):
-        found += 1
-    var lantern_count := 3 + found    # 3~5
+    for f in CLUE_FLAGS:
+        if Flags.has_flag(f):
+            found += 1
+    var lantern_count := 3 + found    # 3~9
 
     var tex: Texture2D = load(LANTERN_TEX) if ResourceLoader.exists(LANTERN_TEX) else null
     var vp := get_viewport_rect().size
@@ -85,11 +94,15 @@ func _process(delta: float) -> void:
             spr.position.x = -60.0
 
 
+## 발견한 단서 수에 따라 마지막 한 줄을 4단계로 변주(0 / 적음 / 중간 / 거의 다).
 func _closing_line(found: int) -> String:
-    match found:
-        2: return "강은 다시 고요하다. 물비늘마다, 잊어버린 이름들이 잠깐씩 반짝였다."
-        1: return "강은 다시 고요하다. 등불 몇이 천천히 멀어진다."
-        _: return "강은 다시 고요하다."
+    if found >= 5:
+        return "강은 다시 고요하다. 물 위로 첫 빛이 깔리자, 흘려보낸 것들이 모두 그 빛 속에 있었다."
+    elif found >= 3:
+        return "강은 다시 고요하다. 물비늘마다, 잊어버린 이름들이 잠깐씩 반짝였다."
+    elif found >= 1:
+        return "강은 다시 고요하다. 등불 몇이 천천히 멀어진다."
+    return "강은 다시 고요하다."
 
 
 func _build_buttons() -> VBoxContainer:

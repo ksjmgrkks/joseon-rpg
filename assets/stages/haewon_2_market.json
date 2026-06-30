@@ -12,7 +12,9 @@
     { "tex": "lantern", "x": 480, "y": 600, "scale": 1.3, "offset": [-12, -40] },
     { "tex": "stone", "x": 1080, "y": 678, "scale": 1.2, "offset": [-16, -12] }
   ],
+  "clear_dialogue": "res://assets/dialogue/haewon/market_clear.json",
   "auto_dialogues": [
+    { "x": 140, "dialogue": "res://assets/dialogue/haewon/night_deepens.json", "once_flag": "haewon_night_deepens_seen", "w": 110 },
     { "x": 300, "dialogue": "res://assets/dialogue/haewon/market_flooded.json", "once_flag": "haewon_market_seen", "w": 110 }
   ],
   "pickups": [

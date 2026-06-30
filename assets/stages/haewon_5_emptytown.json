@@ -13,10 +13,13 @@
     { "tex": "well", "x": 640, "y": 672, "scale": 1.3, "offset": [-20, -36] }
   ],
   "auto_dialogues": [
+    { "x": 120, "dialogue": "res://assets/dialogue/haewon/dawn_near.json", "once_flag": "haewon_dawn_near_seen", "w": 110 },
     { "x": 280, "dialogue": "res://assets/dialogue/haewon/emptytown_enter.json", "once_flag": "haewon_emptytown_seen", "w": 110 },
     { "x": 1180, "dialogue": "res://assets/dialogue/haewon/empty_house.json", "once_flag": "haewon_empty_house_seen", "w": 130 }
   ],
   "pickups": [
+    { "x": 440, "label": "한 짝뿐인 꽃신", "flag": "haewon_clue_shoe", "icon": "charm" },
+    { "x": 860, "label": "정표로 주고받은 가락지", "flag": "haewon_clue_ring", "icon": "charm" },
     { "x": 1160, "label": "윤슬의 비녀", "flag": "haewon_yunseul_token_found", "icon": "charm" }
   ],
   "enemies": [],

@@ -1,0 +1,9 @@
+{
+  "id": "haewon_dawn_near",
+  "_note": "동틀녘 굿 시간선 — 동이 머지않음. 빈 고을(5굽이) 진입. sky가 밝아오기 시작(night_luminance 0.52)하는 것과 맞물려 '첫 햇살에 모든 게 끝난다'(엔딩 페이오프) 압박을 climax 직전에 명시. emptytown_enter(x=280) 앞(x=120).",
+  "start": "a",
+  "nodes": {
+    "a": { "speaker": "", "text": "하늘 끝이 희붐하게 트여 온다. 물안개가 옅어지고, 새들이 깰 채비를 한다.", "next": "b" },
+    "b": { "speaker": "길손", "text": "동이 머지않았다. 첫 빛이 강에 닿기 전에 — 끝내야 한다.", "next": null }
+  }
+}

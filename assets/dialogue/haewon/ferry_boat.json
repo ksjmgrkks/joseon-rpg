@@ -1,0 +1,10 @@
+{
+  "id": "haewon_ferry_boat",
+  "_note": "1굽이 환경 서사 — 부서진 나룻배 + '윗고을은 진작 수문을 닫았다더라' 흘림. 단서 발견은 auto_dialogue once_flag=haewon_clue_boat 로 기록(엔딩 등불 변주). 저진행도 굽이라 글자 dissolve 약함=읽힘.",
+  "start": "a",
+  "nodes": {
+    "a": { "speaker": "", "text": "갈대밭에 부서진 나룻배 한 척이 처박혀 있다. 뱃전엔 긁다 만 손톱자국이 줄줄이 남았다.", "next": "b" },
+    "b": { "speaker": "", "text": "(어디선가 흘러든 말) …윗고을은 진작 수문을 닫았다더이다. 물은 늘 아랫녘부터 차는 법이지요.", "next": "c" },
+    "c": { "speaker": "길손", "text": "(건너려 했구나. 끝내, 못 건넜고.)", "next": null }
+  }
+}
