@@ -495,7 +495,7 @@ func _skill_hoecheon() -> void:
 func _skill_hosinbu() -> void:
     var def := SkillManager.get_def("hosinbu")
     health.shield_charges = int(def.get("shield_charges", 1))
-    Audio.play_sfx(Sfx.JINGLE)
+    Audio.play_sfx(Sfx.WARD)
     # 부적 오라 부착 (이전 것이 남아 있으면 제거)
     if _ward != null and is_instance_valid(_ward):
         _ward.queue_free()

@@ -177,6 +177,28 @@ def sfx_ultimate():
     return fade_io(out, 0.004)
 
 
+def sfx_ward():
+    """호신부 가호 — 절제된 보호의 결. 밝은 상승 종소리(jingle) 대신
+    낮고 따뜻한 공명 + 안정적인 완전5도 + 부적 종이 스침(은은한 괴담 톤)."""
+    dur = 0.7
+    out = silence(dur)
+
+    def chime(f, tau, g):
+        a = decay_exp(sine(f, dur), tau=tau)
+        h = gain(decay_exp(sine(f * 1.5, dur), tau=tau * 0.7), 0.3)   # 완전5도 배음
+        return gain(mix(a, h), g)
+
+    mix_at(out, chime(note("G4"), 0.28, 0.7), 0.0, 1.0)     # 근음
+    mix_at(out, chime(note("D5"), 0.30, 0.5), 0.02, 1.0)    # 완전5도(거의 동시 → 안정적)
+    warm = decay_exp(sine(note("G3"), 0.5), tau=0.22)       # 감싸는 낮은 받침
+    mix_at(out, gain(warm, 0.4), 0.0, 1.0)
+    paper = highpass(decay_exp(noise(0.12, seed=77), tau=0.04), 3000)  # 부적 종이 스침
+    mix_at(out, gain(paper, 0.16), 0.0, 1.0)
+    out = trim(out, dur)
+    out = env_points(out, [(0, 1.0), (dur - 0.1, 1.0), (dur, 0.0)])
+    return fade_io(out, 0.004)
+
+
 # ════════════════════════════ BGM ════════════════════════════
 # 2026-06-12 전면 재작곡(사용자: '음악이 마음에 안 든다, 새로') —
 # 드론 위주 → 또렷한 가야금 가락 + 굿거리/세마치/자진모리 장단 + 시김새(꺾는 음).
@@ -718,6 +740,7 @@ def main():
         (SFX, "ui_click", sfx_ui_click, False),
         (SFX, "jingle_quest", sfx_jingle_quest, False),
         (SFX, "ultimate", sfx_ultimate, False),
+        (SFX, "ward", sfx_ward, False),
         (BGM, "village", bgm_village, True),
         (BGM, "forest", bgm_forest, True),
         (BGM, "boss", bgm_boss, True),
@@ -729,6 +752,8 @@ def main():
         (BGM, "haewon_hollow",  bgm_haewon_hollow,  True),
         (BGM, "haewon_requiem", bgm_haewon_requiem, True),
     ]
+    # 점프음이 과대(RMS outlier, BGM 묻힘) → 피크를 낮춰 살짝 줄인다(다른 SFX 수준으로).
+    peak_override = {"jump": -7.5}
     specs = []
     lines = ["hohwan-gidam audio spec  (22050 Hz / 16-bit / mono, peak limit -3 dBFS)",
              "%-22s %9s %10s %10s  %s" % ("file", "dur(s)", "peak dBFS", "rms dBFS", "loop"),
@@ -737,7 +762,7 @@ def main():
                 "sfx": {}, "bgm": {}}
     for d, name, fn, loop in jobs:
         path = os.path.join(d, name + ".wav")
-        sp = write_wav(path, fn())
+        sp = write_wav(path, fn(), peak_override.get(name, -3.2))
         sp["loop"] = loop
         specs.append(sp)
         rel = os.path.relpath(path, ROOT).replace("\\", "/")

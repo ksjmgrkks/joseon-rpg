@@ -48,8 +48,8 @@
     "jump": {
       "file": "sfx/jump.wav",
       "duration_s": 0.16,
-      "peak_dbfs": -3.2,
-      "rms_dbfs": -9.41,
+      "peak_dbfs": -7.5,
+      "rms_dbfs": -13.71,
       "loop": false
     },
     "dodge": {
@@ -78,6 +78,13 @@
       "duration_s": 1.15,
       "peak_dbfs": -3.2,
       "rms_dbfs": -18.93,
+      "loop": false
+    },
+    "ward": {
+      "file": "sfx/ward.wav",
+      "duration_s": 0.7,
+      "peak_dbfs": -3.2,
+      "rms_dbfs": -17.23,
       "loop": false
     }
   },

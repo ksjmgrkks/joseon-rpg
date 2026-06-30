@@ -15,3 +15,4 @@ const DODGE  := "res://assets/audio/sfx/dodge.wav"    # 회피 구르기
 const UI     := "res://assets/audio/sfx/ui_click.wav" # 메뉴/버튼
 const JINGLE := "res://assets/audio/sfx/jingle_quest.wav" # 퀘스트 시작/완료
 const ULT    := "res://assets/audio/sfx/ultimate.wav"     # 궁극기 '귀창 강림' 전용
+const WARD   := "res://assets/audio/sfx/ward.wav"         # 호신부 가호(절제된 보호음)
