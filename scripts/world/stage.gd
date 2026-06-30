@@ -76,6 +76,7 @@ func _ready() -> void:
     _build_npcs(data.get("npcs", []))
     _build_pickups(data.get("pickups", []))
     _build_auto_dialogues(data.get("auto_dialogues", []))
+    _build_auto_cutscenes(data.get("auto_cutscenes", []))
     _build_quest_triggers(data.get("quest_triggers", []))
     if not cleared:
         _build_gates(data.get("gates", []))
@@ -291,6 +292,27 @@ func _build_auto_dialogues(items: Array) -> void:
         area.position = Vector2(float(a.get("x", 560)), float(a.get("y", 620)))
         area.dialogue_path = String(a.get("dialogue", ""))
         area.once_flag = String(a.get("once_flag", ""))
+        var cs := CollisionShape2D.new()
+        var shape := RectangleShape2D.new()
+        shape.size = Vector2(float(a.get("w", 120)), float(a.get("h", 110)))
+        cs.shape = shape
+        area.add_child(cs)
+        add_child(area)
+
+
+## 위치 기반 회상 컷 트리거(게이트 없는 굽이용). 밟으면 회상 씬으로 컷 전환→복귀.
+func _build_auto_cutscenes(items: Array) -> void:
+    var ac_script: Script = load("res://scripts/world/auto_cutscene.gd")
+    for a in items:
+        if not (a is Dictionary):
+            continue
+        var area := Area2D.new()
+        area.collision_mask = 1
+        area.set_script(ac_script)
+        area.position = Vector2(float(a.get("x", 560)), float(a.get("y", 620)))
+        area.cutscene_path = String(a.get("cutscene", ""))
+        area.once_flag = String(a.get("once_flag", ""))
+        area.return_entry = String(a.get("return_entry", "from_recall"))
         var cs := CollisionShape2D.new()
         var shape := RectangleShape2D.new()
         shape.size = Vector2(float(a.get("w", 120)), float(a.get("h", 110)))
