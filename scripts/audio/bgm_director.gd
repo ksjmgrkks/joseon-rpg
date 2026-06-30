@@ -23,15 +23,18 @@ const SCENE_BGM := {
     "RuinedTemple":     "res://assets/audio/bgm/night.wav",
     "MountainPass":     "res://assets/audio/bgm/forest.wav",
     "SacredAltar":      "res://assets/audio/bgm/boss.wav",
-    # 「해원」 6굽이 — 강·밤·진혼의 비장한 톤. 보스 굽이(수문/윤슬)는 전투곡, 엔딩은 잔잔.
-    "Haewon0Prologue": "res://assets/audio/bgm/night.wav",
-    "Haewon1Ferry":    "res://assets/audio/bgm/night.wav",
-    "Haewon2Market":   "res://assets/audio/bgm/night.wav",
-    "Haewon3Village":  "res://assets/audio/bgm/night.wav",
+    # 「해원」 6굽이 — 굽이별 전용곡으로 정서 분화.
+    #   river 강가 진혼(프롤/1/2굽이) · grief 죄의 확인(3굽이) ·
+    #   hollow 빈 고을 공허(5굽이) · requiem 최종 진혼·승화(6굽이/엔딩).
+    #   4굽이 수문(중간보스)은 자진모리 전투곡(boss) 유지.
+    "Haewon0Prologue": "res://assets/audio/bgm/haewon_river.wav",
+    "Haewon1Ferry":    "res://assets/audio/bgm/haewon_river.wav",
+    "Haewon2Market":   "res://assets/audio/bgm/haewon_river.wav",
+    "Haewon3Village":  "res://assets/audio/bgm/haewon_grief.wav",
     "Haewon4Watergate":"res://assets/audio/bgm/boss.wav",
-    "Haewon5EmptyTown":"res://assets/audio/bgm/night.wav",
-    "Haewon6Yunseul":  "res://assets/audio/bgm/boss.wav",
-    "HaewonEnding":    "res://assets/audio/bgm/title.wav",
+    "Haewon5EmptyTown":"res://assets/audio/bgm/haewon_hollow.wav",
+    "Haewon6Yunseul":  "res://assets/audio/bgm/haewon_requiem.wav",
+    "HaewonEnding":    "res://assets/audio/bgm/haewon_requiem.wav",
 }
 const NIGHT_BGM := "res://assets/audio/bgm/night.wav"
 # 밤 BGM 으로 갈아타는 씬 (전투 지역은 밤에도 전투곡 유지)

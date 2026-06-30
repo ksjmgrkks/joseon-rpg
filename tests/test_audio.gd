@@ -1,6 +1,7 @@
 extends Node
 ##
-## test_audio — 오디오 버스(Music/SFX) + 리버브 구성과 볼륨→버스 게인 반영 검증.
+## test_audio — 오디오 버스(Music/SFX) + 리버브 구성, 볼륨→버스 게인,
+##   그리고 bgm_director 씬→곡 매핑 경로 무결성 검증.
 ## 헤드리스(dummy audio)에서도 AudioServer 의 버스/이펙트는 생성되므로 검증 가능.
 ##
 const PASS := "PASS"
@@ -9,7 +10,7 @@ const FAIL := "FAIL"
 
 func _ready() -> void:
     print("=== test_audio ===")
-    var results := [_check_buses(), _check_reverb(), _check_volume()]
+    var results := [_check_buses(), _check_reverb(), _check_volume(), _check_bgm_paths()]
     var passed := 0
     for r in results:
         print("[%s] %s" % [r.status, r.name])
@@ -55,3 +56,17 @@ func _check_volume() -> Dictionary:
         return {"name": "volume_to_bus", "status": FAIL,
             "reason": "50%% 입력이 버스 게인에 미반영(실제 %.2f / 기대 %.2f)" % [db, expected]}
     return {"name": "volume_to_bus", "status": PASS, "reason": ""}
+
+
+## bgm_director 의 모든 씬→곡 매핑 경로가 실재하는 리소스인가(import 누락·오타 회귀 방지).
+func _check_bgm_paths() -> Dictionary:
+    var missing: Array[String] = []
+    for nm in BgmDirector.SCENE_BGM:
+        var path := String(BgmDirector.SCENE_BGM[nm])
+        if not ResourceLoader.exists(path):
+            missing.append("%s→%s" % [nm, path.get_file()])
+    if not ResourceLoader.exists(BgmDirector.NIGHT_BGM):
+        missing.append("NIGHT_BGM→%s" % String(BgmDirector.NIGHT_BGM).get_file())
+    if not missing.is_empty():
+        return {"name": "bgm_paths_exist", "status": FAIL, "reason": "없는 곡: %s" % ", ".join(missing)}
+    return {"name": "bgm_paths_exist", "status": PASS, "reason": ""}
