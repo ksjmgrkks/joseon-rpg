@@ -67,9 +67,15 @@ static func erased_indices(text: String, ratio: float, seed: int = 0) -> Array[i
 # ─────────────────────────── 내부 ───────────────────────────
 
 ## 글자 위치별 결정적 임계값 [0.0, 1.0). seed 로 노드/대사마다 다른 패턴.
+## 주의: Godot 의 String hash() 는 "7:0","7:1"… 처럼 비슷한 입력에 비슷한 값을 내,
+## abs(h)%1000 이 한곳에 군집했다(= 한 대사의 글자가 임계 0.85 부근에 몰려, 진행도가
+## 그 값을 넘기 전엔 하나도 안 흐려지고 넘으면 통째로 흐려짐 → 대사마다 들쭉날쭉).
+## PCG(RandomNumberGenerator)로 seed 비트를 아발란치시켜 [0,1) 균등 분포를 얻는다.
+## 결정적(같은 입력=같은 결과)·단조(비율↑=소거 단조증가) 성질은 그대로 유지된다.
 static func _threshold(index: int, seed: int) -> float:
-    var h := hash("%d:%d" % [seed, index])
-    return float(abs(h) % 1000) / 1000.0
+    var rng := RandomNumberGenerator.new()
+    rng.seed = hash("glyph:%d:%d" % [seed, index])
+    return rng.randf()
 
 
 static func _is_space(ch: String) -> bool:

@@ -1,0 +1,70 @@
+[gd_scene load_steps=11 format=3]
+
+; 수몰 원혼 — 홍수에 잠겨 죽은 강가 사람의 넋. 「해원」 잡몹(옛 구미호 Fox 대체).
+; 느릿하게 다가와 끌어내리듯 붙든다. 중간 HP, 시야 넓음.
+
+[ext_resource type="Script" path="res://scripts/enemies/patroller.gd" id="1_p"]
+[ext_resource type="Script" path="res://scripts/visual/enemy_visual.gd" id="vis_enemy"]
+[ext_resource type="Script" path="res://scripts/combat/hurtbox.gd" id="2_hurt"]
+[ext_resource type="Script" path="res://scripts/combat/health_component.gd" id="3_health"]
+[ext_resource type="Script" path="res://scripts/ai/state_machine.gd" id="4_sm"]
+[ext_resource type="Script" path="res://scripts/ai/states/idle_state.gd" id="5_idle"]
+[ext_resource type="Script" path="res://scripts/ai/states/patrol_state.gd" id="6_patrol"]
+[ext_resource type="Script" path="res://scripts/ai/states/chase_state.gd" id="7_chase"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_body"]
+size = Vector2(18, 32)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_hurt"]
+size = Vector2(20, 34)
+
+[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_p"]
+size = Vector2(18, 32)
+
+[node name="Wraith" type="CharacterBody2D"]
+script = ExtResource("1_p")
+display_name = "수몰 원혼"
+attack_damage = 5.0
+attack_cooldown = 1.0
+attack_telegraph = 0.20
+body_color = Color(0.56, 0.64, 0.62, 1)
+detect_range = 260.0
+xp_reward = 22
+
+[node name="Sprite2D" type="AnimatedSprite2D" parent="."]
+script = ExtResource("vis_enemy")
+sheet = "enemies/wraith"
+foot_offset = -26.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_body")
+
+[node name="Hurtbox" type="Area2D" parent="."]
+script = ExtResource("2_hurt")
+
+[node name="HurtboxShape" type="CollisionShape2D" parent="Hurtbox"]
+shape = SubResource("RectangleShape2D_hurt")
+
+[node name="HealthComponent" type="Node" parent="."]
+script = ExtResource("3_health")
+max_hp = 80.0
+hurtbox_path = NodePath("../Hurtbox")
+
+[node name="StateMachine" type="Node" parent="."]
+script = ExtResource("4_sm")
+initial_state = NodePath("Idle")
+
+[node name="Idle" type="Node" parent="StateMachine"]
+script = ExtResource("5_idle")
+idle_duration = 1.6
+
+[node name="Patrol" type="Node" parent="StateMachine"]
+script = ExtResource("6_patrol")
+patrol_speed = 64.0
+patrol_range = 120.0
+patrol_duration = 4.0
+
+[node name="Chase" type="Node" parent="StateMachine"]
+script = ExtResource("7_chase")
+chase_speed = 138.0
+lose_distance = 380.0

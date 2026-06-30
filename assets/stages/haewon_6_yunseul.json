@@ -17,7 +17,7 @@
     { "x": 240, "dialogue": "res://assets/dialogue/haewon/yunseul_approach.json", "once_flag": "haewon_yunseul_approach_seen", "w": 110 }
   ],
   "enemies": [
-    { "scene": "FoxQueen", "x": 1060, "y": 612 }
+    { "scene": "YunseulSpirit", "x": 1060, "y": 612 }
   ],
   "gates": [ { "x": 1300, "y": 600, "flag": "haewon_6_cleared", "height": 280 } ],
   "exits": [

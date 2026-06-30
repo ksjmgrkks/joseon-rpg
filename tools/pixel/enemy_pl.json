@@ -45,6 +45,30 @@
         "death":  {"uuid": "6011202f-7f46-4a39-959b-13cf052ef8a2", "frames": 9, "fps": 10, "loop": false}
       },
       "derived": { "telegraph": {"from": "attack", "slice": [0, 3], "fps": 7, "loop": true} }
+    },
+    "wraith": {
+      "_note": "수몰 원혼 — 홍수에 잠겨 죽은 강가 사람의 넋. 「해원」 잡몹(옛 구미호 fox 대체). PixelLab v3 측면.",
+      "character": "d0cf397a-d7e3-4af4-af63-e77e4cde8b0b",
+      "scenes": ["Wraith"],
+      "anims": {
+        "idle":   {"uuid": "bf092afd-a5aa-4d56-ba79-ab69cefaee4d", "frames": 4, "fps": 5,  "loop": true},
+        "walk":   {"uuid": "39b9d069-8e6d-4e21-bf33-0043acc7b1b1", "frames": 6, "fps": 10, "loop": true},
+        "attack": {"uuid": "b99af5c4-90be-4298-9882-2a57395e4238", "frames": 9, "fps": 14, "loop": false},
+        "death":  {"uuid": "f0b8679d-5a8c-4d97-a5e1-1823c28da856", "frames": 7, "fps": 10, "loop": false}
+      },
+      "derived": { "telegraph": {"from": "attack", "slice": [0, 3], "fps": 7, "loop": true} }
+    },
+    "yunseul": {
+      "_note": "윤슬의 넋 — 6굽이(최종) 진혼 대상, 못 구한 정인의 처연한 물의 넋(옛 구미호 여왕 FoxQueen 대체). PixelLab v3 측면. 보스 씬 YunseulSpirit 가 1.4배 확대 재사용.",
+      "character": "f04b8859-88a7-4bfd-a1dc-39342adb0b97",
+      "scenes": ["YunseulSpirit"],
+      "anims": {
+        "idle":   {"uuid": "526010e5-7ff3-4457-89a3-55ee58a4fcda", "frames": 4, "fps": 5,  "loop": true},
+        "walk":   {"uuid": "c4c94a6f-9991-4120-bb43-fe30474d30c6", "frames": 6, "fps": 9, "loop": true},
+        "attack": {"uuid": "e581a6e9-0135-4258-a87f-8678a932c15b", "frames": 9, "fps": 14, "loop": false},
+        "death":  {"uuid": "6ca9b80f-9415-4c3e-9c3f-92a7ad873566", "frames": 7, "fps": 10, "loop": false}
+      },
+      "derived": { "telegraph": {"from": "attack", "slice": [0, 3], "fps": 7, "loop": true} }
     }
   }
 }
