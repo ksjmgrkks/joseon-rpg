@@ -46,6 +46,18 @@ func partner_node() -> Node:
     return _partner if is_instance_valid(_partner) else null
 
 
+## 말풍선 연출 플래그 조회 — 현재 노드(우선) → 파일 레벨 순.
+## 예: "dissolve"(이 대사 글자를 기억 소거로 흐릴지). 없으면 null.
+## 「해원」 시그니처(기억이 지워짐)를 '진혼 후 그 한 줄'에만 켜기 위한 데이터 훅.
+func meta(key: String) -> Variant:
+    var node := _current_node()
+    if node.has(key):
+        return node[key]
+    if _data.has(key):
+        return _data.get(key)
+    return null
+
+
 ## 대화 시작. 성공하면 true. partner = 화자 위치 추적용 상대 노드(NPC 등, 선택).
 func start(json_path: String, partner: Node = null) -> bool:
     if _active:

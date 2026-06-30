@@ -1,23 +1,44 @@
 extends CanvasLayer
 ##
-## 대화 말풍선 UI — Dialogue autoload 시그널에 반응.
-## ① 화자 머리 위에 말풍선이 뜨고(화자 노드를 매 프레임 추적),
-## ② 대사 글자가 좌→우로 타이핑되듯 드러난다(AI 답변 스트리밍 느낌).
-## ③ 화자 노드를 못 찾는 나레이션/넋은 화면 상단 중앙 박스로 폴백.
+## 대화 말풍선 UI — Dialogue autoload 시그널에 반응. 세 가지 표현 모드:
+##  ① 말(SPEECH)    — 화자 머리 위 한지 말풍선 + 뾰족한 꼬리. 글자는 좌→우 타이핑.
+##  ② 혼잣말(THOUGHT) — 주인공의 속내(괄호 대사/독백). 말풍선 아래 '…' 점 3개로 생각임을 표시.
+##  ③ 나레이션(NARRATION) — 화자 없는 상황 설명. 말풍선이 아니라 화면 아래 '수묵 자막 띠'로
+##     깔려, 누가 말하는 것처럼 보이지 않게 한다(몰입 보존).
+##
+## 가독성: 본문 색은 모드별로 '일정'하게 고정한다. 「해원」 시그니처(기억이 지워질수록 글자가
+## 흐려짐)는 **진혼 직후 그 한 줄에만**(JSON `"dissolve": true`) 켜 — 평소 대사는 또렷이 읽힌다.
 ## 한지·먹 톤은 코드 StyleBox 로 입혀 별도 에셋(PNG) 없이 web 에 바로 반영된다.
 ##
 
 const REVEAL_CPS: float = 34.0          # 초당 드러나는 글자 수(타이핑 속도)
 const TAIL_W: float = 16.0
 const TAIL_H: float = 10.0
-const HEAD_MARGIN: float = 10.0         # 꼬리 끝을 머리 꼭대기보다 살짝 안쪽으로(+면 더 내림 → 말풍선 낮아짐)
+const HEAD_MARGIN: float = 10.0         # 꼬리 끝을 머리 꼭대기보다 살짝 안쪽으로
+const THOUGHT_GAP: float = 26.0         # 혼잣말: 말풍선과 머리 사이 '…' 점 자리
 
-# 한지·먹 팔레트
+# 표현 모드
+const MODE_SPEECH := 0
+const MODE_THOUGHT := 1
+const MODE_NARRATION := 2
+
+# 한지·먹 팔레트 — 말(SPEECH)
 const BG := Color(0.96, 0.93, 0.85)        # 한지 크림
 const BORDER := Color(0.17, 0.13, 0.10)    # 먹 테두리
 const INK_TEXT := Color(0.15, 0.12, 0.09)  # 본문 먹빛
 const SPEAKER_COL := Color(0.55, 0.20, 0.17)  # 단청 적 — 화자명
 const HINT_COL := Color(0.45, 0.39, 0.32)
+# 혼잣말(THOUGHT) — 살짝 바랜 한지 + 푸른 먹빛 글자(속내)
+const THOUGHT_BG := Color(0.90, 0.91, 0.93)
+const THOUGHT_BORDER := Color(0.36, 0.38, 0.44)
+const THOUGHT_TEXT := Color(0.24, 0.26, 0.33)
+# 나레이션(NARRATION) — 수묵 자막 띠: 어두운 반투명 + 한지빛 글자
+const NARR_BG := Color(0.06, 0.06, 0.07, 0.76)
+const NARR_TEXT := Color(0.91, 0.89, 0.82)
+const NARR_HINT := Color(0.66, 0.63, 0.57)
+
+const SPEECH_MIN_W := 236.0
+const NARR_MIN_W := 460.0
 
 @onready var bubble: PanelContainer = $Bubble
 @onready var tail: Control = $Tail
@@ -28,12 +49,18 @@ const HINT_COL := Color(0.45, 0.39, 0.32)
 @onready var advance_hint: Label = $Bubble/Margin/VBox/HBox/AdvanceHint
 
 var _target: Node = null                 # 현재 화자 월드 노드(없으면 중앙 폴백)
+var _mode: int = MODE_SPEECH
 var _revealing: bool = false             # 본문이 좌→우로 타이핑되는 중
 var _reveal_tween: Tween = null
+var _thought_span: float = 18.0          # 혼잣말 점들이 내려갈 거리
+
+var _sb_speech: StyleBoxFlat
+var _sb_thought: StyleBoxFlat
+var _sb_narration: StyleBoxFlat
 
 
 func _ready() -> void:
-    _apply_skin()
+    _build_styleboxes()
     bubble.visible = false
     tail.visible = false
     tap_catcher.visible = false
@@ -46,19 +73,30 @@ func _ready() -> void:
     Dialogue.dialogue_ended.connect(_on_dialogue_ended)
 
 
-func _apply_skin() -> void:
-    var sb := StyleBoxFlat.new()
-    sb.bg_color = BG
-    sb.border_color = BORDER
-    sb.set_border_width_all(2)
-    sb.set_corner_radius_all(7)
-    sb.shadow_color = Color(0, 0, 0, 0.22)
-    sb.shadow_size = 4
-    sb.shadow_offset = Vector2(2, 3)
-    bubble.add_theme_stylebox_override("panel", sb)
-    speaker_label.add_theme_color_override("font_color", SPEAKER_COL)
-    text_label.add_theme_color_override("default_color", INK_TEXT)
-    advance_hint.add_theme_color_override("font_color", HINT_COL)
+func _build_styleboxes() -> void:
+    _sb_speech = StyleBoxFlat.new()
+    _sb_speech.bg_color = BG
+    _sb_speech.border_color = BORDER
+    _sb_speech.set_border_width_all(2)
+    _sb_speech.set_corner_radius_all(7)
+    _sb_speech.shadow_color = Color(0, 0, 0, 0.22)
+    _sb_speech.shadow_size = 4
+    _sb_speech.shadow_offset = Vector2(2, 3)
+
+    _sb_thought = StyleBoxFlat.new()
+    _sb_thought.bg_color = THOUGHT_BG
+    _sb_thought.border_color = THOUGHT_BORDER
+    _sb_thought.set_border_width_all(2)
+    _sb_thought.set_corner_radius_all(13)   # 더 둥글게 — 생각 구름 느낌
+    _sb_thought.shadow_color = Color(0, 0, 0, 0.16)
+    _sb_thought.shadow_size = 3
+    _sb_thought.shadow_offset = Vector2(1, 2)
+
+    _sb_narration = StyleBoxFlat.new()
+    _sb_narration.bg_color = NARR_BG
+    _sb_narration.set_corner_radius_all(3)
+    _sb_narration.set_content_margin_all(4)
+    _sb_narration.set_border_width_all(0)
 
 
 # ════════════ 입력 ════════════
@@ -136,14 +174,27 @@ func _on_dialogue_event(speaker: String, text: String, choices: Array) -> void:
     bubble.visible = true
     tap_catcher.visible = true
     set_process(true)
-    _target = _resolve_speaker_node(speaker)
+
+    _mode = _classify(speaker, text)
+    _apply_mode_skin(_mode)
+    _target = _resolve_speaker_node(speaker) if _mode != MODE_NARRATION else null
 
     speaker_label.text = speaker
-    speaker_label.visible = speaker.strip_edges() != ""
+    speaker_label.visible = _mode == MODE_SPEECH and speaker.strip_edges() != ""
 
-    # 「해원」 시그니처: 기억이 지워질수록 글자도 흐려진다(진행도 비례, seed 고정).
-    var ratio := MemoryLedger.progress() if MemoryLedger else 0.0
-    text_label.text = MemoryGlyph.dissolve(text, ratio, hash(speaker + text))
+    # 본문 구성 — 혼잣말은 겉 괄호를 벗기고, 기억 소거(dissolve) 표시가 있으면 그 줄만 흐린다.
+    var do_dissolve := false
+    if Dialogue:
+        do_dissolve = Dialogue.meta("dissolve") == true
+    var body := text
+    if _mode == MODE_THOUGHT:
+        body = _strip_parens(text)
+    if do_dissolve and MemoryLedger:
+        # 「해원」 시그니처: 진혼 직후 그 한 줄의 글자가 진행도만큼 흐려진다.
+        body = MemoryGlyph.dissolve(body, MemoryLedger.progress(), hash(speaker + text))
+    elif _mode == MODE_THOUGHT:
+        body = "[i]%s[/i]" % body
+    text_label.text = body
 
     # 선택지 즉시 구성(타이핑은 본문에만 적용 — 입력/테스트 즉시성 보장).
     for child in choices_container.get_children():
@@ -165,6 +216,56 @@ func _on_dialogue_event(speaker: String, text: String, choices: Array) -> void:
             (first as Control).call_deferred("grab_focus")
 
     _start_reveal()
+
+
+## 화자/본문으로 표현 모드를 가른다.
+func _classify(speaker: String, text: String) -> int:
+    if speaker.strip_edges() == "":
+        return MODE_NARRATION          # 화자 없음 = 상황 나레이션
+    if _is_inner_thought(speaker, text):
+        return MODE_THOUGHT
+    return MODE_SPEECH
+
+
+## 주인공의 속내인가 — 화자가 길손이고 ①본문이 통째 괄호이거나 ②화자에 (독백)/(속으로)/(생각) 꼬리표.
+## "길손(낮게)" 처럼 소리 내어 읊는 말은 제외(괄호 본문이 아님 → 말로 분류).
+func _is_inner_thought(speaker: String, text: String) -> bool:
+    var base := speaker.split("(")[0].strip_edges()
+    var is_player := base == "길손" or base.begins_with("길손") or base == "나"
+    if not is_player:
+        return false
+    if speaker.find("독백") >= 0 or speaker.find("속으로") >= 0 or speaker.find("생각") >= 0:
+        return true
+    var t := text.strip_edges()
+    return t.begins_with("(") and t.ends_with(")")
+
+
+func _strip_parens(text: String) -> String:
+    var t := text.strip_edges()
+    if t.length() >= 2 and t.begins_with("(") and t.ends_with(")"):
+        return t.substr(1, t.length() - 2).strip_edges()
+    return t
+
+
+## 모드별 스킨(말풍선 배경·글자색·본문 폭·화자색)을 일정하게 적용.
+func _apply_mode_skin(mode: int) -> void:
+    match mode:
+        MODE_THOUGHT:
+            bubble.add_theme_stylebox_override("panel", _sb_thought)
+            text_label.add_theme_color_override("default_color", THOUGHT_TEXT)
+            advance_hint.add_theme_color_override("font_color", HINT_COL)
+            text_label.custom_minimum_size = Vector2(SPEECH_MIN_W, 24)
+        MODE_NARRATION:
+            bubble.add_theme_stylebox_override("panel", _sb_narration)
+            text_label.add_theme_color_override("default_color", NARR_TEXT)
+            advance_hint.add_theme_color_override("font_color", NARR_HINT)
+            text_label.custom_minimum_size = Vector2(NARR_MIN_W, 24)
+        _:
+            bubble.add_theme_stylebox_override("panel", _sb_speech)
+            text_label.add_theme_color_override("default_color", INK_TEXT)
+            speaker_label.add_theme_color_override("font_color", SPEAKER_COL)
+            advance_hint.add_theme_color_override("font_color", HINT_COL)
+            text_label.custom_minimum_size = Vector2(SPEECH_MIN_W, 24)
 
 
 ## 본문 글자를 좌→우로 드러내는 타이핑 연출.
@@ -213,7 +314,9 @@ func _on_dialogue_ended() -> void:
 func _process(_delta: float) -> void:
     if not bubble.visible:
         return
-    if _target != null and is_instance_valid(_target) and _target is Node2D:
+    if _mode == MODE_NARRATION:
+        _place_narration()
+    elif _target != null and is_instance_valid(_target) and _target is Node2D:
         _place_above_target()
     else:
         _place_centered()
@@ -226,14 +329,18 @@ func _place_above_target() -> void:
     var sp: Vector2 = ct * head_world            # 카메라 보정된 화면 좌표
     var sz := bubble.size
     var vp := get_viewport().get_visible_rect().size
-    # 꼬리 끝(아래 꼭짓점)을 머리 꼭대기 바로 위에 둔다 → 말풍선은 꼬리 위로.
     var tip := sp + Vector2(0, HEAD_MARGIN)
+    var gap := TAIL_H if _mode == MODE_SPEECH else THOUGHT_GAP
     var x := clampf(tip.x - sz.x * 0.5, 8.0, maxf(8.0, vp.x - sz.x - 8.0))
-    var y := clampf(tip.y - TAIL_H - sz.y, 8.0, maxf(8.0, vp.y - sz.y - 8.0))
+    var y := clampf(tip.y - gap - sz.y, 8.0, maxf(8.0, vp.y - sz.y - 8.0))
     bubble.position = Vector2(x, y)
-    # 꼬리 — 말풍선 아래변에서 화자 머리(tip.x) 쪽을 가리킨다.
-    var tip_x := clampf(tip.x, x + 10.0, x + sz.x - 10.0)
-    tail.position = Vector2(tip_x - TAIL_W * 0.5, y + sz.y)
+    var tip_x := clampf(tip.x, x + 12.0, x + sz.x - 12.0)
+    if _mode == MODE_THOUGHT:
+        # 말풍선 아래변에서 머리까지 '…' 점 3개(생각 표시).
+        tail.position = Vector2(tip_x, y + sz.y)
+        _thought_span = maxf(tip.y - (y + sz.y), 18.0)
+    else:
+        tail.position = Vector2(tip_x - TAIL_W * 0.5, y + sz.y)
     tail.visible = true
     tail.queue_redraw()
 
@@ -281,6 +388,14 @@ func _sprite_frame_h(spr: Node2D) -> float:
     return 0.0
 
 
+## 나레이션 — 화면 아래쪽 가운데 '수묵 자막 띠'. 누가 말하는 게 아니라 상황을 깐다.
+func _place_narration() -> void:
+    var sz := bubble.size
+    var vp := get_viewport().get_visible_rect().size
+    bubble.position = Vector2((vp.x - sz.x) * 0.5, vp.y * 0.76 - sz.y)
+    tail.visible = false
+
+
 func _place_centered() -> void:
     var sz := bubble.size
     var vp := get_viewport().get_visible_rect().size
@@ -298,6 +413,9 @@ func _fallback_offset(node: Node) -> float:
 
 
 func _draw_tail() -> void:
+    if _mode == MODE_THOUGHT:
+        _draw_thought_dots()
+        return
     var pts := PackedVector2Array([
         Vector2(0, 0), Vector2(TAIL_W, 0), Vector2(TAIL_W * 0.5, TAIL_H)])
     tail.draw_colored_polygon(pts, BG)
@@ -306,11 +424,22 @@ func _draw_tail() -> void:
     tail.draw_line(Vector2(TAIL_W, 0), Vector2(TAIL_W * 0.5, TAIL_H), BORDER, 2.0)
 
 
+## 혼잣말 표시 — 말풍선 아래로 내려가며 작아지는 점 3개(…).
+func _draw_thought_dots() -> void:
+    var span := _thought_span
+    var ts := [0.16, 0.5, 0.84]
+    var rs := [4.0, 3.0, 2.2]
+    for i in range(3):
+        var c := Vector2(0, span * ts[i])
+        tail.draw_circle(c, rs[i], THOUGHT_BG)
+        tail.draw_arc(c, rs[i], 0.0, TAU, 14, THOUGHT_BORDER, 1.5)
+
+
 # ════════════ 화자 이름 → 월드 노드 매칭 ════════════
 func _resolve_speaker_node(speaker: String) -> Node:
     var base := speaker.split("(")[0].strip_edges()
     if base == "":
-        return null                          # 나레이션 — 중앙 박스
+        return null                          # 나레이션 — 자막 띠
     var player := get_tree().get_first_node_in_group("player")
     if player and (base == "길손" or base.begins_with("길손") or base == "나"):
         return player

@@ -1,0 +1,62 @@
+[gd_scene load_steps=6 format=3]
+
+; 윤슬의 넋 — 6굽이(최종) 진혼 대상. 수문 밖에 두고 온 사랑하는 이의 넋.
+; 괴물이 아니라 처연한 물의 여인. 전투는 곧 떠나보냄(진혼)이자 자기 천도. (옛 구미호 여왕 FoxQueen 대체)
+
+[ext_resource type="Script" path="res://scripts/enemies/boss.gd" id="1_boss"]
+[ext_resource type="Script" path="res://scripts/combat/hurtbox.gd" id="2_hurt"]
+[ext_resource type="Script" path="res://scripts/combat/health_component.gd" id="3_health"]
+[ext_resource type="Script" path="res://scripts/combat/hitbox.gd" id="4_hit"]
+[ext_resource type="Script" path="res://scripts/visual/enemy_visual.gd" id="5_vis"]
+
+[sub_resource type="RectangleShape2D" id="body"]
+size = Vector2(40, 40)
+
+[sub_resource type="RectangleShape2D" id="hurt"]
+size = Vector2(44, 44)
+
+[sub_resource type="RectangleShape2D" id="hit"]
+size = Vector2(56, 40)
+
+[node name="Boss" type="CharacterBody2D"]
+script = ExtResource("1_boss")
+display_name = "윤슬의 넋"
+body_color = Color(0.82, 0.86, 0.92, 1)
+engage_distance = 360.0
+telegraph_seconds = 0.6
+attack_seconds = 0.34
+recover_seconds = 1.1
+dash_speed = 360.0
+attack_damage = 16.0
+attack_knockback = 280.0
+xp_reward = 150
+reward_item_id = "potion_major"
+reward_item_qty = 1
+
+[node name="Sprite2D" type="AnimatedSprite2D" parent="."]
+scale = Vector2(1.4, 1.4)
+script = ExtResource("5_vis")
+sheet = "enemies/yunseul"
+foot_offset = -35.6
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("body")
+
+[node name="Hurtbox" type="Area2D" parent="."]
+script = ExtResource("2_hurt")
+
+[node name="HurtboxShape" type="CollisionShape2D" parent="Hurtbox"]
+shape = SubResource("hurt")
+
+[node name="HealthComponent" type="Node" parent="."]
+script = ExtResource("3_health")
+max_hp = 240.0
+hurtbox_path = NodePath("../Hurtbox")
+
+[node name="AttackHitbox" type="Area2D" parent="."]
+script = ExtResource("4_hit")
+damage = 16.0
+knockback = 280.0
+
+[node name="HitShape" type="CollisionShape2D" parent="AttackHitbox"]
+shape = SubResource("hit")

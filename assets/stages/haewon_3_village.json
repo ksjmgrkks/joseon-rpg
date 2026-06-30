@@ -19,7 +19,7 @@
   ],
   "enemies": [
     { "scene": "Reaper", "x": 780, "y": 632 },
-    { "scene": "Fox", "x": 1020, "y": 648 },
+    { "scene": "Wraith", "x": 1020, "y": 648 },
     { "scene": "Reaper", "x": 1160, "y": 632 }
   ],
   "gates": [ { "x": 1330, "y": 600, "flag": "haewon_3_cleared", "height": 260 } ],
