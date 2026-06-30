@@ -254,7 +254,7 @@ func _physics_process(delta: float) -> void:
     # 런지(전방 임펄스)만 살아 흐르게 한다 — 바라보는 쪽으로 역동적 전진 3타.
     if _attacking:
         direction = 0.0
-        fric *= 0.12
+        fric *= 0.18
     # 점프 정점 부근에서는 가로 가속을 살짝 키워 공중 미세 제어가 잘 먹게(체공 제어감)
     if not on_floor and absf(velocity.y) < APEX_THRESHOLD:
         accel *= APEX_BONUS_ACCEL
@@ -309,20 +309,20 @@ func _do_combo_attack() -> void:
     var shake_strength := 4.0
     var duration := ATTACK_DURATION
     var hb_w := 28.0          # 히트박스 폭(앞으로 뻗는 사거리) — 1타는 좁은 찌름
-    var lunge_amt := 200.0    # 전방 런지(바라보는 쪽으로 크게 치고 나감)
+    var lunge_amt := 150.0    # 전방 런지(바라보는 쪽으로 치고 나감)
     if _combo_step == 2:
         damage_mult = 1.35
         knock_mult = 1.2
         shake_strength = 6.0
         hb_w = 44.0           # 2타 — 넓은 횡베기
-        lunge_amt = 280.0
+        lunge_amt = 200.0
     elif _combo_step == 3:
         damage_mult = 2.0
         knock_mult = 1.7
         shake_strength = 9.0
         duration = ATTACK_DURATION_FINISH
         hb_w = 70.0           # 3타 — 광역 회전 마무리(여러 적 동시 타격)
-        lunge_amt = 420.0
+        lunge_amt = 300.0
     attack_hitbox.damage = base_damage * damage_mult
     attack_hitbox.knockback = base_knock * knock_mult
     # 히트박스를 단계별로 넓혀 '범위 공격'화 — 폭이 커질수록 세로도 살짝 키워 회전 마무리를 광역으로.
@@ -400,7 +400,8 @@ func _on_hitbox_landed(area: Area2D) -> void:
         return
     # 적 부모를 침. (자기 자신은 Hurtbox._on_area_entered 에서 이미 걸러짐.)
     # 타격이 적중하는 순간 '퍽' 하는 피격음(적 측에서 내던 걸 공격자 측으로 모음 → 허공 스윙엔 안 남).
-    Audio.play_sfx(Sfx.HIT)
+    # 스윙음(바람가르는 소리)에 묻히지 않게 +3dB 부각(피크 -0.2dBFS, 클립 없음).
+    Audio.play_sfx(Sfx.HIT, 3.0)
     var landed_strength := 4.0 + 1.5 * float(_combo_step)
     ScreenFx.shake(landed_strength, 0.16)
     # 등급별 히트스톱 — 1·2타는 짧고 얕게(경쾌), 3타(마무리)는 길고 '딱' 멈춤(묵직).
@@ -483,7 +484,7 @@ func _skill_ultimate() -> void:
             SkillFx.impact(epos, true)
             SkillFx.bleed(epos, _facing_right, true)
     if hit_any:
-        Audio.play_sfx(Sfx.HIT)
+        Audio.play_sfx(Sfx.HIT, 3.0)
     await get_tree().create_timer(0.5).timeout
     _attacking = false
 

@@ -53,10 +53,17 @@ def sfx_hurt():
 
 
 def sfx_hit():
-    """타격 명중 — 짧은 톡."""
-    tone = decay_exp(sine_sweep(750, 240, 0.12, "exp"), tau=0.035)
-    click = gain(decay_exp(lowpass(noise(0.025, seed=31), 3200), tau=0.008), 0.6)
-    return fade_io(mix(tone, click), 0.002)
+    """타격 명중 — 묵직한 '퍽'(저음 임팩트 바디 + 중음 펀치 + 날카로운 탁).
+    짧은 '톡'은 스윙음에 묻혀 안 들려서, 저음 바디로 RMS를 키워 체감 음량을 높임."""
+    # 저음 바디: 430→95Hz 하강, 길게 — 피크를 주도하게 두어 정규화 후에도 크게(RMS↑)
+    body = decay_exp(sine_sweep(430, 95, 0.22, "exp"), tau=0.085)
+    # 중음 펀치: 살 베는 둔탁한 중심
+    punch = gain(decay_exp(sine_sweep(820, 280, 0.12, "exp"), tau=0.035), 0.5)
+    # 날카로운 트랜지언트는 살짝만 — 피크를 튀게 해 전체를 깎으면 오히려 작아짐
+    crack = gain(decay_exp(lowpass(noise(0.04, seed=31), 5000), tau=0.012), 0.3)
+    out = mix(mix(body, punch), crack)
+    out = env_points(out, [(0, 0.0), (0.004, 1.0), (0.11, 0.65), (0.22, 0.0)])
+    return fade_io(out, 0.002)
 
 
 def sfx_die():

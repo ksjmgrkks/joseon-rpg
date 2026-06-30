@@ -24,8 +24,8 @@ func _ready() -> void:
     SaveManager.loaded.connect(_on_load)
 
 
-## 1회용 SFX 재생 — 파일이 없으면 조용히 무시.
-func play_sfx(path: String) -> void:
+## 1회용 SFX 재생 — 파일이 없으면 조용히 무시. volume_db 로 개별 사운드 가감(예: 피격음 부각).
+func play_sfx(path: String, volume_db: float = 0.0) -> void:
     if path.is_empty() or not ResourceLoader.exists(path):
         return
     var stream := load(path) as AudioStream
@@ -34,7 +34,7 @@ func play_sfx(path: String) -> void:
     var p := AudioStreamPlayer.new()
     add_child(p)
     p.stream = stream
-    p.volume_db = _sfx_db + _master_db
+    p.volume_db = _sfx_db + _master_db + volume_db
     p.finished.connect(p.queue_free)
     p.play()
 
