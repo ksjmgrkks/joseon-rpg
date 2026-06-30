@@ -72,6 +72,13 @@
       "peak_dbfs": -3.2,
       "rms_dbfs": -14.16,
       "loop": false
+    },
+    "ultimate": {
+      "file": "sfx/ultimate.wav",
+      "duration_s": 1.15,
+      "peak_dbfs": -3.2,
+      "rms_dbfs": -18.93,
+      "loop": false
     }
   },
   "bgm": {

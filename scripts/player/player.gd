@@ -423,6 +423,7 @@ func _skill_ultimate() -> void:
     var mult := float(def.get("damage_mult", 3.5))
     var dmg := Equipment.current_damage(attack_hitbox.damage) * mult
     Audio.play_sfx(Sfx.ATTACK)
+    Audio.play_sfx(Sfx.ULT)
     SkillFx.ultimate(global_position)
     if sprite:
         SkillFx.afterimage_burst(sprite, SkillFx.MAGE_HOT, 6, 0.4)

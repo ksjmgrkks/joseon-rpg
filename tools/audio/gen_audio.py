@@ -149,6 +149,34 @@ def sfx_jingle_quest():
     return fade_io(out, 0.004)
 
 
+def sfx_ultimate():
+    """궁극기 '귀창 강림' — 어둡고 묵직한 마기 충격 + 쏟아지는 귀신 창.
+    밝은 종소리(jingle) 대체: 저역 임팩트 + 마기 우르릉 + 하강 휘몰이 + 창 꽂힘.
+    평타(attack swing) 위에 겹쳐 궁극기의 무게를 준다."""
+    dur = 1.15
+    out = silence(dur)
+    # 1) 저역 임팩트(쿵) — 북 몸통 + 서브
+    boom = decay_exp(sine_sweep(120, 42, 0.5, "exp"), tau=0.22)
+    sub = gain(decay_exp(sine(46, 0.5), tau=0.30), 0.5)
+    mix_at(out, mix(boom, sub), 0.0, 0.95)
+    # 2) 마기 우르릉 — 저역 노이즈 베드(살짝 늦게 들어와 길게 깔림)
+    rumble = lowpass(noise(0.95, seed=91), 220)
+    rumble = env_points(rumble, [(0, 0.0), (0.10, 0.7), (0.5, 0.45), (0.95, 0.0)])
+    mix_at(out, gain(rumble, 0.5), 0.04, 1.0)
+    # 3) 하강 마기 휘몰이 — 고→저 스윕(어두운 톤 + 5도 위 배음 옅게)
+    howl = decay_exp(sine_sweep(900, 130, 0.6, "exp"), tau=0.28)
+    howl = mix(howl, gain(sine_sweep(1350, 195, 0.6, "exp"), 0.28))
+    mix_at(out, gain(howl, 0.5), 0.02, 1.0)
+    # 4) 쏟아지는 귀신 창 — 금속 스침 burst 6개를 시차로(차차창)
+    for t, sd in [(0.10, 12), (0.18, 22), (0.25, 33), (0.33, 44), (0.42, 55), (0.52, 66)]:
+        spear = highpass(decay_exp(noise(0.10, seed=sd), tau=0.03), 2500)
+        ring = gain(decay_exp(sine(1700 + sd * 5, 0.08), tau=0.022), 0.22)
+        mix_at(out, gain(mix(spear, ring), 0.42), t, 1.0)
+    out = trim(out, dur)
+    out = env_points(out, [(0, 1.0), (dur - 0.14, 1.0), (dur, 0.0)])  # 끝 정리
+    return fade_io(out, 0.004)
+
+
 # ════════════════════════════ BGM ════════════════════════════
 # 2026-06-12 전면 재작곡(사용자: '음악이 마음에 안 든다, 새로') —
 # 드론 위주 → 또렷한 가야금 가락 + 굿거리/세마치/자진모리 장단 + 시김새(꺾는 음).
@@ -689,6 +717,7 @@ def main():
         (SFX, "dodge", sfx_dodge, False),
         (SFX, "ui_click", sfx_ui_click, False),
         (SFX, "jingle_quest", sfx_jingle_quest, False),
+        (SFX, "ultimate", sfx_ultimate, False),
         (BGM, "village", bgm_village, True),
         (BGM, "forest", bgm_forest, True),
         (BGM, "boss", bgm_boss, True),
