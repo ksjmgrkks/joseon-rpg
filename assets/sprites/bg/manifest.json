@@ -23,7 +23,7 @@
       "file": "bg_far.png",
       "scroll_factor": 0.1,
       "tile_x": true,
-      "desc": "먼 산 2겹 INK_FAINT — 뒤 능선은 50% 디더로 옅게. 하늘 투명"
+      "desc": "먼 산 3겹 INK_FAINT(최원경 25%·뒤 50% 디더) + 구름 3겹 + 새 떼. 하늘 투명"
     },
     "bg_mid": {
       "file": "bg_mid.png",
@@ -35,7 +35,7 @@
       "file": "bg_near.png",
       "scroll_factor": 0.7,
       "tile_x": true,
-      "desc": "근경 둔덕 GRASS_DEEP→INK_MID + 갈대 실루엣"
+      "desc": "근경 둔덕 GRASS_DEEP→INK_MID + 갈대 + 납작돌 + 풀잎"
     }
   }
 }

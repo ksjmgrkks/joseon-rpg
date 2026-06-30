@@ -36,7 +36,7 @@ reward_item_qty = 1
 scale = Vector2(1.6, 1.6)
 script = ExtResource("5_vis")
 sheet = "enemies/goblin"
-foot_offset = -14.0
+foot_offset = -21.0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("body")

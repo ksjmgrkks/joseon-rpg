@@ -20,7 +20,7 @@ script = ExtResource("1_dummy")
 [node name="Sprite2D" type="AnimatedSprite2D" parent="."]
 script = ExtResource("vis_enemy")
 sheet = "enemies/goblin"
-foot_offset = -14.0
+foot_offset = -15.0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("RectangleShape2D_body")

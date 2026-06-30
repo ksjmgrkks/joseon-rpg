@@ -18,6 +18,12 @@ PixelLab 적/보스 측면 스프라이트 → assets/sprites/enemies/<type>/ �
 import os, re, sys, json, subprocess
 from PIL import Image
 
+# Windows 콘솔(cp949)이 ≈ 등 비-ASCII 출력에 죽지 않도록 stdout 을 UTF-8 로.
+try:
+    sys.stdout.reconfigure(encoding="utf-8")
+except Exception:
+    pass
+
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 CFG = os.path.join(os.path.dirname(__file__), "enemy_pl.json")
 TMP = os.path.join(ROOT, ".pl_tmp", "enemies")
