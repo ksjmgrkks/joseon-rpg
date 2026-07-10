@@ -4,6 +4,7 @@ extends CanvasLayer
 ## PlayerStats autoload에서 레벨/XP 가져옴.
 ##
 
+@onready var panel: Control = $Panel
 @onready var hp_bar: ProgressBar = $Panel/Margin/VBox/HPRow/Bar
 @onready var hp_label: Label = $Panel/Margin/VBox/HPRow/Label
 @onready var level_label: Label = $Panel/Margin/VBox/StatsRow/LevelLabel
@@ -41,6 +42,17 @@ func _ready() -> void:
     PlayerStats.level_up.connect(func(_l: int) -> void: _update_skills())
     Flags.flag_changed.connect(func(_k: String, _v) -> void: _update_skills())
     _update_skills()
+
+    # 대화가 뜨면 HUD를 감춰 몰입을 보존 — 끝나면 다시 부드럽게 나타난다.
+    Dialogue.dialogue_started.connect(func(_s, _t, _c) -> void: _set_hud_visible(false))
+    Dialogue.dialogue_ended.connect(func() -> void: _set_hud_visible(true))
+
+
+func _set_hud_visible(show: bool) -> void:
+    if panel == null:
+        return
+    var t := create_tween()
+    t.tween_property(panel, "modulate:a", 1.0 if show else 0.0, 0.18)
 
 
 ## 스킬 줄 — 잠김: 회색 [잠김], 쿨다운: 남은 초, 준비: 흰색

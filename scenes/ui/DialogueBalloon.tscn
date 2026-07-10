@@ -13,38 +13,76 @@ focus_mode = 0
 flat = true
 modulate = Color(1, 1, 1, 0)
 
-[node name="Tail" type="Control" parent="."]
+[node name="Box" type="Control" parent="."]
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 40.0
+offset_top = -278.0
+offset_right = -40.0
+offset_bottom = -22.0
 mouse_filter = 2
 
-[node name="Bubble" type="PanelContainer" parent="."]
-offset_right = 260.0
-offset_bottom = 80.0
+[node name="BgPanel" type="Panel" parent="Box"]
+anchor_right = 1.0
+anchor_bottom = 1.0
 mouse_filter = 2
 
-[node name="Margin" type="MarginContainer" parent="Bubble"]
+[node name="Frame" type="NinePatchRect" parent="Box"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="Content" type="MarginContainer" parent="Box"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+theme_override_constants/margin_left = 86
+theme_override_constants/margin_top = 22
+theme_override_constants/margin_right = 78
+theme_override_constants/margin_bottom = 34
+
+[node name="VBox" type="VBoxContainer" parent="Box/Content"]
+mouse_filter = 2
+theme_override_constants/separation = 10
+
+[node name="NamePlate" type="PanelContainer" parent="Box/Content/VBox"]
+size_flags_horizontal = 0
+mouse_filter = 2
+
+[node name="NameMargin" type="MarginContainer" parent="Box/Content/VBox/NamePlate"]
+mouse_filter = 2
 theme_override_constants/margin_left = 12
-theme_override_constants/margin_top = 8
+theme_override_constants/margin_top = 2
 theme_override_constants/margin_right = 12
-theme_override_constants/margin_bottom = 8
+theme_override_constants/margin_bottom = 2
 
-[node name="VBox" type="VBoxContainer" parent="Bubble/Margin"]
-theme_override_constants/separation = 5
-
-[node name="HBox" type="HBoxContainer" parent="Bubble/Margin/VBox"]
-
-[node name="SpeakerLabel" type="Label" parent="Bubble/Margin/VBox/HBox"]
-size_flags_horizontal = 3
+[node name="SpeakerLabel" type="Label" parent="Box/Content/VBox/NamePlate/NameMargin"]
+mouse_filter = 2
+theme_override_font_sizes/font_size = 20
 text = "화자"
 
-[node name="AdvanceHint" type="Label" parent="Bubble/Margin/VBox/HBox"]
-text = ""
-
-[node name="TextLabel" type="RichTextLabel" parent="Bubble/Margin/VBox"]
+[node name="TextLabel" type="RichTextLabel" parent="Box/Content/VBox"]
+size_flags_vertical = 3
+mouse_filter = 2
 bbcode_enabled = true
-fit_content = true
 scroll_active = false
-custom_minimum_size = Vector2(236, 24)
+theme_override_font_sizes/normal_font_size = 24
 text = "대사"
 
-[node name="ChoicesContainer" type="VBoxContainer" parent="Bubble/Margin/VBox"]
-theme_override_constants/separation = 4
+[node name="ChoicesContainer" type="VBoxContainer" parent="Box/Content/VBox"]
+theme_override_constants/separation = 6
+
+[node name="AdvanceHint" type="Label" parent="Box"]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -132.0
+offset_top = -40.0
+offset_right = -20.0
+offset_bottom = -10.0
+mouse_filter = 2
+theme_override_font_sizes/font_size = 18
+horizontal_alignment = 2
+text = "▼ 탭"

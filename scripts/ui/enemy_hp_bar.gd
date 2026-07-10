@@ -48,6 +48,12 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+    # 대화 중에는 적 HP 바를 감춰 화면을 깨끗이 비운다(몰입).
+    if Dialogue and Dialogue.is_active():
+        if visible:
+            visible = false
+        _hide_timer = 0.0
+        return
     if _hide_timer > 0.0:
         _hide_timer = maxf(0.0, _hide_timer - delta)
         if _hide_timer <= 0.0:

@@ -117,6 +117,12 @@ func _on_level_up(_new_level: int) -> void:
 
 
 func _physics_process(delta: float) -> void:
+    # 대화 중에는 주인공을 완전히 잠근다 — 이동·점프·공격·차지·회피·스킬 전부 무시.
+    # (적은 각자 상태머신이 Dialogue.is_active()로 멈춘다. 여기선 주인공만 담당.)
+    if Dialogue and Dialogue.is_active():
+        _freeze_for_dialogue(delta)
+        return
+
     var on_floor := is_on_floor()
 
     # 중력 — 상승/하강·점프 유지 여부로 가중치 변화(붕 뜨는 느낌 제거, 묵직한 낙하)
@@ -287,6 +293,21 @@ func _physics_process(delta: float) -> void:
         velocity.x += _lunge_vel
         _lunge_vel = 0.0
 
+    move_and_slide()
+
+
+# 대화 중 주인공 동결 — 가로 이동은 즉시 멈추고, 중력만 살려 땅에 붙어 있게 한다.
+# 진행 중이던 차지 시각/상태를 정리해 대화 후 잔상이 남지 않게 한다.
+func _freeze_for_dialogue(delta: float) -> void:
+    if not is_on_floor():
+        velocity.y = minf(velocity.y + GRAVITY * delta, MAX_FALL_SPEED)
+    velocity.x = move_toward(velocity.x, 0.0, FRICTION * delta)
+    _hold_time = 0.0
+    _charge_started = false
+    _charge_full_fired = false
+    _combo_buffered = false
+    if sprite:
+        sprite.modulate = _base_modulate
     move_and_slide()
 
 

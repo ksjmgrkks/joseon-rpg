@@ -5,6 +5,7 @@ func _ready()->void:
 	print("=== test_dialogue_freeze ===")
 	var results:Array[Dictionary]=[]
 	results.append(await _check_enemy_freezes())
+	results.append(await _check_player_freezes())
 	results.append(await _check_npc_autostart())
 	var failed:=0
 	for r in results:
@@ -31,6 +32,31 @@ func _check_enemy_freezes()->Dictionary:
 	host.queue_free()
 	if not frozen: return {"name":"enemy_freezes_in_dialogue","status":FAIL,"reason":"대화 중 적이 이동함 (%.1f→%.1f)"%[x0,x1]}
 	return {"name":"enemy_freezes_in_dialogue","status":PASS,"reason":""}
+func _check_player_freezes()->Dictionary:
+	if Dialogue.is_active(): Dialogue._end()
+	var host:=Node2D.new(); add_child(host)
+	var ground:=StaticBody2D.new(); var cs:=CollisionShape2D.new(); var sh:=RectangleShape2D.new()
+	sh.size=Vector2(2000,40); cs.shape=sh; ground.add_child(cs); ground.position=Vector2(600,520); host.add_child(ground)
+	var player:Node2D=load("res://scenes/player/Player.tscn").instantiate(); host.add_child(player); player.global_position=Vector2(400,480)
+	for i in range(20): await get_tree().physics_frame
+	# 오른쪽 이동 입력을 누른 채 대화 시작 → 주인공이 움직이지 않아야 한다.
+	Input.action_press("move_right")
+	var f=FileAccess.open(TMP,FileAccess.WRITE); f.store_string(JSON.stringify({"id":"p","start":"a","nodes":{"a":{"speaker":"x","text":"게 섰거라","next":null}}})); f.close()
+	Dialogue.start(TMP)
+	var x0:float=player.global_position.x
+	for i in range(30): await get_tree().physics_frame
+	var x1:float=player.global_position.x
+	var frozen:bool = absf(x1-x0) < 2.0
+	# 대화 종료 후엔 같은 입력으로 다시 움직여야 한다(잠금이 영구가 아님).
+	Dialogue._end()
+	for i in range(20): await get_tree().physics_frame
+	var x2:float=player.global_position.x
+	Input.action_release("move_right")
+	var moves_after:bool = (x2-x1) > 8.0
+	host.queue_free()
+	if not frozen: return {"name":"player_freezes_in_dialogue","status":FAIL,"reason":"대화 중 주인공이 이동함 (%.1f→%.1f)"%[x0,x1]}
+	if not moves_after: return {"name":"player_freezes_in_dialogue","status":FAIL,"reason":"대화 종료 후 이동 복구 안 됨 (%.1f→%.1f)"%[x1,x2]}
+	return {"name":"player_freezes_in_dialogue","status":PASS,"reason":""}
 func _check_npc_autostart()->Dictionary:
 	if Dialogue.is_active(): Dialogue._end()
 	Flags.clear()
