@@ -14,12 +14,16 @@ signal time_changed(t: float)
 @export var night_seconds: float = 90.0
 @export var paused_at_start: bool = false
 
+## 2026-07-10: 밤낮 순환 제거(사용자 요청) — 항상 흐린 궂은 날씨 한 톤으로 고정.
+## 시간은 흐르지 않고, 화면 어둠·비·구름은 WorldTint/Weather 가 담당.
+const STATIC_OVERCAST := true
+
 var time_of_day: float = 0.0     # [0,1) — 0..day_ratio 가 낮
 var _running: bool = true
 
 
 func _ready() -> void:
-	_running = not paused_at_start
+	_running = not paused_at_start and not STATIC_OVERCAST
 	SaveManager.save_requested.connect(_on_save)
 	SaveManager.loaded.connect(_on_load)
 

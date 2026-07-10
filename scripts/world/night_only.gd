@@ -9,6 +9,10 @@ class_name NightOnly
 ##
 
 func _ready() -> void:
+    # 2026-07-10: 밤낮 순환 제거 → '밤에만' 게이트는 의미가 없어, 항상 등장하도록 개방.
+    if TimeManager and TimeManager.STATIC_OVERCAST:
+        _apply(true)
+        return
     if TimeManager:
         TimeManager.phase_changed.connect(_on_phase_changed)
         _apply(TimeManager.is_night())

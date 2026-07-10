@@ -10,14 +10,13 @@ extends CanvasLayer
 @onready var level_label: Label = $Panel/Margin/VBox/StatsRow/LevelLabel
 @onready var xp_label: Label = $Panel/Margin/VBox/StatsRow/XpLabel
 @onready var gold_label: Label = $Panel/Margin/VBox/StatsRow/GoldLabel
-@onready var skill_labels: Dictionary = {
-    "ilseom": $Panel/Margin/VBox/SkillRow/Skill1,
-    "hoecheon": $Panel/Margin/VBox/SkillRow/Skill2,
-    "hosinbu": $Panel/Margin/VBox/SkillRow/Skill3,
-    "guichang": $Panel/Margin/VBox/SkillRow/Skill4,
-}
+@onready var skill_row: HBoxContainer = $Panel/Margin/VBox/SkillRow
 
-const SKILL_KEYS := { "ilseom": "1", "hoecheon": "2", "hosinbu": "3", "guichang": "4" }
+const SKILL_ICON := "res://assets/ui/skill_%s.png"   # id 별 아이콘 경로
+const SLOT_SIZE := 46.0
+
+# 스킬 슬롯(아이콘+키+쿨다운) 노드 참조 — _build_skill_slots 에서 채운다.
+var _slots: Array = []   # [{id, action, icon:TextureRect, key:Label, cd:Label}]
 
 
 func _ready() -> void:
@@ -38,10 +37,13 @@ func _ready() -> void:
     _update_gold(PlayerStats.gold)
     PlayerStats.gold_changed.connect(_update_gold)
 
+    _build_skill_slots()
     SkillManager.cooldowns_changed.connect(_update_skills)
     PlayerStats.level_up.connect(func(_l: int) -> void: _update_skills())
     Flags.flag_changed.connect(func(_k: String, _v) -> void: _update_skills())
+    InputConfig.bindings_changed.connect(_update_skill_keys)
     _update_skills()
+    _update_skill_keys()
 
     # 대화가 뜨면 HUD를 감춰 몰입을 보존 — 끝나면 다시 부드럽게 나타난다.
     Dialogue.dialogue_started.connect(func(_s, _t, _c) -> void: _set_hud_visible(false))
@@ -55,26 +57,87 @@ func _set_hud_visible(show: bool) -> void:
     t.tween_property(panel, "modulate:a", 1.0 if show else 0.0, 0.18)
 
 
-## 스킬 줄 — 잠김: 회색 [잠김], 쿨다운: 남은 초, 준비: 흰색
-func _update_skills() -> void:
-    for id in skill_labels:
-        var lbl: Label = skill_labels[id]
-        if lbl == null:
-            continue
+## 스킬 슬롯 생성 — 이름 대신 아이콘 이미지. 슬롯 순서는 skills.json 의 slot(1~4).
+## 각 슬롯: 아이콘(TextureRect) 위에 쿨다운 숫자, 아래에 실제 배정된 키(유저 키설정 반영).
+func _build_skill_slots() -> void:
+    for c in skill_row.get_children():
+        c.queue_free()
+    _slots.clear()
+    for id in SkillManager.all_ids():
         var def := SkillManager.get_def(id)
-        var sname := String(def.get("name", id))
-        var key: String = SKILL_KEYS.get(id, "?")
+        var slot_num := int(def.get("slot", 1))
+        var action := "skill_%d" % slot_num
+
+        var slot := Control.new()
+        slot.custom_minimum_size = Vector2(SLOT_SIZE, SLOT_SIZE + 12.0)
+        slot.tooltip_text = "%s\n%s" % [String(def.get("name", id)), String(def.get("desc", ""))]
+
+        var icon := TextureRect.new()
+        icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+        icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+        icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+        icon.custom_minimum_size = Vector2(SLOT_SIZE, SLOT_SIZE)
+        icon.size = Vector2(SLOT_SIZE, SLOT_SIZE)
+        var tex_path := SKILL_ICON % id
+        if ResourceLoader.exists(tex_path):
+            icon.texture = load(tex_path)
+        slot.add_child(icon)
+
+        # 쿨다운 숫자 — 아이콘 중앙, 평소엔 숨김.
+        var cd := Label.new()
+        cd.add_theme_font_size_override("font_size", 20)
+        cd.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+        cd.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+        cd.set_anchors_preset(Control.PRESET_FULL_RECT)
+        cd.custom_minimum_size = Vector2(SLOT_SIZE, SLOT_SIZE)
+        cd.mouse_filter = Control.MOUSE_FILTER_IGNORE
+        cd.visible = false
+        slot.add_child(cd)
+
+        # 배정된 키 — 아이콘 아래.
+        var key := Label.new()
+        key.add_theme_font_size_override("font_size", 13)
+        key.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+        key.position = Vector2(0, SLOT_SIZE - 2.0)
+        key.size = Vector2(SLOT_SIZE, 14.0)
+        key.mouse_filter = Control.MOUSE_FILTER_IGNORE
+        slot.add_child(key)
+
+        skill_row.add_child(slot)
+        _slots.append({"id": id, "action": action, "icon": icon, "key": key, "cd": cd})
+
+
+## 스킬 상태 — 잠김: 어둡게, 쿨다운: 어둡게+남은 초, 준비: 밝게.
+func _update_skills() -> void:
+    for s in _slots:
+        var id: String = s["id"]
+        var icon: TextureRect = s["icon"]
+        var cd_lbl: Label = s["cd"]
         if not SkillManager.is_unlocked(id):
-            lbl.text = "[%s] %s(잠김)" % [key, sname]
-            lbl.modulate = Color(1, 1, 1, 0.35)
+            icon.modulate = Color(1, 1, 1, 0.28)
+            cd_lbl.visible = true
+            cd_lbl.text = "잠김"
+            cd_lbl.add_theme_font_size_override("font_size", 13)
+            cd_lbl.modulate = Color(1, 1, 1, 0.8)
         else:
             var cd := SkillManager.cooldown_left(id)
             if cd > 0.0:
-                lbl.text = "[%s] %s %.0f" % [key, sname, ceilf(cd)]
-                lbl.modulate = Color(1, 1, 1, 0.6)
+                icon.modulate = Color(1, 1, 1, 0.4)
+                cd_lbl.visible = true
+                cd_lbl.text = "%d" % int(ceilf(cd))
+                cd_lbl.add_theme_font_size_override("font_size", 20)
+                cd_lbl.modulate = Color(1, 1, 1, 1)
             else:
-                lbl.text = "[%s] %s" % [key, sname]
-                lbl.modulate = Color(1, 1, 1, 1)
+                icon.modulate = Color(1, 1, 1, 1)
+                cd_lbl.visible = false
+
+
+## 배정된 키 표시 갱신 — 유저 키설정(InputConfig) 반영. 여러 키면 첫 키만.
+func _update_skill_keys() -> void:
+    for s in _slots:
+        var key_lbl: Label = s["key"]
+        var txt := InputConfig.binding_text(String(s["action"]))
+        key_lbl.text = txt.split(",")[0].strip_edges()
 
 
 func _update_hp(hp: float, max_hp: float) -> void:

@@ -152,36 +152,33 @@ func _check_hpbar_show_hide() -> Dictionary:
 
 # ---------------------------------------------------------------- K 밤 전용 노드
 
+# 2026-07-10: 밤낮 순환 제거(STATIC_OVERCAST) → NightOnly 는 시간과 무관하게 항상 활성.
+# 옛 토글 검사(낮엔 꺼짐/페이즈 전이) 대신, 흐린 고정 톤에서 늘 켜져 있는지를 검사한다.
 func _check_night_only_day_init() -> Dictionary:
-    TimeManager.set_time(0.0)   # 낮
+    TimeManager.set_time(0.0)   # '낮' 시각이어도 흐린 고정 톤에선 활성이어야 한다
     var n := NightOnly.new()
     var area := Area2D.new()
     n.add_child(area)
     add_child(n)
-    var ok := (not n.visible) and (not area.monitoring) and (not area.monitorable)
+    var ok := n.visible and area.monitoring and area.monitorable
     n.queue_free()
     if not ok:
-        return _fail("night_only_day_init", "visible=%s monitoring=%s during day" % [n.visible, area.monitoring])
+        return _fail("night_only_day_init", "not active under static overcast (visible=%s monitoring=%s)" % [n.visible, area.monitoring])
     return _pass("night_only_day_init")
 
 
 func _check_night_only_phase_toggle() -> Dictionary:
+    # STATIC_OVERCAST 에선 phase_changed 를 구독하지 않으므로, 페이즈 신호를 흘려도 계속 활성.
     TimeManager.set_time(0.0)
     var n := NightOnly.new()
     var area := Area2D.new()
     n.add_child(area)
     add_child(n)
-    # 실제 게임에선 TimeManager._process 가 낮/밤 경계 통과 시 emit —
-    # 테스트에선 페이즈 전이만 직접 시뮬레이트한다.
-    TimeManager.phase_changed.emit(true)
-    if not (n.visible and area.monitoring and area.monitorable):
-        n.queue_free()
-        return _fail("night_only_phase_toggle", "not activated on night phase")
-    TimeManager.phase_changed.emit(false)
-    var ok := (not n.visible) and (not area.monitoring)
+    TimeManager.phase_changed.emit(false)   # '낮으로' 전이 신호 — 무시되어야 한다
+    var ok := n.visible and area.monitoring and area.monitorable
     n.queue_free()
     if not ok:
-        return _fail("night_only_phase_toggle", "not deactivated back on day phase")
+        return _fail("night_only_phase_toggle", "deactivated by phase signal despite static overcast")
     return _pass("night_only_phase_toggle")
 
 
