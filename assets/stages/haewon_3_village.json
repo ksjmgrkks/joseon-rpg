@@ -8,9 +8,13 @@
   "props": [
     { "tex": "house_thatch", "x": 380, "y": 684, "scale": 2.0, "offset": [-48, -76] },
     { "tex": "house_thatch", "x": 980, "y": 684, "scale": 1.8, "offset": [-48, -76] },
-    { "tex": "well", "x": 640, "y": 672, "scale": 1.4, "offset": [-20, -36] },
     { "tex": "lantern", "x": 520, "y": 600, "scale": 1.3, "offset": [-12, -40] },
     { "tex": "jangseung", "x": 1180, "y": 628, "scale": 1.4, "offset": [-12, -56] }
+  ],
+  "interactables": [
+    { "_note": "조사 데모(#2) — 우물을 들여다보면 수면에 옛 여인(윤슬)이 잠깐 어림. 장식 well prop 을 조사 가능한 지형지물로 승격.",
+      "tex": "well", "x": 640, "y": 672, "scale": 1.4, "offset": [-20, -36], "radius": 46,
+      "dialogue": "res://assets/dialogue/haewon/well_reflection.json", "flag": "haewon_well_seen", "once": true }
   ],
   "clear_dialogue": "res://assets/dialogue/haewon/village_confession.json",
   "auto_dialogues": [

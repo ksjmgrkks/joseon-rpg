@@ -77,6 +77,7 @@ func _ready() -> void:
     _build_pickups(data.get("pickups", []))
     _build_auto_dialogues(data.get("auto_dialogues", []))
     _build_auto_cutscenes(data.get("auto_cutscenes", []))
+    _build_interactables(data.get("interactables", []))
     _build_quest_triggers(data.get("quest_triggers", []))
     if not cleared:
         _build_gates(data.get("gates", []))
@@ -321,6 +322,43 @@ func _build_auto_cutscenes(items: Array) -> void:
         add_child(area)
 
 
+## 조사 가능한 지형지물(#2) — 가까이서 interact 키로 대사/플래그 발동. tex 주면 그림도 함께.
+func _build_interactables(items: Array) -> void:
+    var it_script: Script = load("res://scripts/world/interactable.gd")
+    for a in items:
+        if not (a is Dictionary):
+            continue
+        var area := Area2D.new()
+        area.collision_mask = 1
+        area.set_script(it_script)
+        area.position = Vector2(float(a.get("x", 560)), float(a.get("y", GROUND_TOP)))
+        area.dialogue_path = String(a.get("dialogue", ""))
+        area.flag_on_use = String(a.get("flag", ""))
+        area.once = a.get("once", true) != false
+        area.once_flag = String(a.get("once_flag", ""))
+        var po = a.get("prompt_offset", null)
+        if po is Array and po.size() == 2:
+            area.prompt_offset = Vector2(po[0], po[1])
+        # 선택: 지형지물 그림(props 와 동일한 방식) — 없으면 보이지 않는 조사 영역만.
+        if a.has("tex"):
+            var tp := TILE_DIR % String(a["tex"])
+            if ResourceLoader.exists(tp):
+                var spr := Sprite2D.new()
+                spr.texture = load(tp)
+                spr.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+                spr.centered = false
+                spr.scale = Vector2.ONE * float(a.get("scale", 1.0))
+                var off = a.get("offset", [0, 0])
+                spr.offset = Vector2(off[0], off[1]) if off is Array else Vector2.ZERO
+                area.add_child(spr)
+        var cs := CollisionShape2D.new()
+        var shape := CircleShape2D.new()
+        shape.radius = float(a.get("radius", 40))
+        cs.shape = shape
+        area.add_child(cs)
+        add_child(area)
+
+
 func _build_quest_triggers(items: Array) -> void:
     var qt_script: Script = load("res://scripts/quests/quest_trigger.gd")
     for q in items:
@@ -381,6 +419,7 @@ func _build_gameplay(data: Dictionary) -> void:
     _build_backdrop(data.get("backdrop", {}))
     _build_ground(data.get("ground", {}))
     _build_props(data.get("props", []))
+    _build_interactables(data.get("interactables", []))
     _build_entries(data.get("entries", []))
     var has_enemies := (data.get("enemies", []) as Array).size() > 0
     if not cleared:
