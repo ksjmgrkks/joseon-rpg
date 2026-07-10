@@ -14,6 +14,7 @@ const FAIL := "FAIL"
 
 func _ready() -> void:
     print("=== test_skill_hud ===")
+    InputConfig.reset_to_default()   # 이전 실행이 디스크에 남긴 키설정 오염 제거(결정성)
     var results: Array[Dictionary] = []
     results.append(await _check_slots())
     results.append(await _check_keys_reflect_config())
@@ -36,6 +37,8 @@ func _make_hud() -> Node:
     add_child(hud)
     await get_tree().process_frame   # @onready(skill_row) 해석 대기
     hud._build_skill_slots()
+    # 실제 _ready 가 하는 시그널 배선을 재현 — 키설정 변경 시 라벨 자동 갱신 경로를 검증한다.
+    InputConfig.bindings_changed.connect(hud._update_skill_keys)
     hud._update_skill_keys()
     return hud
 

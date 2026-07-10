@@ -255,7 +255,7 @@ func _on_died() -> void:
     _hide_warn()
     print("[%s] died" % display_name)
     Audio.play_sfx(Sfx.DIE)
-    SkillFx.death_scatter(global_position + Vector2(0, -16), Color(0.82, 0.84, 0.92), true)
+    SkillFx.soul_ascend(global_position + Vector2(0, -16), true)   # 진혼: 원귀 두령도 달래 천도(성불)
     ScreenFx.shake(16.0, 0.5)
     if xp_reward > 0:
         PlayerStats.gain_xp(xp_reward)

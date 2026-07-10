@@ -52,7 +52,7 @@ func _on_hp_changed(hp: float, max_hp: float) -> void:
 func _on_died() -> void:
     print("[Dummy] died")
     Audio.play_sfx(Sfx.DIE)
-    SkillFx.death_scatter(global_position + Vector2(0, -10))
+    SkillFx.soul_ascend(global_position + Vector2(0, -10))   # 진혼: 혼을 달래 천도(성불)
     if xp_reward > 0:
         PlayerStats.gain_xp(xp_reward)
         FloatingNumber.spawn(get_tree().current_scene, global_position, "+%d XP" % xp_reward, Color(1, 0.95, 0.6))

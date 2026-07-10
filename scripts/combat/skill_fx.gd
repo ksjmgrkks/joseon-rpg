@@ -636,6 +636,41 @@ func death_scatter(pos: Vector2, tint: Color = Color(0.78, 0.82, 0.88), big: boo
     _pulse_ring(host, pos, 10.0 * sc, 2.0, Color(INK.r, INK.g, INK.b, 0.5), 2.4, 0.5, 30)
 
 
+## 성불(진혼) — 원혼이 스러질 때 차갑게 흩어지는 대신, 따뜻한 빛으로 천도되어
+## 위로 떠오르며 사라진다. '베어 없앤 게 아니라 혼을 달래 보냈다'는 이 게임의 시그니처를
+## 죽음 연출로 실체화한다(전투=진혼). PixelLab `soul_ascend`(합장한 혼이 빛으로 오름)
+## 스프라이트를 아래→위로 부드럽게 상승·확대·페이드하고, 위로 가지런히 풀려나는 빛 알갱이 +
+## 바닥엔 은은한 금빛 파문(위무의 여운)을 얹는다. 텍스처가 없으면 코드 파티클로 폴백.
+func soul_ascend(pos: Vector2, big: bool = false) -> void:
+    var host := _host()
+    if host == null:
+        return
+    var sc := 1.5 if big else 1.0
+    var warm := Color(1.0, 0.92, 0.70)     # 따뜻한 금빛 — 원혼의 청색과 대비 = 위무
+    # 성불하는 혼(합장) — 천천히 떠오르며 커지고 빛으로 흐려진다.
+    var sp := _painted("soul_ascend", pos + Vector2(0, -6.0 * sc), 0.85 * sc, 1.35 * sc, 1.15,
+        false, 0.0, 0.0, Color(1, 1, 1, 1), 34, Vector2(0, -34.0 * sc))
+    # 위로 풀려나는 빛 알갱이 — 사방 흩뿌림이 아니라 가지런히 위로(달램의 방향성).
+    var motes := int(6 * sc)
+    for i in range(motes):
+        var ox := randf_range(-9.0, 9.0) * sc
+        var end := pos + Vector2(ox * 0.35, -42.0 * sc - randf() * 10.0 * sc)
+        _mote(host, pos + Vector2(ox, -4.0), end, randf_range(1.4, 2.6) * sc, warm, randf_range(0.6, 1.0), 33, false)
+    # 텍스처가 없을 때(폴백): 솟아오르는 따뜻한 넋 줄기 하나로 성불감을 보강.
+    if sp == null:
+        var wisp := _line(PackedVector2Array([
+            Vector2.ZERO, Vector2(2, -22 * sc), Vector2(-2, -40 * sc)]),
+            4.0 * sc, Color(warm.r, warm.g, warm.b, 0.7), 32)
+        wisp.global_position = pos
+        host.add_child(wisp)
+        var tw := wisp.create_tween()
+        tw.tween_property(wisp, "global_position", pos + Vector2(0, -30 * sc), 0.9).set_ease(Tween.EASE_OUT)
+        tw.parallel().tween_property(wisp, "modulate:a", 0.0, 0.9)
+        tw.tween_callback(wisp.queue_free)
+    # 바닥에 은은한 금빛 파문(달램의 여운).
+    _pulse_ring(host, pos, 8.0 * sc, 2.0, Color(warm.r, warm.g, warm.b, 0.45), 2.2, 0.7, 30)
+
+
 ## 보스 등장 연출 — 바닥에서 마기(魔氣)가 솟고 흙먼지 링 + 머리 위 마기 무리.
 ## (화면 흔들림은 호출부에서 ScreenFx.shake 로 추가.)
 func boss_entrance(pos: Vector2) -> void:
