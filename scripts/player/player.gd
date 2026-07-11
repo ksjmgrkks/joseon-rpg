@@ -299,6 +299,18 @@ func _physics_process(delta: float) -> void:
 # 대화 중 주인공 동결 — 가로 이동은 즉시 멈추고, 중력만 살려 땅에 붙어 있게 한다.
 # 진행 중이던 차지 시각/상태를 정리해 대화 후 잔상이 남지 않게 한다.
 func _freeze_for_dialogue(delta: float) -> void:
+    # 대화가 시작되면 진행 중이던 구르기/공격/스킬 돌진을 즉시 정리한다.
+    # (안 그러면 구르던 자세 그대로 얼어붙어 어색한 포즈로 대화하게 됨 — player_visual 이
+    #  _dodging/_attacking 을 읽어 dodge/attack 프레임에 멈춰 있기 때문.)
+    if _dodging:
+        _dodge_timer = 0.0
+        _end_dodge()
+    _skill_dash_timer = 0.0
+    _skill_dash_speed = 0.0
+    _attacking = false
+    _combo_step = 0
+    _combo_timer = 0.0
+    _lunge_vel = 0.0
     if not is_on_floor():
         velocity.y = minf(velocity.y + GRAVITY * delta, MAX_FALL_SPEED)
     velocity.x = move_toward(velocity.x, 0.0, FRICTION * delta)
