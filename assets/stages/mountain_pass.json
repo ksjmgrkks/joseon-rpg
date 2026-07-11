@@ -31,7 +31,7 @@
     { "scene": "Wraith", "x": 520, "y": 640 },
     { "scene": "DrownedSwarm", "x": 760, "y": 656 },
     { "scene": "Reaper", "x": 980, "y": 656 },
-    { "scene": "DrownedSwarm", "x": 1140, "y": 640 },
+    { "scene": "DrownedFerryman", "x": 1140, "y": 640 },
     { "scene": "DrownedHeavy", "x": 1320, "y": 656 }
   ],
   "auto_dialogues": [

@@ -1,0 +1,21 @@
+{
+  "anims": {
+    "death": {
+      "fps": 10,
+      "frames": 9,
+      "loop": false
+    },
+    "idle": {
+      "fps": 5,
+      "frames": 5,
+      "loop": true
+    },
+    "walk": {
+      "fps": 9,
+      "frames": 7,
+      "loop": true
+    }
+  },
+  "frame_h": 99,
+  "frame_w": 61
+}

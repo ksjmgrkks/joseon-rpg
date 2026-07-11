@@ -28,11 +28,12 @@
   "npcs": [],
   "enemies": [
     { "scene": "Wraith", "x": 700, "y": 656 },
-    { "scene": "DrownedSwarm", "x": 1080, "y": 656 },
+    { "scene": "DrownedChild", "x": 1080, "y": 656 },
     { "scene": "DrownedHeavy", "x": 1260, "y": 640 },
     { "scene": "ReaperLord", "x": 1180, "y": 628 }
   ],
   "auto_dialogues": [
+    { "x": 900, "dialogue": "res://assets/dialogue/water_child.json", "once_flag": "water_child_seen", "w": 100 },
     { "x": 1040, "dialogue": "res://assets/dialogue/temple_reaper.json", "once_flag": "temple_reaper_seen" }
   ],
   "quest_triggers": [

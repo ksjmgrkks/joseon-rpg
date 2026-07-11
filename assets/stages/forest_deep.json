@@ -35,7 +35,7 @@
     { "scene": "Wraith", "x": 700, "y": 640 },
     { "scene": "DrownedSwarm", "x": 920, "y": 656 },
     { "scene": "Reaper", "x": 1080, "y": 656 },
-    { "scene": "DrownedHeavy", "x": 1260, "y": 656 }
+    { "scene": "DrownedFerryman", "x": 1260, "y": 656 }
   ],
   "gates": [
     { "x": 1360, "y": 600, "flag": "forest_cleared", "height": 260 }
