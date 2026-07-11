@@ -1,25 +1,26 @@
 {
   "skills": {
     "ilseom": {
-      "name": "마창 일섬",
+      "name": "여울 가르기",
       "slot": 1,
-      "desc": "마(魔)를 실어 전방을 꿰뚫는 돌진 찌르기.",
+      "desc": "강물을 갈라 앞으로 밀어내는 진혼의 물살 — 돌진하며 넓은 물마루로 앞의 넋을 씻어 보낸다.",
       "cooldown": 6.0,
       "unlock": { "type": "level", "value": 1 },
       "unlock_text": "처음부터 사용 가능",
-      "damage_mult": 1.8,
+      "damage_mult": 1.9,
       "dash_speed": 430.0,
       "dash_time": 0.22
     },
     "hoecheon": {
-      "name": "선풍 창무",
+      "name": "진혼의 물등",
       "slot": 2,
-      "desc": "창을 크게 휘둘러 앞뒤를 쓸어버린다. (양방향 강타+넉백)",
-      "cooldown": 10.0,
+      "desc": "물등을 밝혀 사방의 넋을 달래는 파문 — 주위 모든 적에게 피해를 주고 바깥으로 밀쳐낸다. (광역)",
+      "cooldown": 9.0,
       "unlock": { "type": "level", "value": 1 },
       "unlock_text": "처음부터 사용 가능",
-      "damage_mult": 1.4,
-      "knock_mult": 1.8
+      "damage_mult": 1.5,
+      "knock_mult": 1.9,
+      "radius": 200.0
     },
     "hosinbu": {
       "name": "호신부",

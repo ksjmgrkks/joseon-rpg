@@ -28,11 +28,11 @@
   ],
   "npcs": [],
   "enemies": [
-    { "scene": "Goblin", "x": 520, "y": 640 },
-    { "scene": "Fox", "x": 760, "y": 656 },
+    { "scene": "Wraith", "x": 520, "y": 640 },
+    { "scene": "DrownedSwarm", "x": 760, "y": 656 },
     { "scene": "Reaper", "x": 980, "y": 656 },
-    { "scene": "Goblin", "x": 1140, "y": 640 },
-    { "scene": "Tiger", "x": 1320, "y": 656 }
+    { "scene": "DrownedSwarm", "x": 1140, "y": 640 },
+    { "scene": "DrownedHeavy", "x": 1320, "y": 656 }
   ],
   "auto_dialogues": [
     { "x": 380, "dialogue": "res://assets/dialogue/pass_intro.json", "once_flag": "pass_intro_seen" }

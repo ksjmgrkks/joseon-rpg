@@ -522,7 +522,8 @@ func _skill_ultimate() -> void:
     _attacking = false
 
 
-## 발도 일섬 — 전방 돌진 + 돌진 내내 강타 히트박스
+## 「여울 가르기」(id: ilseom) — 강물을 갈라 앞으로 밀어내는 진혼의 물살.
+## 전방 돌진 + 돌진 내내 넓은 물마루 히트박스로 앞의 넋을 씻어 보낸다.
 func _skill_ilseom() -> void:
     var def := SkillManager.get_def("ilseom")
     _attacking = true
@@ -532,39 +533,58 @@ func _skill_ilseom() -> void:
     var stored_damage: float = attack_hitbox.damage
     var stored_knock: float = attack_hitbox.knockback
     attack_hitbox.damage = Equipment.current_damage(stored_damage) * float(def.get("damage_mult", 1.8))
-    attack_hitbox.position.x = 16.0 if _facing_right else -16.0
+    # 물마루 — 앞으로 넓게 뻗는 판정(전방 사거리 확장)
+    if attack_shape and attack_shape.shape is RectangleShape2D:
+        (attack_shape.shape as RectangleShape2D).size = Vector2(72.0, 34.0)
+    attack_hitbox.position.x = 30.0 if _facing_right else -30.0
     Audio.play_sfx(Sfx.ATTACK)
     ScreenFx.shake(7.0, 0.14)
-    SkillFx.slash(global_position + Vector2(0, -16), _facing_right)
+    SkillFx.river_cleave(global_position + Vector2(0, -16), _facing_right)
     if sprite:
-        SkillFx.afterimage_burst(sprite, SkillFx.BRIGHT, 5, dur + 0.06)
+        SkillFx.afterimage_burst(sprite, SkillFx.WATER, 5, dur + 0.06)
     await attack_hitbox.activate(dur)
     attack_hitbox.damage = stored_damage
     attack_hitbox.knockback = stored_knock
+    attack_hitbox.position.x = 16.0 if _facing_right else -16.0
+    if attack_shape and attack_shape.shape is RectangleShape2D:
+        (attack_shape.shape as RectangleShape2D).size = _hitbox_base_size
     _attacking = false
 
 
-## 회천격 — 앞→뒤 연속 타격 (회전 베기)
+## 「진혼의 물등」(id: hoecheon) — 물등을 밝혀 사방의 넋을 달래는 파문.
+## 주위 반경 안 모든 적에게 피해 + 바깥으로 밀쳐냄(광역 위무). 앞뒤 회전베기를
+## 진혼 컨셉의 광역 파문으로 개편.
 func _skill_hoecheon() -> void:
     var def := SkillManager.get_def("hoecheon")
     _attacking = true
-    var stored_damage: float = attack_hitbox.damage
-    var stored_knock: float = attack_hitbox.knockback
-    attack_hitbox.damage = Equipment.current_damage(stored_damage) * float(def.get("damage_mult", 1.4))
-    attack_hitbox.knockback = stored_knock * float(def.get("knock_mult", 1.8))
+    var radius := float(def.get("radius", 200.0))
+    var dmg := Equipment.current_damage(attack_hitbox.damage) * float(def.get("damage_mult", 1.5))
+    var knock := attack_hitbox.knockback * float(def.get("knock_mult", 1.9))
     Audio.play_sfx(Sfx.ATTACK)
-    ScreenFx.shake(9.0, 0.18)
-    SkillFx.spin(global_position)
+    Audio.play_sfx(Sfx.WARD)          # 물등 밝히는 은은한 소리
+    ScreenFx.shake(9.0, 0.2)
+    ScreenFx.hit_stop(0.05, 0.08)
+    SkillFx.requiem_lantern(global_position)
     if sprite:
-        SkillFx.afterimage_burst(sprite, SkillFx.MAGE_HOT, 5, 0.3)
-    attack_hitbox.position.x = 16.0 if _facing_right else -16.0
-    await attack_hitbox.activate(0.12)
-    attack_hitbox.position.x = -16.0 if _facing_right else 16.0
-    Audio.play_sfx(Sfx.ATTACK)
-    await attack_hitbox.activate(0.12)
-    attack_hitbox.damage = stored_damage
-    attack_hitbox.knockback = stored_knock
-    await get_tree().create_timer(ATTACK_RECOVER).timeout
+        SkillFx.afterimage_burst(sprite, SkillFx.WATER, 4, 0.3)
+    # 반경 안 모든 적을 달래며(피해) 바깥으로 밀쳐낸다 — 적의 Hurtbox 로 피해·넉백 경로 재사용.
+    var hit_any := false
+    for e in get_tree().get_nodes_in_group("enemy"):
+        if not (e is Node2D):
+            continue
+        var ev := e as Node2D
+        var to := ev.global_position - global_position
+        if to.length() > radius:
+            continue
+        var hb: Hurtbox = ev.get_node_or_null("Hurtbox")
+        if hb != null:
+            var kdir := 1.0 if to.x >= 0.0 else -1.0
+            hb.hurt.emit(dmg, knock * kdir, self)
+            hit_any = true
+            SkillFx.impact(ev.global_position + Vector2(0, -16), false)
+    if hit_any:
+        Audio.play_sfx(Sfx.HIT, 3.0)
+    await get_tree().create_timer(0.32).timeout
     _attacking = false
 
 

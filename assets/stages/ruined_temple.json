@@ -27,14 +27,13 @@
   ],
   "npcs": [],
   "enemies": [
-    { "scene": "Fox", "x": 700, "y": 656 },
-    { "scene": "Fox", "x": 1080, "y": 656 },
-    { "scene": "Goblin", "x": 1260, "y": 640 },
-    { "scene": "FoxQueen", "x": 1180, "y": 628 }
+    { "scene": "Wraith", "x": 700, "y": 656 },
+    { "scene": "DrownedSwarm", "x": 1080, "y": 656 },
+    { "scene": "DrownedHeavy", "x": 1260, "y": 640 },
+    { "scene": "ReaperLord", "x": 1180, "y": 628 }
   ],
   "auto_dialogues": [
-    { "x": 420, "dialogue": "res://assets/dialogue/temple_fox.json", "once_flag": "temple_fox_seen" },
-    { "x": 1040, "dialogue": "res://assets/dialogue/foxqueen_intro.json", "once_flag": "seen_foxqueen" }
+    { "x": 1040, "dialogue": "res://assets/dialogue/temple_reaper.json", "once_flag": "temple_reaper_seen" }
   ],
   "quest_triggers": [
     { "x": 220, "quest": "main_great_tiger", "stage": "to_temple", "only_active": "main_great_tiger" }

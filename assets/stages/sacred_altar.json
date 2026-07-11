@@ -25,10 +25,10 @@
   ],
   "npcs": [],
   "enemies": [
-    { "scene": "GreatTiger", "x": 1100, "y": 628 }
+    { "scene": "FloodWraith", "x": 1100, "y": 628 }
   ],
   "auto_dialogues": [
-    { "x": 520, "dialogue": "res://assets/dialogue/great_tiger_intro.json", "once_flag": "great_tiger_intro_seen" }
+    { "x": 520, "dialogue": "res://assets/dialogue/great_flood_intro.json", "once_flag": "great_flood_intro_seen" }
   ],
   "quest_triggers": [
     { "x": 240, "quest": "main_great_tiger", "stage": "to_altar", "only_active": "main_great_tiger" }

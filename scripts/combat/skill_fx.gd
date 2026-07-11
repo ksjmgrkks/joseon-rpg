@@ -22,6 +22,11 @@ const BLUE := Color(0.25, 0.42, 0.49)
 const INK := Color(0.10, 0.086, 0.07)
 const MAGE := Color(0.55, 0.42, 0.78)   # 마(魔)의 보랏빛 — 마창 기운
 const MAGE_HOT := Color(0.72, 0.55, 0.98)
+# 진혼(해원) 스킬 팔레트 — 물빛/물등 불빛. 넋을 '베는' 게 아니라 '씻어 달래는' 톤.
+const WATER := Color(0.56, 0.78, 0.84)       # 여울 물빛
+const WATER_DEEP := Color(0.24, 0.46, 0.56)  # 깊은 물그림자
+const FOAM := Color(0.93, 0.97, 0.98)        # 물거품 흰빛
+const LANTERN := Color(1.0, 0.86, 0.55)      # 물등 불빛(따뜻) — 윤슬의 빛과 포갬
 
 # ── PixelLab 페인티드 VFX 텍스처 (지연 로드·캐시) ──
 # 파일이 없으면 null 을 캐시 → 페인티드 레이어만 건너뛰고 기존 코드 이펙트는 그대로.
@@ -449,6 +454,95 @@ func spin(pos: Vector2, color: Color = BRIGHT) -> void:
     tw.parallel().tween_property(root, "rotation", TAU, 0.24)
     tw.parallel().tween_property(root, "modulate:a", 0.0, 0.24)
     tw.tween_callback(root.queue_free)
+
+
+# ════════════ 진혼 스킬 VFX (해원 — 물살/물등) ════════════
+
+## 스킬1 「여울 가르기」 — 앞으로 강물을 갈라 밀어내는 물살 참(斬).
+## 전방으로 물빛 초승달 + 앞으로 날아가는 물마루 + 흩뿌리는 물방울 + 발밑 파문.
+## (기존 보랏빛 '일섬'을 물빛으로 리테마 — 넋을 씻어 보내는 진혼 톤.)
+func river_cleave(pos: Vector2, facing_right: bool) -> void:
+    var host := _host()
+    if host == null:
+        return
+    var dir := 1.0 if facing_right else -1.0
+    var root := Node2D.new()
+    root.global_position = pos
+    root.z_index = 30
+    host.add_child(root)
+    var wc := _belly_curve()
+    # 3겹 물빛 초승달(깊은물 → 물빛 → 거품 흰) — 앞으로 굽은 물살
+    for L in [[15.0, Color(WATER_DEEP.r, WATER_DEEP.g, WATER_DEEP.b, 0.5)], [9.0, WATER], [4.0, FOAM]]:
+        var pts := PackedVector2Array()
+        for i in range(11):
+            var t := i / 10.0
+            var x := dir * lerpf(6.0, 74.0, t)
+            var y := -30.0 + 60.0 * t * t
+            pts.append(Vector2(x, y))
+        var line := _line(pts, float(L[0]), L[1], 30)
+        line.width_curve = wc
+        root.add_child(line)
+    # 앞으로 튀는 물방울(진행 방향으로 흩뿌림)
+    for i in range(9):
+        var end := pos + Vector2(dir * randf_range(48.0, 104.0), randf_range(-30.0, 18.0))
+        _mote(host, pos + Vector2(dir * 10.0, randf_range(-8, 8)), end,
+            randf_range(1.6, 3.0), FOAM if i % 2 == 0 else WATER, randf_range(0.28, 0.46), 33, false)
+    # 앞으로 날아가는 물마루(초승달 한 겹이 빠르게 전진했다 흩어짐 — 사거리·물살감)
+    var crest := _line(PackedVector2Array(), 7.0, Color(WATER.r, WATER.g, WATER.b, 0.9), 31)
+    var cp := PackedVector2Array()
+    for i in range(9):
+        var t := i / 8.0
+        cp.append(Vector2(dir * 6.0, lerpf(-26.0, 26.0, t)))
+    crest.points = cp
+    crest.width_curve = wc
+    crest.global_position = pos + Vector2(dir * 40.0, 0)
+    host.add_child(crest)
+    var ct := crest.create_tween()
+    ct.tween_property(crest, "global_position", pos + Vector2(dir * 150.0, 0), 0.22).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+    ct.parallel().tween_property(crest, "modulate:a", 0.0, 0.22)
+    ct.tween_callback(crest.queue_free)
+    # 발밑 물 파문
+    _pulse_ring(host, pos + Vector2(0, 2), 10.0, 2.0, Color(WATER.r, WATER.g, WATER.b, 0.5), 2.4, 0.4, 29)
+    var tw := root.create_tween()
+    tw.tween_property(root, "position:x", root.position.x + dir * 26.0, 0.14)
+    tw.parallel().tween_property(root, "modulate:a", 0.0, 0.2)
+    tw.tween_callback(root.queue_free)
+
+
+## 스킬2 「진혼의 물등」 — 물등을 밝혀 사방의 넋을 달래는 파문.
+## 중심에서 물등 불빛이 떠오르고, 물빛+따뜻한 빛 파문이 밖으로 퍼진다(광역 위무).
+func requiem_lantern(pos: Vector2) -> void:
+    var host := _host()
+    if host == null:
+        return
+    var center := pos + Vector2(0, -16)
+    # 밖으로 퍼지는 파문 — 물빛 2겹 + 물등 따뜻한 빛 1겹
+    _pulse_ring(host, center, 22.0, 5.0, Color(WATER.r, WATER.g, WATER.b, 0.8), 4.6, 0.5, 31)
+    _pulse_ring(host, center, 30.0, 3.0, Color(WATER_DEEP.r, WATER_DEEP.g, WATER_DEEP.b, 0.6), 3.4, 0.6, 30)
+    _pulse_ring(host, center, 16.0, 3.5, Color(LANTERN.r, LANTERN.g, LANTERN.b, 0.7), 5.2, 0.55, 32)
+    # 중심 물등 불빛 — 떠오르며 밝게 커졌다 흐려짐(윤슬의 빛)
+    var glow := Polygon2D.new()
+    glow.polygon = _circle_pts(9.0, 12)
+    glow.color = LANTERN
+    glow.global_position = center
+    glow.z_index = 33
+    host.add_child(glow)
+    var gt := glow.create_tween()
+    gt.tween_property(glow, "global_position", center + Vector2(0, -30.0), 0.7).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+    gt.parallel().tween_property(glow, "scale", Vector2(1.8, 1.8), 0.7)
+    gt.parallel().tween_property(glow, "modulate:a", 0.0, 0.7)
+    gt.tween_callback(glow.queue_free)
+    # 위로 가지런히 오르는 따뜻한 빛 알갱이(달램) + 사방으로 번지는 물방울
+    for i in range(8):
+        var ox := randf_range(-26.0, 26.0)
+        _mote(host, center + Vector2(ox, 6.0), center + Vector2(ox * 0.4, -randf_range(48.0, 78.0)),
+            randf_range(1.8, 3.0), LANTERN, randf_range(0.6, 0.95), 33, false)
+    for i in range(10):
+        var a := TAU * i / 10.0 + 0.2
+        var end := center + Vector2(cos(a), sin(a)) * randf_range(48.0, 84.0)
+        _mote(host, center, end, randf_range(1.6, 2.8), WATER if i % 2 == 0 else FOAM, randf_range(0.4, 0.62), 32, false)
+    # 바닥 물 파문 여운
+    _pulse_ring(host, pos + Vector2(0, 2), 12.0, 2.0, Color(WATER.r, WATER.g, WATER.b, 0.45), 3.0, 0.7, 29)
 
 
 # ── 적중 임팩트: 스파크 별 + 확장 링 ─────────────────────────
