@@ -23,7 +23,8 @@ var _cloud_speed: float = 9.0
 
 func _ready() -> void:
     layer = 5
-    _build_clouds()
+    # 먹구름 띠(clouds.png)는 화면 상단에 회색 비늘 덩어리로 어색해 제거.
+    # 하늘·구름 연출은 배경(ParallaxBackdrop)의 코드 구름/안개가 담당한다.
     _build_rain()
 
 

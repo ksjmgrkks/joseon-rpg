@@ -1,16 +1,21 @@
 extends ParallaxBackground
 class_name ParallaxBackdrop
 ##
-## 수묵 산수 패럴랙스 배경 — bg_far/mid/near 3레이어 + 분위기 연출(코드).
-## 각 레벨 루트에 인스턴스만 하면 됨. 레벨마다 톤이 다르도록 sky_color / tint 조절.
+## 수묵 산수 패럴랙스 배경 v2 — 깊이감 있는 조선 산수.
+## 각 레벨 루트에 인스턴스만 하면 됨. 레벨마다 sky_color / tint 로 톤 조절.
 ##
-## bg PNG 는 640x360, 정수배(2x)로 깔아 가로 무한 반복(motion_mirroring).
+## 구성(원경 → 근경):
+##   ① 그라데이션 하늘   — 위(하늘)→아래(지평선 한지빛) 세로 그라데이션.
+##   ② 떠다니는 구름      — 코드 드로잉 구름이 느리게 흐른다.
+##   ③ 원경 먼 산맥       — PixelLab 수묵 산 실루엣(mtn_far)을 넓은 밭에 여러 개 흩어 배치.
+##   ④ 산안개 띠(먼)      — 능선 사이 부드러운 안개(코드). 대기 원근·깊이.
+##   ⑤ 중경 솔숲 능선     — PixelLab 솔숲 언덕(mtn_hill), 조금 더 진하게.
+##   ⑥ 산안개 띠(낮은)    — 근경 앞 옅은 물안개.
+##   ⑦ 근경 둔덕          — 솔숲 언덕을 더 크고 진하게(플레이 지면 바로 뒤).
+##   ⑧ 야간 분위기        — 어두운 하늘엔 별/반딧불(코드).
 ##
-## 추가 연출(아트 재생성 불필요·코드만):
-##   ① 그라데이션 하늘  — 단색 대신 위(하늘)→아래(지평선 한지빛) 세로 그라데이션.
-##   ② 떠다니는 구름     — 코드 드로잉 구름 레이어가 느리게 흐른다(별도 레이어 → 산은 안 움직임).
-##   ③ 대기 원근(aerial) — 먼 산일수록 하늘색에 가깝게 흐려 깊이감.
-##   ④ 야간 분위기       — 어두운 하늘(폐사지·제단 등)엔 별/반딧불이 은은히 깜빡인다.
+## 산 실루엣은 '조각'(투명 배경)이라 넓은 밭에 여러 개 흩어 mirroring — 티나는 반복 없이
+## 자연스러운 산맥. 새 아트가 없으면 옛 seamless 스트립(bg_far/mid/near)으로 자동 폴백.
 ##
 
 @export var sky_color: Color = Color(0.93, 0.89, 0.78, 1.0)   # 한지 베이지(낮)
@@ -20,36 +25,56 @@ class_name ParallaxBackdrop
 @export var far_scale: float = 0.15
 @export var mid_scale: float = 0.40
 @export var near_scale: float = 0.70
-# 화면 하단에서 배경을 얼마나 올릴지 (지면 위로 산수가 보이게)
-@export var y_offset: float = 40.0
+# 지평선 y(화면 좌표). 산 실루엣의 밑동이 이 근처에 앉는다.
+@export var horizon_y: float = 596.0
 # 대기 원근: 먼 산을 하늘색 쪽으로 얼마나 흐릴지 (0=그대로, 1=완전 하늘색).
-@export var aerial: float = 0.35
+@export var aerial: float = 0.5
 # 구름이 흐르는 속도(px/s, 음수면 왼쪽). 0 이면 정지.
 @export var cloud_drift: float = -7.0
+# 수묵 산안개 띠 표시 여부.
+@export var mist: bool = true
 # 야간 분위기 자동 판정 임계(하늘 휘도). 이보다 어두우면 별/반딧불 표시. 음수면 끔.
 @export var night_luminance: float = 0.55
 
+# 신규 PixelLab 수묵 산 실루엣(있으면 이걸 쓰고, 없으면 옛 스트립으로 폴백).
+const MTN_FAR := "res://assets/sprites/bg/mtn_far.png"
+const MTN_HILL := "res://assets/sprites/bg/mtn_hill.png"
+# 옛 seamless 스트립(폴백).
 const BG_FAR := "res://assets/sprites/bg/bg_far.png"
 const BG_MID := "res://assets/sprites/bg/bg_mid.png"
 const BG_NEAR := "res://assets/sprites/bg/bg_near.png"
 
+# 산맥 밭 폭 — 이 폭마다 반복(넓을수록 반복이 덜 티남).
+const FIELD := 2400.0
+
 var _cloud_layer: ParallaxLayer = null
+var _mist_layers: Array = []      # [{node, speed}]
 var _ambience: Node2D = null
 
 
 func _ready() -> void:
     _add_sky()
     _add_clouds()
-    _add_layer(BG_FAR, far_scale, 0.0, aerial)      # 먼 산 — 대기 원근 적용
-    _add_layer(BG_MID, mid_scale, 10.0, aerial * 0.4)
-    _add_layer(BG_NEAR, near_scale, 24.0, 0.0)
+    if ResourceLoader.exists(MTN_FAR) and ResourceLoader.exists(MTN_HILL):
+        _build_mountains()
+    else:
+        _build_legacy_strips()
     _add_ambience()
 
 
 func _process(delta: float) -> void:
-    # 구름만 천천히 흐르게 — 별도 레이어라 산수는 카메라 시차만 따른다.
     if _cloud_layer and cloud_drift != 0.0:
         _cloud_layer.motion_offset.x += cloud_drift * delta
+    # 안개 띠 — 각자 다른 속도로 아주 느리게 흐른다(살아있는 대기감).
+    for m in _mist_layers:
+        var band: Node2D = m["node"]
+        if is_instance_valid(band):
+            band.position.x += float(m["speed"]) * delta
+            var span: float = float(m["span"])
+            if band.position.x <= -span:
+                band.position.x += span
+            elif band.position.x >= 0.0:
+                band.position.x -= span
 
 
 # ── ① 그라데이션 하늘 ────────────────────────────────────────
@@ -58,11 +83,11 @@ func _add_sky() -> void:
     layer.motion_scale = Vector2(0, 0)   # 화면 고정
     add_child(layer)
     var grad := Gradient.new()
-    grad.set_color(0, sky_color)                       # 최상단(하늘)
-    grad.add_point(0.6, sky_color)                     # 상단 60% 는 하늘색 유지
-    # 지평선: 하늘색을 밝게 + 한지빛으로 살짝 끌어와 부드러운 노을/안개
-    var horizon := sky_color.lightened(0.16).lerp(Color(0.96, 0.92, 0.82), 0.32)
-    grad.set_color(grad.get_point_count() - 1, horizon)  # 최하단(지평선)
+    # 상단은 하늘색을 살짝 눌러(깊게), 중단 하늘색, 하단 지평선 한지빛.
+    grad.set_color(0, sky_color.darkened(0.06))
+    grad.add_point(0.5, sky_color)
+    var horizon := sky_color.lightened(0.16).lerp(Color(0.96, 0.92, 0.82), 0.34)
+    grad.set_color(grad.get_point_count() - 1, horizon)
     var gtex := GradientTexture2D.new()
     gtex.gradient = grad
     gtex.fill_from = Vector2(0, 0)
@@ -73,7 +98,6 @@ func _add_sky() -> void:
     tr.texture = gtex
     tr.stretch_mode = TextureRect.STRETCH_SCALE
     tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
-    # 화면(720) 위쪽은 하늘, 지면(약 684) 부근이 지평선이 되도록 세로 범위 설정.
     tr.size = Vector2(8192, 1200)
     tr.position = Vector2(-4096, -300)
     layer.add_child(tr)
@@ -84,23 +108,20 @@ func _add_clouds() -> void:
     if cloud_drift == 0.0:
         return
     var layer := ParallaxLayer.new()
-    layer.motion_scale = Vector2(0.08, 1.0)   # 아주 먼 하늘 — 카메라엔 거의 안 따라옴
-    var field := 1280.0
-    layer.motion_mirroring = Vector2(field, 0)   # 구름밭 가로 반복
+    layer.motion_scale = Vector2(0.08, 1.0)
+    layer.motion_mirroring = Vector2(1280.0, 0)
     add_child(layer)
     _cloud_layer = layer
-    # 구름 색 — 한지빛, 야간이면 살짝 어둡게
     var night := _is_night()
-    var col := Color(1.0, 0.98, 0.92, 0.32) if not night else Color(0.80, 0.82, 0.90, 0.22)
+    var col := Color(1.0, 0.98, 0.92, 0.30) if not night else Color(0.80, 0.82, 0.90, 0.20)
     var rng := RandomNumberGenerator.new()
     rng.seed = 20260627
     for i in range(5):
-        var cx := rng.randf_range(0.0, field)
-        var cy := rng.randf_range(40.0, 230.0)
+        var cx := rng.randf_range(0.0, 1280.0)
+        var cy := rng.randf_range(30.0, 210.0)
         _draw_cloud(layer, Vector2(cx, cy), rng.randf_range(0.8, 1.6), col, rng)
 
 
-# 동양화풍 안개구름 — 납작한 타원 덩어리 3~4개를 겹쳐 한 송이.
 func _draw_cloud(parent: Node, pos: Vector2, scale: float, col: Color, rng: RandomNumberGenerator) -> void:
     var root := Node2D.new()
     root.position = pos
@@ -121,8 +142,88 @@ func _draw_cloud(parent: Node, pos: Vector2, scale: float, col: Color, rng: Rand
         root.add_child(lobe)
 
 
-# ── ③ 산수 레이어(대기 원근 포함) ────────────────────────────
-func _add_layer(path: String, motion: float, extra_y: float, aerial_amt: float = 0.0) -> void:
+# ── ③⑤ 산맥 레이어(신규 PixelLab 수묵 산수 — 깨끗한 단일 타일 무한반복) ──
+## 각 이미지는 그 자체로 완성된 수묵 산수(하늘+능선)라, 겹쳐 흩으면 반투명 하늘이
+## 사각으로 겹쳐 띠(밴딩)가 생긴다 → 레이어당 '한 장'만 가로 무한반복해 깨끗하게.
+func _build_mountains() -> void:
+    var far_tex: Texture2D = load(MTN_FAR)
+    var hill_tex: Texture2D = load(MTN_HILL)
+    # 원경 먼 산맥 — 하늘색으로 흐려(대기 원근) 위쪽 깊이.
+    _mountain_layer(far_tex, far_scale, tint.lerp(sky_color, aerial), 2.1, horizon_y + 44.0)
+    if mist:
+        _add_mist(far_scale + 0.03, horizon_y - 6.0, 0.26, 9.0)
+    # 중경 솔숲 — 플레이 지면 바로 뒤에 앉혀 근경감.
+    _mountain_layer(hill_tex, mid_scale, tint.lerp(sky_color, aerial * 0.3), 1.7, horizon_y + 120.0)
+    if mist:
+        _add_mist(mid_scale + 0.04, horizon_y + 84.0, 0.20, 13.0)
+
+
+## 한 산맥 레이어: 완성된 수묵 산수 한 장을 가로로 이어붙여 무한반복. base_y = 이미지 밑동 y.
+## 인접 복사본을 좌우반전 교대(mirror-tile)로 깔아, 맞닿는 모서리 픽셀이 같아 이음매가 안 보인다.
+func _mountain_layer(tex: Texture2D, motion: float, mod_col: Color, s: float, base_y: float) -> void:
+    var layer := ParallaxLayer.new()
+    layer.motion_scale = Vector2(motion, 1.0)
+    var tw := float(tex.get_width()) * s
+    var y := base_y - float(tex.get_height()) * s
+    # 화면(그리고 여유)을 덮도록 짝수 개 이어붙임 — 반전 교대 주기(2칸)에 맞춰 짝수.
+    var cols := int(ceil(FIELD / tw))
+    if cols % 2 == 1:
+        cols += 1
+    layer.motion_mirroring = Vector2(cols * tw, 0)   # 이음매(짝수칸)에서 깨끗이 반복
+    add_child(layer)
+    for i in range(cols + 1):
+        var spr := Sprite2D.new()
+        spr.texture = tex
+        spr.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+        spr.centered = false
+        spr.flip_h = (i % 2 == 1)   # 교대 반전 → 이음매 모서리 일치
+        spr.scale = Vector2(s, s)
+        spr.modulate = mod_col
+        spr.position = Vector2(i * tw, y)
+        layer.add_child(spr)
+
+
+# ── ④⑥ 수묵 산안개 띠 ────────────────────────────────────────
+## 가로로 긴 부드러운 안개 띠(위/아래 투명, 가운데 반투명 한지빛). 아주 느리게 흐른다.
+func _add_mist(motion: float, y: float, alpha: float, speed: float) -> void:
+    var layer := ParallaxLayer.new()
+    layer.motion_scale = Vector2(motion, 1.0)
+    add_child(layer)
+    var span := FIELD
+    # 세로 그라데이션(투명→한지빛→투명) 텍스처.
+    var grad := Gradient.new()
+    var haze := Color(0.97, 0.95, 0.9)
+    grad.set_color(0, Color(haze.r, haze.g, haze.b, 0.0))
+    grad.add_point(0.5, Color(haze.r, haze.g, haze.b, alpha))
+    grad.set_color(grad.get_point_count() - 1, Color(haze.r, haze.g, haze.b, 0.0))
+    var gtex := GradientTexture2D.new()
+    gtex.gradient = grad
+    gtex.fill_from = Vector2(0, 0)
+    gtex.fill_to = Vector2(0, 1)
+    gtex.width = 8
+    gtex.height = 96
+    # 밭을 두 폭으로 그려(-span..+span) 스크롤 시 끊김 없이 흐르게.
+    var band := Node2D.new()
+    layer.add_child(band)
+    for k in range(2):
+        var tr := TextureRect.new()
+        tr.texture = gtex
+        tr.stretch_mode = TextureRect.STRETCH_SCALE
+        tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
+        tr.size = Vector2(span, 84.0)
+        tr.position = Vector2(span * k, y - 42.0)
+        band.add_child(tr)
+    _mist_layers.append({"node": band, "speed": speed, "span": span})
+
+
+# ── (폴백) 옛 seamless 스트립 배경 ───────────────────────────
+func _build_legacy_strips() -> void:
+    _add_strip(BG_FAR, far_scale, 0.0, aerial)
+    _add_strip(BG_MID, mid_scale, 10.0, aerial * 0.4)
+    _add_strip(BG_NEAR, near_scale, 24.0, 0.0)
+
+
+func _add_strip(path: String, motion: float, extra_y: float, aerial_amt: float) -> void:
     if not ResourceLoader.exists(path):
         return
     var tex: Texture2D = load(path)
@@ -130,20 +231,19 @@ func _add_layer(path: String, motion: float, extra_y: float, aerial_amt: float =
     layer.motion_scale = Vector2(motion, 1.0)
     var tw := tex.get_width() * scale_factor
     var th := tex.get_height() * scale_factor
-    layer.motion_mirroring = Vector2(tw, 0)   # 가로 무한 반복
+    layer.motion_mirroring = Vector2(tw, 0)
     add_child(layer)
     var spr := Sprite2D.new()
     spr.texture = tex
     spr.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
     spr.centered = false
     spr.scale = Vector2(scale_factor, scale_factor)
-    # 대기 원근: 먼 산일수록 하늘색으로 흐려 깊이감.
     spr.modulate = tint.lerp(sky_color, clampf(aerial_amt, 0.0, 1.0)) if aerial_amt > 0.0 else tint
-    spr.position = Vector2(0, 720 - th + y_offset + extra_y)
+    spr.position = Vector2(0, 720 - th + 40.0 + extra_y)
     layer.add_child(spr)
 
 
-# ── ④ 야간 분위기(별·반딧불) ─────────────────────────────────
+# ── ⑧ 야간 분위기(별·반딧불) ─────────────────────────────────
 func _is_night() -> bool:
     return night_luminance >= 0.0 and sky_color.get_luminance() < night_luminance
 
@@ -152,13 +252,12 @@ func _add_ambience() -> void:
     if not _is_night():
         return
     var layer := ParallaxLayer.new()
-    layer.motion_scale = Vector2(0.06, 0.2)   # 하늘에 붙어 거의 고정
+    layer.motion_scale = Vector2(0.06, 0.2)
     add_child(layer)
     var root := Node2D.new()
     root.z_index = 2
     layer.add_child(root)
     _ambience = root
-    # 푸른 하늘이면 별(차갑고 높이), 그 외(숲 등)면 반딧불(따뜻하고 낮게).
     var starry := sky_color.b >= sky_color.g
     var col := Color(0.92, 0.95, 1.0) if starry else Color(0.95, 0.92, 0.55)
     var rng := RandomNumberGenerator.new()
@@ -170,18 +269,16 @@ func _add_ambience() -> void:
         dot.polygon = PackedVector2Array([
             Vector2(0, -r), Vector2(r, 0), Vector2(0, r), Vector2(-r, 0)])
         dot.color = col
-        var y_hi := 0.0 if starry else 180.0   # 별은 위쪽, 반딧불은 중하단
+        var y_hi := 0.0 if starry else 180.0
         var y_lo := 260.0 if starry else 380.0
         dot.position = Vector2(rng.randf_range(0.0, 1280.0), rng.randf_range(y_hi, y_lo))
         root.add_child(dot)
-        # 깜빡임(트윈 루프) — 각자 다른 속도·위상.
         var lo := rng.randf_range(0.15, 0.4)
         var dur := rng.randf_range(0.8, 2.0)
         dot.modulate.a = rng.randf_range(0.4, 1.0)
         var tw := dot.create_tween().set_loops()
         tw.tween_property(dot, "modulate:a", lo, dur).set_trans(Tween.TRANS_SINE)
         tw.tween_property(dot, "modulate:a", 1.0, dur).set_trans(Tween.TRANS_SINE)
-        # 반딧불은 천천히 떠다님.
         if not starry:
             var drift := dot.create_tween().set_loops()
             var dx := rng.randf_range(-14, 14)

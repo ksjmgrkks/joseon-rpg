@@ -23,6 +23,11 @@ class_name Stage
 ##
 
 const TILE_DIR := "res://assets/tilesets/%s.png"
+const SIDE_DIR := "res://assets/tilesets/side/%s.png"   # 신규 사이드뷰 지면 타일셋(4x4 wang)
+# wang tile15 배치에서 '윗면(잔디/서리)' 타일과 '속(꽉 찬 흙/돌)' 타일의 시트 내 좌표.
+const SURFACE_TILE := Vector2i(96, 0)
+const FILL_TILE := Vector2i(64, 32)
+const SURFACE_RISE := 20.0   # 윗면 타일을 지면선 위로 얼마나 올려 얹을지(잔디가 지면선에 걸치게)
 const ENEMY_DIR := "res://scenes/enemies/%s.tscn"
 const PLAYER_SCENE := "res://scenes/player/Player.tscn"
 const NPC_SCENE := "res://scenes/npc/Npc.tscn"
@@ -69,6 +74,7 @@ func _ready() -> void:
     var cleared := _is_cleared(data.get("gates", []))
     _build_backdrop(data.get("backdrop", {}))
     _build_ground(data.get("ground", {}))
+    _build_platforms(data.get("platforms", []), String(data.get("ground", {}).get("tileset", "earth")))
     _build_props(data.get("props", []))
     _build_entries(data.get("entries", []))
     if not cleared:
@@ -177,7 +183,32 @@ func _build_backdrop(b: Dictionary) -> void:
     add_child(bd)
 
 
+## 지면 빌드 디스패처: "tileset"(신규 사이드뷰 wang 타일셋)이 있으면 그걸,
+## 없으면 옛 단일 타일("tex") 방식으로 폴백.
 func _build_ground(g: Dictionary) -> void:
+    if g.has("tileset") and ResourceLoader.exists(SIDE_DIR % String(g["tileset"])):
+        _build_ground_tileset(g)
+    else:
+        _build_ground_legacy(g)
+
+
+## 신규 지면 — 잔디/서리 윗면 + 꽉 찬 속. 시트에서 두 타일만 잘라 repeat 로 넓게 깐다.
+func _build_ground_tileset(g: Dictionary) -> void:
+    var name := String(g.get("tileset", "earth"))
+    var w := int(g.get("width", 2800))
+    var gx := int(g.get("x", -600))
+    var mod := _col(g.get("tint", null), Color(0.94, 0.92, 0.89))  # 살짝 눌러 배경과 조화
+    var sheet: Texture2D = load(SIDE_DIR % name)
+    var surf := _crop_tile(sheet, SURFACE_TILE)
+    var fill := _crop_tile(sheet, FILL_TILE)
+    # ① 속(흙/돌) — 지면선부터 아래로 (윗면 타일의 투명부 뒤를 메움)
+    _tiled_from_tex(fill, w, 360, Vector2(gx, GROUND_TOP), mod)
+    # ② 윗면(잔디/서리) — 위로 살짝 올려 얹어 잔디가 지면선에 걸치게
+    _tiled_from_tex(surf, w, 32, Vector2(gx, GROUND_TOP - SURFACE_RISE), mod)
+    _add_ground_collision(gx, w)
+
+
+func _build_ground_legacy(g: Dictionary) -> void:
     var tex_name := String(g.get("tex", "ground_dirt"))
     var w := int(g.get("width", 2800))
     var gx := int(g.get("x", -600))
@@ -189,7 +220,10 @@ func _build_ground(g: Dictionary) -> void:
         t.height = spec[1]
         t.position = Vector2(gx, spec[0])
         add_child(t)
-    # 충돌: 시각 폭과 동일하게
+    _add_ground_collision(gx, w)
+
+
+func _add_ground_collision(gx: int, w: int) -> void:
     var body := StaticBody2D.new()
     body.position = Vector2(gx + w / 2.0, GROUND_Y)
     var cs := CollisionShape2D.new()
@@ -198,6 +232,62 @@ func _build_ground(g: Dictionary) -> void:
     cs.shape = shape
     body.add_child(cs)
     add_child(body)
+
+
+## 시트에서 32x32 한 칸을 잘라 독립 텍스처로 — repeat 로 넓게 깔 수 있게.
+func _crop_tile(sheet: Texture2D, at: Vector2i) -> ImageTexture:
+    var img := sheet.get_image()
+    var cell := img.get_region(Rect2i(at.x, at.y, 32, 32))
+    return ImageTexture.create_from_image(cell)
+
+
+## 32x32 타일 텍스처를 region+repeat 로 폭 w, 높이 h 만큼 깐다.
+func _tiled_from_tex(tex: Texture2D, w: int, h: int, pos: Vector2, mod: Color) -> void:
+    var s := Sprite2D.new()
+    s.texture = tex
+    s.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+    s.texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED
+    s.centered = false
+    s.region_enabled = true
+    s.region_rect = Rect2(0, 0, w, h)
+    s.position = pos
+    s.modulate = mod
+    add_child(s)
+
+
+## 떠 있는 발판 — 위에서 밟고 설 수 있고 아래에서 점프로 통과(one-way). 지면 타일셋으로 그린다.
+func _build_platforms(items: Array, ground_tileset: String) -> void:
+    for p in items:
+        if not (p is Dictionary):
+            continue
+        var px := float(p.get("x", 600))
+        var py := float(p.get("y", 560))     # 밟는 윗면 y
+        var pw := int(p.get("w", 160))
+        var name := String(p.get("tileset", ground_tileset))
+        var mod := _col(p.get("tint", null), Color(0.94, 0.92, 0.89))
+        var left := px - pw / 2.0
+        if ResourceLoader.exists(SIDE_DIR % name):
+            var sheet: Texture2D = load(SIDE_DIR % name)
+            var surf := _crop_tile(sheet, SURFACE_TILE)
+            var fill := _crop_tile(sheet, FILL_TILE)
+            _tiled_from_tex(fill, pw, 40, Vector2(left, py + 12.0), mod)
+            _tiled_from_tex(surf, pw, 32, Vector2(left, py - SURFACE_RISE), mod)
+        elif ResourceLoader.exists(TILE_DIR % "wood_platform"):
+            var t := TiledSprite.new()
+            t.tex_path = TILE_DIR % "wood_platform"
+            t.width = pw; t.height = 32
+            t.position = Vector2(left, py - 8.0)
+            add_child(t)
+        # 충돌 — 윗면(py)만 막는 one-way 발판
+        var body := StaticBody2D.new()
+        body.position = Vector2(px, py + 8.0)
+        var cs := CollisionShape2D.new()
+        var shape := RectangleShape2D.new()
+        shape.size = Vector2(pw, 16)
+        cs.shape = shape
+        cs.one_way_collision = true
+        body.add_child(cs)
+        add_child(body)
 
 
 func _build_props(props: Array) -> void:
@@ -418,6 +508,7 @@ func _build_gameplay(data: Dictionary) -> void:
     var cleared := clear_flag != "" and Flags.has_flag(clear_flag)
     _build_backdrop(data.get("backdrop", {}))
     _build_ground(data.get("ground", {}))
+    _build_platforms(data.get("platforms", []), String(data.get("ground", {}).get("tileset", "earth")))
     _build_props(data.get("props", []))
     _build_interactables(data.get("interactables", []))
     _build_entries(data.get("entries", []))
