@@ -58,8 +58,7 @@ func _process(delta: float) -> void:
     var remaining := get_tree().get_nodes_in_group("enemy").size()
     if remaining <= 0:
         _open_gate()
-    elif _label:
-        _label.text = "남은 적 %d" % remaining
+    # '남은 적 N' 카운터는 사용자 피드백(2026-07-11)으로 제거 — 결계 안내(정적)만 둔다.
 
 
 func _open_gate() -> void:

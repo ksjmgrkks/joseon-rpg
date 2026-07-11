@@ -195,18 +195,13 @@ func _on_dialogue_event(speaker: String, text: String, choices: Array) -> void:
     # 금빛 구분선은 화자 이름이 실제로 보일 때만(말풍선). 혼잣말/나레이션은 감춘다.
     rule.visible = speaker_label.visible
 
-    # 본문 구성 — 혼잣말은 겉 괄호를 벗기고, 기억 소거(dissolve) 표시가 있으면 그 줄만 흐린다.
-    var do_dissolve := false
-    if Dialogue:
-        do_dissolve = Dialogue.meta("dissolve") == true
+    # 본문 구성 — 혼잣말은 겉 괄호를 벗긴다.
+    # 기억 소거(글자 흐려짐) 연출은 사용자 피드백(2026-07-11)으로 비활성:
+    # 글자가 아예 안 보여 가독성이 떨어져, 대사는 항상 온전히 보이게 한다.
+    # (기억 상실 서사는 대사 '내용'으로 전달. 다시 켜려면 아래 do_dissolve 배선 복구.)
     var body := text
     if _mode == MODE_THOUGHT:
-        body = _strip_parens(text)
-    if do_dissolve and MemoryLedger:
-        # 「해원」 시그니처: 진혼 직후 그 한 줄의 글자가 진행도만큼 흐려진다.
-        body = MemoryGlyph.dissolve(body, MemoryLedger.progress(), hash(speaker + text))
-    elif _mode == MODE_THOUGHT:
-        body = "[i]%s[/i]" % body
+        body = "[i]%s[/i]" % _strip_parens(text)
     text_label.text = body
 
     # 선택지 즉시 구성(타이핑은 본문에만 적용 — 입력/테스트 즉시성 보장).
