@@ -3,7 +3,7 @@ extends Control
 ## 메인 메뉴 — 새로 시작·이어하기(슬롯 선택)·설정·종료.
 ##
 
-const START_LEVEL_PATH := "res://scenes/levels/Haewon0Prologue.tscn"   # 「해원」 프롤로그 — 첫 등
+const START_LEVEL_PATH := "res://scenes/levels/Foothills.tscn"   # 스코어어택: 첫 전투 스테이지(스토리/프롤로그 없음)
 const SETTINGS_PATH := "res://scenes/ui/SettingsMenu.tscn"
 
 # 저장 메타의 지역명(SaveManager.AREA_LABELS) → 씬 경로 역매핑 (이어하기 복귀용)
