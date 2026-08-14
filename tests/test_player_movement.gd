@@ -74,9 +74,11 @@ func _check_player_gravity() -> Dictionary:
 # ── 조작 손맛 검증용 헬퍼 ──
 const FLOOR_TOP_Y := 300.0
 
-# 넓은 바닥(StaticBody2D) 생성 — 윗면이 FLOOR_TOP_Y. 기본 layer 1 = 플레이어 mask 1 과 충돌.
+# 넓은 바닥(StaticBody2D) 생성 — 윗면이 FLOOR_TOP_Y.
+# 월드 레이어 bit3(값4) = 플레이어 mask 4 와 충돌 (메탈슬러그식 통과 판정 개편 반영).
 func _make_floor() -> StaticBody2D:
     var body := StaticBody2D.new()
+    body.collision_layer = 4
     body.position = Vector2(0.0, FLOOR_TOP_Y + 20.0)   # 중심; 윗면 = FLOOR_TOP_Y
     var cs := CollisionShape2D.new()
     var shape := RectangleShape2D.new()

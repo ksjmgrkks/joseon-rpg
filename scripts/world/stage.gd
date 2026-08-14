@@ -225,6 +225,7 @@ func _build_ground_legacy(g: Dictionary) -> void:
 
 func _add_ground_collision(gx: int, w: int) -> void:
     var body := StaticBody2D.new()
+    body.collision_layer = 4        # 월드(bit3) — 플레이어·적 몸이 밟고 선다
     body.position = Vector2(gx + w / 2.0, GROUND_Y)
     var cs := CollisionShape2D.new()
     var shape := RectangleShape2D.new()
@@ -280,6 +281,7 @@ func _build_platforms(items: Array, ground_tileset: String) -> void:
             add_child(t)
         # 충돌 — 윗면(py)만 막는 one-way 발판
         var body := StaticBody2D.new()
+        body.collision_layer = 4    # 월드(bit3)
         body.position = Vector2(px, py + 8.0)
         var cs := CollisionShape2D.new()
         var shape := RectangleShape2D.new()

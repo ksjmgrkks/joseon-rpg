@@ -69,6 +69,9 @@ func get_anim_hint() -> String:
 func _ready() -> void:
     add_to_group("enemy")
     add_to_group("boss")
+    # 적 몸은 월드(bit3=4)에만 부딪히고 플레이어·다른 적은 통과 (메탈슬러그식).
+    collision_layer = 2
+    collision_mask = 4
     # 실제 스프라이트(EnemyVisual) 사용 — 색 틴트 없이 원본 표시. (페이즈 2에서만 핏빛 틴트)
     # attack_hitbox 활성 게이트는 Hitbox._ready 가 스스로 초기화 (layer 게이트)
     hurtbox.hurt.connect(_on_hurt)

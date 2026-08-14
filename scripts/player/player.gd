@@ -92,6 +92,12 @@ var _last_hp: float = 100.0
 
 
 func _ready() -> void:
+    # 충돌 레이어 (메탈슬러그식 통과 판정):
+    #   bit1=플레이어 몸, bit2=적 몸, bit3(값4)=월드(지면/발판/결계).
+    #   플레이어 몸은 월드(4)에만 부딪히고 적 몸(2)은 통과한다.
+    #   레이어1은 유지 — spirit_orb·NPC·픽업 등 Area가 mask=1로 플레이어를 감지.
+    collision_layer = 1
+    collision_mask = 4
     if health:
         health.hp_changed.connect(_on_hp_changed)
         health.died.connect(_on_died)

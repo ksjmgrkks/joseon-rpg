@@ -18,6 +18,9 @@ var _knockback_vel: float = 0.0
 
 func _ready() -> void:
     add_to_group("enemy")
+    # 적 몸은 월드(bit3=4)에만 부딪히고 플레이어·다른 적은 통과 (메탈슬러그식).
+    collision_layer = 2
+    collision_mask = 4
     hurtbox.hurt.connect(_on_hurt)
     health.hp_changed.connect(_on_hp_changed)
     health.died.connect(_on_died)
