@@ -59,6 +59,12 @@ const FWD_EXIT_X := 1500.0       # 전진 출구 x (결계 너머)
 
 
 func _ready() -> void:
+    # 스코어 어택 런 관리 — 첫 전투 스테이지면 새 런 시작(점수·시간 리셋),
+    # 이후 체인 스테이지/이어하기면 유지한 채 계속 카운트.
+    if stage_id == CHAIN[0]:
+        ScoreManager.start_run()
+    else:
+        ScoreManager.resume()
     var data := _load()
     if data.is_empty():
         push_error("[Stage] stage json 없음: %s" % stage_id)

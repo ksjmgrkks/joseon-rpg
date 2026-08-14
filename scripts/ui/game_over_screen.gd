@@ -10,6 +10,9 @@ const MAIN_MENU_PATH := "res://scenes/ui/MainMenu.tscn"
 @onready var dim: ColorRect = $Dim
 @onready var continue_btn: Button = $Panel/Margin/VBox/ContinueBtn
 @onready var menu_btn: Button = $Panel/Margin/VBox/MenuBtn
+@onready var _vbox: VBoxContainer = $Panel/Margin/VBox
+
+var _summary: Label = null
 
 
 func _ready() -> void:
@@ -21,6 +24,9 @@ func _ready() -> void:
 
 
 func show_screen() -> void:
+    # 스코어 어택 결과 집계(점수 최고기록 갱신) 후 이번 런 요약 표시.
+    var res := ScoreManager.register_result(false)
+    _show_summary(res)
     # 자동 저장(슬롯 0)에서 이어하기 — 스테이지 진입마다 체크포인트가 찍힌다.
     continue_btn.disabled = not SaveManager.has_save(0)
     panel.visible = true
@@ -31,6 +37,22 @@ func show_screen() -> void:
         menu_btn.call_deferred("grab_focus")
     else:
         continue_btn.call_deferred("grab_focus")
+
+
+func _show_summary(res: Dictionary) -> void:
+    if _summary == null:
+        _summary = Label.new()
+        _summary.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+        _summary.add_theme_font_size_override("font_size", 16)
+        if _vbox:
+            _vbox.add_child(_summary)
+            _vbox.move_child(_summary, 1)   # 타이틀 바로 아래
+    var lines := "점수 %d   ·   시간 %s" % [ScoreManager.score, ScoreManager.format_time(ScoreManager.run_time)]
+    if res.get("new_best_score", false):
+        lines += "\n★ 최고 점수 갱신!"
+    else:
+        lines += "\n최고 점수 %d" % int(res.get("best_score", 0))
+    _summary.text = lines
 
 
 func hide_screen() -> void:

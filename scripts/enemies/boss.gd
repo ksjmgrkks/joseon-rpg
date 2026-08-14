@@ -262,7 +262,10 @@ func _on_died() -> void:
     ScreenFx.shake(16.0, 0.5)
     if xp_reward > 0:
         PlayerStats.gain_xp(xp_reward)
-        FloatingNumber.spawn(get_tree().current_scene, global_position, "+%d XP" % xp_reward, Color(1, 0.95, 0.6))
+    # 스코어 어택 — 보스 처치 점수 (xp_reward ×10, 대형 점수).
+    var pts := xp_reward * 10
+    ScoreManager.add_score(pts)
+    FloatingNumber.spawn(get_tree().current_scene, global_position, "+%d" % pts, Color(1, 0.95, 0.6))
     if reward_item_id != "" and reward_item_qty > 0 and Inventory:
         Inventory.add(reward_item_id, reward_item_qty)
         FloatingNumber.spawn(get_tree().current_scene, global_position + Vector2(0, -32), "+%d %s" % [reward_item_qty, reward_item_id], Color(1, 0.85, 0.55))

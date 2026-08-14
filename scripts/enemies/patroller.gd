@@ -163,7 +163,10 @@ func _on_died() -> void:
     SkillFx.soul_ascend(global_position + Vector2(0, -10))   # 진혼: 혼을 달래 천도(성불)
     if xp_reward > 0:
         PlayerStats.gain_xp(xp_reward)
-        FloatingNumber.spawn(get_tree().current_scene, global_position, "+%d XP" % xp_reward, Color(1, 0.95, 0.6))
+    # 스코어 어택 — 혼 처치 점수 (xp_reward 기반 상대 가중치 ×10).
+    var pts := xp_reward * 10
+    ScoreManager.add_score(pts)
+    FloatingNumber.spawn(get_tree().current_scene, global_position, "+%d" % pts, Color(1, 0.95, 0.6))
     _drop_loot()
     # 더는 안 맞고, 죽음 애니메이션이 보이도록 잠깐 둔 뒤 제거
     if hurtbox:
@@ -181,5 +184,4 @@ func _drop_loot() -> void:
         return
     if drop_item != "" and randf() < drop_chance:
         Pickup.spawn(host, global_position + Vector2(-8, -6), drop_item, 1, drop_icon, "")
-    if randf() < drop_gold_chance:
-        Pickup.spawn(host, global_position + Vector2(10, -6), "coin_pouch", 1, "coin", "")
+    # 엽전(coin_pouch) 드롭 제거 — 화폐 폐지, 처치는 점수로만 환산. (drop_gold_chance 는 dormant)

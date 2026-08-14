@@ -15,6 +15,8 @@ signal loaded(slot: int, data: Dictionary)
 
 const SAVE_DIR := "user://saves/"
 const VERSION := 1
+# 전역 최고기록 파일 (슬롯과 무관 — 런을 거듭한 베스트 점수/시간). ScoreManager 가 사용.
+const RECORDS_PATH := "user://records.json"
 
 # 슬롯 표시용 한국어 지역명 매핑. 씬 root 이름과 1:1.
 const AREA_LABELS := {
@@ -131,6 +133,28 @@ func get_slot_info(slot: int) -> Dictionary:
         "level": int(meta.get("level", 1)),
         "gold":  int(meta.get("gold", 0)),
     }
+
+
+## ── 전역 최고기록 (스코어 어택) — 슬롯과 별개, 단일 파일. ──
+func save_records(data: Dictionary) -> void:
+    var file := FileAccess.open(RECORDS_PATH, FileAccess.WRITE)
+    if file == null:
+        push_error("[Save] cannot write records: %s" % RECORDS_PATH)
+        return
+    file.store_string(JSON.stringify(data, "  "))
+    file.close()
+
+
+func load_records() -> Dictionary:
+    if not FileAccess.file_exists(RECORDS_PATH):
+        return {}
+    var file := FileAccess.open(RECORDS_PATH, FileAccess.READ)
+    if file == null:
+        return {}
+    var raw := file.get_as_text()
+    file.close()
+    var parsed = JSON.parse_string(raw)
+    return parsed if parsed is Dictionary else {}
 
 
 func _current_area_name() -> String:
