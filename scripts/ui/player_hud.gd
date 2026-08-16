@@ -9,8 +9,11 @@ extends CanvasLayer
 @onready var hp_label: Label = $Panel/Margin/VBox/HPRow/Label
 @onready var level_label: Label = $Panel/Margin/VBox/StatsRow/LevelLabel
 @onready var xp_label: Label = $Panel/Margin/VBox/StatsRow/XpLabel
-@onready var gold_label: Label = $Panel/Margin/VBox/StatsRow/GoldLabel
+@onready var gold_label: Label = $Panel/Margin/VBox/StatsRow/GoldLabel   # 스코어어택: 점수 표시로 재활용
+@onready var stats_row: HBoxContainer = $Panel/Margin/VBox/StatsRow
 @onready var skill_row: HBoxContainer = $Panel/Margin/VBox/SkillRow
+
+var _time_label: Label = null
 
 const SKILL_ICON := "res://assets/ui/skill_%s.png"   # id 별 아이콘 경로
 const SLOT_SIZE := 46.0
@@ -34,8 +37,17 @@ func _ready() -> void:
     _update_stats(PlayerStats.xp, PlayerStats.xp_to_next())
     PlayerStats.xp_changed.connect(_update_stats)
     PlayerStats.level_up.connect(_on_level_up)
-    _update_gold(PlayerStats.gold)
-    PlayerStats.gold_changed.connect(_update_gold)
+    # 스코어어택 HUD — 엽전 자리를 점수로 바꾸고, 플레이타임 라벨을 추가.
+    _time_label = Label.new()
+    _time_label.add_theme_font_size_override("font_size", 14)
+    if gold_label:
+        gold_label.add_theme_font_size_override("font_size", 14)
+    if stats_row:
+        stats_row.add_child(_time_label)
+    _update_score(ScoreManager.score)
+    _update_time(ScoreManager.run_time)
+    ScoreManager.score_changed.connect(_update_score)
+    ScoreManager.playtime_changed.connect(_update_time)
 
     _build_skill_slots()
     SkillManager.cooldowns_changed.connect(_update_skills)
@@ -164,6 +176,11 @@ func _on_level_up(new_level: int) -> void:
     Audio.play_sfx(Sfx.PICKUP)
 
 
-func _update_gold(amount: int) -> void:
+func _update_score(amount: int) -> void:
     if gold_label:
-        gold_label.text = "엽전 %d" % amount
+        gold_label.text = "점수 %d" % amount
+
+
+func _update_time(seconds: float) -> void:
+    if _time_label:
+        _time_label.text = "시간 %s" % ScoreManager.format_time(seconds)

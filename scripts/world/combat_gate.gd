@@ -23,6 +23,7 @@ var _grace: float = 0.4                    # 적 스폰 대기(시작 직후 오
 func _ready() -> void:
     # 충돌 벽 (플레이어 차단)
     _barrier = StaticBody2D.new()
+    _barrier.collision_layer = 4    # 월드(bit3) — 플레이어 몸(mask=4)이 막힌다
     var cs := CollisionShape2D.new()
     var shape := RectangleShape2D.new()
     shape.size = Vector2(16, gate_height)

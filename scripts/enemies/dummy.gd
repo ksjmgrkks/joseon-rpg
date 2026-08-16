@@ -18,6 +18,9 @@ var _knockback_vel: float = 0.0
 
 func _ready() -> void:
     add_to_group("enemy")
+    # 적 몸은 월드(bit3=4)에만 부딪히고 플레이어·다른 적은 통과 (메탈슬러그식).
+    collision_layer = 2
+    collision_mask = 4
     hurtbox.hurt.connect(_on_hurt)
     health.hp_changed.connect(_on_hp_changed)
     health.died.connect(_on_died)
@@ -55,5 +58,7 @@ func _on_died() -> void:
     SkillFx.soul_ascend(global_position + Vector2(0, -10))   # 진혼: 혼을 달래 천도(성불)
     if xp_reward > 0:
         PlayerStats.gain_xp(xp_reward)
-        FloatingNumber.spawn(get_tree().current_scene, global_position, "+%d XP" % xp_reward, Color(1, 0.95, 0.6))
+    var pts := xp_reward * 10
+    ScoreManager.add_score(pts)
+    FloatingNumber.spawn(get_tree().current_scene, global_position, "+%d" % pts, Color(1, 0.95, 0.6))
     queue_free()

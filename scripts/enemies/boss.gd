@@ -69,6 +69,9 @@ func get_anim_hint() -> String:
 func _ready() -> void:
     add_to_group("enemy")
     add_to_group("boss")
+    # 적 몸은 월드(bit3=4)에만 부딪히고 플레이어·다른 적은 통과 (메탈슬러그식).
+    collision_layer = 2
+    collision_mask = 4
     # 실제 스프라이트(EnemyVisual) 사용 — 색 틴트 없이 원본 표시. (페이즈 2에서만 핏빛 틴트)
     # attack_hitbox 활성 게이트는 Hitbox._ready 가 스스로 초기화 (layer 게이트)
     hurtbox.hurt.connect(_on_hurt)
@@ -259,7 +262,10 @@ func _on_died() -> void:
     ScreenFx.shake(16.0, 0.5)
     if xp_reward > 0:
         PlayerStats.gain_xp(xp_reward)
-        FloatingNumber.spawn(get_tree().current_scene, global_position, "+%d XP" % xp_reward, Color(1, 0.95, 0.6))
+    # 스코어 어택 — 보스 처치 점수 (xp_reward ×10, 대형 점수).
+    var pts := xp_reward * 10
+    ScoreManager.add_score(pts)
+    FloatingNumber.spawn(get_tree().current_scene, global_position, "+%d" % pts, Color(1, 0.95, 0.6))
     if reward_item_id != "" and reward_item_qty > 0 and Inventory:
         Inventory.add(reward_item_id, reward_item_qty)
         FloatingNumber.spawn(get_tree().current_scene, global_position + Vector2(0, -32), "+%d %s" % [reward_item_qty, reward_item_id], Color(1, 0.85, 0.55))

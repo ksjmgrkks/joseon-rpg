@@ -59,6 +59,12 @@ const FWD_EXIT_X := 1500.0       # 전진 출구 x (결계 너머)
 
 
 func _ready() -> void:
+    # 스코어 어택 런 관리 — 첫 전투 스테이지면 새 런 시작(점수·시간 리셋),
+    # 이후 체인 스테이지/이어하기면 유지한 채 계속 카운트.
+    if stage_id == CHAIN[0]:
+        ScoreManager.start_run()
+    else:
+        ScoreManager.resume()
     var data := _load()
     if data.is_empty():
         push_error("[Stage] stage json 없음: %s" % stage_id)
@@ -225,6 +231,7 @@ func _build_ground_legacy(g: Dictionary) -> void:
 
 func _add_ground_collision(gx: int, w: int) -> void:
     var body := StaticBody2D.new()
+    body.collision_layer = 4        # 월드(bit3) — 플레이어·적 몸이 밟고 선다
     body.position = Vector2(gx + w / 2.0, GROUND_Y)
     var cs := CollisionShape2D.new()
     var shape := RectangleShape2D.new()
@@ -280,6 +287,7 @@ func _build_platforms(items: Array, ground_tileset: String) -> void:
             add_child(t)
         # 충돌 — 윗면(py)만 막는 one-way 발판
         var body := StaticBody2D.new()
+        body.collision_layer = 4    # 월드(bit3)
         body.position = Vector2(px, py + 8.0)
         var cs := CollisionShape2D.new()
         var shape := RectangleShape2D.new()

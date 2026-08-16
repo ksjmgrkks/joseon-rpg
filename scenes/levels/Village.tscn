@@ -49,6 +49,7 @@ height = 32
 
 ; 지면
 [node name="Ground" type="StaticBody2D" parent="."]
+collision_layer = 4
 position = Vector2(800, 700)
 
 [node name="GroundShape" type="CollisionShape2D" parent="Ground"]
