@@ -25,6 +25,7 @@ func _ready() -> void:
     results.append(_check_stages())
     results.append(_check_cutscenes())
     results.append(_check_ledger_covers_guts())
+    results.append(await _check_story_entry())
 
     var failed := 0
     for r in results:
@@ -137,3 +138,23 @@ func _check_ledger_covers_guts() -> Dictionary:
         if not seen.has(g):
             return { "name": "ledger_covers_guts", "status": FAIL, "reason": "굽이 %d 기억 조각 없음" % g }
     return { "name": "ledger_covers_guts", "status": PASS, "reason": "" }
+
+
+# 메뉴에서 이야기 모드로 들어갈 수 있는가 (스코어어택과 별개 진입로).
+func _check_story_entry() -> Dictionary:
+    var menu: Control = load("res://scenes/ui/MainMenu.tscn").instantiate()
+    add_child(menu)
+    await get_tree().process_frame
+    var btn := menu.get_node_or_null("Margin/VBox/Buttons/StoryBtn") as Button
+    var start_path: String = menu.get("STORY_START_PATH") if menu.get("STORY_START_PATH") != null else ""
+    var has_handler := menu.has_method("_on_story")
+    menu.queue_free()
+    if btn == null:
+        return { "name": "story_menu_entry", "status": FAIL, "reason": "메뉴에 StoryBtn 이 없음" }
+    if btn.text.strip_edges() == "":
+        return { "name": "story_menu_entry", "status": FAIL, "reason": "StoryBtn 라벨이 비었음" }
+    if not has_handler:
+        return { "name": "story_menu_entry", "status": FAIL, "reason": "_on_story 핸들러 없음" }
+    if not ResourceLoader.exists(start_path):
+        return { "name": "story_menu_entry", "status": FAIL, "reason": "이야기 시작 씬 없음: %s" % start_path }
+    return { "name": "story_menu_entry", "status": PASS, "reason": start_path.get_file() }

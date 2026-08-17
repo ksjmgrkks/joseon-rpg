@@ -4,6 +4,9 @@ extends Control
 ##
 
 const START_LEVEL_PATH := "res://scenes/levels/Foothills.tscn"   # 스코어어택: 첫 전투 스테이지(스토리/프롤로그 없음)
+## 이야기 모드 시작점 — STORY_BIBLE v2 1막 「넋을 달래는 아이」.
+## 스코어어택(새로 시작)과 별개 진입로로 둔다 — 둘 다 살린다(2026-08-18 사용자 결정).
+const STORY_START_PATH := "res://scenes/levels/Haewon0Prologue.tscn"
 const SETTINGS_PATH := "res://scenes/ui/SettingsMenu.tscn"
 
 # 저장 메타의 지역명(SaveManager.AREA_LABELS) → 씬 경로 역매핑 (이어하기 복귀용)
@@ -34,6 +37,7 @@ const SLOT_PICKER_SCENE := preload("res://scenes/ui/SlotPicker.tscn")
 @onready var title_label: Label = $Margin/VBox/Title
 @onready var subtitle_label: Label = $Margin/VBox/Subtitle
 @onready var new_btn: Button = $Margin/VBox/Buttons/NewBtn
+@onready var story_btn: Button = $Margin/VBox/Buttons/StoryBtn
 @onready var continue_btn: Button = $Margin/VBox/Buttons/ContinueBtn
 @onready var settings_btn: Button = $Margin/VBox/Buttons/SettingsBtn
 @onready var quit_btn: Button = $Margin/VBox/Buttons/QuitBtn
@@ -51,6 +55,7 @@ func _ready() -> void:
         logo.visible = false
     Locale.locale_changed.connect(_on_locale_changed)
     new_btn.pressed.connect(_on_new)
+    story_btn.pressed.connect(_on_story)
     continue_btn.pressed.connect(_on_continue)
     settings_btn.pressed.connect(_on_settings)
     quit_btn.pressed.connect(_on_quit)
@@ -63,6 +68,7 @@ func _apply_locale() -> void:
     if title_label:    title_label.text    = Locale.t("menu.title")
     if subtitle_label: subtitle_label.text = Locale.t("menu.subtitle")
     if new_btn:        new_btn.text        = Locale.t("menu.new")
+    if story_btn:      story_btn.text      = Locale.t("menu.story")
     if continue_btn:   continue_btn.text   = Locale.t("menu.continue")
     if settings_btn:   settings_btn.text   = Locale.t("menu.settings")
     if quit_btn:       quit_btn.text       = Locale.t("menu.quit")
@@ -83,13 +89,24 @@ func _any_save_exists() -> bool:
 
 func _on_new() -> void:
     # 새로 시작 — 진행 상태 초기화 후 곧장 첫 전투 스테이지(스토리/프롤로그 없음)
+    _fresh_run()
+    SceneManager.change_scene(START_LEVEL_PATH)
+
+
+## 이야기 — 같은 초기화를 하고 1막부터. 진혼의 대가(기억)는 온전한 상태에서 출발한다.
+func _on_story() -> void:
+    _fresh_run()
+    SceneManager.change_scene(STORY_START_PATH)
+
+
+# 새 판 공통 초기화 (스코어어택·이야기 양쪽이 같은 상태에서 출발)
+func _fresh_run() -> void:
     Flags.clear()
     Inventory.clear()
     if Equipment: Equipment.clear()
     PlayerStats.reset()
     if SkillManager: SkillManager.reset_cooldowns()
     if MemoryLedger: MemoryLedger.reset()   # 「해원」: 기억은 온전한 상태에서 시작
-    SceneManager.change_scene(START_LEVEL_PATH)
 
 
 func _on_continue() -> void:

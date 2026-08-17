@@ -76,7 +76,7 @@ theme_override_constants/separation = 24
 
 [node name="TopSpacer" type="Control" parent="Margin/VBox"]
 layout_mode = 2
-custom_minimum_size = Vector2(0, 168)
+custom_minimum_size = Vector2(0, 120)
 
 [node name="Title" type="Label" parent="Margin/VBox"]
 visible = false
@@ -95,7 +95,7 @@ modulate = Color(1, 0.98, 0.92, 0.75)
 
 [node name="Spacer" type="Control" parent="Margin/VBox"]
 layout_mode = 2
-custom_minimum_size = Vector2(0, 80)
+custom_minimum_size = Vector2(0, 40)
 
 [node name="Buttons" type="VBoxContainer" parent="Margin/VBox"]
 layout_mode = 2
@@ -106,6 +106,11 @@ alignment = 1
 layout_mode = 2
 custom_minimum_size = Vector2(0, 44)
 text = "새로 시작"
+
+[node name="StoryBtn" type="Button" parent="Margin/VBox/Buttons"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 44)
+text = "이야기"
 
 [node name="ContinueBtn" type="Button" parent="Margin/VBox/Buttons"]
 layout_mode = 2
