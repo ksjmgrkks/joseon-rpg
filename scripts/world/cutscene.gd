@@ -103,6 +103,17 @@ func _build_backdrop(b: Dictionary) -> void:
     bd.tint = _col(b.get("tint", null), Color.WHITE)
     if b.has("far_scale"):
         bd.far_scale = float(b["far_scale"])
+    # 장면 성격에 맞춰 원경을 끈다 — 담 안 마당 뒤로 산맥이 보이면 장면이 어그러진다.
+    if b.has("mountains"):
+        bd.mountains = bool(b["mountains"])
+    if b.has("clouds"):
+        bd.clouds = bool(b["clouds"])
+    if b.has("mist"):
+        bd.mist = bool(b["mist"])
+    if b.has("horizon_y"):
+        bd.horizon_y = float(b["horizon_y"])
+    if b.has("night_luminance"):
+        bd.night_luminance = float(b["night_luminance"])
     add_child(bd)
 
 

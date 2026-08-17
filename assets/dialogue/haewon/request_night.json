@@ -1,0 +1,37 @@
+{
+  "_note": "v2 5막 컷 — 비 오는 밤의 부탁. **첫 엔딩 분기 기록**: 승낙 방식에 따라 flag 를 남긴다(haewon_vow_yes / haewon_vow_refuse / haewon_vow_lantern). 어느 쪽이든 6막으로 가지만 엔딩 저울에 실린다. 은가락지는 3막 문간에서 주운 그 모양 — 여종 누명의 물건(6막에서 회수).",
+  "id": "haewon_request_night",
+  "start": "a",
+  "nodes": {
+    "a": { "speaker": "", "text": "비가 종일 내린 밤. 움집 문이 열린다. 비단 치맛단이 흙물에 젖어 있다.", "next": "b" },
+    "b": { "speaker": "윤슬", "text": "…염치없는 줄 압니다.", "next": "c" },
+    "c": { "speaker": "길손", "text": "그날 마당에서, 한 마디만 하셨으면 됐습니다.", "next": "d" },
+    "d": { "speaker": "윤슬", "text": "…예. 그것이 제 죄입니다.", "next": "e" },
+    "e": { "speaker": "", "text": "그녀가 은가락지 한 짝을 내려놓는다. 문간에서 주운 것과 꼭 같은 모양이다.", "next": "f" },
+    "f": { "speaker": "윤슬", "text": "집이 무너지고 있습니다. 사람이 죽어 나갑니다. …당신밖에 없다 하더이다.", "next": "g" },
+    "g": {
+      "speaker": "길손", "text": "…",
+      "choices": [
+        { "text": "\"…가겠습니다.\"", "next": "yes" },
+        { "text": "\"돌아가십시오.\"", "next": "no" },
+        { "text": "(말없이 등을 켜 문 앞에 둔다)", "next": "lantern" }
+      ]
+    },
+    "yes": {
+      "speaker": "윤슬", "text": "…고맙습니다. 고맙습니다.",
+      "actions": [ { "type": "set_flag", "key": "haewon_vow_yes", "value": true } ],
+      "next": "end"
+    },
+    "no": {
+      "speaker": "", "text": "그녀는 오래 서 있다가, 젖은 채로 돌아갔다. …그러나 새벽에, 그는 굿상을 챙기고 있었다.",
+      "actions": [ { "type": "set_flag", "key": "haewon_vow_refuse", "value": true } ],
+      "next": "end"
+    },
+    "lantern": {
+      "speaker": "", "text": "그는 아무 말도 하지 않고, 등 하나를 켜 문 앞에 내어 둔다. 가겠다는 뜻이다. 그녀가 그것을 알아본다.",
+      "actions": [ { "type": "set_flag", "key": "haewon_vow_lantern", "value": true } ],
+      "next": "end"
+    },
+    "end": { "speaker": "길손", "text": "(…내가 무엇을 잃게 될지, 나는 이미 안다.)", "next": null }
+  }
+}

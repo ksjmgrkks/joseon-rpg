@@ -10,6 +10,6 @@
     "e": { "speaker": "윤슬", "text": "동틀 녘 강가에서 났다더이다. 물 위로 첫 빛이 깔리던, 꼭 저런 아침에요.", "next": "f" },
     "f": { "speaker": "윤슬", "text": "그러니 제가 그리울 적엔, 물에 빛 드는 걸 보셔요. 거기 어디 제가 있을 터이니.", "next": "g" },
     "g": { "speaker": "길손", "text": "…윤슬.", "next": "h" },
-    "h": { "speaker": "", "text": "그 이름을 처음 소리 내어 부른 밤이었다.", "next": null }
+    "h": { "speaker": "", "text": "그 이름을 처음 소리 내어 부른 밤이었다.", "actions": [ { "type": "set_flag", "key": "haewon_recall_seen", "value": true } ], "next": null }
   }
 }

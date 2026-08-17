@@ -1,13 +1,29 @@
 {
-  "id": "haewon_yunseul_release",
-  "_note": "최종 — 마지막 물등(=윤슬의 등=자기 등)을 띄움. '윤슬'마저 화면에서 지워지고 모든 글자가 빔(MemoryLedger.erase 'yunseul' → last_name_released → 엔딩). 회상 대사 회수. 의미 전복: 이건 사랑하는 이를 떠나보냄이자 자기 천도.",
+  "_note": "v2 7막 마지막 진혼 후 — **엔딩을 가르는 선택**. 자기 한까지 놓으면 소멸(③), 남기면 기억을 태운 정도에 따라 망각(①)/해원(②)/숨김 윤슬(④). 설정은 ending_resolver.gd 가 flag 로 판정.",
+  "id": "haewon_final",
   "start": "a",
   "nodes": {
-    "a": { "speaker": "길손", "text": "내 너를 두고 문을 닫았다. 그러고도 아무도 살리지 못했다.", "next": "b" },
-    "b": { "speaker": "윤슬의 넋", "text": "압니다. 그날 그 문 앞에서, 당신도 나와 함께 떠내려간 것을.", "next": "c" },
-    "c": { "speaker": "길손", "text": "…나도, 였더냐.", "next": "d" },
-    "d": { "speaker": "", "dissolve": true, "text": "마지막 물등을 강에 띄운다. '윤슬' 그 한 이름마저, 빛 속으로 풀려 사라진다. 화면이 텅 빈다.", "next": "e" },
-    "e": { "speaker": "윤슬", "text": "물에 빛 드는 걸 보셔요. 거기 어디 제가 있을 터이니.", "next": "f" },
-    "f": { "speaker": "", "text": "첫 햇살이 강에 닿아 물비늘이 인다. 그 빛이 곧 윤슬이다. 길손은 그 안으로 흩어진다.", "next": null }
+    "a": { "speaker": "", "text": "집안의 한이 모두 풀린다. 마지막 등 하나가 손에 남는다.", "next": "b" },
+    "b": { "speaker": "땅속의 넋", "text": "…네 것도 얹어 보내려느냐.", "next": "c" },
+    "c": { "speaker": "길손", "text": "(내 것. 나에게도, 풀지 못한 것이 있었던가.)", "next": "d" },
+    "d": { "speaker": "", "text": "무릎이 꺾인다. 등불이 흔들린다. 마당 저편에서 누군가 달려온다.", "next": "e" },
+    "e": {
+      "speaker": "길손", "text": "…",
+      "choices": [
+        { "text": "(마지막 등에 내 한까지 얹어 보낸다)", "next": "release" },
+        { "text": "(등을 쥔 채 버틴다 — 한 사람의 얼굴을 붙잡고)", "next": "stay" }
+      ]
+    },
+    "release": {
+      "speaker": "", "text": "그가 마지막 등을 물에 놓는다. 제 것까지 얹어서.",
+      "actions": [ { "type": "set_flag", "key": "haewon_final_release_self", "value": true } ],
+      "next": "z"
+    },
+    "stay": {
+      "speaker": "", "text": "그는 등을 놓지 않는다. 흐려지는 눈으로, 달려오는 사람의 얼굴을 붙잡는다.",
+      "actions": [ { "type": "set_flag", "key": "haewon_final_stay", "value": true } ],
+      "next": "z"
+    },
+    "z": { "speaker": "", "text": "동이 튼다. 첫 햇살이 강에 닿아, 물비늘이 인다.", "next": null }
   }
 }

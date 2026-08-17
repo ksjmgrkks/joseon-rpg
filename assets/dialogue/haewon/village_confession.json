@@ -1,9 +1,11 @@
 {
-  "id": "haewon_village_confession",
+  "_note": "v2 4막 — 길손이 자기만 할 수 있음을 깨닫는 자리. 동시에 '왜 하필 나여야 하나'의 원망도 같이 둔다(5막 망설임의 근거).",
+  "id": "haewon_why_only_me",
   "start": "a",
   "nodes": {
-    "a": { "speaker": "", "text": "물 빠진 담벼락에 방(榜)이 한 장 붙어 있다. 수문을 닫으라 명한 자의 이름 — 이 고을 현감.", "next": "b" },
-    "b": { "speaker": "길손", "text": "현감이라. 그 자가, 나였더냐.", "next": "c" },
-    "c": { "speaker": "", "dissolve": true, "text": "그 이름이 손가락 사이로 빠져나가듯 옅어진다. 이제 그를 부를 말은 '길손' 하나뿐이다.", "next": null }
+    "a": { "speaker": "길손", "text": "저 안의 것들은 나 같은 것의 말만 듣는다.", "next": "b" },
+    "b": { "speaker": "길손", "text": "매를 맞은 손, 문간에 서던 발. 그런 것들만.", "next": "c" },
+    "c": { "speaker": "길손", "text": "…하필, 저 집이라니.", "next": "d" },
+    "d": { "speaker": "길손", "text": "내 등을 후린 그 마당에, 내 발로 들어가야 한다는 말인가.", "next": null }
   }
 }

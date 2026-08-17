@@ -1,27 +1,21 @@
 extends Control
 ##
 ## 「해원」 엔딩 — 「빈 강」. 동튼 강 위에 떠가는 물등들. 글자 없는 고요.
-##  · 마지막 굽이(윤슬 천도) 후 도달. 사이드 진혼/단서 발견 수에 따라 등불 개수·마지막 한 줄 변주.
+##  · 마지막 굽이(7막) 후 도달. **엔딩 4종**(EndingResolver 판정)에 따라 제목·본문·등불 수·빛깔이 갈린다.
 ##  · 전부 코드 드로잉 + 물등 스프라이트 — 셰이더/외부 에셋 추가 import 불필요(웹 빌드에 바로 보임).
 ##
 
 const MENU := "res://scenes/ui/MainMenu.tscn"
 const FIRST := "res://scenes/levels/Haewon0Prologue.tscn"
 const LANTERN_TEX := "res://assets/tilesets/mul_deung.png"
-## 6굽이에 흩어둔 환경 단서 플래그(발견할수록 등불↑·마지막 줄 변주). STORY_BIBLE '환경 서사'.
-const CLUE_FLAGS := [
-    "haewon_clue_boat",            # 1굽이 — 부서진 나룻배
-    "haewon_tongmun_found",        # 2굽이 — 진흙에 묻힌 통문
-    "haewon_clue_chasa",           # 3굽이 — 못 떠난 넋(차사 매듭)
-    "haewon_clue_shoe",            # 5굽이 — 한 짝뿐인 꽃신
-    "haewon_clue_ring",            # 5굽이 — 정표 가락지
-    "haewon_yunseul_token_found",  # 5굽이 — 윤슬의 비녀
-]
 
 var _t := 0.0
 var _horizon := 0.62          # 화면 높이 대비 지평선 비율
 var _lanterns: Array = []     # {spr, speed, phase, base_y}
 var _line: Label
+var _title: Label
+var _lines: Array = []
+var _ending_id: String = ""
 var _buttons: VBoxContainer
 
 
@@ -29,13 +23,13 @@ func _ready() -> void:
     set_anchors_preset(Control.PRESET_FULL_RECT)
     resized.connect(queue_redraw)
 
-    # 발견한 환경 단서 수 → 정성의 척도. 등불 개수·마지막 한 줄 변주.
-    # (각 굽이에 흩어둔 흔적: 나룻배·통문·차사매듭·꽃신·가락지·비녀. STORY_BIBLE '환경 서사'.)
-    var found := 0
-    for f in CLUE_FLAGS:
-        if Flags.has_flag(f):
-            found += 1
-    var lantern_count := 3 + found    # 3~9
+    # v2: 엔딩 4종 중 하나를 플래그로 판정(EndingResolver). 저울은 '얼마나 자기를 태웠나'.
+    _ending_id = EndingResolver.resolve()
+    var pres := EndingResolver.presentation(_ending_id)
+    _lines = pres.get("lines", [])
+    var lantern_count := int(pres.get("lanterns", 5))
+    var lantern_tint: Color = pres.get("tint", Color(1.0, 0.95, 0.82))
+    print("[Ending] %s" % _ending_id)
 
     var tex: Texture2D = load(LANTERN_TEX) if ResourceLoader.exists(LANTERN_TEX) else null
     var vp := get_viewport_rect().size
@@ -45,21 +39,34 @@ func _ready() -> void:
             spr.texture = tex
             spr.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
             spr.scale = Vector2(0.45, 0.45)
-        spr.modulate = Color(1.0, 0.95, 0.82, 0.96)
+        spr.modulate = Color(lantern_tint.r, lantern_tint.g, lantern_tint.b, 0.96)
         var base_y := vp.y * (0.66 + 0.06 * float(i % 3))
         spr.position = Vector2(vp.x * (0.12 + 0.2 * i), base_y)
         add_child(spr)
         _lanterns.append({"spr": spr, "speed": 14.0 + 5.0 * (i % 3), "phase": float(i) * 1.3, "base_y": base_y})
 
-    # 마지막 한 줄(고요 뒤 천천히 떠오름)
+    # 엔딩 제목 — 고요가 한참 흐른 뒤 먹빛으로 떠오른다.
+    _title = Label.new()
+    _title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+    _title.set_anchors_preset(Control.PRESET_CENTER)
+    _title.anchor_left = 0.5; _title.anchor_right = 0.5; _title.anchor_top = 0.5; _title.anchor_bottom = 0.5
+    _title.offset_left = -360; _title.offset_right = 360; _title.offset_top = -150; _title.offset_bottom = -90
+    _title.add_theme_color_override("font_color", Color(0.24, 0.2, 0.17))
+    _title.add_theme_font_size_override("font_size", 46)
+    _title.text = String(pres.get("title", ""))
+    _title.modulate = Color(1, 1, 1, 0)
+    add_child(_title)
+
+    # 본문 — 한 줄씩 차례로 떠오른다(고점에서 비우기: 줄 사이를 넉넉히 둔다).
     _line = Label.new()
     _line.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+    _line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
     _line.set_anchors_preset(Control.PRESET_CENTER)
     _line.anchor_left = 0.5; _line.anchor_right = 0.5; _line.anchor_top = 0.5; _line.anchor_bottom = 0.5
-    _line.offset_left = -360; _line.offset_right = 360; _line.offset_top = -40; _line.offset_bottom = 20
+    _line.offset_left = -420; _line.offset_right = 420; _line.offset_top = -40; _line.offset_bottom = 40
     _line.add_theme_color_override("font_color", Color(0.28, 0.24, 0.20))
     _line.add_theme_font_size_override("font_size", 22)
-    _line.text = _closing_line(found)
+    _line.text = ""
     _line.modulate = Color(1, 1, 1, 0)
     add_child(_line)
 
@@ -67,10 +74,18 @@ func _ready() -> void:
     add_child(_buttons)
     _buttons.modulate = Color(1, 1, 1, 0)
 
-    # 완급: 한참 고요 → 마지막 줄 → 버튼.
-    await get_tree().create_timer(3.0).timeout
-    create_tween().tween_property(_line, "modulate:a", 1.0, 2.0)
-    await get_tree().create_timer(3.0).timeout
+    # 완급: 한참 고요 → 제목 → 본문 한 줄씩 → 버튼.
+    await get_tree().create_timer(2.6).timeout
+    create_tween().tween_property(_title, "modulate:a", 1.0, 1.6)
+    await get_tree().create_timer(2.4).timeout
+    for l in _lines:
+        _line.text = String(l)
+        var lt := create_tween()
+        lt.tween_property(_line, "modulate:a", 1.0, 1.0)
+        await get_tree().create_timer(3.4).timeout
+        var ot := create_tween()
+        ot.tween_property(_line, "modulate:a", 0.0, 0.8)
+        await get_tree().create_timer(1.0).timeout
     var tw := create_tween()
     tw.tween_property(_buttons, "modulate:a", 1.0, 1.2)
     tw.tween_callback(_focus_first_button)
@@ -93,16 +108,6 @@ func _process(delta: float) -> void:
         if spr.position.x > w + 60.0:
             spr.position.x = -60.0
 
-
-## 발견한 단서 수에 따라 마지막 한 줄을 4단계로 변주(0 / 적음 / 중간 / 거의 다).
-func _closing_line(found: int) -> String:
-    if found >= 5:
-        return "강은 다시 고요하다. 물 위로 첫 빛이 깔리자, 흘려보낸 것들이 모두 그 빛 속에 있었다."
-    elif found >= 3:
-        return "강은 다시 고요하다. 물비늘마다, 잊어버린 이름들이 잠깐씩 반짝였다."
-    elif found >= 1:
-        return "강은 다시 고요하다. 등불 몇이 천천히 멀어진다."
-    return "강은 다시 고요하다."
 
 
 func _build_buttons() -> VBoxContainer:

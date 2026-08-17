@@ -14,9 +14,10 @@ const TILE := "res://assets/tilesets/%s.png"
 
 # 컷 래퍼 .tscn (루트 Cutscene 노드, cutscene_id export)
 const WRAPPERS := [
+	"res://scenes/cutscenes/CutShrineNight.tscn",
 	"res://scenes/cutscenes/CutRecallYunseul.tscn",
-	"res://scenes/cutscenes/CutWatergate.tscn",
-	"res://scenes/cutscenes/CutFloodNight.tscn",
+	"res://scenes/cutscenes/CutYardBeating.tscn",
+	"res://scenes/cutscenes/CutRequestNight.tscn",
 ]
 
 
@@ -26,7 +27,7 @@ func _ready() -> void:
 	for w in WRAPPERS:
 		results.append(_check_wrapper_chain(w))
 	results.append(_check_haewon_clear_cutscene("res://assets/stages/haewon_1_ferry.json"))
-	results.append(_check_haewon_clear_cutscene("res://assets/stages/haewon_4_watergate.json"))
+	results.append(_check_haewon_clear_cutscene("res://assets/stages/haewon_3_village.json"))
 	results.append(_check_haewon_auto_cutscene("res://assets/stages/haewon_5_emptytown.json"))
 	results.append(await _check_scene_manager_roundtrip())
 	results.append(await _check_auto_cutscene_built())
@@ -144,7 +145,7 @@ func _check_scene_manager_roundtrip() -> Dictionary:
 	var prev := SceneManager.transitions_enabled
 	SceneManager.transitions_enabled = false   # 실제 씬 전환 차단(컨텍스트만 검사)
 	var ret_path := "res://scenes/levels/Haewon4Watergate.tscn"
-	await SceneManager.play_cutscene("res://scenes/cutscenes/CutWatergate.tscn", ret_path, &"from_recall")
+	await SceneManager.play_cutscene("res://scenes/cutscenes/CutShrineNight.tscn", ret_path, &"from_recall")
 	var stored_ok := SceneManager._cut_return_path == ret_path and SceneManager._cut_return_entry == &"from_recall"
 	var consumed := await SceneManager.return_from_cutscene()   # transitions off → false, 컨텍스트는 소비
 	var cleared := SceneManager._cut_return_path == ""

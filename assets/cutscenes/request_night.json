@@ -1,0 +1,17 @@
+{
+  "_note": "v2 5막 컷 — 비 오는 밤, 강가 움집 앞의 부탁. 바깥이므로 원경은 두되 밤·비로 눌러 어둡게. 인물 둘이 마주 선 구도. 수묵 아님(현재 시점의 장면이라 색을 남긴다).",
+  "backdrop": { "sky": [0.1, 0.11, 0.16], "tint": [0.42, 0.46, 0.56], "far_scale": 0.1, "night_luminance": 0.3, "mist": true },
+  "ground": { "tex": "ground_dirt", "width": 2000, "x": -200 },
+  "props": [
+    { "tex": "house_thatch", "x": 420, "y": 690, "scale": 2.0, "offset": [-48, -76] },
+    { "tex": "mul_deung", "x": 300, "y": 690, "scale": 0.8, "offset": [-48, -96] },
+    { "tex": "wood_platform", "x": 900, "y": 692, "scale": 1.6, "offset": [-32, -8] }
+  ],
+  "figures": [
+    { "sprite": "res://assets/sprites/cutscene/gilson_young/idle.png", "x": 620, "y": 690, "scale": 1.8, "flip": false },
+    { "sprite": "res://assets/sprites/cutscene/yunseul/idle.png", "x": 820, "y": 690, "scale": 1.8, "flip": true }
+  ],
+  "camera": { "x": 720, "y": 450 },
+  "tone": "",
+  "dialogue": "res://assets/dialogue/haewon/request_night.json"
+}

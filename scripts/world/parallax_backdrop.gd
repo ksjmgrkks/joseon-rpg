@@ -33,6 +33,10 @@ class_name ParallaxBackdrop
 @export var cloud_drift: float = -7.0
 # 수묵 산안개 띠 표시 여부.
 @export var mist: bool = true
+## 원경 산·솔숲을 그릴지. 담 안(마당·곳간·사당) 장면은 false — 하늘과 담만 남는다.
+@export var mountains: bool = true
+## 흐르는 구름을 그릴지. 실내에 준하는 장면은 false.
+@export var clouds: bool = true
 # 야간 분위기 자동 판정 임계(하늘 휘도). 이보다 어두우면 별/반딧불 표시. 음수면 끔.
 @export var night_luminance: float = 0.55
 
@@ -54,11 +58,15 @@ var _ambience: Node2D = null
 
 func _ready() -> void:
     _add_sky()
-    _add_clouds()
-    if ResourceLoader.exists(MTN_FAR) and ResourceLoader.exists(MTN_HILL):
-        _build_mountains()
-    else:
-        _build_legacy_strips()
+    if clouds:
+        _add_clouds()
+    # 담 안 마당·곳간·사당처럼 '닫힌 공간'에서는 원경 산·솔숲을 끈다.
+    # (기와집 마당 뒤로 산맥이 보이면 장면이 어그러진다 — 2026-08-18 사용자 지적.)
+    if mountains:
+        if ResourceLoader.exists(MTN_FAR) and ResourceLoader.exists(MTN_HILL):
+            _build_mountains()
+        else:
+            _build_legacy_strips()
     _add_ambience()
 
 

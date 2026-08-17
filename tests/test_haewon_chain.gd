@@ -28,7 +28,7 @@ func _ready() -> void:
     for src in CHAIN:
         results.append(await _check_stage(src, CHAIN[src]))
     results.append(await _check_gate_erases_memory())
-    results.append(await _check_no_combat_gut_erases())
+    results.append(await _check_every_gut_wired())
 
     var passed := 0
     for r in results:
@@ -99,21 +99,33 @@ func _check_gate_erases_memory() -> Dictionary:
     return {"name": "gate_erases_memory", "status": PASS, "reason": ""}
 
 
-# 전투 없는 굽이(빈 고을 = gut 5)는 진입 직후 'almost_all' 이 지워진다(타이머 0.6s 후).
-func _check_no_combat_gut_erases() -> Dictionary:
-    Flags.clear()
-    MemoryLedger.reset()
-    var s: Node = load("res://scenes/levels/Haewon5EmptyTown.tscn").instantiate()
-    add_child(s)
-    await get_tree().process_frame
-    var gates := _find(s, "CombatGate")
-    await get_tree().create_timer(0.9).timeout
-    var ok := MemoryLedger.is_erased("almost_all")
-    var no_gate := gates.is_empty()
-    s.queue_free()
-    await get_tree().process_frame
-    if not no_gate:
-        return {"name": "no_combat_gut_erases", "status": FAIL, "reason": "빈 고을에 결계가 생김(적 없어야 함)"}
-    if not ok:
-        return {"name": "no_combat_gut_erases", "status": FAIL, "reason": "진입 후에도 almost_all 미소거"}
-    return {"name": "no_combat_gut_erases", "status": PASS, "reason": ""}
+# v2: 모든 굽이(0~6)가 전투 굽이다. 각 스테이지에 결계가 서고, 결계가 열리면 그 굽이의
+# 기억 조각이 지워지는지 전수 확인한다 — 배선이 한 굽이라도 빠지면 이야기가 그 자리에서 멈춘다.
+func _check_every_gut_wired() -> Dictionary:
+    var scenes := [
+        ["res://scenes/levels/Haewon0Prologue.tscn", "a_face"],
+        ["res://scenes/levels/Haewon1Ferry.tscn", "her_voice"],
+        ["res://scenes/levels/Haewon2Market.tscn", "mother"],
+        ["res://scenes/levels/Haewon3Village.tscn", "true_name"],
+        ["res://scenes/levels/Haewon4Watergate.tscn", "the_vow"],
+        ["res://scenes/levels/Haewon5EmptyTown.tscn", "almost_all"],
+        ["res://scenes/levels/Haewon6Yunseul.tscn", "yunseul"],
+    ]
+    for pair in scenes:
+        Flags.clear()
+        MemoryLedger.reset()
+        var s: Node = load(String(pair[0])).instantiate()
+        add_child(s)
+        await get_tree().process_frame
+        await get_tree().process_frame
+        var gates := _find(s, "CombatGate")
+        if gates.is_empty():
+            s.queue_free()
+            return {"name": "every_gut_wired", "status": FAIL, "reason": "%s: 결계 미생성" % pair[0]}
+        gates[0].opened.emit()
+        var ok := MemoryLedger.is_erased(String(pair[1]))
+        s.queue_free()
+        await get_tree().process_frame
+        if not ok:
+            return {"name": "every_gut_wired", "status": FAIL, "reason": "%s: %s 미소거" % [pair[0], pair[1]]}
+    return {"name": "every_gut_wired", "status": PASS, "reason": "7굽이"}
