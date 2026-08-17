@@ -5,7 +5,8 @@ extends CharacterBody2D
 ##
 
 const GRAVITY: float = 980.0
-const KNOCKBACK_DECAY: float = 1200.0  # px/s² 마찰
+const KNOCKBACK_DECAY: float = 800.0   # px/s² 마찰 (낮을수록 멀리 밀림)
+const KNOCK_RECEIVE: float = 1.6       # 받는 넉백 배수 — 타격감
 
 @export var xp_reward: int = 8
 
@@ -14,10 +15,13 @@ const KNOCKBACK_DECAY: float = 1200.0  # px/s² 마찰
 @onready var hurtbox: Hurtbox = $Hurtbox
 
 var _knockback_vel: float = 0.0
+var _spr_base_scale: Vector2 = Vector2.ZERO   # 피격 squash 복귀 기준
 
 
 func _ready() -> void:
     add_to_group("enemy")
+    if sprite:
+        _spr_base_scale = sprite.scale
     # 적 몸은 월드(bit3=4)에만 부딪히고 플레이어·다른 적은 통과 (메탈슬러그식).
     collision_layer = 2
     collision_mask = 4
@@ -41,11 +45,26 @@ func _physics_process(delta: float) -> void:
 
 
 func _on_hurt(damage: float, knockback: float, _attacker: Node) -> void:
-    _knockback_vel = knockback
-    velocity.y = -160.0
+    _knockback_vel = knockback * KNOCK_RECEIVE
+    velocity.y = -130.0
     # 피격음은 공격자(플레이어) 측 _on_hitbox_landed 에서 1회 재생.
     FloatingNumber.spawn(get_tree().current_scene, global_position, "-%d" % int(damage), Color(1, 0.6, 0.55))
-    SkillFx.hit_flash(sprite, Color.WHITE)
+    SkillFx.hit_flash(sprite, Color.WHITE, 0.2)
+    _hit_jolt(signf(knockback))
+
+
+# 피격 움찔 — 납작 눌렸다 되돌아오고 밀리는 쪽으로 휘청(patroller 와 동일 손맛).
+func _hit_jolt(dir: float = 0.0) -> void:
+    if sprite == null or not is_instance_valid(sprite):
+        return
+    if _spr_base_scale == Vector2.ZERO:
+        _spr_base_scale = sprite.scale
+    sprite.scale = _spr_base_scale * Vector2(1.26, 0.76)
+    var tw := sprite.create_tween()
+    tw.tween_property(sprite, "scale", _spr_base_scale, 0.18).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+    if dir != 0.0:
+        sprite.rotation = 0.22 * dir
+        tw.parallel().tween_property(sprite, "rotation", 0.0, 0.26).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 
 func _on_hp_changed(hp: float, max_hp: float) -> void:

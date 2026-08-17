@@ -49,6 +49,8 @@ var _attacking_blink: bool = false
 var _phase: int = 1
 # 스프라이트 기본 틴트 — 평소 흰색(원본색), 페이즈 2 에서 핏빛.
 var _tint_base: Color = Color.WHITE
+# 피격 squash 복귀 기준(드리프트 방지)
+var _spr_base_scale: Vector2 = Vector2.ZERO
 # 플레이어를 처음 교전하는 순간 등장 연출을 한 번만 재생.
 var _engaged: bool = false
 
@@ -77,10 +79,14 @@ func _ready() -> void:
     hurtbox.hurt.connect(_on_hurt)
     health.hp_changed.connect(_on_hp_changed)
     health.died.connect(_on_died)
-    # 보스는 폭이 더 넓게 잘 보이도록 y_offset 만 살짝 위. 폭은 EnemyHpBar 기본값 유지.
-    var bar := EnemyHpBar.attach_to(self, health)
-    bar.position.y = -44
+    if sprite:
+        _spr_base_scale = sprite.scale
+    # 보스 바는 더 두껍고 넓게. 높이는 EnemyHpBar 가 스프라이트를 재서 머리 위에 건다.
+    var bar := EnemyHpBar.attach_to(self, health, true)
     _make_warn()
+    # 경고 '!' 는 HP 바보다 더 위에 — 겹쳐서 바를 가리지 않게.
+    if _warn:
+        _warn.position.y = bar.position.y - 44.0
 
 
 # 돌진 예고 경고 표시 — 머리 위 붉은 '!' (텔레그래프 중에만)
@@ -241,16 +247,31 @@ func _player() -> Node2D:
 func _on_hurt(damage: float, knockback: float, _attacker: Node) -> void:
     if _state == State.DEAD:
         return
-    velocity.x += knockback * 0.3   # 보스는 잘 안 밀림
+    velocity.x += knockback * 0.5   # 보스는 잘 안 밀림(그래도 반응은 보이게)
     # 피격음은 공격자(플레이어) 측 _on_hitbox_landed 에서 1회 재생.
     FloatingNumber.spawn(get_tree().current_scene, global_position, "-%d" % int(damage), Color(1, 0.55, 0.50))
+    _hit_jolt(signf(knockback))
     if sprite and not _attacking_blink:
         _attacking_blink = true
-        sprite.modulate = Color(1.7, 1.7, 1.7, 1)   # 흰빛 번쩍(과노출)
-        await get_tree().create_timer(0.08).timeout
+        sprite.modulate = Color(1.9, 1.9, 1.9, 1)   # 흰빛 번쩍(과노출)
+        await get_tree().create_timer(0.1).timeout
         if is_instance_valid(sprite):
             sprite.modulate = _tint_base
         _attacking_blink = false
+
+
+# 보스 피격 움찔 — 덩치가 크므로 얕게(밀리진 않아도 맞은 티는 나게).
+func _hit_jolt(dir: float = 0.0) -> void:
+    if sprite == null or not is_instance_valid(sprite):
+        return
+    if _spr_base_scale == Vector2.ZERO:
+        _spr_base_scale = sprite.scale
+    sprite.scale = _spr_base_scale * Vector2(1.12, 0.9)
+    var tw := sprite.create_tween()
+    tw.tween_property(sprite, "scale", _spr_base_scale, 0.16).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+    if dir != 0.0:
+        sprite.rotation = 0.1 * dir
+        tw.parallel().tween_property(sprite, "rotation", 0.0, 0.22).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 
 func _on_died() -> void:

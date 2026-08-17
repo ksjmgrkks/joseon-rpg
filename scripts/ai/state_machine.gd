@@ -9,7 +9,8 @@ class_name StateMachine
 @export var actor_path: NodePath
 
 # 피격 경직 중 넉백 감쇠(px/s²) — 클수록 빨리 멈춤.
-const KNOCK_FRICTION: float = 900.0
+# 낮출수록 맞은 적이 더 멀리 미끄러진다(타격감 튜닝 지점).
+const KNOCK_FRICTION: float = 620.0
 
 var current: AIState = null
 var states: Dictionary = {}

@@ -448,6 +448,8 @@ func _on_hitbox_landed(area: Area2D) -> void:
         1: ScreenFx.hit_stop(0.035, 0.18)
         2: ScreenFx.hit_stop(0.05, 0.10)
         _: ScreenFx.hit_stop(0.09, 0.03)
+    # 폰 햅틱 — 타수가 커질수록 길게(손끝 타격감). 데스크톱은 무시됨.
+    ScreenFx.rumble(10 + 8 * _combo_step)
     # 적중 임팩트 스파크 — 히트박스 위치 근처
     var fx_pos := area.global_position if area else (global_position + Vector2(0, -16))
     SkillFx.impact(fx_pos, _combo_step >= 3)
@@ -640,6 +642,7 @@ func _on_hp_changed(hp: float, max_hp: float) -> void:
     if hp < _last_hp:
         Audio.play_sfx(Sfx.HURT)
         ScreenFx.shake(4.0, 0.14)
+        ScreenFx.rumble(45)      # 내가 맞을 때는 길고 굵게(적중과 구분)
         _hurt_flash()
     _last_hp = hp
 

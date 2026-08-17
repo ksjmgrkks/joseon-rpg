@@ -57,6 +57,18 @@ func hit_stop(duration: float = 0.06, scale: float = 0.05) -> void:
     _hit_stopping = false
 
 
+## 햅틱(진동) — 폰에서 타격을 손끝으로 느끼게. 데스크톱/헤드리스에선 조용히 무시.
+## 모바일 앱(Android/iOS) 및 안드로이드 브라우저(Web)에서 동작.
+var haptics_enabled: bool = true
+
+func rumble(ms: int = 18) -> void:
+    if not haptics_enabled:
+        return
+    var os_name := OS.get_name()
+    if os_name == "Android" or os_name == "iOS" or os_name == "Web":
+        Input.vibrate_handheld(clampi(ms, 1, 300))
+
+
 func _current_camera() -> Camera2D:
     var tree := get_tree()
     if tree == null:

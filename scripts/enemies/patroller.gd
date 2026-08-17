@@ -32,6 +32,9 @@ var _ranged_cd: float = 0.0
 @onready var hurtbox: Hurtbox = $Hurtbox
 @onready var health: HealthComponent = $HealthComponent
 
+# 피격 시 받는 넉백 배수 — 타격감 튜닝 지점(값을 키우면 더 멀리 밀려남).
+const KNOCK_RECEIVE: float = 1.6
+
 var _dying: bool = false
 var _attacking: bool = false
 var _atk_cd: float = 0.0
@@ -132,22 +135,28 @@ func can_see_player() -> bool:
 
 func _on_hurt(damage: float, knockback: float, _attacker: Node) -> void:
     # 넉백 세기에 비례한 경직(작은 타격 짧게, 강타 길게). StateMachine 이 이 동안 AI 정지.
-    hitstun = clampf(0.12 + absf(knockback) / 1400.0, 0.12, 0.4)
-    velocity.x = knockback
-    velocity.y = -90.0          # 살짝만 뜸(예전 -160 은 붕 떠 둔탁)
+    hitstun = clampf(0.18 + absf(knockback) / 1200.0, 0.18, 0.5)
+    # 받는 넉백 배수 — 맞으면 확실히 뒤로 밀려나야 때린 맛이 난다.
+    velocity.x = knockback * KNOCK_RECEIVE
+    velocity.y = -110.0         # 살짝만 뜸(예전 -160 은 붕 떠 둔탁)
     # 피격음은 공격자(플레이어) 측 _on_hitbox_landed 에서 1회 — 광역타에 적마다 중복 재생 안 되게.
     FloatingNumber.spawn(get_tree().current_scene, global_position, "-%d" % int(damage), Color(1, 0.6, 0.55))
-    SkillFx.hit_flash(sprite, Color.WHITE)
-    _hit_jolt()
+    SkillFx.hit_flash(sprite, Color.WHITE, 0.2)
+    _hit_jolt(signf(knockback))
+    # 밀려나는 동안 잔상 — 뒤로 끌려가는 궤적이 보이게(창백한 넋빛).
+    SkillFx.afterimage_burst(sprite, Color(0.82, 0.88, 0.95), 3, minf(hitstun, 0.22))
 
 
-# 피격 움찔 — 스프라이트를 가로로 납작 눌렀다 되돌린다(squash). 타격의 살점 느낌.
-func _hit_jolt() -> void:
+# 피격 움찔 — 스프라이트를 가로로 납작 눌렀다 되돌리고(squash), 밀리는 쪽으로 몸이 젖혀진다.
+func _hit_jolt(dir: float = 0.0) -> void:
     if sprite == null or not is_instance_valid(sprite):
         return
-    sprite.scale = _spr_base_scale * Vector2(1.22, 0.8)
+    sprite.scale = _spr_base_scale * Vector2(1.26, 0.76)
     var tw := sprite.create_tween()
-    tw.tween_property(sprite, "scale", _spr_base_scale, 0.16).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+    tw.tween_property(sprite, "scale", _spr_base_scale, 0.18).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+    if dir != 0.0:
+        sprite.rotation = 0.22 * dir       # 맞은 방향으로 휘청
+        tw.parallel().tween_property(sprite, "rotation", 0.0, 0.26).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 
 func _on_hp_changed(hp: float, max_hp: float) -> void:
