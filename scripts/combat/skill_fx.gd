@@ -589,38 +589,99 @@ func impact(pos: Vector2, big: bool = false) -> void:
 
 
 # ── 호신부: 플레이어를 도는 부적 오라 (반환 노드를 free 하면 사라짐) ──
+## 호신부 오라 — 몸을 감싸고 도는 부적 세 장 + 이중 금빛 후광.
+## 부적은 한지빛 바탕에 붉은 주사(朱砂) 글씨와 먹 테두리, 각자 살짝 흔들리며 돈다.
 func attach_ward(player: Node2D) -> Node2D:
     var ward := Node2D.new()
     ward.z_index = 20
     player.add_child(ward)
     ward.position = Vector2(0, -16)
+
+    # ① 바깥 후광 2겹 — 굵은 은은한 빛 + 가는 선명한 금선(숨쉬듯 맥동)
+    var glow := _line(_circle_pts(30.0, 28), 7.0, Color(LANTERN.r, LANTERN.g, LANTERN.b, 0.22), 19)
+    ward.add_child(glow)
+    var rim := _line(_circle_pts(30.0, 28), 1.6, Color(GOLD.r, GOLD.g, GOLD.b, 0.75), 21)
+    ward.add_child(rim)
+    for n: Line2D in [glow, rim]:
+        var bt := n.create_tween().set_loops()
+        bt.tween_property(n, "scale", Vector2(1.07, 1.07), 0.9).set_trans(Tween.TRANS_SINE)
+        bt.tween_property(n, "scale", Vector2.ONE, 0.9).set_trans(Tween.TRANS_SINE)
+
+    # ② 부적 세 장 — 궤도 위에서 각자 흔들린다
     for i in range(3):
         var holder := Node2D.new()
         holder.rotation = TAU * i / 3.0
         ward.add_child(holder)
+
+        var talisman := Node2D.new()
+        talisman.position = Vector2(0, -30)
+        holder.add_child(talisman)
+        # 한지 바탕(세로로 긴 부적) + 먹 테두리
         var paper := Polygon2D.new()
         paper.polygon = PackedVector2Array([
-            Vector2(-3, -5), Vector2(3, -5), Vector2(3, 5), Vector2(-3, 5)])
-        paper.color = BRIGHT
-        paper.position = Vector2(0, -26)
-        holder.add_child(paper)
-        var mark := Line2D.new()
-        mark.width = 1.0
-        mark.default_color = RED
-        mark.points = PackedVector2Array([Vector2(0, -30), Vector2(0, -22)])
-        holder.add_child(mark)
-    var halo := Line2D.new()
-    halo.width = 2.0
-    halo.default_color = Color(GOLD.r, GOLD.g, GOLD.b, 0.5)
-    var hp := PackedVector2Array()
-    for i in range(25):
-        var a := TAU * i / 24.0
-        hp.append(Vector2(cos(a), sin(a)) * 28.0)
-    halo.points = hp
-    ward.add_child(halo)
+            Vector2(-4.5, -8), Vector2(4.5, -8), Vector2(4.5, 8), Vector2(-4.5, 8)])
+        paper.color = Color(0.96, 0.93, 0.84, 0.96)
+        talisman.add_child(paper)
+        var border := _line(PackedVector2Array([
+            Vector2(-4.5, -8), Vector2(4.5, -8), Vector2(4.5, 8), Vector2(-4.5, 8), Vector2(-4.5, -8)]),
+            1.0, Color(INK.r, INK.g, INK.b, 0.75), 22)
+        talisman.add_child(border)
+        # 붉은 주사 글씨 — 세로획 + 가로획 둘(글자처럼 보이는 최소 획)
+        for seg in [[Vector2(0, -5.5), Vector2(0, 5.5)], [Vector2(-2.5, -2.5), Vector2(2.5, -2.5)],
+                [Vector2(-2.5, 2.0), Vector2(2.5, 2.0)]]:
+            var stroke := _line(PackedVector2Array([seg[0], seg[1]]), 1.2, Color(0.78, 0.22, 0.20, 0.95), 23)
+            talisman.add_child(stroke)
+        # 종이가 나부끼듯 — 좌우로 살짝 기울었다 돌아옴(장마다 위상 다르게)
+        var ft := talisman.create_tween().set_loops()
+        ft.tween_interval(i * 0.18)
+        ft.tween_property(talisman, "rotation", 0.22, 0.7).set_trans(Tween.TRANS_SINE)
+        ft.tween_property(talisman, "rotation", -0.22, 1.4).set_trans(Tween.TRANS_SINE)
+        ft.tween_property(talisman, "rotation", 0.0, 0.7).set_trans(Tween.TRANS_SINE)
+        # 부적마다 달고 도는 작은 불티
+        _ward_ember(talisman)
+
     var tw := ward.create_tween().set_loops()
-    tw.tween_property(ward, "rotation", TAU, 2.2)
+    tw.tween_property(ward, "rotation", TAU, 3.0)
     return ward
+
+
+# 부적에 매달린 작은 금빛 불티 — 위아래로 떠다닌다.
+func _ward_ember(parent: Node2D) -> void:
+    var ember := Polygon2D.new()
+    var s := 1.6
+    ember.polygon = PackedVector2Array([Vector2(0, -s), Vector2(s, 0), Vector2(0, s), Vector2(-s, 0)])
+    ember.color = Color(LANTERN.r, LANTERN.g, LANTERN.b, 0.9)
+    ember.position = Vector2(7, 4)
+    parent.add_child(ember)
+    var tw := ember.create_tween().set_loops()
+    tw.tween_property(ember, "position", Vector2(7, -4), 0.8).set_trans(Tween.TRANS_SINE)
+    tw.parallel().tween_property(ember, "modulate:a", 0.35, 0.8)
+    tw.tween_property(ember, "position", Vector2(7, 4), 0.8).set_trans(Tween.TRANS_SINE)
+    tw.parallel().tween_property(ember, "modulate:a", 1.0, 0.8)
+
+
+## 호신부 발동 순간 — 한지 조각이 모여들며 금빛 파문이 퍼진다.
+func ward_cast(pos: Vector2) -> void:
+    var host := _host()
+    if host == null:
+        return
+    var center := pos + Vector2(0, -16)
+    # 밖에서 몸으로 모여드는 한지 조각
+    for i in range(10):
+        var a := TAU * i / 10.0 + randf() * 0.3
+        var start := center + Vector2(cos(a), sin(a)) * randf_range(60.0, 96.0)
+        _mote(host, start, center, randf_range(2.0, 3.4),
+            Color(0.96, 0.93, 0.84) if i % 2 == 0 else LANTERN, 0.3, 33, true)
+    # 퍼져 나가는 금빛 파문 2겹 + 조여드는 링 1겹(가호가 몸에 앉는 느낌)
+    _pulse_ring(host, center, 20.0, 4.0, Color(GOLD.r, GOLD.g, GOLD.b, 0.85), 2.6, 0.44, 32)
+    _pulse_ring(host, center, 28.0, 2.0, Color(LANTERN.r, LANTERN.g, LANTERN.b, 0.7), 3.2, 0.52, 32)
+    var seal := _line(_circle_pts(54.0, 24), 3.0, Color(LANTERN.r, LANTERN.g, LANTERN.b, 0.8), 33)
+    seal.global_position = center
+    host.add_child(seal)
+    var st := seal.create_tween()
+    st.tween_property(seal, "scale", Vector2(0.55, 0.55), 0.32).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+    st.parallel().tween_property(seal, "modulate:a", 0.0, 0.32)
+    st.tween_callback(seal.queue_free)
 
 
 # ════════════ 전투 마무리 VFX (차지 오라 / 피격 플래시 / 혼 흩어짐 / 보스 등장) ════════════
@@ -834,3 +895,171 @@ func charge_ready(pos: Vector2) -> void:
         var a := TAU * i / 8.0
         var end := pos + Vector2(cos(a), sin(a)) * randf_range(16.0, 26.0)
         _mote(host, pos, end, randf_range(1.8, 2.8), GOLD, randf_range(0.22, 0.36), 34, false)
+
+
+# ════════════ 스킬1 「여울 가르기」 확장 — 시전 → 돌진 → 지나간 자리의 파도 ════════════
+
+## ① 시전(windup) — 발밑에 물이 감겨 들어온다. dur 초 동안 반복 연출.
+func river_gather(pos: Vector2, facing_right: bool, dur: float = 0.3) -> void:
+    var host := _host()
+    if host == null:
+        return
+    var dir := 1.0 if facing_right else -1.0
+    var center := pos + Vector2(0, -14)
+    # 물이 몸으로 빨려드는 알갱이 — 시전 내내 조금씩
+    var ticks := maxi(2, int(dur / 0.06))
+    for t in range(ticks):
+        if not is_instance_valid(host):
+            return
+        for i in range(2):
+            var a := randf() * TAU
+            var start := center + Vector2(cos(a), sin(a)) * randf_range(46.0, 78.0)
+            _mote(host, start, center + Vector2(dir * 8.0, randf_range(-6, 6)),
+                randf_range(1.8, 3.2), FOAM if i == 0 else WATER, 0.24, 33, true)
+        # 조여드는 물빛 링
+        if t % 3 == 0:
+            var ring := _line(_circle_pts(52.0, 20), 2.5, Color(WATER.r, WATER.g, WATER.b, 0.5), 30)
+            ring.global_position = center
+            host.add_child(ring)
+            var rt := ring.create_tween()
+            rt.tween_property(ring, "scale", Vector2(0.3, 0.3), 0.26).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+            rt.parallel().tween_property(ring, "modulate:a", 0.0, 0.26)
+            rt.tween_callback(ring.queue_free)
+        await get_tree().create_timer(0.06).timeout
+    # 발동 직전 — 앞으로 겨눈 물살이 한 번 번쩍
+    _pulse_ring(host, center, 16.0, 4.0, Color(FOAM.r, FOAM.g, FOAM.b, 0.9), 2.6, 0.2, 33)
+
+
+## ② 지나간 자리의 파도 — 돌진 중 일정 간격으로 호출. 뒤로 퍼지며 흩어지는 물마루.
+func wave_wake(pos: Vector2, facing_right: bool) -> void:
+    var host := _host()
+    if host == null:
+        return
+    var dir := 1.0 if facing_right else -1.0
+    var base := pos + Vector2(0, -6)
+    # 좌우로 갈라지는 물마루 2장(진행 방향 뒤쪽으로 벌어진다)
+    for side in [-1.0, 1.0]:
+        var pts := PackedVector2Array()
+        for i in range(9):
+            var t := i / 8.0
+            pts.append(Vector2(-dir * lerpf(0.0, 54.0, t), side * (10.0 + 26.0 * t) - 6.0))
+        var wave := _line(pts, 6.0, Color(WATER.r, WATER.g, WATER.b, 0.75), 28)
+        wave.width_curve = _belly_curve()
+        wave.global_position = base
+        host.add_child(wave)
+        var tw := wave.create_tween()
+        tw.tween_property(wave, "scale", Vector2(1.5, 1.9), 0.42).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+        tw.parallel().tween_property(wave, "modulate:a", 0.0, 0.42)
+        tw.tween_callback(wave.queue_free)
+    # 발밑에 남는 물자국 + 튀는 물방울
+    _pulse_ring(host, pos + Vector2(0, 2), 9.0, 2.0, Color(FOAM.r, FOAM.g, FOAM.b, 0.55), 2.8, 0.36, 27)
+    for i in range(3):
+        _mote(host, base, base + Vector2(-dir * randf_range(20.0, 60.0), randf_range(-34.0, -6.0)),
+            randf_range(1.4, 2.6), FOAM, randf_range(0.26, 0.42), 29)
+
+
+## ③ 마무리 — 멈춘 자리에서 물이 크게 터진다(물기둥 + 물보라).
+func river_burst(pos: Vector2, facing_right: bool) -> void:
+    var host := _host()
+    if host == null:
+        return
+    var dir := 1.0 if facing_right else -1.0
+    var center := pos + Vector2(dir * 18.0, -12.0)
+    # 솟구치는 물기둥 3겹
+    for L in [[18.0, Color(WATER_DEEP.r, WATER_DEEP.g, WATER_DEEP.b, 0.55)], [11.0, WATER], [5.0, FOAM]]:
+        var col := Line2D.new()
+        col.width = float(L[0])
+        col.default_color = L[1]
+        col.width_curve = _belly_curve()
+        col.points = PackedVector2Array([Vector2(0, 14), Vector2(dir * 6.0, -30.0), Vector2(dir * 2.0, -78.0)])
+        col.z_index = 34
+        col.global_position = center
+        col.scale = Vector2(0.7, 0.4)
+        host.add_child(col)
+        var tw := col.create_tween()
+        tw.tween_property(col, "scale", Vector2(1.15, 1.25), 0.2).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+        tw.parallel().tween_property(col, "modulate:a", 0.0, 0.34)
+        tw.tween_callback(col.queue_free)
+    # 사방으로 튀는 물보라
+    for i in range(14):
+        var a := -PI * 0.5 + randf_range(-1.5, 1.5)
+        var end := center + Vector2(cos(a), sin(a)) * randf_range(50.0, 120.0)
+        _mote(host, center, end, randf_range(1.8, 3.4), FOAM if i % 2 == 0 else WATER,
+            randf_range(0.3, 0.5), 33)
+    _pulse_ring(host, pos + Vector2(0, 2), 14.0, 4.0, Color(WATER.r, WATER.g, WATER.b, 0.7), 3.4, 0.42, 29)
+
+
+# ════════════ 스킬4 「귀창 강림」 — 공중 시전 → 내려찍기 ════════════
+
+## 공중에서 기를 모으는 동안의 연출. dur 초에 걸쳐 창들이 하늘에서 모여든다.
+func ultimate_charge(pos: Vector2, dur: float = 0.6) -> void:
+    var host := _host()
+    if host == null:
+        return
+    # 발밑(공중)에 떠 있는 역방향 진법 링 — 천천히 돌며 조여든다
+    var rune := _line(_circle_pts(70.0, 24), 3.0, Color(MAGE.r, MAGE.g, MAGE.b, 0.75), 36)
+    rune.global_position = pos
+    rune.scale = Vector2(1.4, 0.55)          # 원근감 있게 납작한 원
+    host.add_child(rune)
+    var rt := rune.create_tween()
+    rt.tween_property(rune, "rotation", TAU, dur)
+    rt.parallel().tween_property(rune, "scale", Vector2(0.7, 0.28), dur).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+    rt.parallel().tween_property(rune, "modulate:a", 0.0, dur)
+    rt.tween_callback(rune.queue_free)
+    # 하늘에서 내려와 몸 주위에 꽂히듯 모이는 창 8자루
+    for i in range(8):
+        var a := TAU * i / 8.0
+        var far := pos + Vector2(cos(a), sin(a)) * 190.0 + Vector2(0, -60.0)
+        var near := pos + Vector2(cos(a), sin(a)) * 34.0
+        var sp := _line(PackedVector2Array([Vector2.ZERO, (near - far).normalized() * 26.0]), 4.0, BRIGHT, 37)
+        sp.global_position = far
+        sp.modulate.a = 0.0
+        host.add_child(sp)
+        var tw := sp.create_tween()
+        tw.tween_interval(dur * 0.1 + i * (dur * 0.055))
+        tw.tween_property(sp, "modulate:a", 1.0, 0.06)
+        tw.parallel().tween_property(sp, "global_position", near, dur * 0.45).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+        tw.tween_property(sp, "modulate:a", 0.0, 0.12)
+        tw.tween_callback(sp.queue_free)
+    # 몸으로 빨려드는 마기 알갱이
+    var ticks := maxi(3, int(dur / 0.07))
+    for t in range(ticks):
+        if not is_instance_valid(host):
+            return
+        charge_aura_tick(pos, 2 if t > ticks / 2 else 1)
+        await get_tree().create_timer(0.07).timeout
+
+
+## 내려찍은 순간 — 좌우 지면을 따라 달려가는 충격파 + 갈라지는 금빛 균열.
+func ground_shock(pos: Vector2, reach: float = 320.0) -> void:
+    var host := _host()
+    if host == null:
+        return
+    for side in [-1.0, 1.0]:
+        # 지면을 따라 달려가는 먼지 벽
+        var wall := _line(PackedVector2Array([Vector2(0, 6), Vector2(0, -46)]), 14.0,
+            Color(BRIGHT.r, BRIGHT.g, BRIGHT.b, 0.55), 35)
+        wall.width_curve = _belly_curve()
+        wall.global_position = pos
+        host.add_child(wall)
+        var tw := wall.create_tween()
+        tw.tween_property(wall, "global_position", pos + Vector2(side * reach, 0), 0.34).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+        tw.parallel().tween_property(wall, "scale", Vector2(1.0, 1.6), 0.34)
+        tw.parallel().tween_property(wall, "modulate:a", 0.0, 0.34)
+        tw.tween_callback(wall.queue_free)
+        # 갈라지는 금빛 균열(지면 선)
+        var crack := PackedVector2Array()
+        var x := 0.0
+        while x < reach:
+            crack.append(Vector2(side * x, randf_range(-3.0, 3.0) + 6.0))
+            x += reach / 7.0
+        var cl := _line(crack, 3.0, Color(GOLD.r, GOLD.g, GOLD.b, 0.9), 34)
+        cl.global_position = pos
+        cl.scale = Vector2(0.1, 1.0)
+        host.add_child(cl)
+        var ct := cl.create_tween()
+        ct.tween_property(cl, "scale", Vector2(1.0, 1.0), 0.22).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+        ct.tween_interval(0.12)
+        ct.tween_property(cl, "modulate:a", 0.0, 0.3)
+        ct.tween_callback(cl.queue_free)
+    _ground_dust(pos)

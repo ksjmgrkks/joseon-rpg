@@ -3,13 +3,14 @@
     "ilseom": {
       "name": "여울 가르기",
       "slot": 1,
-      "desc": "강물을 갈라 앞으로 밀어내는 진혼의 물살 — 돌진하며 넓은 물마루로 앞의 넋을 씻어 보낸다.",
+      "desc": "물을 끌어모아 강물을 가르는 한 줄기 — 일직선으로 길게 내달리며 지나간 자리마다 파도를 남긴다.",
       "cooldown": 6.0,
       "unlock": { "type": "level", "value": 1 },
       "unlock_text": "처음부터 사용 가능",
       "damage_mult": 1.9,
-      "dash_speed": 430.0,
-      "dash_time": 0.22
+      "windup": 0.32,
+      "dash_speed": 560.0,
+      "dash_time": 0.42
     },
     "hoecheon": {
       "name": "진혼의 물등",
@@ -40,6 +41,7 @@
       "unlock_text": "처음부터 사용 가능",
       "ultimate": true,
       "damage_mult": 3.5,
+      "charge_time": 0.65,
       "radius": 360.0
     }
   }

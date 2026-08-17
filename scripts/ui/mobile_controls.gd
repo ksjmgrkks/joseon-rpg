@@ -16,6 +16,8 @@ class_name MobileControls
 const BASE_W := 1280.0
 const BASE_H := 720.0
 const SKILL_ICON := "res://assets/ui/skill_%s.png"
+## 판정원을 그림보다 이만큼 크게 — 손가락이 조금 빗나가도 눌리게.
+const HIT_MARGIN := 1.28
 
 # 한지·먹 팔레트 (STYLE_BIBLE 톤)
 const C_FILL := Color(0.90, 0.86, 0.76, 0.26)      # 한지빛 (반투명 — 화면을 덜 가림)
@@ -92,21 +94,21 @@ func _input(event: InputEvent) -> void:
 
 func _build() -> void:
     # 왼손 — 이동
-    _add_button("move_left", "◀", 52.0)
-    _add_button("move_right", "▶", 52.0)
-    _add_button("interact", "조사", 36.0)
+    _add_button("move_left", "◀", 58.0)
+    _add_button("move_right", "▶", 58.0)
+    _add_button("interact", "조사", 42.0)
     # 오른손 — 행동
-    _add_button("attack", "공격", 60.0)
-    _add_button("jump", "점프", 48.0)
-    _add_button("dodge", "회피", 44.0)
+    _add_button("attack", "공격", 66.0)
+    _add_button("jump", "점프", 54.0)
+    _add_button("dodge", "회피", 50.0)
     # 스킬 1~4 — 아이콘 + 쿨다운. slot 순으로 정렬해 1번이 엄지에 가장 가깝게 온다.
     var defs: Array = []
     for id in SkillManager.all_ids():
         defs.append({"id": String(id), "slot": int(SkillManager.get_def(id).get("slot", 1))})
     defs.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return int(a["slot"]) < int(b["slot"]))
     for d in defs:
-        var btn := _add_button("skill_%d" % int(d["slot"]), "", 34.0)
-        _attach_skill_face(btn, String(d["id"]), 34.0)
+        var btn := _add_button("skill_%d" % int(d["slot"]), "", 40.0)
+        _attach_skill_face(btn, String(d["id"]), 40.0)
     _layout()
 
 
@@ -137,19 +139,20 @@ func _layout() -> void:
     var h := vp.y - ins.w
     var l := ins.x
 
-    _place("move_left", Vector2(l + 112.0, h - 112.0))
-    _place("move_right", Vector2(l + 252.0, h - 112.0))
-    _place("interact", Vector2(l + 96.0, h - 244.0))
+    # 버튼이 커진 만큼(판정원 기준) 간격도 넓혀 서로 판정이 겹치지 않게 둔다.
+    _place("move_left", Vector2(l + 122.0, h - 120.0))
+    _place("move_right", Vector2(l + 275.0, h - 120.0))
+    _place("interact", Vector2(l + 100.0, h - 268.0))
 
-    _place("attack", Vector2(w - 132.0, h - 116.0))
-    _place("jump", Vector2(w - 254.0, h - 92.0))
-    _place("dodge", Vector2(w - 232.0, h - 216.0))
+    _place("attack", Vector2(w - 142.0, h - 128.0))
+    _place("jump", Vector2(w - 300.0, h - 104.0))
+    _place("dodge", Vector2(w - 320.0, h - 250.0))   # 스킬 줄 아래·점프 위
 
     # 스킬 4개 — 행동 클러스터 위 가로 한 줄(오른쪽부터 1→4)
-    var sx := w - 92.0
-    var sy := h - 300.0
+    var sx := w - 104.0
+    var sy := h - 380.0
     for i in range(_skill_btns.size()):
-        _place(String(_skill_btns[i]["action"]), Vector2(sx - 88.0 * i, sy))
+        _place(String(_skill_btns[i]["action"]), Vector2(sx - 108.0 * i, sy))
 
 
 func _place(action: String, center: Vector2) -> void:
@@ -162,22 +165,27 @@ func _place(action: String, center: Vector2) -> void:
 
 # ────────────────────────── 버튼 만들기 ──────────────────────────
 
+## 그려지는 원(radius)보다 판정원을 HIT_MARGIN 배 크게 잡는다 — 손가락이 조금 빗나가도
+## 눌리도록. 텍스처를 판정원 크기 캔버스에 '가운데 정렬'로 그려서 그림과 판정이 동심원이 된다.
 func _add_button(action: String, label: String, radius: float) -> TouchScreenButton:
+    var hit := radius * HIT_MARGIN
     var b := TouchScreenButton.new()
     b.action = action
-    b.texture_normal = _circle_tex(radius, C_FILL, C_EDGE, C_RING)
-    b.texture_pressed = _circle_tex(radius, C_FILL_ON, C_EDGE, C_RING_ON)
+    b.texture_normal = _circle_tex(radius, hit, C_FILL, C_EDGE, C_RING)
+    b.texture_pressed = _circle_tex(radius, hit, C_FILL_ON, C_EDGE, C_RING_ON)
     var shape := CircleShape2D.new()
-    shape.radius = radius
+    shape.radius = hit
     b.shape = shape
     b.shape_centered = false          # 텍스처(좌상단 기준)와 판정원을 정확히 겹치게
-    b.set_meta("radius", radius)
+    b.passby_press = true             # 손가락을 끌어 다른 버튼으로 넘어가도 눌린다(좌↔우 이동)
+    b.set_meta("radius", hit)         # 배치·테스트는 판정 반지름 기준
+    b.set_meta("draw_radius", radius)
     add_child(b)
     _buttons.append(b)
     if label != "":
         var lbl := Label.new()
         lbl.text = label
-        lbl.size = Vector2(radius * 2.0, radius * 2.0)
+        lbl.size = Vector2(hit * 2.0, hit * 2.0)
         lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
         lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
         lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -191,13 +199,16 @@ func _add_button(action: String, label: String, radius: float) -> TouchScreenBut
 
 ## 스킬 버튼 얼굴 — 아이콘 + 쿨다운 숫자(잠김이면 '잠김').
 func _attach_skill_face(b: TouchScreenButton, id: String, radius: float) -> void:
-    var pad := radius * 0.34
+    # 아이콘은 '그려지는 원' 안쪽에, 노드 좌표는 판정원(더 큰 캔버스) 기준이라 여백을 더한다.
+    var hit: float = float(b.get_meta("radius", radius))
+    var inset := hit - radius
+    var pad := inset + radius * 0.3
     var icon := TextureRect.new()
     icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
     icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
     icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
     icon.position = Vector2(pad, pad)
-    icon.size = Vector2(radius * 2.0 - pad * 2.0, radius * 2.0 - pad * 2.0)
+    icon.size = Vector2(hit * 2.0 - pad * 2.0, hit * 2.0 - pad * 2.0)
     icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
     var path := SKILL_ICON % id
     if ResourceLoader.exists(path):
@@ -205,7 +216,7 @@ func _attach_skill_face(b: TouchScreenButton, id: String, radius: float) -> void
     b.add_child(icon)
 
     var cd := Label.new()
-    cd.size = Vector2(radius * 2.0, radius * 2.0)
+    cd.size = Vector2(hit * 2.0, hit * 2.0)
     cd.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
     cd.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
     cd.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -248,11 +259,11 @@ func _update_skills() -> void:
 
 ## 한지 원 + 먹 테두리 + 안쪽 금빛 실선. 새 아트 없이 톤을 맞추기 위해 직접 그린다.
 ## 가장자리는 1px 부드럽게(계단 방지) — UI 라 픽셀 그리드 규칙의 예외.
-func _circle_tex(radius: float, fill: Color, edge: Color, ring: Color) -> ImageTexture:
-    var size := int(radius * 2.0)
+func _circle_tex(radius: float, canvas_r: float, fill: Color, edge: Color, ring: Color) -> ImageTexture:
+    var size := int(canvas_r * 2.0)
     var img := Image.create(size, size, false, Image.FORMAT_RGBA8)
     img.fill(Color(0, 0, 0, 0))
-    var c := Vector2(radius, radius)
+    var c := Vector2(canvas_r, canvas_r)
     var edge_w := maxf(2.0, radius * 0.075)
     var ring_r := radius - edge_w - maxf(2.0, radius * 0.09)
     for y in size:

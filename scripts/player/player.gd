@@ -82,6 +82,11 @@ var _dodge_cd: float = 0.0
 # 스킬 상태 (일섬 돌진)
 var _skill_dash_timer: float = 0.0
 var _skill_dash_speed: float = 0.0
+# 궁극기 부양 중 — 중력·이동·입력을 모두 끄고 트윈이 위치를 잡는다.
+var _ult_hover: bool = false
+const ULT_RISE: float = 120.0        # 떠오르는 높이(px)
+const ULT_RISE_TIME: float = 0.3
+const ULT_SLAM_TIME: float = 0.12    # 내리꽂는 시간 — 짧을수록 묵직
 # 낙사 안전망 — 마지막으로 땅을 밟았던 안전 위치
 var _last_safe_pos: Vector2 = Vector2.ZERO
 var _has_safe_pos: bool = false
@@ -127,6 +132,11 @@ func _physics_process(delta: float) -> void:
     # (적은 각자 상태머신이 Dialogue.is_active()로 멈춘다. 여기선 주인공만 담당.)
     if Dialogue and Dialogue.is_active():
         _freeze_for_dialogue(delta)
+        return
+
+    # 궁극기 부양 중 — 위치는 트윈이 잡는다. 중력·입력·이동 전부 정지.
+    if _ult_hover:
+        velocity = Vector2.ZERO
         return
 
     var on_floor := is_on_floor()
@@ -496,26 +506,51 @@ func _on_skill_cast(id: String) -> void:
             _skill_ultimate()
 
 
-## 궁극기 '귀창 강림' — 사방 모든 적에게 광역 대피해 + 매우 화려한 연출
+## 궁극기 '귀창 강림' — 공중으로 떠올라 기를 모은 뒤 내려찍는다.
+## ① 부양 + 시전(창들이 하늘에서 모여듦) → ② 급강하 → ③ 착지 순간 광역 대피해 + 충격파.
 func _skill_ultimate() -> void:
     var def := SkillManager.get_def("guichang")
     _attacking = true
+    _ult_hover = true
+    var ground := global_position
+    var apex := ground + Vector2(0, -ULT_RISE)
+    var charge := float(def.get("charge_time", 0.65))
+    Audio.play_sfx(Sfx.WARD)
+    # ① 떠오름 — 중력을 끄고 정점까지 부드럽게 상승
+    var rise := create_tween()
+    rise.tween_property(self, "global_position", apex, ULT_RISE_TIME).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+    SkillFx.ultimate_charge(apex, charge)
+    if sprite:
+        SkillFx.afterimage_burst(sprite, SkillFx.MAGE_HOT, 6, charge)
+    await get_tree().create_timer(charge).timeout
+    if not is_instance_valid(self) or not _ult_hover:
+        return
+    # ② 급강하 — 짧고 빠르게 내리꽂는다
+    Audio.play_sfx(Sfx.ULT)
+    var slam := create_tween()
+    slam.tween_property(self, "global_position", ground, ULT_SLAM_TIME).set_trans(Tween.TRANS_QUINT).set_ease(Tween.EASE_IN)
+    if sprite:
+        SkillFx.afterimage_burst(sprite, SkillFx.MAGE_HOT, 4, ULT_SLAM_TIME)
+    await slam.finished
+    if not is_instance_valid(self):
+        return
+    _ult_hover = false
+    velocity = Vector2.ZERO
+    # ③ 착지 — 화면이 멈췄다 터진다
     var radius := float(def.get("radius", 360.0))
     var mult := float(def.get("damage_mult", 3.5))
     var dmg := Equipment.current_damage(attack_hitbox.damage) * mult
-    Audio.play_sfx(Sfx.ATTACK)
-    Audio.play_sfx(Sfx.ULT)
-    SkillFx.ultimate(global_position)
-    if sprite:
-        SkillFx.afterimage_burst(sprite, SkillFx.MAGE_HOT, 6, 0.4)
-    ScreenFx.shake(16.0, 0.5)
-    ScreenFx.hit_stop(0.12)
+    ScreenFx.hit_stop(0.14, 0.02)
+    ScreenFx.shake(20.0, 0.55)
+    ScreenFx.rumble(90)
+    SkillFx.ultimate(ground)
+    SkillFx.ground_shock(ground, radius)
     # 사거리 안 모든 적에게 피해 (궁극기는 히트박스를 안 거치므로 피격음을 1회 직접 재생)
     var hit_any := false
     for e in get_tree().get_nodes_in_group("enemy"):
         if not (e is Node2D):
             continue
-        if global_position.distance_to((e as Node2D).global_position) > radius:
+        if ground.distance_to((e as Node2D).global_position) > radius:
             continue
         var hc: HealthComponent = e.get_node_or_null("HealthComponent")
         if hc:
@@ -526,37 +561,66 @@ func _skill_ultimate() -> void:
             SkillFx.bleed(epos, _facing_right, true)
     if hit_any:
         Audio.play_sfx(Sfx.HIT, 3.0)
-    await get_tree().create_timer(0.5).timeout
+    await get_tree().create_timer(0.4).timeout
     _attacking = false
 
 
 ## 「여울 가르기」(id: ilseom) — 강물을 갈라 앞으로 밀어내는 진혼의 물살.
 ## 전방 돌진 + 돌진 내내 넓은 물마루 히트박스로 앞의 넋을 씻어 보낸다.
+## ① 시전(물이 몸으로 감겨듦) → ② 일직선 돌진 + 베기 → ③ 지나간 자리마다 파도 → ④ 물기둥 마무리.
 func _skill_ilseom() -> void:
     var def := SkillManager.get_def("ilseom")
     _attacking = true
-    _skill_dash_speed = float(def.get("dash_speed", 430.0))
-    var dur := float(def.get("dash_time", 0.22))
+    var dir := 1.0 if _facing_right else -1.0
+
+    # ① 시전 — 몸을 살짝 뒤로 당기며 물을 끌어모은다(발동 예고).
+    var windup := float(def.get("windup", 0.32))
+    Audio.play_sfx(Sfx.WARD)
+    SkillFx.river_gather(global_position, _facing_right, windup)
+    velocity.x = -dir * 70.0
+    await get_tree().create_timer(windup).timeout
+    if not is_instance_valid(self):
+        return
+
+    # ② 돌진 — 일직선으로 길게 가르며 지나간다.
+    _skill_dash_speed = float(def.get("dash_speed", 560.0))
+    var dur := float(def.get("dash_time", 0.42))
     _skill_dash_timer = dur
     var stored_damage: float = attack_hitbox.damage
     var stored_knock: float = attack_hitbox.knockback
-    attack_hitbox.damage = Equipment.current_damage(stored_damage) * float(def.get("damage_mult", 1.8))
+    attack_hitbox.damage = Equipment.current_damage(stored_damage) * float(def.get("damage_mult", 1.9))
     # 물마루 — 앞으로 넓게 뻗는 판정(전방 사거리 확장)
     if attack_shape and attack_shape.shape is RectangleShape2D:
-        (attack_shape.shape as RectangleShape2D).size = Vector2(72.0, 34.0)
-    attack_hitbox.position.x = 30.0 if _facing_right else -30.0
+        (attack_shape.shape as RectangleShape2D).size = Vector2(86.0, 40.0)
+    attack_hitbox.position.x = 34.0 * dir
     Audio.play_sfx(Sfx.ATTACK)
-    ScreenFx.shake(7.0, 0.14)
+    ScreenFx.shake(8.0, 0.16)
+    ScreenFx.rumble(30)
     SkillFx.river_cleave(global_position + Vector2(0, -16), _facing_right)
     if sprite:
-        SkillFx.afterimage_burst(sprite, SkillFx.WATER, 5, dur + 0.06)
+        SkillFx.afterimage_burst(sprite, SkillFx.WATER, 8, dur)
+    # ③ 지나가는 자리마다 파도 (돌진과 동시에 진행)
+    _spawn_wave_trail(dur)
     await attack_hitbox.activate(dur)
     attack_hitbox.damage = stored_damage
     attack_hitbox.knockback = stored_knock
     attack_hitbox.position.x = 16.0 if _facing_right else -16.0
     if attack_shape and attack_shape.shape is RectangleShape2D:
         (attack_shape.shape as RectangleShape2D).size = _hitbox_base_size
+
+    # ④ 마무리 — 멈춘 자리에서 물이 크게 터진다.
+    SkillFx.river_burst(global_position, _facing_right)
+    ScreenFx.shake(9.0, 0.2)
     _attacking = false
+
+
+# 돌진 내내 일정 간격으로 발밑에 파도를 남긴다(fire-and-forget).
+func _spawn_wave_trail(dur: float) -> void:
+    var left := dur
+    while left > 0.0 and is_instance_valid(self):
+        SkillFx.wave_wake(global_position, _facing_right)
+        await get_tree().create_timer(0.06).timeout
+        left -= 0.06
 
 
 ## 「진혼의 물등」(id: hoecheon) — 물등을 밝혀 사방의 넋을 달래는 파문.
@@ -601,6 +665,9 @@ func _skill_hosinbu() -> void:
     var def := SkillManager.get_def("hosinbu")
     health.shield_charges = int(def.get("shield_charges", 1))
     Audio.play_sfx(Sfx.WARD)
+    ScreenFx.rumble(20)
+    # 발동 연출 — 한지 조각이 모여들고 금빛 파문이 앉는다
+    SkillFx.ward_cast(global_position)
     # 부적 오라 부착 (이전 것이 남아 있으면 제거)
     if _ward != null and is_instance_valid(_ward):
         _ward.queue_free()
@@ -626,6 +693,7 @@ func _recover_from_fall() -> void:
     if _dodging:
         _end_dodge()
     _skill_dash_timer = 0.0
+    _ult_hover = false          # 부양 중 낙사 구제되면 중력 복구
     _attacking = false
     if _has_safe_pos:
         global_position = _last_safe_pos
@@ -665,5 +733,6 @@ func _hurt_flash() -> void:
 func _on_died() -> void:
     print("[Player] died")
     Audio.play_sfx(Sfx.DIE)
+    _ult_hover = false          # 부양 중 죽어도 공중에 얼지 않게
     velocity = Vector2.ZERO
     GameOverScreen.show_screen()

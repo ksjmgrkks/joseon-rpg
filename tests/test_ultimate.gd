@@ -19,7 +19,9 @@ func _check()->Dictionary:
 	var h1:float=near1.get_node("HealthComponent").hp
 	var hfar:float=far.get_node("HealthComponent").hp
 	var ok:=SkillManager.try_cast("guichang")
-	for i in range(10): await get_tree().physics_frame
+	# 궁극기는 이제 '공중 부양 → 시전(charge) → 내려찍기' 뒤에 피해가 들어간다.
+	# charge 0.65 + slam 0.12 + 여유. (예전엔 발동 즉시 피해라 10프레임이면 됐다.)
+	await get_tree().create_timer(1.1).timeout
 	var near_hit:bool = near1.get_node("HealthComponent").hp < h1
 	var far_safe:bool = is_equal_approx(far.get_node("HealthComponent").hp, hfar)
 	var on_cd:bool = SkillManager.cooldown_left("guichang") > 30.0
