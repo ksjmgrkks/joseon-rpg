@@ -60,8 +60,8 @@ func _check_gut_erase() -> Dictionary:
         return _no("gut_erase", "굽이0 소거 수 %d (expect 1)" % n)
     # next_fragment 는 아직 온전한 가장 이른 굽이 조각이어야
     var nf := MemoryLedger.next_fragment()
-    if String(nf.get("id", "")) != "watergate_keeper":
-        return _no("gut_erase", "next_fragment %s (expect watergate_keeper)" % nf)
+    if String(nf.get("id", "")) != "her_voice":
+        return _no("gut_erase", "next_fragment %s (expect her_voice)" % nf)
     if MemoryLedger.erase_for_gut(0) != 0:
         return _no("gut_erase", "이미 소거된 굽이 재호출이 0 아님")
     return _ok("gut_erase")

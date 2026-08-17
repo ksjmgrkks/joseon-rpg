@@ -1,9 +1,11 @@
 {
+  "_note": "v2 1막 진혼 직후 — 첫 대가. HUD/대사 글자가 흐려지는 연출과 함께(MemoryLedger gut 0 = a_face).",
   "id": "haewon_prologue_after",
   "start": "a",
   "nodes": {
-    "a": { "speaker": "", "text": "넋이 가라앉자, 길손은 물등 하나를 강에 띄운다. 등이 어둠 속으로 흘러간다.", "next": "b" },
-    "b": { "speaker": "길손", "text": "또 한 넋을 보냈다. … 한데, 누구의 얼굴이었더라.", "next": "c" },
-    "c": { "speaker": "", "dissolve": true, "text": "무언가 하나, 기억에서 옅어진다. 그는 까닭도 모른 채 다음 굽이로 걸음을 옮긴다.", "next": null }
+    "a": { "speaker": "", "text": "넋이 흩어져 위로 오른다. 강물에 등 하나가 떠간다.", "next": "b" },
+    "b": { "speaker": "길손", "text": "가시오. 이제 길이 열렸으니.", "next": "c" },
+    "c": { "speaker": "", "text": "…무언가가 조용히 빠져나간다.", "next": "d" },
+    "d": { "speaker": "길손", "text": "…방금, 누구의 밥상이었더라.", "next": null }
   }
 }

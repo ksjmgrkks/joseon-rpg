@@ -1,9 +1,10 @@
 {
+  "_note": "v2 2막 — 물에 붙은 넋. 진혼의 방식(달램)을 대사로 보여준다.",
   "id": "haewon_ferryman_spirit",
   "start": "a",
   "nodes": {
-    "a": { "speaker": "뱃사공 넋", "text": "원님… 삯은 됐소. 강만, 강만 건네주오…", "next": "b" },
-    "b": { "speaker": "길손", "text": "…네 강은, 내 이미 닫은 강이다.", "next": "c" },
-    "c": { "speaker": "길손", "text": "(닫았다. 내가, 무엇을 닫았단 말이냐.)", "next": null }
+    "a": { "speaker": "물에 붙은 넋", "text": "삯이… 삯이 모자라오. 그이가 아직 안 왔소…", "next": "b" },
+    "b": { "speaker": "길손", "text": "삯은 됐소. 내 등을 하나 띄워 드리리다.", "next": "c" },
+    "c": { "speaker": "길손", "text": "여기 서서 물만 보고 계시면, 그이가 와도 못 알아봅니다.", "next": null }
   }
 }

@@ -1,0 +1,17 @@
+{
+  "_note": "v2 3막 컷 — 서씨 댁 마당의 매질. 밤·기와집 마당. 수묵(inkwash) 톤으로 색을 빼 상처의 기억처럼. 인물: 무릎 꿇린 길손 + 마루 끝의 윤슬. 대사는 yard_beating.json. figure PNG 없으면 cutscene.gd 가 수묵 실루엣 폴백.",
+  "backdrop": { "sky": [0.14, 0.14, 0.18], "tint": [0.4, 0.42, 0.5], "far_scale": 0.1 },
+  "ground": { "tex": "ground_dirt", "width": 2000, "x": -200 },
+  "props": [
+    { "tex": "house_tile", "x": 980, "y": 686, "scale": 3.0, "offset": [-48, -80] },
+    { "tex": "lantern", "x": 430, "y": 600, "scale": 1.4, "offset": [-12, -40] },
+    { "tex": "fence", "x": 250, "y": 664, "scale": 1.6, "offset": [-32, -12] }
+  ],
+  "figures": [
+    { "sprite": "res://assets/sprites/cutscene/gilson_young/idle.png", "x": 600, "y": 690, "scale": 1.8, "flip": false },
+    { "sprite": "res://assets/sprites/cutscene/yunseul/idle.png", "x": 880, "y": 660, "scale": 1.7, "flip": true }
+  ],
+  "camera": { "x": 700, "y": 440 },
+  "tone": "inkwash",
+  "dialogue": "res://assets/dialogue/haewon/yard_beating.json"
+}
