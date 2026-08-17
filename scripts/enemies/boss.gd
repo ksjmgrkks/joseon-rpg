@@ -298,7 +298,7 @@ func _on_died() -> void:
     if attack_hitbox:
         attack_hitbox.collision_layer = 0
     if hurtbox:
-        hurtbox.monitoring = false
+        hurtbox.set_deferred("monitoring", false)   # 피격 신호 처리 중이라 지연 설정
     # death 애니메이션(6프레임)이 끝까지 보이도록 충분히 둔 뒤 제거
     await get_tree().create_timer(1.1).timeout
     if scene_on_death != "":

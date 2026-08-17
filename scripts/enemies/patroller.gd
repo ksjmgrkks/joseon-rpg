@@ -178,8 +178,10 @@ func _on_died() -> void:
     FloatingNumber.spawn(get_tree().current_scene, global_position, "+%d" % pts, Color(1, 0.95, 0.6))
     _drop_loot()
     # 더는 안 맞고, 죽음 애니메이션이 보이도록 잠깐 둔 뒤 제거
+    # (사망은 피격 신호 처리 중에 일어나므로 monitoring 은 지연 설정 — 직접 대입하면
+    #  "Function blocked during in/out signal" 에러가 난다.)
     if hurtbox:
-        hurtbox.monitoring = false
+        hurtbox.set_deferred("monitoring", false)
     set_physics_process(false)
     velocity = Vector2.ZERO
     await get_tree().create_timer(0.6).timeout

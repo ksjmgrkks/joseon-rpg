@@ -46,8 +46,12 @@ static func spawn(parent: Node, pos: Vector2, item_id: String, count: int = 1,
     shape.radius = 18.0
     cs.shape = shape
     a.add_child(cs)
-    parent.add_child(a)
-    a.global_position = pos
+    # 적이 죽는 순간(=물리 신호 처리 중)에 호출되므로 트리 편입을 미룬다.
+    # 바로 add_child 하면 "Can't change this state while flushing queries" 에러가 나고
+    # 픽업 콜리전이 제대로 안 켜질 수 있다. 지연 호출은 큐 순서대로 실행되므로
+    # add_child → global_position 순서가 보장된다.
+    parent.add_child.call_deferred(a)
+    a.set_deferred("global_position", pos)
     return a
 
 
