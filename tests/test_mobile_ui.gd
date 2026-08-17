@@ -30,6 +30,7 @@ func _ready() -> void:
     results.append(_check_no_overlap())
     results.append(_check_touch_size())
     results.append(_check_haptics_persist())
+    results.append(_check_portrait_guard())
 
     var failed := 0
     for r in results:
@@ -114,3 +115,22 @@ func _check_haptics_persist() -> Dictionary:
     if saved != false:
         return { "name": "haptics_persist", "status": FAIL, "reason": "저장값=%s (기대 false)" % str(saved) }
     return { "name": "haptics_persist", "status": PASS, "reason": "" }
+
+
+# 세로로 든 화면에서는 expand 를 끄고 레터박스로 — 하늘만 보이는 화면 방지.
+func _check_portrait_guard() -> Dictionary:
+    var win := get_window()
+    var before := win.size
+    win.size = Vector2i(720, 1280)          # 세로
+    ScreenFit._apply()
+    var portrait_mode := win.content_scale_aspect
+    win.size = Vector2i(1560, 720)          # 가로 (19.5:9)
+    ScreenFit._apply()
+    var land_mode := win.content_scale_aspect
+    win.size = before
+    ScreenFit._apply()
+    var ok := portrait_mode == Window.CONTENT_SCALE_ASPECT_KEEP \
+        and land_mode == Window.CONTENT_SCALE_ASPECT_EXPAND
+    var reason := "" if ok else "portrait=%d land=%d (기대 KEEP=%d / EXPAND=%d)" % [
+        portrait_mode, land_mode, Window.CONTENT_SCALE_ASPECT_KEEP, Window.CONTENT_SCALE_ASPECT_EXPAND]
+    return { "name": "portrait_guard", "status": PASS if ok else FAIL, "reason": reason }

@@ -32,8 +32,38 @@ var _buttons: Array[TouchScreenButton] = []
 
 
 ## 이 기기에서 터치 컨트롤을 써야 하는가. (HUD 등 다른 UI 도 같은 판정을 쓴다.)
+##
+## 웹에서는 `DisplayServer.is_touchscreen_available()` 만 믿지 않는다 — 브라우저·기기에
+## 따라 false 가 나오는 일이 있어 폰에서 버튼이 통째로 안 보일 수 있다. 그래서
+## `navigator.maxTouchPoints` 를 직접 확인하고, 주소에 `?touch=1` 을 붙이면 어느 기기에서든
+## 강제로 켠다(PC 브라우저 테스트용. `?touch=0` 이면 강제로 끔).
 static func wants_touch_ui() -> bool:
-    return DisplayServer.is_touchscreen_available() or OS.has_feature("mobile")
+    var forced := _url_touch_override()
+    if forced != 0:
+        return forced > 0
+    if DisplayServer.is_touchscreen_available() or OS.has_feature("mobile"):
+        return true
+    return _web_touch_points() > 0
+
+
+## -1=강제 끔, 0=지정 없음, 1=강제 켬
+static func _url_touch_override() -> int:
+    if not OS.has_feature("web"):
+        return 0
+    var v = JavaScriptBridge.eval("new URLSearchParams(location.search).get('touch')", true)
+    if v == null:
+        return 0
+    var s := String(v)
+    if s == "0" or s.to_lower() == "false":
+        return -1
+    return 1
+
+
+static func _web_touch_points() -> int:
+    if not OS.has_feature("web"):
+        return 0
+    var v = JavaScriptBridge.eval("navigator.maxTouchPoints || 0", true)
+    return int(v) if v != null else 0
 
 
 func _ready() -> void:
