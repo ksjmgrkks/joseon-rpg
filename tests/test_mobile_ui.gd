@@ -30,6 +30,7 @@ func _ready() -> void:
     results.append(_check_no_overlap())
     results.append(_check_touch_size())
     results.append(_check_haptics_persist())
+    results.append(_check_hit_geometry())
     results.append(_check_portrait_guard())
 
     var failed := 0
@@ -134,3 +135,30 @@ func _check_portrait_guard() -> Dictionary:
     var reason := "" if ok else "portrait=%d land=%d (기대 KEEP=%d / EXPAND=%d)" % [
         portrait_mode, land_mode, Window.CONTENT_SCALE_ASPECT_KEEP, Window.CONTENT_SCALE_ASPECT_EXPAND]
     return { "name": "portrait_guard", "status": PASS if ok else FAIL, "reason": reason }
+
+
+# 보이는 버튼의 '가운데'를 실제로 터치했을 때 그 액션이 눌리는가.
+# (TouchScreenButton.shape_centered 를 잘못 두면 판정원이 텍스처 좌상단으로 밀려
+#  눈에 보이는 버튼을 눌러도 반응하지 않는다 — 폰에서 실제로 겪은 회귀.)
+func _check_hit_geometry() -> Dictionary:
+    # TouchScreenButton 의 판정원 위치는 shape_centered 가 결정한다:
+    #   true  → 텍스처 **가운데** (우리가 원하는 것)
+    #   false → 텍스처 **좌상단 꼭짓점** (보이는 버튼에서 반지름만큼 어긋남)
+    # 이 의미는 tools/TouchHitProbe.tscn(창 모드)로 실제 터치를 넣어 확인했다.
+    # 헤드리스에서는 TouchScreenButton 이 입력을 받지 않으므로 기하만 검사한다.
+    for b in _btns():
+        if not b.shape_centered:
+            return { "name": "hit_geometry", "status": FAIL,
+                "reason": "%s: shape_centered=false — 판정원이 텍스처 좌상단으로 밀린다" % b.action }
+        if b.texture_normal == null:
+            return { "name": "hit_geometry", "status": FAIL, "reason": "%s: 텍스처 없음" % b.action }
+        var r := _radius(b)
+        var tex_size := b.texture_normal.get_size()
+        # 텍스처가 판정원 지름과 같아야 (텍스처 중심 = 판정원 중심 = 배치 좌표)
+        if absf(tex_size.x - r * 2.0) > 2.0 or absf(tex_size.y - r * 2.0) > 2.0:
+            return { "name": "hit_geometry", "status": FAIL,
+                "reason": "%s: 텍스처 %s ≠ 판정 지름 %.0f (그림과 판정이 어긋남)" % [b.action, str(tex_size), r * 2.0] }
+        if not b.passby_press:
+            return { "name": "hit_geometry", "status": FAIL,
+                "reason": "%s: passby_press 꺼짐 — 손가락을 끌면 안 눌린다" % b.action }
+    return { "name": "hit_geometry", "status": PASS, "reason": "" }

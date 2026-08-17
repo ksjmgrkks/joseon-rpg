@@ -176,7 +176,10 @@ func _add_button(action: String, label: String, radius: float) -> TouchScreenBut
     var shape := CircleShape2D.new()
     shape.radius = hit
     b.shape = shape
-    b.shape_centered = false          # 텍스처(좌상단 기준)와 판정원을 정확히 겹치게
+    # ⚠ shape_centered=true 여야 판정원이 **텍스처 가운데**에 놓인다.
+    # false 면 판정원 중심이 텍스처 좌상단 꼭짓점으로 가서, 보이는 버튼과 반지름만큼
+    # 어긋난 허공을 눌러야 반응한다(폰에서 '버튼이 안 눌리는' 원인이었음).
+    b.shape_centered = true
     b.passby_press = true             # 손가락을 끌어 다른 버튼으로 넘어가도 눌린다(좌↔우 이동)
     b.set_meta("radius", hit)         # 배치·테스트는 판정 반지름 기준
     b.set_meta("draw_radius", radius)
