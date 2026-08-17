@@ -1,5 +1,5 @@
 {
-  "_note": "【v2 6막 전반 — 안마당과 우물】 (씬 파일명 Haewon4Watergate 유지). 첫 밤. 담을 넘어 들어간 안마당. 우물에 던져진 여종의 넋이 이 집의 심장이다. 중간 보스급 진혼. 담 안이라 원경 산·구름을 끈다. 지워지는 기억: 그날 마당에서 삼킨 말과 첫 약속(gut 4).",
+  "_note": "【v2 6막 전반 — 안마당과 우물】 (씬 파일명 Haewon4Watergate 유지). 첫 밤. 담을 넘어 들어간 안마당. 우물에 던져진 여종의 넋이 이 집의 심장이다. 중간 보스급 진혼. 담 안이라 원경 산·구름을 끈다. 지워지는 기억: 그날 마당에서 삼킨 말과 첫 약속(gut 4). 사이드 진혼 2호: 곳간 그늘에 이름 없는 종 하나가 더 맴돈다(기록에도 없는 이) — optional=true, haewon_side_nameless_servant.",
   "gut": 4,
   "backdrop": { "sky": [0.1, 0.11, 0.16], "tint": [0.4, 0.44, 0.54], "far_scale": 0.1, "night_luminance": 0.3, "mountains": false, "clouds": false },
   "ground": { "tex": "stone", "width": 2600, "x": -500 },
@@ -28,6 +28,7 @@
   "enemies": [
     { "scene": "Wraith", "x": 620, "y": 640 },
     { "scene": "Wraith", "x": 860, "y": 640 },
+    { "scene": "Wraith", "x": 925, "y": 640, "optional": true, "on_death_flag": "haewon_side_nameless_servant" },
     { "scene": "Reaper", "x": 1020, "y": 632 },
     { "scene": "Wraith", "x": 1200, "y": 640 }
   ],

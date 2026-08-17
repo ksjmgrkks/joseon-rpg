@@ -22,11 +22,13 @@ const HAEWON := "haewon"        # ② 해원
 
 ## 필수가 아닌 진혼·발견의 흔적. 많이 쥘수록 많이 태운 것.
 const BURN_FLAGS := [
-    "haewon_clue_knife",         # 4막 — 무당이 두고 간 부러진 신칼
-    "haewon_clue_ring",          # 6막 — 우물 바닥의 은가락지
-    "haewon_clue_shoe",          # 6막 — 빈 곳간의 작은 짚신
-    "haewon_ring_found",         # 3막 — 문간의 은가락지
-    "haewon_side_lost_wraith",   # 4막 — 선택 전투: 신칼 두고 간 무당마저 손 못 댄 넋(안 죽여도 진행 가능)
+    "haewon_clue_knife",              # 4막 — 무당이 두고 간 부러진 신칼
+    "haewon_clue_ring",               # 6막 — 우물 바닥의 은가락지
+    "haewon_clue_shoe",               # 6막 — 빈 곳간의 작은 짚신
+    "haewon_ring_found",              # 3막 — 문간의 은가락지
+    "haewon_side_lost_wraith",        # 4막 — 선택 전투: 신칼 두고 간 무당마저 손 못 댄 넋
+    "haewon_side_nameless_servant",   # 6막 전반 — 선택 전투: 곳간 그늘의 이름 없는 종
+    "haewon_side_buried_together",    # 7막 — 선택 전투: 증조모 곁에 함께 묻힌 넋
 ]
 ## 이만큼 이상 태우면 그녀를 알아보지 못한다.
 const BURN_HEAVY := 3

@@ -1,5 +1,5 @@
 {
-  "_note": "【v2 7막 — 뒤란 땅속, 증조모】 (씬 파일명 Haewon6Yunseul 유지). 셋째 밤. 사당 뒤 땅을 파면 삼대 전 산 채로 묻힌 무당 — 제 증조모. 이 집이 잘살게 된 값이 곧 제 핏줄이었다. 마지막 진혼 후 대사에서 **엔딩을 가르는 선택**을 준다(자기 한까지 놓을 것인가). 지워지는 기억: 윤슬(gut 6) — 마지막 한 이름.",
+  "_note": "【v2 7막 — 뒤란 땅속, 증조모】 (씬 파일명 Haewon6Yunseul 유지). 셋째 밤. 사당 뒤 땅을 파면 삼대 전 산 채로 묻힌 무당 — 제 증조모. 이 집이 잘살게 된 값이 곧 제 핏줄이었다. 마지막 진혼 후 대사에서 **엔딩을 가르는 선택**을 준다(자기 한까지 놓을 것인가). 지워지는 기억: 윤슬(gut 6) — 마지막 한 이름. 사이드 진혼 3호: 증조모 곁에 함께 묻힌 넋이 하나 더 있다(이 집의 값은 핏줄 하나만이 아니었다) — optional=true, haewon_side_buried_together.",
   "gut": 6,
   "backdrop": { "sky": [0.08, 0.09, 0.13], "tint": [0.36, 0.4, 0.5], "far_scale": 0.1, "night_luminance": 0.26, "mountains": false, "clouds": false },
   "ground": { "tex": "ground_dirt", "width": 2600, "x": -500 },
@@ -21,6 +21,7 @@
   ],
   "enemies": [
     { "scene": "Wraith", "x": 700, "y": 640 },
+    { "scene": "Wraith", "x": 800, "y": 640, "optional": true, "on_death_flag": "haewon_side_buried_together" },
     { "scene": "Reaper", "x": 900, "y": 632 },
     { "scene": "Wraith", "x": 1080, "y": 640 }
   ],
