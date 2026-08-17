@@ -25,6 +25,10 @@ extends CharacterBody2D
 @export var ranged_min: float = 90.0      # 이보다 가까우면 근접 우선
 @export var ranged_max: float = 320.0     # 이보다 멀면 안 쏨
 @export var ranged_cooldown: float = 2.2
+# 선택 전투(사이드 진혼) — true 면 결계 카운트("enemy_gate")에서 빠져 진행을 막지 않는다.
+# 그래도 "enemy" 그룹엔 남아 대화 동결·광역 스킬 등 기존 동작은 그대로 받는다.
+@export var optional: bool = false
+@export var on_death_flag: String = ""    # 처치 시 Flags.set_flag(이 값, true) — 선택 진혼 흔적 기록용
 
 var _ranged_cd: float = 0.0
 
@@ -45,6 +49,8 @@ var _spr_base_scale: Vector2 = Vector2.ONE   # 피격 squash 복귀 기준(드�
 
 func _ready() -> void:
     add_to_group("enemy")
+    if not optional:
+        add_to_group("enemy_gate")
     # 적 몸은 월드(bit3=4)에만 부딪히고 플레이어·다른 적은 통과 (메탈슬러그식).
     collision_layer = 2
     collision_mask = 4
@@ -170,6 +176,8 @@ func _on_died() -> void:
     print("[%s] died" % display_name)
     Audio.play_sfx(Sfx.DIE)
     SkillFx.soul_ascend(global_position + Vector2(0, -10))   # 진혼: 혼을 달래 천도(성불)
+    if on_death_flag != "":
+        Flags.set_flag(on_death_flag, true)
     if xp_reward > 0:
         PlayerStats.gain_xp(xp_reward)
     # 스코어 어택 — 혼 처치 점수 (xp_reward 기반 상대 가중치 ×10).

@@ -9,6 +9,8 @@ class_name CombatGate
 ##
 
 ## 결계가 열리는 순간(구역 적 전멸 = 진혼 완료) 1회 발화. 「해원」 기억 소거 배선이 듣는다.
+## "enemy_gate" 그룹만 센다 — 선택 전투(patroller.optional=true)는 "enemy"엔 남되
+## 여기선 빠져 결계를 막지 않는다(사이드 진혼: 죽여도 그만, 안 죽여도 그만).
 signal opened
 
 @export var open_flag: String = ""        # 열릴 때 set_flag (선택)
@@ -56,7 +58,7 @@ func _process(delta: float) -> void:
     if _grace > 0.0:
         _grace -= delta
         return
-    var remaining := get_tree().get_nodes_in_group("enemy").size()
+    var remaining := get_tree().get_nodes_in_group("enemy_gate").size()
     if remaining <= 0:
         _open_gate()
     # '남은 적 N' 카운터는 사용자 피드백(2026-07-11)으로 제거 — 결계 안내(정적)만 둔다.

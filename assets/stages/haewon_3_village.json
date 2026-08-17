@@ -1,5 +1,5 @@
 {
-  "_note": "【v2 4막 — 기와집에 재앙이 든다】 (씬 파일명 Haewon3Village 유지). 서씨 집 담장 밖. 이름난 무당들이 줄줄이 굿을 벌이고 줄줄이 실패한다 — 원혼은 양반이 부른 무당의 말을 듣지 않는다. 길손은 굿판 바깥에서 그것을 본다. 진혼 후 컷 전환 → 5막 「부탁」(비 오는 밤). 지워지는 기억: 제 본명(gut 3).",
+  "_note": "【v2 4막 — 기와집에 재앙이 든다】 (씬 파일명 Haewon3Village 유지). 서씨 집 담장 밖. 이름난 무당들이 줄줄이 굿을 벌이고 줄줄이 실패한다 — 원혼은 양반이 부른 무당의 말을 듣지 않는다. 길손은 굿판 바깥에서 그것을 본다. 진혼 후 컷 전환 → 5막 「부탁」(비 오는 밤). 지워지는 기억: 제 본명(gut 3). 사이드 진혼(선택 전투) 1호: 신칼을 두고 간 그 무당마저 손 못 댄 넋 하나가 담 밖을 따로 맴돈다 — optional=true, 죽이지 않고 지나쳐도 결계는 그대로 열린다. 죽이면 haewon_side_lost_wraith(추가로 자신을 태움, EndingResolver.BURN_FLAGS).",
   "gut": 3,
   "backdrop": { "sky": [0.14, 0.15, 0.22], "tint": [0.44, 0.48, 0.58], "far_scale": 0.1, "night_luminance": 0.34, "mountains": false },
   "ground": { "tex": "stone", "width": 2800, "x": -600 },
@@ -24,6 +24,7 @@
     { "x": 980, "label": "무당이 두고 간 부러진 신칼", "flag": "haewon_clue_knife", "icon": "charm" }
   ],
   "enemies": [
+    { "scene": "Wraith", "x": 460, "y": 640, "optional": true, "on_death_flag": "haewon_side_lost_wraith" },
     { "scene": "Wraith", "x": 760, "y": 640 },
     { "scene": "Wraith", "x": 1040, "y": 640 },
     { "scene": "Reaper", "x": 1200, "y": 632 }

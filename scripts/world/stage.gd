@@ -14,6 +14,9 @@ class_name Stage
 ##   "entries":  [{"name":"default","x":120}, {"name":"from_town","x":1480}],
 ##   "props":    [{"tex":"house_tile","x":300,"y":684,"scale":2.0,"offset":[-48,-80]}],
 ##   "enemies":  [{"scene":"Goblin","x":800,"y":640}],
+##   #  선택 전투(사이드 진혼): "optional":true 면 결계("enemy_gate")를 막지 않음(안 죽여도 통과).
+##   #  "on_death_flag":".." 를 처치 시 세운다 — EndingResolver.BURN_FLAGS 에 엮어 저울에 반영.
+##   #  {"scene":"Wraith","x":460,"y":640,"optional":true,"on_death_flag":"haewon_side_lost_wraith"},
 ##   "npcs":     [{"x":400,"dialogue":"res://assets/dialogue/x.json"}],
 ##   "pickups":  [{"x":600,"item":"herb_field","icon":"herb","count":1,"label":"..","quest":"","stage":"","flag":"","requires_active":""}],
 ##   "auto_dialogues":[{"x":560,"dialogue":"res://..","once_flag":".."}],
@@ -356,6 +359,10 @@ func _build_enemies(enemies: Array) -> void:
             continue
         var inst := load(path).instantiate() as Node2D
         inst.position = Vector2(float(e.get("x", 800)), float(e.get("y", 656)))
+        if e.has("optional") and "optional" in inst:
+            inst.optional = bool(e["optional"])
+        if e.has("on_death_flag") and "on_death_flag" in inst:
+            inst.on_death_flag = String(e["on_death_flag"])
         add_child(inst)
 
 

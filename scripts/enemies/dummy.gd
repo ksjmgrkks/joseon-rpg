@@ -20,6 +20,7 @@ var _spr_base_scale: Vector2 = Vector2.ZERO   # 피격 squash 복귀 기준
 
 func _ready() -> void:
     add_to_group("enemy")
+    add_to_group("enemy_gate")
     if sprite:
         _spr_base_scale = sprite.scale
     # 적 몸은 월드(bit3=4)에만 부딪히고 플레이어·다른 적은 통과 (메탈슬러그식).

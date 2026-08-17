@@ -70,6 +70,7 @@ func get_anim_hint() -> String:
 
 func _ready() -> void:
     add_to_group("enemy")
+    add_to_group("enemy_gate")
     add_to_group("boss")
     # 적 몸은 월드(bit3=4)에만 부딪히고 플레이어·다른 적은 통과 (메탈슬러그식).
     collision_layer = 2

@@ -26,6 +26,7 @@ func _ready() -> void:
     results.append(_check_cutscenes())
     results.append(_check_ledger_covers_guts())
     results.append(await _check_story_entry())
+    results.append(_check_side_battle_flags())
 
     var failed := 0
     for r in results:
@@ -158,3 +159,31 @@ func _check_story_entry() -> Dictionary:
     if not ResourceLoader.exists(start_path):
         return { "name": "story_menu_entry", "status": FAIL, "reason": "이야기 시작 씬 없음: %s" % start_path }
     return { "name": "story_menu_entry", "status": PASS, "reason": start_path.get_file() }
+
+
+# 사이드 진혼(선택 전투): 스테이지 JSON 의 enemies[].on_death_flag 가 하나라도 있으면
+# EndingResolver.BURN_FLAGS 에도 반드시 엮여 있어야 한다 — 안 그러면 저울에 안 반영되는
+# 죽은 플래그(플레이어가 골라 싸운 보람이 없어짐)가 생긴다. optional 이 아닌데 on_death_flag
+# 만 있는 경우도 잡는다(설계 실수 방지 — 필수 전투는 저울 흔적이 아니어야 함).
+func _check_side_battle_flags() -> Dictionary:
+    var checked := 0
+    for path in _files(STAGE_DIR):
+        if not path.get_file().begins_with("haewon_"):
+            continue
+        var data = _parse(path)
+        if not (data is Dictionary):
+            continue
+        for en in (data as Dictionary).get("enemies", []):
+            if not (en is Dictionary):
+                continue
+            var flag := String((en as Dictionary).get("on_death_flag", ""))
+            if flag == "":
+                continue
+            checked += 1
+            if not bool((en as Dictionary).get("optional", false)):
+                return { "name": "side_battle_flags", "status": FAIL,
+                    "reason": "on_death_flag('%s') 있는데 optional=true 아님(필수 전투는 저울 흔적 아님): %s" % [flag, path] }
+            if not EndingResolver.BURN_FLAGS.has(flag):
+                return { "name": "side_battle_flags", "status": FAIL,
+                    "reason": "on_death_flag '%s' 가 EndingResolver.BURN_FLAGS 에 없음: %s" % [flag, path] }
+    return { "name": "side_battle_flags", "status": PASS, "reason": "%d개 확인" % checked }
