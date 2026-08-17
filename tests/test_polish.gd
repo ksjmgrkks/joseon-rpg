@@ -137,7 +137,8 @@ func _check_hpbar_show_hide() -> Dictionary:
     if not bar.visible:
         host.queue_free()
         return _fail("hpbar_show_hide", "bar hidden after hit")
-    var expected := EnemyHpBar.BAR_WIDTH * (30.0 / 40.0)
+    # 폭은 이제 적 스프라이트 몸 폭에서 계산되므로 상수 대신 실제 바 폭 기준으로 검증.
+    var expected: float = bar._width * (30.0 / 40.0)
     if absf(bar._bar.size.x - expected) > 0.01:
         host.queue_free()
         return _fail("hpbar_show_hide", "bar width %.2f != %.2f" % [bar._bar.size.x, expected])

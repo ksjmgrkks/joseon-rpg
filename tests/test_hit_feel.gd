@@ -53,13 +53,14 @@ func _sprite_top(host: Node) -> float:
     var a := host.get_node_or_null("Sprite2D") as AnimatedSprite2D
     if a == null or a.sprite_frames == null:
         return 0.0
-    var anim := a.animation if a.sprite_frames.has_animation(a.animation) else "idle"
+    var anim: StringName = a.animation if a.sprite_frames.has_animation(a.animation) else &"idle"
     if not a.sprite_frames.has_animation(anim) or a.sprite_frames.get_frame_count(anim) == 0:
         return 0.0
     var tex := a.sprite_frames.get_frame_texture(anim, 0)
     if tex == null:
         return 0.0
-    return a.position.y + (a.offset.y - tex.get_height() / 2.0) * absf(a.scale.y)
+    var rect := EnemyHpBar._opaque_rect(tex)
+    return a.position.y + (a.offset.y - tex.get_height() / 2.0 + rect.position.y) * absf(a.scale.y)
 
 
 func _check_bar_above_head() -> Dictionary:

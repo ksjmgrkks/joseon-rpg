@@ -23,9 +23,10 @@ const LAG_TIME := 0.34         # 잔상 바가 줄어드는 시간
 # 먹·단청 팔레트 (STYLE 유지)
 const C_FRAME := Color(0.6, 0.498, 0.251, 0.85)   # 단청 황(금) 깊은 톤
 const C_BG := Color(0.102, 0.086, 0.071, 0.92)    # 먹(최심)
-const C_LAG := Color(0.93, 0.88, 0.78, 0.75)      # 한지빛 잔상(방금 깎인 양)
-const C_FILL := Color(0.659, 0.271, 0.247, 1)     # 단청 적
-const C_FILL_LOW := Color(0.86, 0.42, 0.24, 1)    # 빈사(30% 이하) — 밝은 주홍
+const C_LAG := Color(0.97, 0.93, 0.84, 0.85)      # 한지빛 잔상(방금 깎인 양)
+# 어두운 우천 톤(WorldTint)에서도 읽히도록 살짝 밝게 잡은 단청 적/주홍.
+const C_FILL := Color(0.80, 0.32, 0.28, 1)        # 단청 적
+const C_FILL_LOW := Color(0.95, 0.52, 0.26, 1)    # 빈사(30% 이하) — 밝은 주홍
 
 var _bar: ColorRect
 var _lag: ColorRect
@@ -36,6 +37,9 @@ var _max_hp: float = 1.0
 var _width: float = 40.0
 var _height: float = BAR_HEIGHT
 var _lag_tween: Tween
+# 프레임 중앙 ↔ 그려진 몸 중앙 차이(좌우 반전 시 부호를 뒤집어 따라간다)
+var _center_dx: float = 0.0
+var _sprite: AnimatedSprite2D = null
 
 
 ## host 의 Sprite2D 를 재어 머리 위에 건다. big=true 면 보스용(두껍고 넓게).
@@ -59,20 +63,47 @@ func _fit_to_host(host: Node2D, big: bool) -> void:
         var a := spr as AnimatedSprite2D
         var tex: Texture2D = null
         if a.sprite_frames:
-            var anim := a.animation if a.sprite_frames.has_animation(a.animation) else "idle"
+            var anim: StringName = a.animation if a.sprite_frames.has_animation(a.animation) else &"idle"
             if a.sprite_frames.has_animation(anim) and a.sprite_frames.get_frame_count(anim) > 0:
                 tex = a.sprite_frames.get_frame_texture(anim, 0)
         if tex:
             var sy: float = absf(a.scale.y)
             var sx: float = absf(a.scale.x)
+            # 프레임 안의 **실제로 그려진 픽셀** 상단/폭을 쓴다 — 시트마다 투명 여백이
+            # 달라서 프레임 크기만 쓰면 바가 머리에서 한참 떠 보인다.
+            var rect := _opaque_rect(tex)
             # 프레임은 중심 정렬 + offset(=foot_offset) → 머리끝 y
-            top = a.position.y + (a.offset.y - tex.get_height() / 2.0) * sy
-            body_w = tex.get_width() * sx
-    _width = clampf(body_w * (1.05 if big else 0.95), MIN_WIDTH, MAX_WIDTH)
+            top = a.position.y + (a.offset.y - tex.get_height() / 2.0 + rect.position.y) * sy
+            body_w = rect.size.x * sx
+            # 그려진 몸이 프레임 중앙에서 치우쳐 있으면 바도 그만큼 따라간다(머리 위 정렬).
+            _center_dx = (rect.position.x + rect.size.x / 2.0 - tex.get_width() / 2.0) * sx
+            _sprite = a
+    _width = clampf(body_w * (1.15 if big else 1.05), MIN_WIDTH, MAX_WIDTH)
     if big:
         _width = maxf(_width, 64.0)
-    position = Vector2(0, top - HEAD_MARGIN - _height)
+    position = Vector2(_center_dx, top - HEAD_MARGIN - _height)
     _apply_geometry()
+
+
+# 프레임 안에서 실제로 불투명한 영역(캐릭터가 그려진 부분). 텍스처당 1회만 계산해 캐시.
+static var _rect_cache: Dictionary = {}
+
+static func _opaque_rect(tex: Texture2D) -> Rect2:
+    var key := "%s#%d" % [tex.resource_path, tex.get_instance_id()]
+    if _rect_cache.has(key):
+        return _rect_cache[key]
+    var full := Rect2(Vector2.ZERO, Vector2(tex.get_width(), tex.get_height()))
+    var img := tex.get_image()
+    if img == null:
+        return full
+    if img.is_compressed():
+        return full
+    var r := img.get_used_rect()
+    if r.size.x <= 0 or r.size.y <= 0:
+        r = Rect2i(Vector2i.ZERO, Vector2i(tex.get_width(), tex.get_height()))
+    var out := Rect2(r.position, r.size)
+    _rect_cache[key] = out
+    return out
 
 
 func _ready() -> void:
@@ -119,6 +150,9 @@ func _process(delta: float) -> void:
         _hide_timer = maxf(0.0, _hide_timer - delta)
         if _hide_timer <= 0.0:
             visible = false
+    # 적이 좌우로 돌면 그려진 몸도 뒤집히므로 바 중심도 따라 뒤집는다.
+    if visible and _center_dx != 0.0 and _sprite and is_instance_valid(_sprite):
+        position.x = -_center_dx if _sprite.flip_h else _center_dx
 
 
 func _on_hp_changed(hp: float, max_hp: float) -> void:
