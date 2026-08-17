@@ -126,7 +126,9 @@ dodge={
 window/size/viewport_width=1280
 window/size/viewport_height=720
 window/stretch/mode="viewport"
-window/stretch/aspect="keep"
+; expand — 폰마다 다른 화면비(19.5:9 등)에서 검은 레터박스 대신 뷰포트를 넓혀
+; 화면을 꽉 채운다. UI 는 뷰포트 크기를 읽어 배치하므로 가장자리에 그대로 붙는다.
+window/stretch/aspect="expand"
 window/handheld/orientation="landscape"
 
 [rendering]

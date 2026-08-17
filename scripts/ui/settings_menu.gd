@@ -31,7 +31,28 @@ func _ready() -> void:
     bgm_slider.value_changed.connect(Audio.set_bgm_volume)
     save_btn.pressed.connect(_on_save)
     back_btn.pressed.connect(_on_back)
+    _build_haptics_row()
     _build_keys_section()
+
+
+## 진동(햅틱) 토글 — 폰에서만 의미가 있으므로 안내 문구를 함께 둔다.
+func _build_haptics_row() -> void:
+    var row := HBoxContainer.new()
+    row.add_theme_constant_override("separation", 12)
+    var lbl := Label.new()
+    lbl.text = "진동 (휴대폰)"
+    lbl.custom_minimum_size = Vector2(200, 0)
+    row.add_child(lbl)
+    var chk := CheckButton.new()
+    chk.button_pressed = ScreenFx.haptics_enabled
+    chk.toggled.connect(func(on: bool) -> void:
+        ScreenFx.set_haptics(on)
+        Audio.play_sfx(Sfx.UI)
+        status_label.text = "진동 %s" % ("켜짐" if on else "꺼짐"))
+    row.add_child(chk)
+    var spacer := vbox.get_node("Spacer")
+    vbox.add_child(row)
+    vbox.move_child(row, spacer.get_index())
 
 
 ## ── 키 설정 섹션 (코드 생성) ─────────────────────────────────

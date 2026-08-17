@@ -18,6 +18,7 @@ var _active_tween: Tween = null
 
 func _ready() -> void:
     process_mode = Node.PROCESS_MODE_ALWAYS
+    _load_settings()
 
 
 func shake(intensity: float = 6.0, duration: float = 0.18) -> void:
@@ -59,7 +60,25 @@ func hit_stop(duration: float = 0.06, scale: float = 0.05) -> void:
 
 ## 햅틱(진동) — 폰에서 타격을 손끝으로 느끼게. 데스크톱/헤드리스에선 조용히 무시.
 ## 모바일 앱(Android/iOS) 및 안드로이드 브라우저(Web)에서 동작.
+## 설정 메뉴의 토글로 끌 수 있고, user://settings.cfg 에 남는다.
+const SETTINGS_PATH := "user://settings.cfg"
 var haptics_enabled: bool = true
+
+
+func set_haptics(on: bool) -> void:
+    haptics_enabled = on
+    var cfg := ConfigFile.new()
+    cfg.load(SETTINGS_PATH)          # 없으면 빈 설정으로 시작
+    cfg.set_value("feel", "haptics", on)
+    cfg.save(SETTINGS_PATH)
+
+
+func _load_settings() -> void:
+    var cfg := ConfigFile.new()
+    if cfg.load(SETTINGS_PATH) != OK:
+        return
+    haptics_enabled = bool(cfg.get_value("feel", "haptics", true))
+
 
 func rumble(ms: int = 18) -> void:
     if not haptics_enabled:

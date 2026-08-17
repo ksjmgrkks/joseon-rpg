@@ -49,6 +49,10 @@ func _ready() -> void:
     ScoreManager.score_changed.connect(_update_score)
     ScoreManager.playtime_changed.connect(_update_time)
 
+    # 터치 기기에서는 스킬 줄을 숨긴다 — 터치 컨트롤의 스킬 버튼이 아이콘·쿨다운을
+    # 손가락 밑에서 그대로 보여주므로 HUD 에 또 그리면 화면만 좁아진다.
+    if MobileControls.wants_touch_ui() and skill_row:
+        skill_row.visible = false
     _build_skill_slots()
     SkillManager.cooldowns_changed.connect(_update_skills)
     PlayerStats.level_up.connect(func(_l: int) -> void: _update_skills())

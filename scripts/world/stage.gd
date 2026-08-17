@@ -191,11 +191,19 @@ func _build_backdrop(b: Dictionary) -> void:
 
 ## 지면 빌드 디스패처: "tileset"(신규 사이드뷰 wang 타일셋)이 있으면 그걸,
 ## 없으면 옛 단일 타일("tex") 방식으로 폴백.
+## 화면비가 넓은 폰(19.5:9 등)에서는 stretch=expand 로 뷰포트가 가로로 넓어져
+## 스테이지 양 끝 바깥이 보일 수 있다 → 지면을 좌우로 넉넉히 덧대 빈 칸을 없앤다.
+const GROUND_EDGE_PAD := 500
+
+
 func _build_ground(g: Dictionary) -> void:
-    if g.has("tileset") and ResourceLoader.exists(SIDE_DIR % String(g["tileset"])):
-        _build_ground_tileset(g)
+    var padded := g.duplicate()
+    padded["x"] = int(g.get("x", -600)) - GROUND_EDGE_PAD
+    padded["width"] = int(g.get("width", 2800)) + GROUND_EDGE_PAD * 2
+    if padded.has("tileset") and ResourceLoader.exists(SIDE_DIR % String(padded["tileset"])):
+        _build_ground_tileset(padded)
     else:
-        _build_ground_legacy(g)
+        _build_ground_legacy(padded)
 
 
 ## 신규 지면 — 잔디/서리 윗면 + 꽉 찬 속. 시트에서 두 타일만 잘라 repeat 로 넓게 깐다.

@@ -62,6 +62,11 @@ func _ready() -> void:
         if not players.is_empty() and players[0] is Node2D:
             (players[0] as Node2D).global_position.x = float(args["player_x"])
 
+    # --touch : 데스크톱에서도 모바일 터치 컨트롤을 강제로 켜서 폰 화면을 그대로 확인
+    if args.has("touch"):
+        await get_tree().process_frame
+        _force_touch_ui(get_tree().root)
+
     await get_tree().create_timer(wait_s).timeout
     await RenderingServer.frame_post_draw
 
@@ -76,3 +81,14 @@ func _ready() -> void:
     var err := img.save_png(ProjectSettings.globalize_path(abs_out))
     print("[Shot] %s -> %s (err=%d)" % [scene_path, abs_out, err])
     get_tree().quit(0 if err == OK else 1)
+
+
+# 트리에서 MobileControls 를 찾아 강제로 보이게 (캡처용)
+func _force_touch_ui(n: Node) -> void:
+    if n.name == "MobileControls" and n is CanvasLayer:
+        (n as CanvasLayer).visible = true
+    # 폰에서는 HUD 스킬 줄이 숨는다(터치 버튼이 대신함) — 캡처도 같은 화면이 되게.
+    if n.name == "SkillRow" and n is CanvasItem:
+        (n as CanvasItem).visible = false
+    for c in n.get_children():
+        _force_touch_ui(c)
