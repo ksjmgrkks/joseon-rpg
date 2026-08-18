@@ -1,47 +1,211 @@
 {
-  "backdrop": {
-    "sky": [0.52, 0.57, 0.64],
-    "tint": [0.70, 0.74, 0.80],
-    "far_scale": 0.08
-  },
-  "ground": { "tileset": "rock", "width": 2800, "x": -600 },
-  "player_x": 120,
-  "entries": [
-    { "name": "default", "x": 120 },
-    { "name": "from_temple", "x": 120 },
-    { "name": "from_altar", "x": 1480 }
-  ],
-  "platforms": [
-    { "x": 480, "y": 612, "w": 150 },
-    { "x": 720, "y": 556, "w": 130 },
-    { "x": 980, "y": 610, "w": 150 },
-    { "x": 1240, "y": 560, "w": 130 }
-  ],
-  "props": [
-    { "tex": "pine", "x": 260, "y": 686, "scale": 2.0, "offset": [-28, -88] },
-    { "tex": "pine", "x": 860, "y": 686, "scale": 1.5, "offset": [-28, -88] },
-    { "tex": "pine", "x": 1340, "y": 686, "scale": 1.8, "offset": [-28, -88] },
-    { "tex": "jangseung", "x": 560, "y": 628, "scale": 1.5, "offset": [-12, -56] },
-    { "tex": "stone", "x": 420, "y": 682, "scale": 1.4, "offset": [-16, -18] },
-    { "tex": "stone", "x": 900, "y": 682, "scale": 1.2, "offset": [-16, -18] },
-    { "tex": "stone", "x": 1160, "y": 682, "scale": 1.5, "offset": [-16, -18] }
-  ],
-  "npcs": [],
-  "enemies": [
-    { "scene": "Wraith", "x": 520, "y": 640 },
-    { "scene": "DrownedSwarm", "x": 760, "y": 656 },
-    { "scene": "Reaper", "x": 980, "y": 656 },
-    { "scene": "DrownedFerryman", "x": 1140, "y": 640 },
-    { "scene": "DrownedHeavy", "x": 1320, "y": 656 }
-  ],
   "auto_dialogues": [
-    { "x": 380, "dialogue": "res://assets/dialogue/pass_intro.json", "once_flag": "pass_intro_seen" }
+    {
+      "dialogue": "res://assets/dialogue/pass_intro.json",
+      "once_flag": "pass_intro_seen",
+      "x": 380.0
+    }
   ],
-  "quest_triggers": [
-    { "x": 220, "quest": "main_great_tiger", "stage": "to_mountain", "only_active": "main_great_tiger" }
+  "backdrop": {
+    "far_scale": 0.08,
+    "sky": [
+      0.52,
+      0.57,
+      0.64
+    ],
+    "tint": [
+      0.7,
+      0.74,
+      0.8
+    ]
+  },
+  "enemies": [
+    {
+      "scene": "Wraith",
+      "x": 520.0,
+      "y": 640.0
+    },
+    {
+      "scene": "DrownedSwarm",
+      "x": 760.0,
+      "y": 656.0
+    },
+    {
+      "scene": "Reaper",
+      "x": 980.0,
+      "y": 656.0
+    },
+    {
+      "scene": "DrownedFerryman",
+      "x": 1140.0,
+      "y": 640.0
+    },
+    {
+      "scene": "DrownedHeavy",
+      "x": 1320.0,
+      "y": 656.0
+    },
+    {
+      "scene": "DrownedSwarm",
+      "x": 620,
+      "y": 656
+    },
+    {
+      "scene": "DrownedSwarm",
+      "x": 880,
+      "y": 656
+    },
+    {
+      "scene": "Wraith",
+      "x": 1230,
+      "y": 640
+    }
+  ],
+  "entries": [
+    {
+      "name": "default",
+      "x": 120.0
+    },
+    {
+      "name": "from_temple",
+      "x": 120.0
+    },
+    {
+      "name": "from_altar",
+      "x": 1480.0
+    }
   ],
   "exits": [
-    { "x": 40, "target": "res://scenes/levels/RuinedTemple.tscn", "entry": "from_mountain", "color": [0.45, 0.45, 0.5, 0.5] },
-    { "x": 1560, "target": "res://scenes/levels/SacredAltar.tscn", "entry": "from_mountain", "color": [0.55, 0.6, 0.7, 0.5] }
+    {
+      "color": [
+        0.45,
+        0.45,
+        0.5,
+        0.5
+      ],
+      "entry": "from_mountain",
+      "target": "res://scenes/levels/RuinedTemple.tscn",
+      "x": 40.0
+    },
+    {
+      "color": [
+        0.55,
+        0.6,
+        0.7,
+        0.5
+      ],
+      "entry": "from_mountain",
+      "target": "res://scenes/levels/SacredAltar.tscn",
+      "x": 1560.0
+    }
+  ],
+  "ground": {
+    "tileset": "rock",
+    "width": 2800.0,
+    "x": -600.0
+  },
+  "npcs": [],
+  "platforms": [
+    {
+      "w": 150.0,
+      "x": 480.0,
+      "y": 612.0
+    },
+    {
+      "w": 130.0,
+      "x": 720.0,
+      "y": 556.0
+    },
+    {
+      "w": 150.0,
+      "x": 980.0,
+      "y": 610.0
+    },
+    {
+      "w": 130.0,
+      "x": 1240.0,
+      "y": 560.0
+    }
+  ],
+  "player_x": 120.0,
+  "props": [
+    {
+      "offset": [
+        -28.0,
+        -88.0
+      ],
+      "scale": 2.0,
+      "tex": "pine",
+      "x": 260.0,
+      "y": 686.0
+    },
+    {
+      "offset": [
+        -28.0,
+        -88.0
+      ],
+      "scale": 1.5,
+      "tex": "pine",
+      "x": 860.0,
+      "y": 686.0
+    },
+    {
+      "offset": [
+        -28.0,
+        -88.0
+      ],
+      "scale": 1.8,
+      "tex": "pine",
+      "x": 1340.0,
+      "y": 686.0
+    },
+    {
+      "offset": [
+        -12.0,
+        -56.0
+      ],
+      "scale": 1.5,
+      "tex": "jangseung",
+      "x": 560.0,
+      "y": 628.0
+    },
+    {
+      "offset": [
+        -16.0,
+        -18.0
+      ],
+      "scale": 1.4,
+      "tex": "stone",
+      "x": 420.0,
+      "y": 682.0
+    },
+    {
+      "offset": [
+        -16.0,
+        -18.0
+      ],
+      "scale": 1.2,
+      "tex": "stone",
+      "x": 900.0,
+      "y": 682.0
+    },
+    {
+      "offset": [
+        -16.0,
+        -18.0
+      ],
+      "scale": 1.5,
+      "tex": "stone",
+      "x": 1160.0,
+      "y": 682.0
+    }
+  ],
+  "quest_triggers": [
+    {
+      "only_active": "main_great_tiger",
+      "quest": "main_great_tiger",
+      "stage": "to_mountain",
+      "x": 220.0
+    }
   ]
 }

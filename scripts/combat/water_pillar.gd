@@ -81,6 +81,8 @@ func _erupt() -> void:
         _col.disabled = false
     Audio.play_sfx(Sfx.ATTACK)
     ScreenFx.shake(4.0, 0.12)
+    # PixelLab 물기둥 스프라이트 — 코드 라인 위에 얹어 질감을 준다.
+    SkillFx.water_pillar_art(global_position, HEIGHT)
     # 기둥 3겹(깊은물 → 물빛 → 거품) — 아래에서 위로 뻗었다 흩어진다.
     for L in [[16.0, Color(SkillFx.WATER_DEEP.r, SkillFx.WATER_DEEP.g, SkillFx.WATER_DEEP.b, 0.6)],
             [10.0, SkillFx.WATER], [4.0, SkillFx.FOAM]]:

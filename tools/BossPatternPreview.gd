@@ -60,6 +60,22 @@ func _ready() -> void:
     for i in range(30):
         await get_tree().physics_frame
 
+    if pattern == "entrance":
+        # 플레이어를 교전 거리 안으로 옮겨 등장 연출을 유발
+        player.global_position = Vector2(760, GROUND_Y - 60)
+        for i in range(6):
+            await get_tree().physics_frame
+        for t in [0.35, 0.9, 1.5, 2.4]:
+            await get_tree().create_timer(0.45).timeout
+            await RenderingServer.frame_post_draw
+            var im := get_viewport().get_texture().get_image()
+            var pp := "res://%s_entrance_%.1f.png" % [out, t]
+            DirAccess.make_dir_recursive_absolute(
+                ProjectSettings.globalize_path("res://") + pp.get_base_dir().trim_prefix("res://"))
+            im.save_png(ProjectSettings.globalize_path(pp))
+            print("[BP] ", pp)
+        get_tree().quit(0)
+        return
     match pattern:
         "volley":  boss.call("_do_volley")
         "pillars": boss.call("_do_pillars")
@@ -81,3 +97,6 @@ func _ready() -> void:
         img.save_png(ProjectSettings.globalize_path(p))
         print("[BP] ", p)
     get_tree().quit(0)
+
+
+# --pattern=entrance 는 보스에게 접근해 등장 연출을 유발하고 캡처한다.

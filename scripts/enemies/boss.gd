@@ -85,6 +85,9 @@ var _tint_base: Color = Color.WHITE
 var _spr_base_scale: Vector2 = Vector2.ZERO
 # 플레이어를 처음 교전하는 순간 등장 연출을 한 번만 재생.
 var _engaged: bool = false
+## 등장 연출이 재생되는 동안 참 — 이때는 어떤 패턴도 나가지 않는다.
+## (연출은 비동기라 이 잠금이 없으면 다음 프레임에 바로 공격이 시작된다.)
+var _entrance_playing: bool = false
 
 
 ## EnemyVisual 이 읽는 애니메이션 힌트. 빈 문자열이면 visual 이 velocity 로 idle/walk 결정.
@@ -164,6 +167,8 @@ func _physics_process(delta: float) -> void:
 
 func _tick_idle(_delta: float) -> void:
     velocity.x = move_toward(velocity.x, 0.0, 400.0)
+    if _entrance_playing:
+        return                                   # 등장 연출 중엔 아무것도 하지 않는다
     var p := _player()
     if p == null:
         return
@@ -172,9 +177,75 @@ func _tick_idle(_delta: float) -> void:
         _facing_right = p.global_position.x >= global_position.x
         if not _engaged:
             _engaged = true
-            SkillFx.boss_entrance(global_position)
-            ScreenFx.shake(12.0, 0.4)
+            _play_entrance()          # 등장 연출이 끝난 뒤에 첫 패턴이 나간다
+            return
         _enter_telegraph()
+
+
+
+# ── 등장 연출 ──────────────────────────────────────────────────
+## 처음 교전하는 순간 한 번. 물기둥이 솟구쳐 보스를 드러내고, 이름이 떠오른다.
+## 연출 동안 보스는 IDLE 로 굳어 있고(공격 안 함), 끝나면 첫 패턴으로 들어간다.
+func _play_entrance() -> void:
+    _entrance_playing = true
+    _state = State.IDLE
+    _state_timer = 999.0                     # 연출 중 자동 전이 방지
+    velocity.x = 0.0
+    if sprite:
+        sprite.modulate = _tint_base
+    Audio.play_sfx(Sfx.WARD)
+    ScreenFx.shake(16.0, 0.6)
+    ScreenFx.rumble(120)
+    SkillFx.boss_water_rise(global_position, 1.6)
+    SkillFx.boss_entrance(global_position)
+    _show_name_plate()
+    await get_tree().create_timer(1.15).timeout
+    if not is_instance_valid(self) or _state == State.DEAD:
+        _entrance_playing = false
+        return
+    ScreenFx.shake(10.0, 0.35)
+    Audio.play_sfx(Sfx.ATTACK)
+    await get_tree().create_timer(0.75).timeout
+    _entrance_playing = false
+    if not is_instance_valid(self) or _state == State.DEAD:
+        return
+    _state_timer = 0.0
+    _enter_telegraph()
+
+
+## 화면 아래쪽에 보스 이름을 잠깐 띄운다(사극체 호칭 — 수묵 톤).
+func _show_name_plate() -> void:
+    var layer := CanvasLayer.new()
+    layer.layer = 9
+    add_child(layer)
+    var box := VBoxContainer.new()
+    box.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
+    box.anchor_left = 0.5; box.anchor_right = 0.5; box.anchor_top = 1.0; box.anchor_bottom = 1.0
+    box.offset_left = -300; box.offset_right = 300; box.offset_top = -190; box.offset_bottom = -100
+    box.add_theme_constant_override("separation", 2)
+    var name_label := Label.new()
+    name_label.text = display_name
+    name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+    name_label.add_theme_font_size_override("font_size", 40)
+    name_label.add_theme_color_override("font_color", Color(0.93, 0.90, 0.82))
+    name_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.85))
+    name_label.add_theme_constant_override("outline_size", 8)
+    box.add_child(name_label)
+    var sub := Label.new()
+    sub.text = "닫힌 수문 앞에서 잠긴 넋들"
+    sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+    sub.add_theme_font_size_override("font_size", 16)
+    sub.add_theme_color_override("font_color", Color(0.72, 0.78, 0.84))
+    sub.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.8))
+    sub.add_theme_constant_override("outline_size", 5)
+    box.add_child(sub)
+    box.modulate = Color(1, 1, 1, 0)
+    layer.add_child(box)
+    var tw := box.create_tween()
+    tw.tween_property(box, "modulate:a", 1.0, 0.5)
+    tw.tween_interval(1.8)
+    tw.tween_property(box, "modulate:a", 0.0, 0.7)
+    tw.tween_callback(layer.queue_free)
 
 
 func _tick_telegraph(_delta: float) -> void:

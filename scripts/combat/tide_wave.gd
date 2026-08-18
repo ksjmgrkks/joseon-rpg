@@ -78,6 +78,8 @@ func _draw_wave() -> void:
         var tw := line.create_tween().set_loops()
         tw.tween_property(line, "position:y", -3.0, 0.22)
         tw.tween_property(line, "position:y", 0.0, 0.22)
+    # PixelLab 물마루 스프라이트 — 코드 라인 위에 얹어 부피를 준다.
+    SkillFx.tide_crest_art(self, dir)
     # 앞머리에서 튀는 물보라
     var spray := Timer.new()
     spray.wait_time = 0.12

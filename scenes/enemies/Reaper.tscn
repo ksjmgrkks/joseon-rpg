@@ -37,6 +37,7 @@ detect_range = 180.0
 xp_reward = 34
 
 [node name="Sprite2D" type="AnimatedSprite2D" parent="."]
+scale = Vector2(1.25, 1.25)
 script = ExtResource("vis_enemy")
 sheet = "enemies/reaper"
 foot_offset = -22.0

@@ -36,6 +36,7 @@ drop_chance = 0.46
 drop_gold_chance = 0.36
 
 [node name="Sprite2D" type="AnimatedSprite2D" parent="."]
+scale = Vector2(1.35, 1.35)
 script = ExtResource("vis_enemy")
 sheet = "enemies/boatman"
 foot_offset = -32.5

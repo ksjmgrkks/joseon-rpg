@@ -10,26 +10,36 @@
 [ext_resource type="Script" path="res://scripts/visual/enemy_visual.gd" id="5_vis"]
 
 [sub_resource type="RectangleShape2D" id="body"]
-size = Vector2(70, 150)
+size = Vector2(86, 186)
 
 [sub_resource type="RectangleShape2D" id="hurt"]
-size = Vector2(120, 210)
+size = Vector2(150, 262)
 
 [sub_resource type="RectangleShape2D" id="hit"]
-size = Vector2(130, 120)
+size = Vector2(160, 150)
 
 [node name="Boss" type="CharacterBody2D"]
 script = ExtResource("1_boss")
 display_name = "수문의 원혼"
 body_color = Color(0.42, 0.58, 0.64, 1)
-engage_distance = 380.0
-telegraph_seconds = 0.82
+engage_distance = 440.0
+telegraph_seconds = 0.62
 attack_seconds = 0.40
-recover_seconds = 1.35
-dash_speed = 300.0
-dash_reach = 74.0
-attack_damage = 20.0
-attack_knockback = 340.0
+recover_seconds = 0.85
+dash_speed = 360.0
+dash_reach = 90.0
+volley_count = 7
+volley_damage = 12.0
+volley_speed = 300.0
+volley_spread_deg = 54.0
+pillar_count = 4
+pillar_damage = 18.0
+pillar_warn = 0.6
+wave_damage = 16.0
+wave_speed = 300.0
+summon_count = 3
+attack_damage = 26.0
+attack_knockback = 380.0
 xp_reward = 240
 reward_item_id = "tiger_tooth"
 reward_item_qty = 1
@@ -40,8 +50,9 @@ scene_on_death = "res://scenes/ui/Ending.tscn"
 
 [node name="Sprite2D" type="AnimatedSprite2D" parent="."]
 script = ExtResource("5_vis")
+scale = Vector2(1.25, 1.25)
 sheet = "enemies/flood_wraith"
-foot_offset = -41.0
+foot_offset = -41.6
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("body")
@@ -50,12 +61,12 @@ shape = SubResource("body")
 script = ExtResource("2_hurt")
 
 [node name="HurtboxShape" type="CollisionShape2D" parent="Hurtbox"]
-position = Vector2(0, -30)
+position = Vector2(0, -38)
 shape = SubResource("hurt")
 
 [node name="HealthComponent" type="Node" parent="."]
 script = ExtResource("3_health")
-max_hp = 560.0
+max_hp = 760.0
 hurtbox_path = NodePath("../Hurtbox")
 
 [node name="AttackHitbox" type="Area2D" parent="."]

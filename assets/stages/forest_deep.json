@@ -1,47 +1,232 @@
 {
-  "auto_quest": { "id": "main_tiger_lord", "stage": "boss_arena" },
-  "backdrop": {
-    "sky": [0.55, 0.60, 0.55],
-    "tint": [0.74, 0.80, 0.74],
-    "far_scale": 0.10
-  },
-  "ground": { "tileset": "earth", "width": 2800, "x": -600, "tint": [0.84, 0.88, 0.82] },
-  "player_x": 100,
-  "entries": [
-    { "name": "default", "x": 100 },
-    { "name": "from_field", "x": 100 }
-  ],
-  "platforms": [
-    { "x": 560, "y": 610, "w": 140 },
-    { "x": 820, "y": 556, "w": 130 },
-    { "x": 1080, "y": 606, "w": 150 }
-  ],
-  "props": [
-    { "tex": "pine", "x": 200, "y": 686, "scale": 2.4, "offset": [-28, -88] },
-    { "tex": "pine", "x": 420, "y": 686, "scale": 1.8, "offset": [-28, -88] },
-    { "tex": "pine", "x": 680, "y": 686, "scale": 2.1, "offset": [-28, -88] },
-    { "tex": "pine", "x": 940, "y": 686, "scale": 1.6, "offset": [-28, -88] },
-    { "tex": "pine", "x": 1180, "y": 686, "scale": 2.2, "offset": [-28, -88] },
-    { "tex": "pine", "x": 1420, "y": 686, "scale": 1.7, "offset": [-28, -88] },
-    { "tex": "shrine_ruin", "x": 860, "y": 684, "scale": 1.6, "offset": [-48, -88] },
-    { "tex": "jangseung", "x": 300, "y": 628, "scale": 1.3, "offset": [-12, -56] },
-    { "tex": "stone", "x": 1000, "y": 682, "scale": 1.1, "offset": [-16, -18] }
-  ],
   "auto_dialogues": [
-    { "x": 150, "dialogue": "res://assets/dialogue/tut_skill.json", "once_flag": "tut_skill_seen", "w": 90 },
-    { "x": 560, "dialogue": "res://assets/dialogue/forest_omen.json", "once_flag": "forest_omen_seen", "w": 110 }
+    {
+      "dialogue": "res://assets/dialogue/tut_skill.json",
+      "once_flag": "tut_skill_seen",
+      "w": 90.0,
+      "x": 150.0
+    },
+    {
+      "dialogue": "res://assets/dialogue/forest_omen.json",
+      "once_flag": "forest_omen_seen",
+      "w": 110.0,
+      "x": 560.0
+    }
   ],
+  "auto_quest": {
+    "id": "main_tiger_lord",
+    "stage": "boss_arena"
+  },
+  "backdrop": {
+    "far_scale": 0.1,
+    "sky": [
+      0.55,
+      0.6,
+      0.55
+    ],
+    "tint": [
+      0.74,
+      0.8,
+      0.74
+    ]
+  },
   "enemies": [
-    { "scene": "Wraith", "x": 700, "y": 640 },
-    { "scene": "DrownedSwarm", "x": 920, "y": 656 },
-    { "scene": "Reaper", "x": 1080, "y": 656 },
-    { "scene": "DrownedFerryman", "x": 1260, "y": 656 }
+    {
+      "scene": "Wraith",
+      "x": 700.0,
+      "y": 640.0
+    },
+    {
+      "scene": "DrownedSwarm",
+      "x": 920.0,
+      "y": 656.0
+    },
+    {
+      "scene": "Reaper",
+      "x": 1080.0,
+      "y": 656.0
+    },
+    {
+      "scene": "DrownedFerryman",
+      "x": 1260.0,
+      "y": 656.0
+    },
+    {
+      "scene": "DrownedSwarm",
+      "x": 560,
+      "y": 656
+    },
+    {
+      "scene": "DrownedSwarm",
+      "x": 820,
+      "y": 656
+    },
+    {
+      "scene": "Wraith",
+      "x": 1170,
+      "y": 640
+    }
   ],
-  "gates": [
-    { "x": 1360, "y": 600, "flag": "forest_cleared", "height": 260 }
+  "entries": [
+    {
+      "name": "default",
+      "x": 100.0
+    },
+    {
+      "name": "from_field",
+      "x": 100.0
+    }
   ],
   "exits": [
-    { "x": 40, "target": "res://scenes/levels/Foothills.tscn", "entry": "from_village", "color": [0.45, 0.5, 0.4, 0.5] },
-    { "x": 1490, "target": "res://scenes/levels/BossArena.tscn", "entry": "from_forest", "color": [0.55, 0.25, 0.2, 0.5] }
+    {
+      "color": [
+        0.45,
+        0.5,
+        0.4,
+        0.5
+      ],
+      "entry": "from_village",
+      "target": "res://scenes/levels/Foothills.tscn",
+      "x": 40.0
+    },
+    {
+      "color": [
+        0.55,
+        0.25,
+        0.2,
+        0.5
+      ],
+      "entry": "from_forest",
+      "target": "res://scenes/levels/BossArena.tscn",
+      "x": 1490.0
+    }
+  ],
+  "gates": [
+    {
+      "flag": "forest_cleared",
+      "height": 260.0,
+      "x": 1360.0,
+      "y": 600.0
+    }
+  ],
+  "ground": {
+    "tileset": "earth",
+    "tint": [
+      0.84,
+      0.88,
+      0.82
+    ],
+    "width": 2800.0,
+    "x": -600.0
+  },
+  "platforms": [
+    {
+      "w": 140.0,
+      "x": 560.0,
+      "y": 610.0
+    },
+    {
+      "w": 130.0,
+      "x": 820.0,
+      "y": 556.0
+    },
+    {
+      "w": 150.0,
+      "x": 1080.0,
+      "y": 606.0
+    }
+  ],
+  "player_x": 100.0,
+  "props": [
+    {
+      "offset": [
+        -28.0,
+        -88.0
+      ],
+      "scale": 2.4,
+      "tex": "pine",
+      "x": 200.0,
+      "y": 686.0
+    },
+    {
+      "offset": [
+        -28.0,
+        -88.0
+      ],
+      "scale": 1.8,
+      "tex": "pine",
+      "x": 420.0,
+      "y": 686.0
+    },
+    {
+      "offset": [
+        -28.0,
+        -88.0
+      ],
+      "scale": 2.1,
+      "tex": "pine",
+      "x": 680.0,
+      "y": 686.0
+    },
+    {
+      "offset": [
+        -28.0,
+        -88.0
+      ],
+      "scale": 1.6,
+      "tex": "pine",
+      "x": 940.0,
+      "y": 686.0
+    },
+    {
+      "offset": [
+        -28.0,
+        -88.0
+      ],
+      "scale": 2.2,
+      "tex": "pine",
+      "x": 1180.0,
+      "y": 686.0
+    },
+    {
+      "offset": [
+        -28.0,
+        -88.0
+      ],
+      "scale": 1.7,
+      "tex": "pine",
+      "x": 1420.0,
+      "y": 686.0
+    },
+    {
+      "offset": [
+        -48.0,
+        -88.0
+      ],
+      "scale": 1.6,
+      "tex": "shrine_ruin",
+      "x": 860.0,
+      "y": 684.0
+    },
+    {
+      "offset": [
+        -12.0,
+        -56.0
+      ],
+      "scale": 1.3,
+      "tex": "jangseung",
+      "x": 300.0,
+      "y": 628.0
+    },
+    {
+      "offset": [
+        -16.0,
+        -18.0
+      ],
+      "scale": 1.1,
+      "tex": "stone",
+      "x": 1000.0,
+      "y": 682.0
+    }
   ]
 }

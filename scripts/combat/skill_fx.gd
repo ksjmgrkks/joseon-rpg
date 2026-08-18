@@ -1063,3 +1063,98 @@ func ground_shock(pos: Vector2, reach: float = 320.0) -> void:
         ct.tween_property(cl, "modulate:a", 0.0, 0.3)
         ct.tween_callback(cl.queue_free)
     _ground_dust(pos)
+
+
+# ════════════ 보스 전용 물 이펙트 (PixelLab 아트 + 코드 연출) ════════════
+
+## 물기둥 — 솟구치는 순간 스프라이트를 아래에서 위로 늘리며 띄운다.
+## 코드로 그린 선기둥 위에 얹혀 질감을 준다(아트 없으면 조용히 건너뜀).
+func water_pillar_art(pos: Vector2, height: float) -> void:
+    var host := _host()
+    if host == null:
+        return
+    var tex := _fx_tex("water_pillar" if randf() < 0.5 else "water_pillar_swirl")
+    if tex == null:
+        return
+    var spr := Sprite2D.new()
+    spr.texture = tex
+    spr.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+    spr.centered = false
+    # 스프라이트 밑동을 지면에, 높이를 판정(height)에 맞춰 스케일
+    var s := height / float(maxi(1, tex.get_height()))
+    spr.scale = Vector2(s * 1.15, 0.2)
+    spr.global_position = pos - Vector2(tex.get_width() * s * 0.575, 0.0)
+    spr.z_index = 9
+    spr.modulate = Color(1, 1, 1, 0.95)
+    host.add_child(spr)
+    # 솟구침: 세로로 뻗었다가 사그라든다
+    var tw := spr.create_tween()
+    tw.tween_property(spr, "scale", Vector2(s * 1.15, s), 0.14).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+    tw.parallel().tween_property(spr, "global_position:y", pos.y - height * 0.02, 0.14)
+    tw.tween_interval(0.22)
+    tw.tween_property(spr, "modulate:a", 0.0, 0.3)
+    tw.tween_callback(spr.queue_free)
+
+
+## 밀물 — 물결 노드에 물마루 스프라이트를 자식으로 붙인다(같이 움직이도록).
+func tide_crest_art(wave: Node2D, dir: float) -> void:
+    if wave == null or not is_instance_valid(wave):
+        return
+    var tex := _fx_tex("tide_crest")
+    if tex == null:
+        return
+    var spr := Sprite2D.new()
+    spr.texture = tex
+    spr.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+    spr.centered = false
+    var s := 0.62
+    spr.scale = Vector2(s * (1.0 if dir >= 0.0 else -1.0), s)
+    # 밑동을 지면(부모 원점)에 맞추고, 진행 방향 앞쪽으로 살짝 내밀기
+    spr.position = Vector2(dir * -tex.get_width() * s * 0.45, -tex.get_height() * s + 6.0)
+    spr.z_index = 6
+    spr.modulate = Color(1, 1, 1, 0.92)
+    wave.add_child(spr)
+    # 물결이 일렁이도록 세로만 미세하게 출렁
+    var tw := spr.create_tween().set_loops()
+    tw.tween_property(spr, "scale:y", s * 1.1, 0.26).set_trans(Tween.TRANS_SINE)
+    tw.tween_property(spr, "scale:y", s, 0.26).set_trans(Tween.TRANS_SINE)
+
+
+## 보스 등장 — 땅이 갈라지고 거대한 물기둥이 솟구친 뒤 그 속에서 보스가 선다.
+## dur 초 동안 진행(보스 쪽에서 await 로 맞춘다).
+func boss_water_rise(pos: Vector2, dur: float = 1.6) -> void:
+    var host := _host()
+    if host == null:
+        return
+    # ① 발밑 파문이 크게 번진다
+    _pulse_ring(host, pos + Vector2(0, 2), 26.0, 6.0, Color(WATER.r, WATER.g, WATER.b, 0.85), 6.0, dur * 0.5, 29)
+    _pulse_ring(host, pos + Vector2(0, 2), 40.0, 3.0, Color(FOAM.r, FOAM.g, FOAM.b, 0.7), 5.0, dur * 0.7, 29)
+    # ② 거대 물기둥 스프라이트가 솟았다가 가라앉으며 보스를 드러낸다
+    var tex := _fx_tex("boss_geyser")
+    if tex != null:
+        var spr := Sprite2D.new()
+        spr.texture = tex
+        spr.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+        spr.centered = false
+        var s := 2.6
+        spr.scale = Vector2(s, 0.1)
+        spr.global_position = pos - Vector2(tex.get_width() * s * 0.5, 0.0)
+        spr.z_index = 24                       # 보스보다 앞 — 솟구칠 때 잠깐 가린다
+        host.add_child(spr)
+        var tw := spr.create_tween()
+        tw.tween_property(spr, "scale", Vector2(s, s), dur * 0.35).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+        tw.parallel().tween_property(spr, "global_position:y", pos.y, dur * 0.35)
+        tw.tween_interval(dur * 0.25)
+        tw.tween_property(spr, "scale:y", s * 0.15, dur * 0.4).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+        tw.parallel().tween_property(spr, "modulate:a", 0.0, dur * 0.4)
+        tw.tween_callback(spr.queue_free)
+    # ③ 사방으로 튀는 물보라 — 시간차로 계속
+    var ticks := maxi(3, int(dur / 0.12))
+    for t in range(ticks):
+        if not is_instance_valid(host):
+            return
+        for i in range(3):
+            var a := -PI * 0.5 + randf_range(-1.3, 1.3)
+            var end := pos + Vector2(cos(a), sin(a)) * randf_range(70.0, 190.0)
+            _mote(host, pos, end, randf_range(2.0, 4.0), FOAM if i == 0 else WATER, randf_range(0.35, 0.6), 25)
+        await get_tree().create_timer(0.12).timeout
