@@ -87,9 +87,9 @@ var _hover_lock: bool = false
 const ULT_RISE: float = 120.0        # 떠오르는 높이(px)
 const ULT_RISE_TIME: float = 0.3
 const ULT_SLAM_TIME: float = 0.12    # 내리꽂는 시간 — 짧을수록 묵직
-const HOECHEON_RISE: float = 56.0    # 물등 시전 중 뜨는 높이(px) — 궁극기보다 얕게
-const HOECHEON_RISE_TIME: float = 0.22
-const HOECHEON_LAND_TIME: float = 0.16
+const HOECHEON_RISE: float = 150.0   # 물등 시전 중 뜨는 높이(px) — 궁극기보다 높게
+const HOECHEON_RISE_TIME: float = 0.32
+const HOECHEON_LAND_TIME: float = 0.2
 # 낙사 안전망 — 마지막으로 땅을 밟았던 안전 위치
 var _last_safe_pos: Vector2 = Vector2.ZERO
 var _has_safe_pos: bool = false
@@ -646,10 +646,11 @@ func _skill_hoecheon() -> void:
     if not is_instance_valid(self) or not _hover_lock:
         return
 
-    # ② 투척 — 바라보는 방향으로 부채꼴 다발.
+    # ② 투척 — 바라보는 방향의 대각선 아래로 부채꼴 다발(높이 떠 있으니 아래를 겨눔).
     var dir := 1.0 if _facing_right else -1.0
     var count := int(def.get("count", 7))
     var spread_deg := float(def.get("spread_deg", 70.0))
+    var down_deg := float(def.get("down_deg", 40.0))
     var speed := float(def.get("speed", 620.0))
     var life := float(def.get("life", 0.85))
     var dmg := Equipment.current_damage(attack_hitbox.damage) * float(def.get("damage_mult", 1.6))
@@ -660,11 +661,14 @@ func _skill_hoecheon() -> void:
     SkillFx.ward_cast(global_position)
     var host: Node = get_tree().current_scene
     var half: float = deg_to_rad(spread_deg) * 0.5
+    var down_ang: float = deg_to_rad(down_deg)
+    # 기준 방향 = 바라보는 쪽으로 down_deg 만큼 아래로 꺾인 대각선. 부채꼴은 이 기준 둘레로 퍼진다.
+    var base_dir: Vector2 = Vector2(dir * cos(down_ang), sin(down_ang))
     var denom: float = maxf(float(count - 1), 1.0)
     for i in range(count):
         var t: float = float(i) / denom   # 0..1
         var ang: float = lerp(-half, half, t)
-        var shot_dir: Vector2 = Vector2(dir, 0.0).rotated(ang)
+        var shot_dir: Vector2 = base_dir.rotated(ang)
         TalismanShot.spawn(host, global_position, shot_dir, dmg, knock, speed, life, self)
 
     # ③ 착지 — 짧게 내려온다.
