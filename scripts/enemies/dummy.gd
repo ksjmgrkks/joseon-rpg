@@ -6,7 +6,7 @@ extends CharacterBody2D
 
 const GRAVITY: float = 980.0
 const KNOCKBACK_DECAY: float = 800.0   # px/s² 마찰 (낮을수록 멀리 밀림)
-const KNOCK_RECEIVE: float = 1.2       # 받는 넉백 배수 — 타격감 (2026-08-18: 1.6→1.2, 사용자 피드백)
+const KNOCK_RECEIVE: float = 1.0       # 받는 넉백 배수 — 타격감 (2026-08-18: 1.6→1.2→1.0, 사용자 피드백)
 
 @export var xp_reward: int = 8
 
