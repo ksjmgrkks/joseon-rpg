@@ -29,3 +29,6 @@ Thumbs.db
 # Python
 __pycache__/
 *.pyc
+
+# MCP 설정 — API 키가 들어가므로 커밋 금지 (PixelLab 등)
+.mcp.json
