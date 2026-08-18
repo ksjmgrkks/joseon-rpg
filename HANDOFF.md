@@ -69,25 +69,27 @@
 # 📍 PART 2. 현재 상황 (어디까지 했는가)
 
 ## 현재 상태 (한 줄 요약)
-> ## ▶ 다음 세션 시작점 (2026-08-18 기준 · 여기부터 읽으면 됨)
+> ## ▶ 다음 세션 시작점 (2026-08-18 갱신 · 여기부터 읽으면 됨)
 >
-> **상태:** `main` = `d80adf4` + 로컬 커밋(사이드 진혼 1호, 아래 참조, **미푸시·미검증**). 헤드리스는 `d80adf4` 기준 **46스위트 전부 그린** 확인됨, 웹 배포 정상.
+> **상태:** `main` = `d80adf4`, 로컬이 `ac69cd0`까지 2커밋 앞섬(사이드 진혼 3기 배선, **이 세션에서 헤드리스 검증 완료·아직 미푸시 — 사용자 승인 대기**). **헤드리스 46스위트 전부 그린 재확인**(`test_story_data`·`test_endings`·`test_haewon_chain`·`test_gameplay_chain`·`test_combat_gate` 포함 — 그룹 리네임·선택 전투 신설로 인한 회귀 없음).
 > 이야기 모드는 메뉴 「이야기」 → 1막부터 **7막+엔딩까지 처음부터 끝까지 이어진다**(v2 전 구간 작성 완료).
 >
-> **환경 메모:** 이 PC에 Godot 4.6.3 설치됨(`C:\Users\User\Downloads\Godot_v4.6.3-stable_win64.exe\`, 실제 릴리스 파일명은 `_win64.exe.zip`). `플레이.bat` 그대로 동작. 검증 도구: `tools/Screenshot.tscn`(`--touch` 로 터치 UI 강제, `--cam=x,y` 로 프레이밍), `tools/SkillFxPreview.tscn`(스킬 연속 프레임), `tools/TouchHitProbe.tscn`(**창 모드 필수** — 터치 판정 실측), `tools/HpBarPreview.tscn`.
+> **환경 메모:** 이 텔레그램/WSL 세션에 **Godot 4.6.3 바이너리가 새로 생김**(`~/godot-bin/godot`, headless만 — 디스플레이 없어 스크린샷/시각검증 불가). PC 쪽은 여전히 `C:\Users\User\Downloads\Godot_v4.6.3-stable_win64.exe\`(`_win64.exe.zip`), `플레이.bat`. 검증 도구: `tools/Screenshot.tscn`(`--touch`·`--cam=x,y`), `tools/SkillFxPreview.tscn`, `tools/TouchHitProbe.tscn`(**창 모드 필수**), `tools/HpBarPreview.tscn` — 전부 PC 전용(디스플레이 필요).
 >
 > **다음 할 일 (우선순위 순):**
 > 1. **사용자 플레이 피드백 대기 중** — "어느 장면이 어색한지" 구체 지적을 받으면 그 장면만 집중 수리. (지금까지는 '담 안에서 산이 보이던 것'만 잡은 상태)
-> 2. **무릎 꿇은 포즈 아트** — 「마당의 매질」에서 주인공이 서 있다. `protagonist/hurt.png`(144×64) 프레임 슬라이싱이 깨져 되돌렸으니, 컷신 전용 포즈 1장을 새로 만드는 편이 빠르다.
-> 3. **사이드 진혼 실체화 — 3기 배선 완료(미검증).** 엔진에 "선택 전투" 개념 신설(`patroller.optional`+`on_death_flag`, 결계는 새 `enemy_gate` 그룹만 셈 — 안 죽여도 통과) + 4막·6막전반·7막 세 곳에 배치, `EndingResolver.BURN_FLAGS`에 전부 연결(총 4단서+3전투=7종). 더 늘릴지는 플레이 피드백 보고 판단(스키마는 `stage.gd` 상단 주석 참고). **⚠ Godot 없는 세션이라 헤드리스 미실행 — 다음 PC/CI 세션에서 반드시 그린 확인.**
-> 4. **모바일 앱 출시 B안** — Android SDK·keystore 세팅 → 실제 APK 빌드 → 실기기 확인(진동 체감 포함). 절차는 `docs/RELEASE_MOBILE.md`. 런처 아이콘 미제작.
-> 5. (여유될 때) 씬 파일명 v1 잔재 개명 — `Haewon1Ferry/2Market/4Watergate/5EmptyTown` 이 v2 내용(물빛/문턱/우물/사당)과 안 맞는다. 참조가 많아 일괄 작업 필요.
+> 2. **무릎 꿇은 포즈 아트** — 「마당의 매질」에서 주인공이 서 있다. `protagonist/hurt.png`(144×64) 프레임 슬라이싱이 깨져 되돌렸으니, 컷신 전용 포즈 1장을 새로 만드는 편이 빠르다. **⚠ PixelLab 구독 여전히 만료 상태(2026-08-18 재확인, 2026-07-26 만료·잔여 0/2000) — 갱신 전까지 착수 불가.**
+> 3. ~~사이드 진혼 실체화 3기 배선~~ — **이 세션에서 헤드리스 그린 확인 완료.** 남은 건 사용자 승인 후 푸시뿐(아래 참조).
+> 4. **모바일 앱 출시 B안** — Android SDK·keystore 세팅 → 실제 APK 빌드 → 실기기 확인(진동 체감 포함). 절차는 `docs/RELEASE_MOBILE.md`. 런처 아이콘 미제작. (PC 전용 작업)
+> 5. (여유될 때) 씬 파일명 v1 잔재 개명 — `Haewon1Ferry/2Market/4Watergate/5EmptyTown` 이 v2 내용(물빛/문턱/우물/사당)과 안 맞는다. **범위 확인함(2026-08-18):** scene 4개·stage JSON 6개·cutscene JSON 1개·`save_manager.gd`(세이브 경로 문자열 포함!)·`main_menu.gd`·`bgm_director.gd`·테스트 2개·`tools/DlgShot.gd` 총 15곳. 세이브 호환 깨질 위험 있어 신중히.
 >
 > **판단이 필요한 것:** 스코어어택 모드(메뉴 '새로 시작')를 계속 유지할지 — 현재 두 모드가 병존하며 `stage.gd`의 `GAMEPLAY_ONLY=true` 가 그 경로를 지킨다.
 >
 > ---
 >
-> **지금 여기 (2026-08-18 텔레그램/WSL, Godot 없는 세션 — 사이드 진혼 1호 배선 + PixelLab 만료 발견):** "HANDOFF 읽고 이어서" 지시로 시작. 로컬이 `4751f99`(스코어어택 피벗)에 멈춰 있어 `git pull`로 `d80adf4`까지 동기(스토리 v2 대개편이 이미 반영돼 있었음 — 로컬 감사 필요했음). "다음 세션 시작점" 항목 3(사이드 진혼 실체화)을 코드/데이터만으로 진행. **①PixelLab 구독 만료 확인**(2026-07-26 만료, 잔여 0/2000, 갱신 전까지 생성 불가) → 항목 2(무릎 꿇은 포즈 아트)는 이 세션에서 착수 불가, 갱신 후로 보류. **②선택 전투 엔진 신설:** 결계(`combat_gate.gd`)가 세던 "enemy" 그룹을 그대로 두고 새 **"enemy_gate"** 그룹을 결계 판정 전용으로 분리 — `patroller.gd`에 `optional`(true면 enemy_gate 미가입, 결계를 막지 않음)+`on_death_flag`(처치 시 플래그) export 신설, `dummy.gd`/`boss.gd`는 무조건 enemy_gate 가입(기존 필수 전투 동작 불변 확인 — 두 곳 다 기본값 false라 회귀 없음). `stage.gd._build_enemies`가 JSON `optional`/`on_death_flag`를 그대로 전달. ③**4막에 1호 배치**(`haewon_3_village.json` — 신칼 두고 간 무당마저 손 못 댄 넋, x=460 Wraith, `haewon_side_lost_wraith`) → `EndingResolver.BURN_FLAGS` 5번째 항목으로 연결(저울 로직은 burned count 기반이라 4→5개도 그대로 동작, `test_endings` 조합 전수 영향 없음 확인). ④**data-integrity 테스트 신설**(`test_story_data._check_side_battle_flags`) — 모든 `on_death_flag`가 `optional=true`이면서 `BURN_FLAGS`에 등록돼 있는지 전수 검사(설계 실수 방지: 필수 전투에 잘못 플래그 달았거나, 죽은 플래그가 남는 경우 즉시 잡음). **⚠ 이 세션은 Godot 없어 헤드리스 미실행·시각 미확인 — 로컬 커밋만 완료, 사용자 승인 전 미푸시([[feedback_git_push]]).**
+> **지금 여기 (2026-08-18 텔레그램/WSL — Godot 바이너리 발견, 사이드 진혼 3기 헤드리스 그린 검증):** "HANDOFF 읽고 이어서" 지시로 시작. 직전 세션이 "Godot 없는 세션"으로 기록해뒀으나 이번엔 `~/godot-bin/godot` 4.6.3 headless 바이너리가 실제로 있어 CI와 동일한 절차(`--headless --import .` ×2 → `tests/*.tscn` 전수)로 **헤드리스 46스위트 전부 그린 확인**(exit code + `[FAIL]` 마커 기준, ObjectDB 잔류 경고는 Godot 종료 시 흔한 무해 로그라 오탐 아님 확인). 사이드 진혼 3기(4막/6막전반/7막) 배선이 회귀 없이 정상 동작. PixelLab 잔여 재확인 결과 여전히 만료 상태라 항목 2는 착수 불가. Android SDK도 이 환경엔 없어 항목 4도 불가. 항목 5(씬 파일명 개명)는 세이브 매니저가 경로 문자열을 참조해 리스크가 있다고 판단, 사용자 확인 없이 단독 진행 안 함. **다음: 사용자에게 푸시 승인 요청.**
+>
+> **이전 (2026-08-18 텔레그램/WSL, Godot 없는 세션 — 사이드 진혼 1호 배선 + PixelLab 만료 발견):** "HANDOFF 읽고 이어서" 지시로 시작. 로컬이 `4751f99`(스코어어택 피벗)에 멈춰 있어 `git pull`로 `d80adf4`까지 동기(스토리 v2 대개편이 이미 반영돼 있었음 — 로컬 감사 필요했음). "다음 세션 시작점" 항목 3(사이드 진혼 실체화)을 코드/데이터만으로 진행. **①PixelLab 구독 만료 확인**(2026-07-26 만료, 잔여 0/2000, 갱신 전까지 생성 불가) → 항목 2(무릎 꿇은 포즈 아트)는 이 세션에서 착수 불가, 갱신 후로 보류. **②선택 전투 엔진 신설:** 결계(`combat_gate.gd`)가 세던 "enemy" 그룹을 그대로 두고 새 **"enemy_gate"** 그룹을 결계 판정 전용으로 분리 — `patroller.gd`에 `optional`(true면 enemy_gate 미가입, 결계를 막지 않음)+`on_death_flag`(처치 시 플래그) export 신설, `dummy.gd`/`boss.gd`는 무조건 enemy_gate 가입(기존 필수 전투 동작 불변 확인 — 두 곳 다 기본값 false라 회귀 없음). `stage.gd._build_enemies`가 JSON `optional`/`on_death_flag`를 그대로 전달. ③**4막에 1호 배치**(`haewon_3_village.json` — 신칼 두고 간 무당마저 손 못 댄 넋, x=460 Wraith, `haewon_side_lost_wraith`) → `EndingResolver.BURN_FLAGS` 5번째 항목으로 연결(저울 로직은 burned count 기반이라 4→5개도 그대로 동작, `test_endings` 조합 전수 영향 없음 확인). ④**data-integrity 테스트 신설**(`test_story_data._check_side_battle_flags`) — 모든 `on_death_flag`가 `optional=true`이면서 `BURN_FLAGS`에 등록돼 있는지 전수 검사(설계 실수 방지: 필수 전투에 잘못 플래그 달았거나, 죽은 플래그가 남는 경우 즉시 잡음). **⚠ 이 세션은 Godot 없어 헤드리스 미실행·시각 미확인 — 로컬 커밋만 완료, 사용자 승인 전 미푸시([[feedback_git_push]]).**
 >
 > **추가(같은 텔레그램 세션 — 사용자 "이미지는 나중, 스토리부터 완성" 지시):** 아트 작업 전부 보류(PixelLab 갱신 후로) + 사이드 진혼을 1기 → **3기로 확장**. 4막(`haewon_side_lost_wraith`, 신칼 두고 간 무당마저 못 푼 넋) / 6막 전반(`haewon_side_nameless_servant`, 곳간 그늘의 이름 없는 종) / 7막(`haewon_side_buried_together`, 증조모 곁에 함께 묻힌 넋) — 세 곳 모두 STORY_BIBLE 톤(신분·익명성·복수의 희생)에 맞춰 명명. `EndingResolver.BURN_FLAGS` 는 이제 4단서+3전투=7종. **다음(최우선):** PC/CI에서 헤드리스 그린 확인(특히 `test_gameplay_chain`·`test_haewon_chain`·`test_endings`·`test_story_data` — 그룹 리네임이 옛 스코어어택 체인에도 영향), 이상 없으면 푸시 승인 요청.
 >
@@ -267,6 +269,7 @@
 ## 완료된 작업 로그 (최신이 위로)
 > 작업 마칠 때마다 한 줄씩 위에 추가 (날짜 + 한 일).
 
+- **2026-08-18 (텔레그램/WSL — 사이드 진혼 3기 헤드리스 그린 검증)** — "조선 rpg 대화 멈춘곳부터 진행" 지시로 시작. `~/godot-bin/godot` 4.6.3 headless 바이너리 발견(직전 세션 기록엔 "Godot 없음"이었으나 이 세션엔 있음). CI와 동일 절차로 `--import` 2회 후 `tests/*.tscn` 46종 전수 실행 → **exit code + `[FAIL]` 마커 기준 46스위트 전부 그린**(사이드 진혼 선택 전투 배선 관련 `test_story_data`·`test_endings`·`test_haewon_chain`·`test_gameplay_chain`·`test_combat_gate` 포함, 회귀 없음). PixelLab 잔여 재확인 → 여전히 만료(항목 2 착수 불가). Android SDK 부재 확인(항목 4 불가). 씬 파일명 개명(항목 5) 참조 범위 조사 — `save_manager.gd`가 세이브 경로 문자열을 포함해 리스크 있다고 판단, 단독 진행 보류. HANDOFF 갱신. **⚠ 디스플레이 없어 시각 검증은 여전히 불가.** **다음: 사용자 푸시 승인 대기.**
 - **2026-08-17 (텔레그램/WSL, Godot 없는 세션 — 인수인계 감사·HANDOFF 갱신만)** — "최근 세션 이어서 진행" 지시로 시작. `git log` 확인 결과 직전 PC세션(2026-08-15, `development` 브랜치)이 게임 방향을 스토리→전투체인 스코어어택으로 크게 전환(3커밋: 통과판정·스코어어택·라이브루프 스토리 제거, 헤드리스 39~41스위트 그린 확인하며 커밋됨)했는데 **HANDOFF에 기록이 전혀 안 남아 있었고, 이 3커밋이 `main`엔 병합/푸시가 안 돼 있어 GitHub Pages 라이브 빌드가 여전히 옛 「해원」 버전**임을 발견. 이 세션은 Godot 없는 환경이라 코드 수정·재검증 불가 → HANDOFF "현재 상태"·"다음 할 일" 갱신으로 기록만 정리. **다음(최우선, 사용자 결정 대기): `development`→`main` 병합·푸시**(항목 21 참조) — 승인 시 즉시 CI 재검증+GitHub Pages 배포 가능.
 - **2026-07-11 (텔레그램 — 신규 원혼 아트 + 대사 개편 + 소거 끔 + '남은 적' 제거 + 웹빌드 진단)** — 사용자 4건. **신규 원혼(진짜 새 아트):** PixelLab v3로 저승 뱃사공 넋·물아이 넋 캐릭터 신규 생성 → idle/walk/death east 애니 → **PIL 없이 Godot 조립**(/tmp/assemble.gd: CDN 프레임 curl → get_used_rect union bbox 크롭 → 스트립+manifest)로 assets/sprites/enemies/boatman·waterchild 시트화. DrownedFerryman/DrownedChild 씬 신설, forest_deep·mountain_pass·ruined_temple 배치, 물아이 조우 대사 추가. foot_offset 스샷 검증. **대사:** 전투 체인 대사를 호환 잔재 제거+물 진혼 톤으로 재작성, 오글거림 절제, tut_skill 새 스킬명. **소거 끔:** dialogue_balloon에서 기억 소거(글자 흐려짐) 배선 제거→대사 항상 또렷(순수함수/테스트 보존). **'남은 적' 제거:** combat_gate 카운터 삭제. **웹빌드 문의:** CI 배포 성공 확인, 캐시/비율 문제로 판단해 사용자 확인 요청. 헤드리스 37스위트 그린. 커밋 f725069·261205b·54930aa 푸시. 남은 것: 해원 캠페인 대사 톤 개편·확장 지속.
 
