@@ -14,6 +14,7 @@ func _ready() -> void:
     results.append(await _check_take_damage())
     results.append(await _check_hurtbox_to_health_chain())
     results.append(await _check_death_signal())
+    results.append(await _check_no_friendly_fire())
 
     var failed := 0
     for r in results:
@@ -85,6 +86,50 @@ func _check_hurtbox_to_health_chain() -> Dictionary:
     root.queue_free()
     attacker.queue_free()
     return { "name": "hurtbox_health_chain", "status": PASS if ok else FAIL, "reason": reason }
+
+
+# 아군 오사 방지 — attacker/victim 둘 다 "enemy" 그룹이면 Hitbox가 Hurtbox를 때려도 무피해.
+func _check_no_friendly_fire() -> Dictionary:
+    var root := Node2D.new()
+    add_child(root)
+
+    var victim := Node2D.new()
+    victim.add_to_group("enemy")
+    root.add_child(victim)
+    var hurt := Hurtbox.new()
+    var hurt_shape := CollisionShape2D.new()
+    hurt_shape.shape = RectangleShape2D.new()
+    (hurt_shape.shape as RectangleShape2D).size = Vector2(20, 20)
+    hurt.add_child(hurt_shape)
+    victim.add_child(hurt)
+
+    var hc := HealthComponent.new()
+    hc.max_hp = 30.0
+    hc.hurtbox_path = hurt.get_path()
+    victim.add_child(hc)
+    await get_tree().process_frame
+
+    var attacker := Node2D.new()
+    attacker.add_to_group("enemy")
+    root.add_child(attacker)
+    var hit := Hitbox.new()
+    hit.damage = 12.0
+    var hit_shape := CollisionShape2D.new()
+    hit_shape.shape = RectangleShape2D.new()
+    (hit_shape.shape as RectangleShape2D).size = Vector2(16, 16)
+    hit.add_child(hit_shape)
+    attacker.add_child(hit)
+
+    hurt.global_position = Vector2.ZERO
+    hit.global_position = Vector2.ZERO
+    hit.activate(0.05)
+    await get_tree().physics_frame
+    await get_tree().physics_frame
+
+    var ok := is_equal_approx(hc.hp, 30.0)   # 피해 없어야 함
+    var reason := "" if ok else "hp=%.1f, expected 30.0(무피해) — 몬스터끼리 공격이 통과됨" % hc.hp
+    root.queue_free()
+    return { "name": "no_friendly_fire_between_enemies", "status": PASS if ok else FAIL, "reason": reason }
 
 
 # died 시그널
