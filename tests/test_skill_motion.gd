@@ -95,11 +95,11 @@ func _check_ultimate_returns_to_ground() -> Dictionary:
     # 시전 중에는 실제로 떠 있어야 한다
     await _wait(0.4)
     var y_air: float = p.global_position.y
-    var hovering: bool = p.get("_ult_hover")
+    var hovering: bool = p.get("_hover_lock")
     # charge(0.65) + slam(0.12) + 마무리(0.4) + 여유
     await _wait(1.1)
     var y1: float = p.global_position.y
-    var still_hover: bool = p.get("_ult_hover")
+    var still_hover: bool = p.get("_hover_lock")
     var attacking: bool = p.get("_attacking")
     root.queue_free()
     if not hovering or y_air > y0 - 40.0:

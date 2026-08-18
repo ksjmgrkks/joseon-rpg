@@ -82,11 +82,14 @@ var _dodge_cd: float = 0.0
 # 스킬 상태 (일섬 돌진)
 var _skill_dash_timer: float = 0.0
 var _skill_dash_speed: float = 0.0
-# 궁극기 부양 중 — 중력·이동·입력을 모두 끄고 트윈이 위치를 잡는다.
-var _ult_hover: bool = false
+# 공중 부양 스킬(궁극기·물등) 중 — 중력·이동·입력을 모두 끄고 트윈이 위치를 잡는다.
+var _hover_lock: bool = false
 const ULT_RISE: float = 120.0        # 떠오르는 높이(px)
 const ULT_RISE_TIME: float = 0.3
 const ULT_SLAM_TIME: float = 0.12    # 내리꽂는 시간 — 짧을수록 묵직
+const HOECHEON_RISE: float = 56.0    # 물등 시전 중 뜨는 높이(px) — 궁극기보다 얕게
+const HOECHEON_RISE_TIME: float = 0.22
+const HOECHEON_LAND_TIME: float = 0.16
 # 낙사 안전망 — 마지막으로 땅을 밟았던 안전 위치
 var _last_safe_pos: Vector2 = Vector2.ZERO
 var _has_safe_pos: bool = false
@@ -134,8 +137,8 @@ func _physics_process(delta: float) -> void:
         _freeze_for_dialogue(delta)
         return
 
-    # 궁극기 부양 중 — 위치는 트윈이 잡는다. 중력·입력·이동 전부 정지.
-    if _ult_hover:
+    # 부양 스킬 중 — 위치는 트윈이 잡는다. 중력·입력·이동 전부 정지.
+    if _hover_lock:
         velocity = Vector2.ZERO
         return
 
@@ -511,7 +514,7 @@ func _on_skill_cast(id: String) -> void:
 func _skill_ultimate() -> void:
     var def := SkillManager.get_def("guichang")
     _attacking = true
-    _ult_hover = true
+    _hover_lock = true
     var ground := global_position
     var apex := ground + Vector2(0, -ULT_RISE)
     var charge := float(def.get("charge_time", 0.65))
@@ -523,7 +526,7 @@ func _skill_ultimate() -> void:
     if sprite:
         SkillFx.afterimage_burst(sprite, SkillFx.MAGE_HOT, 6, charge)
     await get_tree().create_timer(charge).timeout
-    if not is_instance_valid(self) or not _ult_hover:
+    if not is_instance_valid(self) or not _hover_lock:
         return
     # ② 급강하 — 짧고 빠르게 내리꽂는다
     Audio.play_sfx(Sfx.ULT)
@@ -534,7 +537,7 @@ func _skill_ultimate() -> void:
     await slam.finished
     if not is_instance_valid(self):
         return
-    _ult_hover = false
+    _hover_lock = false
     velocity = Vector2.ZERO
     # ③ 착지 — 화면이 멈췄다 터진다
     var radius := float(def.get("radius", 360.0))
@@ -623,40 +626,55 @@ func _spawn_wave_trail(dur: float) -> void:
         left -= 0.06
 
 
-## 「진혼의 물등」(id: hoecheon) — 물등을 밝혀 사방의 넋을 달래는 파문.
-## 주위 반경 안 모든 적에게 피해 + 바깥으로 밀쳐냄(광역 위무). 앞뒤 회전베기를
-## 진혼 컨셉의 광역 파문으로 개편.
+## 「진혼의 물등」(id: hoecheon) — 2026-08-18 개편: 광역 즉발 파문 → 스킬샷형
+## 부적 투척으로 변경. ① 짧게 공중에 뜨며 시전(부적이 모여듦) → ② 정점에서
+## 부채꼴로 다량의 부적을 일직선 투척 — 사거리·각도 밖 적은 맞지 않는다(빗나감 있음).
 func _skill_hoecheon() -> void:
     var def := SkillManager.get_def("hoecheon")
     _attacking = true
-    var radius := float(def.get("radius", 200.0))
-    var dmg := Equipment.current_damage(attack_hitbox.damage) * float(def.get("damage_mult", 1.5))
-    var knock := attack_hitbox.knockback * float(def.get("knock_mult", 1.9))
-    Audio.play_sfx(Sfx.ATTACK)
-    Audio.play_sfx(Sfx.WARD)          # 물등 밝히는 은은한 소리
-    ScreenFx.shake(9.0, 0.2)
-    ScreenFx.hit_stop(0.05, 0.08)
-    SkillFx.requiem_lantern(global_position)
+    _hover_lock = true
+    var ground := global_position
+    var apex := ground + Vector2(0, -HOECHEON_RISE)
+    var charge := float(def.get("charge_time", 0.42))
+    Audio.play_sfx(Sfx.WARD)
+    var rise := create_tween()
+    rise.tween_property(self, "global_position", apex, HOECHEON_RISE_TIME).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+    SkillFx.requiem_lantern(apex)
     if sprite:
-        SkillFx.afterimage_burst(sprite, SkillFx.WATER, 4, 0.3)
-    # 반경 안 모든 적을 달래며(피해) 바깥으로 밀쳐낸다 — 적의 Hurtbox 로 피해·넉백 경로 재사용.
-    var hit_any := false
-    for e in get_tree().get_nodes_in_group("enemy"):
-        if not (e is Node2D):
-            continue
-        var ev := e as Node2D
-        var to := ev.global_position - global_position
-        if to.length() > radius:
-            continue
-        var hb: Hurtbox = ev.get_node_or_null("Hurtbox")
-        if hb != null:
-            var kdir := 1.0 if to.x >= 0.0 else -1.0
-            hb.hurt.emit(dmg, knock * kdir, self)
-            hit_any = true
-            SkillFx.impact(ev.global_position + Vector2(0, -16), false)
-    if hit_any:
-        Audio.play_sfx(Sfx.HIT, 3.0)
-    await get_tree().create_timer(0.32).timeout
+        SkillFx.afterimage_burst(sprite, SkillFx.LANTERN, 4, charge)
+    await get_tree().create_timer(charge).timeout
+    if not is_instance_valid(self) or not _hover_lock:
+        return
+
+    # ② 투척 — 바라보는 방향으로 부채꼴 다발.
+    var dir := 1.0 if _facing_right else -1.0
+    var count := int(def.get("count", 7))
+    var spread_deg := float(def.get("spread_deg", 70.0))
+    var speed := float(def.get("speed", 620.0))
+    var life := float(def.get("life", 0.85))
+    var dmg := Equipment.current_damage(attack_hitbox.damage) * float(def.get("damage_mult", 1.6))
+    var knock := attack_hitbox.knockback * float(def.get("knock_mult", 1.3))
+    Audio.play_sfx(Sfx.ATTACK)
+    ScreenFx.shake(6.0, 0.14)
+    ScreenFx.hit_stop(0.04, 0.06)
+    SkillFx.ward_cast(global_position)
+    var host: Node = get_tree().current_scene
+    var half: float = deg_to_rad(spread_deg) * 0.5
+    var denom: float = maxf(float(count - 1), 1.0)
+    for i in range(count):
+        var t: float = float(i) / denom   # 0..1
+        var ang: float = lerp(-half, half, t)
+        var shot_dir: Vector2 = Vector2(dir, 0.0).rotated(ang)
+        TalismanShot.spawn(host, global_position, shot_dir, dmg, knock, speed, life, self)
+
+    # ③ 착지 — 짧게 내려온다.
+    _hover_lock = false
+    var land := create_tween()
+    land.tween_property(self, "global_position", ground, HOECHEON_LAND_TIME).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+    await land.finished
+    if not is_instance_valid(self):
+        return
+    velocity = Vector2.ZERO
     _attacking = false
 
 
@@ -693,7 +711,7 @@ func _recover_from_fall() -> void:
     if _dodging:
         _end_dodge()
     _skill_dash_timer = 0.0
-    _ult_hover = false          # 부양 중 낙사 구제되면 중력 복구
+    _hover_lock = false          # 부양 중 낙사 구제되면 중력 복구
     _attacking = false
     if _has_safe_pos:
         global_position = _last_safe_pos
@@ -733,6 +751,6 @@ func _hurt_flash() -> void:
 func _on_died() -> void:
     print("[Player] died")
     Audio.play_sfx(Sfx.DIE)
-    _ult_hover = false          # 부양 중 죽어도 공중에 얼지 않게
+    _hover_lock = false          # 부양 중 죽어도 공중에 얼지 않게
     velocity = Vector2.ZERO
     GameOverScreen.show_screen()
