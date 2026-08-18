@@ -21,6 +21,8 @@ class_name Boss
 @export var attack_seconds: float = 0.38
 @export var recover_seconds: float = 1.6
 @export var dash_speed: float = 280.0
+## 돌진 히트박스가 몸 앞으로 나가는 거리 — 덩치 큰 보스일수록 크게.
+@export var dash_reach: float = 28.0
 @export var attack_damage: float = 18.0
 @export var attack_knockback: float = 320.0
 @export var xp_reward: int = 80
@@ -328,7 +330,7 @@ func _do_dash() -> void:
     var dur := attack_seconds * _phase_mult_attack()
     _state_timer = dur
     if attack_hitbox:
-        attack_hitbox.position.x = 28.0 if _facing_right else -28.0
+        attack_hitbox.position.x = dash_reach if _facing_right else -dash_reach
         attack_hitbox.damage = attack_damage * (1.25 if _phase >= 2 else 1.0)
         attack_hitbox.knockback = attack_knockback
         attack_hitbox.activate(dur)

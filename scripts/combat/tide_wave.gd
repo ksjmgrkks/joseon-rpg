@@ -45,9 +45,22 @@ func _ready() -> void:
     _draw_wave()
 
 
-## 물마루 — 진행 방향으로 굽은 초승달 3겹 + 앞머리 거품.
+## 물마루 — 채워진 물 덩이 위에 초승달 3겹 + 앞머리 거품. 얇은 선만 있으면
+## 물결이 아니라 아치처럼 보여서, 아래를 물빛으로 채워 부피를 준다.
 func _draw_wave() -> void:
     var dir := 1.0 if velocity.x >= 0.0 else -1.0
+    # 물마루 아래를 채우는 덩이(지면까지) — 부피감
+    var fill := Polygon2D.new()
+    var poly := PackedVector2Array()
+    for i in range(9):
+        var ft := i / 8.0
+        poly.append(Vector2(dir * lerpf(-26.0, 22.0, ft), -BODY_H * sin(PI * ft) * 0.9 - 2.0))
+    poly.append(Vector2(dir * 22.0, 2.0))
+    poly.append(Vector2(dir * -26.0, 2.0))
+    fill.polygon = poly
+    fill.color = Color(SkillFx.WATER_DEEP.r, SkillFx.WATER_DEEP.g, SkillFx.WATER_DEEP.b, 0.75)
+    fill.z_index = 6
+    add_child(fill)
     for L in [[13.0, Color(SkillFx.WATER_DEEP.r, SkillFx.WATER_DEEP.g, SkillFx.WATER_DEEP.b, 0.55)],
             [8.0, SkillFx.WATER], [3.5, SkillFx.FOAM]]:
         var line := Line2D.new()

@@ -10,13 +10,13 @@
 [ext_resource type="Script" path="res://scripts/visual/enemy_visual.gd" id="5_vis"]
 
 [sub_resource type="RectangleShape2D" id="body"]
-size = Vector2(44, 80)
+size = Vector2(70, 150)
 
 [sub_resource type="RectangleShape2D" id="hurt"]
-size = Vector2(48, 84)
+size = Vector2(120, 210)
 
 [sub_resource type="RectangleShape2D" id="hit"]
-size = Vector2(84, 68)
+size = Vector2(130, 120)
 
 [node name="Boss" type="CharacterBody2D"]
 script = ExtResource("1_boss")
@@ -27,6 +27,7 @@ telegraph_seconds = 0.82
 attack_seconds = 0.40
 recover_seconds = 1.35
 dash_speed = 300.0
+dash_reach = 74.0
 attack_damage = 20.0
 attack_knockback = 340.0
 xp_reward = 240
@@ -38,10 +39,9 @@ flag_on_death = "great_tiger_defeated"
 scene_on_death = "res://scenes/ui/Ending.tscn"
 
 [node name="Sprite2D" type="AnimatedSprite2D" parent="."]
-scale = Vector2(1.7, 1.7)
 script = ExtResource("5_vis")
-sheet = "enemies/wraith"
-foot_offset = -18.5
+sheet = "enemies/flood_wraith"
+foot_offset = -41.0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("body")
@@ -50,6 +50,7 @@ shape = SubResource("body")
 script = ExtResource("2_hurt")
 
 [node name="HurtboxShape" type="CollisionShape2D" parent="Hurtbox"]
+position = Vector2(0, -30)
 shape = SubResource("hurt")
 
 [node name="HealthComponent" type="Node" parent="."]
