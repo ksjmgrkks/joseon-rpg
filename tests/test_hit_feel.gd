@@ -120,8 +120,9 @@ func _check_knockback() -> Dictionary:
         return { "name": "knockback_and_hitstun", "status": FAIL, "reason": "적이 CharacterBody2D 가 아님" }
     var vx: float = body.velocity.x
     var stun: float = float(body.get("hitstun"))
-    var ok := vx >= 300.0 * 1.5 and stun >= 0.18
-    var reason := "" if ok else "velocity.x=%.1f (기대 >=450), hitstun=%.2f (기대 >=0.18)" % [vx, stun]
+    # KNOCK_RECEIVE 1.6→1.2(2026-08-18, 사용자 피드백으로 넉백 완화) — 배수 적용 자체만 확인.
+    var ok := vx >= 300.0 * 1.1 and stun >= 0.18
+    var reason := "" if ok else "velocity.x=%.1f (기대 >=330), hitstun=%.2f (기대 >=0.18)" % [vx, stun]
     e.queue_free()
     return { "name": "knockback_and_hitstun", "status": PASS if ok else FAIL, "reason": reason }
 

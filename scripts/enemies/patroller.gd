@@ -37,7 +37,7 @@ var _ranged_cd: float = 0.0
 @onready var health: HealthComponent = $HealthComponent
 
 # 피격 시 받는 넉백 배수 — 타격감 튜닝 지점(값을 키우면 더 멀리 밀려남).
-const KNOCK_RECEIVE: float = 1.6
+const KNOCK_RECEIVE: float = 1.2   # 2026-08-18: 1.6→1.2, 사용자 피드백("밀려나는 수치가 조금 줄어들었으면")
 
 var _dying: bool = false
 var _attacking: bool = false
