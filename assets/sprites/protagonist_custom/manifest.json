@@ -13,8 +13,8 @@
       "loop": true
     },
     "jump": {
-      "frames": 6,
-      "fps": 9,
+      "frames": 9,
+      "fps": 14,
       "loop": false
     },
     "hurt": {
