@@ -18,14 +18,24 @@ func _ready() -> void:
     texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
     if sheet.is_empty():
         return
-    var sf := SpriteDb.frames(sheet)
+    set_sheet(sheet, sprite_scale, foot_offset)
+
+
+## 시트를 다른 것으로 통째로 교체(예: 위장→정체 드러남처럼 형태 자체가 바뀌는 경우).
+## 재생 중이던 애니 이름을 그대로 유지해서 이어 재생을 시도한다(없으면 idle 폴백).
+func set_sheet(new_sheet: String, new_scale: float = 1.0, new_offset: float = -14.0) -> void:
+    var sf := SpriteDb.frames(new_sheet)
     if sf == null:
-        push_warning("[Visual] 시트 없음: %s (placeholder 유지)" % sheet)
+        push_warning("[Visual] 시트 없음: %s (이전 시트 유지)" % new_sheet)
         return
+    var keep_anim := animation
+    sheet = new_sheet
+    sprite_scale = new_scale
+    foot_offset = new_offset
     sprite_frames = sf
     offset = Vector2(0, foot_offset)
     scale = Vector2(sprite_scale, sprite_scale)
-    play_safe("idle")
+    play_safe(keep_anim if keep_anim != "" else "idle")
 
 
 ## 없는 애니면 idle 로 폴백. 같은 애니 재요청은 무시(프레임 리셋 방지).

@@ -43,9 +43,9 @@ flag_on_death = "geuseondae_elder_defeated"
 
 [node name="Sprite2D" type="AnimatedSprite2D" parent="."]
 script = ExtResource("5_vis")
-sheet = "enemies/geuseondae"
-sprite_scale = 1.8
-foot_offset = -44.1
+sheet = "enemies/geuseondae_elder_boy"
+sprite_scale = 1.0
+foot_offset = -23.5
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("body")

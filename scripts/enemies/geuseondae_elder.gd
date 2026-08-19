@@ -12,7 +12,10 @@ class_name GeuseondaeElder
 @export var threat_hp_mult: float = 0.22   # 위협도 1당 최대체력 배율 증가(드러난 뒤 적용)
 @export var threat_dmg_mult: float = 0.15  # 위협도 1당 공격력 배율 증가
 @export var revealed_attack_damage: float = 16.0
-@export var revealed_color: Color = Color(0.85, 0.25, 0.2, 1)
+@export var revealed_color: Color = Color(1, 1, 1, 1)
+@export var revealed_sheet: String = "enemies/geuseondae_elder_shadow"
+@export var revealed_sprite_scale: float = 1.0
+@export var revealed_foot_offset: float = -61.5
 
 var _disguised: bool = true
 var _threat: int = 0
@@ -87,7 +90,7 @@ func _reveal() -> void:
 	health.shield_charges = 0
 	attack_damage = revealed_attack_damage * (1.0 + threat_dmg_mult * float(_threat))
 	if sprite and is_instance_valid(sprite):
-		sprite.scale = _spr_base_scale
+		sprite.set_sheet(revealed_sheet, revealed_sprite_scale, revealed_foot_offset)
 		sprite.modulate = revealed_color
 		SkillFx.hit_flash(sprite, Color.WHITE, 0.3)
 	SkillFx.impact(global_position + Vector2(0, -20), true)

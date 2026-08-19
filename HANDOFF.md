@@ -77,33 +77,35 @@
 ## 현재 상태 (한 줄 요약)
 > ## ▶ 다음 세션 시작점 (2026-08-20 갱신 · 여기부터 읽으면 됨)
 >
-> **상태:** `main` = `2fdb5a4`(2스테이지 수직 슬라이스, 푸시 완료) 위에 **2스테이지(그슨대 숲) 본편 5굽이 + 보스 완성, 그슨대 아트 포함 — 로컬 커밋, 아직 미푸시**. 주인공 256px 소스·화면상 원래 크기. **헤드리스 51스위트 전부 그린**(신규 `test_geuseondae_elder` 포함).
+> **상태:** `main` = `526ca42`(2스테이지 본편 5굽이+보스, 푸시 완료) 위에 **그슨대 노괴 전용 보스 아트(위장=소년 / 정체=거대 그림자 2형태) 완성 — 로컬 커밋, 아직 미푸시**. 주인공 256px 소스·화면상 원래 크기. **헤드리스 51스위트 전부 그린**(신규 변경 없이 전부 재확인).
 > 이야기 모드는 메뉴 「이야기」 → 1막부터 7막+엔딩까지 완주 가능. 일반 모드(「새로 시작」)는 전투 체인 **10**스테이지(1스테이지=물 5굽이+FloodWraith → 2스테이지=그슨대 숲 5굽이+그슨대 노괴). 순서는 사용자 확정(1스테이지 클리어 뒤 2스테이지로 이어짐).
 >
 > **⚠ pull 직후 함정:** 다른 세션이 새 `class_name` 스크립트를 올린 뒤 pull 하면, 로컬 `.godot` 클래스 캐시가 낡아 **"Identifier ... not declared" 파스 에러가 무더기로** 뜬다. 실제 결함이 아니다 — `godot --headless --path . --import` 를 **두 번** 돌리면 사라진다. (2026-08-19 TalismanShot 로 실제 겪음)
 >
 > **환경 메모:** PC 세션은 `C:\Users\User\Downloads\Godot_v4.6.3-stable_win64.exe\`(릴리스 파일명은 `_win64.exe.zip`), `플레이.bat`. WSL/텔레그램 세션은 `~/godot-bin/godot` + `DISPLAY=:0` 로 llvmpipe 렌더 캡처 **원칙적으로** 가능하나, **2026-08-19 이 세션에서는 `/tmp/.X11-unix/X0` 소켓은 있는데 `xdpyinfo`가 접속 실패(죽은 세션 잔재로 추정) + `Xvfb` 미설치(+sudo 비밀번호 필요라 설치 불가) → 스크린샷 캡처 자체가 불가능했음.** 다음에 캡처 필요하면 먼저 `DISPLAY=:0 xdpyinfo` 로 살아있는지 확인, 죽어있으면 PC 세션으로 넘기거나 Xvfb 설치(사용자 sudo 필요)부터.
-> **PixelLab MCP 연결됨** — 프로젝트 루트 `.mcp.json`(HTTP, Bearer 헤더). **`.gitignore` 에 넣어 커밋 안 됨.** 구독 활성(Tier 1, 2000 generations, 2026-08-20 기준 **268 사용, 1732 남음**). 도구는 세션 시작 시 로드되므로 설정 변경 후엔 재시작 필요.
+> **PixelLab MCP 연결됨** — 프로젝트 루트 `.mcp.json`(HTTP, Bearer 헤더). **`.gitignore` 에 넣어 커밋 안 됨.** 구독 활성(Tier 1, 2000 generations, 2026-08-20 기준 **295 사용, 1705 남음**). 도구는 세션 시작 시 로드되므로 설정 변경 후엔 재시작 필요.
 > 검증 도구: `tools/Screenshot.tscn`(`--touch`·`--cam=x,y`), `tools/BossPatternPreview.tscn`(`--pattern=dash|volley|pillars|wave|summon|entrance`), `tools/SkillFxPreview.tscn`, `tools/TouchHitProbe.tscn`(**창 모드 필수**), `tools/HpBarPreview.tscn`, `tools/pixel/assemble_floodwraith.gd`(PixelLab 프레임→스트립 조립 패턴), `tools/JumpPreview.tscn`(신규 — 점프 궤적 6프레임 스크린샷, **위 X서버 이슈로 이 세션에선 미실행**).
 >
 > **다음 할 일 (우선순위 순):**
-> 1. **2스테이지 실기기 확인 (최우선)** — 그슨대 아트 완성(idle/walk/attack/death, `assets/sprites/enemies/geuseondae/`)·5굽이 전체(forest_shadow→forest_mist→withered_hollow→wailing_thicket→elder_hollow)·보스(그슨대 노괴, GeuseondaeElder) 모두 헤드리스 검증까지만 끝난 상태. "위장→칼 무효+거대화→부적 노출" 기믹의 실제 손맛(칼이 안 먹히는 게 눈에 명확한지, 부적 타이밍이 자연스러운지), 보스 위협도별 체력 배율 밸런스(threat_hp_mult=0.22), 그슨대 노괴 스프라이트가 sprite_scale=1.8 확대 상태로 부자연스럽지 않은지 — 전부 X서버 문제로 이 세션도 스크린샷 못 찍어서 미확인. 폰 실기기 최우선.
-> 2. **그슨대 노괴 전용 아트 검토** — 지금은 잡몹 그슨대 시트를 sprite_scale=1.8 로 키워서 재사용 중(늙은 그슨대=더 큰 그슨대라는 설정과는 맞지만, 전용 아트가 아니라 단순 확대라 클로즈업에서 뭉개질 수 있음). 실기기로 보고 어색하면 PixelLab 로 보스 전용 프레임 별도 제작 검토.
-> 3. **주인공 새 아트 실기기 확인** — 256px 소스·화면표시는 sprite_scale=0.4503 로 축소해 원래 크기감 목표. idle/walk/jump/hurt/death/attack/dodge **전체 프레임**(첫 프레임만이 아니라 매 프레임)을 육안 검사해 무기·로브 일관성 확인했지만, X서버 문제로 실제 게임 화면 스크린샷을 여러 세션째 한 번도 못 찍음. 발 정렬(foot_offset -56.47)·크기감·스케일 적용 후 비율이 실제로 자연스러운지 폰 확인 필수 — sprite_scale 은 콘텐츠 높이 비율 계산값이라 실측 보정이 필요할 수 있음.
-> 4. **카메라 프레이밍 실기기 확인** — 지면선 위치(화면 하단 ~75%)가 여러 씬·연출(컷신 카메라는 미변경)에서 어색하지 않은지 폰으로 확인. 주인공이 커졌으니 카메라 프레이밍과의 상호작용도 같이 볼 것.
-> 5. **보스 난이도 실플레이 검증** — 숫자로만 올린 상태. 특히 **예고 0.6초가 폰에서 반응 가능한지**가 관건. 빡세면 `FloodWraith.tscn` 의 `telegraph_seconds`·`pillar_warn` 만 올리면 된다(전부 @export).
-> 6. **잡몹 크기 밸런스 확인** — 잡몹을 키우고 늘렸으니(17→33기) 전투가 답답하지 않은지 확인 필요. 주인공도 커졌으니 상대적 크기감 재확인.
-> 7. **무릎 꿇은 포즈 아트** — 3막 「마당의 매질」에서 주인공이 서 있다. 새 캐릭터(e29cea1b, 그룹 c6ae478a) 기준으로 제작, `create_character_state` + v3 커스텀 방식 사용.
-> 8. **모바일 앱 출시 B안** — Android SDK·keystore → APK. 절차는 `docs/RELEASE_MOBILE.md`. 런처 아이콘 미제작.
-> 9. (여유될 때) 씬 파일명 v1 잔재 개명 — 15곳, `save_manager.gd` 가 경로 문자열을 참조해 세이브 호환 주의.
-> 10. (선택) attack3 를 attack 재사용 대신 별도 모션으로 다시 뽑을지 — 지금은 attack2/3 모두 attack.png 재사용(콤보 차별은 SkillFx 이펙트로만).
-> 11. **3스테이지 컨셉 기획** — 「월드 구조」 원칙대로 다음 던전 컨셉 착수(호랑이/산군+창귀, 도깨비, 구미호 등 이미 조사해둔 후보 중 택1 또는 재조사). 2스테이지 실기기 검증 끝난 뒤 진행.
+> 1. **2스테이지 실기기 확인 (최우선)** — 그슨대 잡몹 아트(idle/walk/attack/death, `assets/sprites/enemies/geuseondae/`)·그슨대 노괴 전용 2형태 아트(위장=소년 `enemies/geuseondae_elder_boy`, 정체=거대 그림자 `enemies/geuseondae_elder_shadow`)·5굽이 전체(forest_shadow→forest_mist→withered_hollow→wailing_thicket→elder_hollow)·보스(GeuseondaeElder) 모두 헤드리스 검증까지만 끝난 상태. "위장→칼 무효+거대화→부적 노출→형태 전환" 기믹의 실제 손맛(칼이 안 먹히는 게 눈에 명확한지, 부적 타이밍이 자연스러운지, 소년→그림자 전환이 자연스러운지), 보스 위협도별 체력 배율 밸런스(threat_hp_mult=0.22) — 전부 X서버 문제로 이 세션도 스크린샷 못 찍어서 미확인. 폰 실기기 최우선.
+> 2. **주인공 새 아트 실기기 확인** — 256px 소스·화면표시는 sprite_scale=0.4503 로 축소해 원래 크기감 목표. idle/walk/jump/hurt/death/attack/dodge **전체 프레임**(첫 프레임만이 아니라 매 프레임)을 육안 검사해 무기·로브 일관성 확인했지만, X서버 문제로 실제 게임 화면 스크린샷을 여러 세션째 한 번도 못 찍음. 발 정렬(foot_offset -56.47)·크기감·스케일 적용 후 비율이 실제로 자연스러운지 폰 확인 필수 — sprite_scale 은 콘텐츠 높이 비율 계산값이라 실측 보정이 필요할 수 있음.
+> 3. **카메라 프레이밍 실기기 확인** — 지면선 위치(화면 하단 ~75%)가 여러 씬·연출(컷신 카메라는 미변경)에서 어색하지 않은지 폰으로 확인. 주인공이 커졌으니 카메라 프레이밍과의 상호작용도 같이 볼 것.
+> 4. **보스 난이도 실플레이 검증** — 숫자로만 올린 상태. 특히 **예고 0.6초가 폰에서 반응 가능한지**가 관건. 빡세면 `FloodWraith.tscn` 의 `telegraph_seconds`·`pillar_warn` 만 올리면 된다(전부 @export).
+> 5. **잡몹 크기 밸런스 확인** — 잡몹을 키우고 늘렸으니(17→33기) 전투가 답답하지 않은지 확인 필요. 주인공도 커졌으니 상대적 크기감 재확인.
+> 6. **무릎 꿇은 포즈 아트** — 3막 「마당의 매질」에서 주인공이 서 있다. 새 캐릭터(e29cea1b, 그룹 c6ae478a) 기준으로 제작, `create_character_state` + v3 커스텀 방식 사용.
+> 7. **모바일 앱 출시 B안** — Android SDK·keystore → APK. 절차는 `docs/RELEASE_MOBILE.md`. 런처 아이콘 미제작.
+> 8. (여유될 때) 씬 파일명 v1 잔재 개명 — 15곳, `save_manager.gd` 가 경로 문자열을 참조해 세이브 호환 주의.
+> 9. (선택) attack3 를 attack 재사용 대신 별도 모션으로 다시 뽑을지 — 지금은 attack2/3 모두 attack.png 재사용(콤보 차별은 SkillFx 이펙트로만).
+> 10. **3스테이지 컨셉 기획** — 「월드 구조」 원칙대로 다음 던전 컨셉 착수(호랑이/산군+창귀, 도깨비, 구미호 등 이미 조사해둔 후보 중 택1 또는 재조사). 2스테이지 실기기 검증 끝난 뒤 진행.
+> 11. (선택) 그슨대 노괴 콜리전 재조정 — 보스 콜리전 박스(body 30×58 등)는 이전 1.8배 확대 재사용 시절 값 그대로. 정체 드러남 시 실제 화면 크기가 105×123(native)로 커졌으니, 실기기로 보고 판정이 스프라이트보다 눈에 띄게 작아 보이면 조정.
 >
 > **판단이 필요한 것:**
 > - 스코어어택 모드(「새로 시작」) 유지 여부. 엔딩 저울(`EndingResolver.BURN_HEAVY=3`)이 사이드 진혼 3기 추가로 `BURN_FLAGS` 가 7개가 되면서 「망각」이 쉽게 나올 수 있음 — 임계값 재조정 검토.
 > ---
 >
-> **지금 여기 (2026-08-20 텔레그램/WSL — 2스테이지 본편 5굽이+보스 완성, 그슨대 아트 마무리):** 사용자가 수직 슬라이스를 승인·푸시 지시 후 "계속 진행" → 이어서 본편 확장.
+> **지금 여기 (2026-08-20 텔레그램/WSL — 그슨대 노괴 전용 보스 아트):** 본편 5굽이+보스 푸시(`526ca42`) 후 사용자가 "보스는 어린 남자아이 모습에서 공격하면 거대한 그림자 요괴로 변하는 컨셉으로 전용 아트 생성" 요청. **구현:** `CharacterVisual`(`scripts/visual/character_visual.gd`)에 `set_sheet(new_sheet, new_scale, new_offset)` 추가 — 시트 자체를 통째로 교체(런타임 재생 중인 애니 이름은 유지해 이어 재생). PixelLab 로 2형태 별도 생성: 위장(소년) `geuseondae_elder_boy`(v3, 48px, idle/walk/attack 3종) + 정체(거대 그림자) `geuseondae_elder_shadow`(v3, 128px, idle/walk/attack/death 4종). **함정:** 첫 시도에서 그림자 프롬프트에 "towering over a person"(사람 위로 우뚝 솟은)을 넣었더니 PixelLab 이 이를 문자 그대로 해석해 **모든 프레임에 작은 사람 형상이 같이 그려짐** — 프리뷰로 발견, 재생성 없이는 못 씀. `geuseondae_elder_shadow_v2` 로 "alone"·"no other figures in frame" 명시해 재생성 → 깨끗한 단독 몬스터로 해결(추가 3+4=7 gen 소모, 첫 시도분은 버림). `tools/pixel/assemble_geuseondae_elder.gd` 신규(두 폼을 한 스크립트에서 처리, `assemble_geuseondae.gd` 패턴과 동일 union-bbox 크롭) — boy: 26×39→26×47 크롭, foot_offset=-23.5 / shadow: 105×123 크롭, foot_offset=-61.5(스케일 1.0, 즉 축소 없이 그대로 — 보스답게 크게). `geuseondae_elder.gd`의 `_reveal()`에서 기존 `sprite.scale`/`modulate` 직접 조작 대신 `sprite.set_sheet(revealed_sheet, ...)` 호출로 교체(형태 자체가 바뀌므로), `revealed_color` 는 흰색으로 되돌림(더는 색조 트릭 불필요 — 진짜 다른 아트라서). **검증:** `--import` 두 번 → 헤드리스 **51스위트 전부 그린**(회귀 없음, 로직 테스트라 아트 교체 영향 없음이 기대대로 확인됨). PixelLab **295/2000 사용**(이 작업 27 gen). **⚠ 시각 미확인:** 여전히 X서버 죽어있어 실제 화면 확인 못 함 — 특히 shadow 폼이 native 105×123 스케일 그대로라 게임 내에서 정말 "거대해 보이는지" 폰 확인 필요(위 "다음 할 일" 1번). 콜리전 박스는 안 건드림(위 11번 참고). 로컬 커밋만, 푸시는 사용자 승인 후.
+
+> **이전 (2026-08-20 텔레그램/WSL — 2스테이지 본편 5굽이+보스 완성, 그슨대 아트 마무리):** 사용자가 수직 슬라이스를 승인·푸시 지시 후 "계속 진행" → 이어서 본편 확장.
 > **①아트 마무리:** 이전 세션에 큐잉만 해둔 그슨대 애니 4종(idle/walk/attack/death, id `98c879d2…`)이 이번엔 전부 완료돼 있어 `list_jobs`/`get_character` 로 확인 → 프레임 20장(5×4) 다운로드 → `tools/pixel/assemble_geuseondae.gd`(assemble_floodwraith.gd 패턴 그대로 신규 작성) 로 union-bbox 크롭 스트립+manifest 조립(39×49, foot_offset -24.5 산출) → `assets/sprites/enemies/geuseondae/` 배치, `Geuseondae.tscn` 의 placeholder 서브리소스 제거하고 실제 시트 연결.
 > **②본편 확장:** `forest_shadow`(1굽이, 기존) 뒤로 `forest_mist`(2굽이, 그슨대 4기) → `withered_hollow`(3굽이, 4기, 솟대·장승 소품으로 "민간에서 그슨대를 막으려 세운 흔적" 암시) → `wailing_thicket`(4굽이, 5기, 보스 직전 최고밀도) → `elder_hollow`(5굽이·보스) 4개 JSON 신규 작성(전부 `earth` 타일+pine/jangseung/lantern/sotdae 기존 소품 재사용, 새 타일셋 없음) + 대응 `scenes/levels/*.tscn` 4개, `stage.gd` 의 `CHAIN`/`CHAIN_TSCN` 을 10칸으로 확장(1스테이지 물 5굽이 뒤에 2스테이지 그슨대 숲 5굽이가 바로 이어지도록 — 사용자가 확정한 순서).
 > **③보스(그슨대 노괴/GeuseondaeElder):** `scripts/enemies/boss.gd` 를 상속하는 신규 `geuseondae_elder.gd`. 잡몹과 같은 위장/성장/부적노출 규칙을 보스 스케일로 이식 — 위장 중 칼 피격은 `_threat` 만 올리고(무적), 부적으로 드러내는 순간 `health.max_hp` 가 `1+threat_hp_mult*위협도` 배로 커진 뒤 그 체력으로 리필돼 실제 전투가 시작(공격력도 같은 비율로 상승) — "함부로 베면 노괴가 더 강해진 채로 진짜 전투가 시작된다"는 리스크를 보스전에도 관철. 패턴은 기존 Boss 클래스의 돌진/부적세례/소환 3종만 재사용(소환은 `summon_scene` 을 `Geuseondae.tscn` 으로 바꿔 "잡몹 그슨대를 불러모음"으로 재해석) — 물기둥/밀물은 물 스테이지 전용 FX(`WaterPillar`/`TideWave`)라 컨셉 불일치로 `_choose_pattern()` 오버라이드해 완전히 배제. `boss.gd` 에 `subtitle`·`water_entrance` export 2개를 추가(하위호환, 기본값은 기존 FloodWraith 텍스트/true 유지)해 이름표 소제목과 물기둥 등장 연출을 보스마다 다르게 끌 수 있게 — 하드코딩돼 있던 걸 최소 변경으로 재사용 가능하게 함. 아트는 전용 제작 대신 잡몹 그슨대 시트를 `sprite_scale=1.8` 로 확대 재사용("늙어서 더 커진 그슨대" 설정과 결이 맞음, 시간 절약).
