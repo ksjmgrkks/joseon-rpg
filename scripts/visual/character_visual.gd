@@ -11,6 +11,7 @@ class_name CharacterVisual
 
 @export var sheet: String = ""
 @export var foot_offset: float = -14.0
+@export var sprite_scale: float = 1.0   ## 원본 프레임이 목표 화면 크기보다 클 때 축소용 (foot_offset 은 이미 이 스케일 반영값이어야 함)
 
 
 func _ready() -> void:
@@ -23,6 +24,7 @@ func _ready() -> void:
         return
     sprite_frames = sf
     offset = Vector2(0, foot_offset)
+    scale = Vector2(sprite_scale, sprite_scale)
     play_safe("idle")
 
 

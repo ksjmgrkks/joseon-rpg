@@ -13,7 +13,11 @@ func _ready() -> void:
     # 외부 제작(AI) 커스텀 스프라이트 우선 — 있으면 그걸 쓰고, 없으면 코드 생성 폴백.
     if SpriteDb.frames("protagonist_custom") != null:
         sheet = "protagonist_custom"
-        foot_offset = -76.0   # 256px PixelLab 프레임: 발 y=220, 콜리전 바닥 +16 정렬 (2026-08-19 크기/퀄리티 개선 v2)
+        # 256px 프레임을 원래 92px 시절과 같은 화면 크기로 축소(사용자 요청, 2026-08-19).
+        # 콘텐츠 높이 비교(구 77px / 신 171px)로 산출한 스케일 0.4503, foot_offset 은
+        # offset.y = 16/scale - foot_y + canvas_h/2 = 16/0.4503 - 220 + 128 ≈ -56.47 로 재계산.
+        sprite_scale = 0.4503
+        foot_offset = -56.47
     else:
         sheet = "protagonist"
     super._ready()
