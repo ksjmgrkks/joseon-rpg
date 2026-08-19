@@ -73,6 +73,7 @@ color = Color(0.10, 0.10, 0.10, 1)
 position = Vector2(160, 400)
 
 [node name="Camera2D" type="Camera2D" parent="Player"]
+offset = Vector2(0, -160)
 
 [node name="default" type="Marker2D" parent="."]
 position = Vector2(160, 400)

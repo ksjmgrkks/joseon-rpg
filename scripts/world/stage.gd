@@ -39,6 +39,7 @@ const MOBILE_SCENE := "res://scenes/ui/MobileControls.tscn"
 const BACKDROP_SCENE := "res://scenes/world/Backdrop.tscn"
 const GROUND_Y := 700.0
 const GROUND_TOP := 684          # 지면 윗면 y (시각 타일 상단)
+const CAMERA_OFFSET_Y := 160.0   # 카메라를 위로 이만큼 띄워 지면선을 화면 아래쪽으로 내림
 
 # ─────────── 게임성 우선 모드(스토리 제거): 전투-클리어 전용 ───────────
 # true 면 NPC·대사·퀘스트·스토리 픽업·자동퀘스트를 빌드하지 않고,
@@ -611,6 +612,9 @@ func _build_player(data: Dictionary) -> void:
     player.position = Vector2(float(data.get("player_x", 120)), 400.0)
     add_child(player)
     var cam := Camera2D.new()
+    # 카메라를 캐릭터 기준 위로 띄워 지면선을 화면 중앙이 아니라 아래쪽(약 70%)으로 내림 —
+    # 안 그러면 화면 절반이 땅으로 보이고, 모바일 터치 버튼 클러스터와 캐릭터/적이 겹친다.
+    cam.offset = Vector2(0, -CAMERA_OFFSET_Y)
     player.add_child(cam)
 
 

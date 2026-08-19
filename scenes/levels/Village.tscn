@@ -93,6 +93,7 @@ offset = Vector2(-48, -72)
 position = Vector2(300, 400)
 
 [node name="Camera2D" type="Camera2D" parent="Player"]
+offset = Vector2(0, -160)
 
 ; 명명 스폰 지점들
 [node name="default" type="Marker2D" parent="."]
