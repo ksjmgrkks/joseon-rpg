@@ -18,6 +18,7 @@ func _ready() -> void:
     results.append(await _check_player_gravity())
     results.append(await _check_full_jump())
     results.append(await _check_coyote_jump())
+    results.append(await _check_jump_animation_plays())
 
     var failed := 0
     for r in results:
@@ -157,3 +158,39 @@ func _check_coyote_jump() -> Dictionary:
     if not jumped:
         return { "name": "coyote_jump", "status": FAIL, "reason": "no jump after leaving floor (vy=%.1f)" % vy }
     return { "name": "coyote_jump", "status": PASS, "reason": "coyote jump fired (vy=%.1f)" % vy }
+
+
+# 점프 중 "jump" 애니가 실제로 시간에 따라 프레임이 진행되는지(고정 프레임에 멈춰있지 않는지) 확인
+func _check_jump_animation_plays() -> Dictionary:
+    var pair := await _spawn_on_floor()
+    var player: CharacterBody2D = pair[0]
+    var floor_body: StaticBody2D = pair[1]
+    var visual: AnimatedSprite2D = player.get_node("Visual")
+
+    Input.action_press("jump")
+    await get_tree().physics_frame
+    Input.action_release("jump")
+
+    var first_frame := -1
+    var frame_changed := false
+    var anim_name := ""
+    for i in 30:
+        await get_tree().physics_frame
+        if player.is_on_floor():
+            break
+        anim_name = visual.animation
+        if first_frame == -1:
+            first_frame = visual.frame
+        elif visual.frame != first_frame:
+            frame_changed = true
+            break
+
+    player.queue_free()
+    floor_body.queue_free()
+    await get_tree().physics_frame
+
+    if anim_name != "jump":
+        return { "name": "jump_animation_plays", "status": FAIL, "reason": "airborne animation was '%s', expected 'jump'" % anim_name }
+    if not frame_changed:
+        return { "name": "jump_animation_plays", "status": FAIL, "reason": "jump animation frame never advanced past %d — stuck on a static pose" % first_frame }
+    return { "name": "jump_animation_plays", "status": PASS, "reason": "jump animation frame advanced (started at %d)" % first_frame }

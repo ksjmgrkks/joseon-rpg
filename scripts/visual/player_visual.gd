@@ -54,17 +54,10 @@ func _process(_delta: float) -> void:
         return
 
     if not p.is_on_floor():
+        # 점프가 이제 탭/홀드 관계없이 항상 같은 궤적(풀 점프)이라 체공 시간이 일정하다 —
+        # 정지 프레임을 속도로 골라 붙이는 대신 텀블링 애니를 그냥 시간에 맞춰 재생한다.
+        # 착지 전에 다 재생되면 마지막 프레임(착지 자세)에서 자연히 멈춘다.
         play_safe("jump")
-        # 수직 속도로 프레임 수동 선택: 상승(0) → 정점(1) → 하강(2)
-        if sprite_frames.has_animation("jump"):
-            var jc := sprite_frames.get_frame_count("jump")
-            if jc >= 3:
-                if p.velocity.y < -120.0:   frame = 0   # 빠르게 상승
-                elif p.velocity.y > 120.0:  frame = 2   # 하강
-                else:                       frame = 1   # 정점 근처
-            elif jc >= 2:
-                frame = 0 if p.velocity.y < 0.0 else 1
-            pause()
         return
 
     if absf(p.velocity.x) > 5.0:
