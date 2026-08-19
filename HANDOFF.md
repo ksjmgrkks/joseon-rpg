@@ -69,25 +69,29 @@
 # 📍 PART 2. 현재 상황 (어디까지 했는가)
 
 ## 현재 상태 (한 줄 요약)
-> ## ▶ 다음 세션 시작점 (2026-08-18 갱신 · 여기부터 읽으면 됨)
+> ## ▶ 다음 세션 시작점 (2026-08-19 갱신 · 여기부터 읽으면 됨)
 >
-> **상태:** `main` = `af04d9e`(몬스터 넉백 완화 1.6→1.2→1.0 포함, 이하 동일, **전부 CI green·배포 완료**). 이전:`472281b`(사이드 진혼 3기 + 비/다운틴트 제거 + 몬스터 아군오사 수정 + 물등 스킬샷 개편·튠, **전부 푸시·CI green·GitHub Pages 배포 완료**). **헤드리스 47스위트 전부 그린**(신규 `test_hoecheon`·`no_friendly_fire_between_enemies` 포함).
-> 이야기 모드는 메뉴 「이야기」 → 1막부터 **7막+엔딩까지 처음부터 끝까지 이어진다**(v2 전 구간 작성 완료).
+> **상태:** `main` = `61beaf3`(최종 보스 대개편 3커밋 푸시 완료, CI 통과·Pages 배포). **헤드리스 48스위트 전부 그린**(신규 `test_boss_patterns` 6케이스 포함).
+> 이야기 모드는 메뉴 「이야기」 → 1막부터 7막+엔딩까지 완주 가능. 일반 모드(「새로 시작」)는 전투 체인 5스테이지 → 최종 보스.
 >
-> **환경 메모:** 이 텔레그램/WSL 세션에 **Godot 4.6.3 바이너리가 새로 생김**(`~/godot-bin/godot`). **헤드리스는 그냥 `--headless`. 시각 검증도 이제 가능** — WSLg가 `/tmp/.X11-unix/X0` 소켓을 띄워두므로 `DISPLAY=:0 ~/godot-bin/godot --path . res://tools/Screenshot.tscn -- --scene=... --out=...`로 llvmpipe 소프트렌더 스크린샷 캡처 성공 확인(2026-08-18, 시작화면 톤업 때 실사용). 오디오 드라이버는 없어(`libasound`/`libpulse` 부재) dummy로 폴백하지만 렌더는 문제없음. PC 쪽은 여전히 `C:\Users\User\Downloads\Godot_v4.6.3-stable_win64.exe\`(`_win64.exe.zip`), `플레이.bat`. 검증 도구: `tools/Screenshot.tscn`(`--touch`·`--cam=x,y`), `tools/SkillFxPreview.tscn`, `tools/TouchHitProbe.tscn`(**창 모드 필수 — WSL DISPLAY=:0로 될지 미확인**), `tools/HpBarPreview.tscn`.
+> **⚠ pull 직후 함정:** 다른 세션이 새 `class_name` 스크립트를 올린 뒤 pull 하면, 로컬 `.godot` 클래스 캐시가 낡아 **"Identifier ... not declared" 파스 에러가 무더기로** 뜬다. 실제 결함이 아니다 — `godot --headless --path . --import` 를 **두 번** 돌리면 사라진다. (2026-08-19 TalismanShot 로 실제 겪음)
+>
+> **환경 메모:** PC 세션은 `C:\Users\User\Downloads\Godot_v4.6.3-stable_win64.exe\`(릴리스 파일명은 `_win64.exe.zip`), `플레이.bat`. WSL/텔레그램 세션은 `~/godot-bin/godot` + `DISPLAY=:0` 로 llvmpipe 렌더 캡처 가능.
+> **PixelLab MCP 연결됨** — 프로젝트 루트 `.mcp.json`(HTTP, Bearer 헤더). **`.gitignore` 에 넣어 커밋 안 됨.** 구독 활성(Tier 1, 2000 generations, 2026-08-19 기준 **113 사용**). 도구는 세션 시작 시 로드되므로 설정 변경 후엔 재시작 필요.
+> 검증 도구: `tools/Screenshot.tscn`(`--touch`·`--cam=x,y`), `tools/BossPatternPreview.tscn`(`--pattern=dash|volley|pillars|wave|summon|entrance`), `tools/SkillFxPreview.tscn`, `tools/TouchHitProbe.tscn`(**창 모드 필수**), `tools/HpBarPreview.tscn`, `tools/pixel/assemble_floodwraith.gd`(PixelLab 프레임→스트립 조립 패턴).
 >
 > **다음 할 일 (우선순위 순):**
-> 1. **사용자 플레이 피드백 대기 중** — "어느 장면이 어색한지" 구체 지적을 받으면 그 장면만 집중 수리. (지금까지는 '담 안에서 산이 보이던 것'만 잡은 상태)
-> 2. **무릎 꿇은 포즈 아트** — 「마당의 매질」에서 주인공이 서 있다. `protagonist/hurt.png`(144×64) 프레임 슬라이싱이 깨져 되돌렸으니, 컷신 전용 포즈 1장을 새로 만드는 편이 빠르다. **⚠ PixelLab 구독 여전히 만료 상태(2026-08-18 재확인, 2026-07-26 만료·잔여 0/2000) — 갱신 전까지 착수 불가.**
-> 3. ~~사이드 진혼 실체화 3기 배선~~ — **이 세션에서 헤드리스 그린 확인 완료.** 남은 건 사용자 승인 후 푸시뿐(아래 참조).
-> 4. **모바일 앱 출시 B안** — Android SDK·keystore 세팅 → 실제 APK 빌드 → 실기기 확인(진동 체감 포함). 절차는 `docs/RELEASE_MOBILE.md`. 런처 아이콘 미제작. (PC 전용 작업)
-> 5. (여유될 때) 씬 파일명 v1 잔재 개명 — `Haewon1Ferry/2Market/4Watergate/5EmptyTown` 이 v2 내용(물빛/문턱/우물/사당)과 안 맞는다. **범위 확인함(2026-08-18):** scene 4개·stage JSON 6개·cutscene JSON 1개·`save_manager.gd`(세이브 경로 문자열 포함!)·`main_menu.gd`·`bgm_director.gd`·테스트 2개·`tools/DlgShot.gd` 총 15곳. 세이브 호환 깨질 위험 있어 신중히.
+> 1. **보스 난이도 실플레이 검증** — 숫자로만 올린 상태. 특히 **예고 0.6초가 폰에서 반응 가능한지**가 관건. 빡세면 `FloodWraith.tscn` 의 `telegraph_seconds`·`pillar_warn` 만 올리면 된다(전부 @export).
+> 2. **잡몹 크기 밸런스 확인** — 잡몹을 키우고 늘렸으니(17→33기) 전투가 답답하지 않은지 확인 필요.
+> 3. **무릎 꿇은 포즈 아트** — 3막 「마당의 매질」에서 주인공이 서 있다. PixelLab 구독이 살아났으므로 **이제 착수 가능**(컷신 전용 포즈 1장).
+> 4. **모바일 앱 출시 B안** — Android SDK·keystore → APK. 절차는 `docs/RELEASE_MOBILE.md`. 런처 아이콘 미제작.
+> 5. (여유될 때) 씬 파일명 v1 잔재 개명 — 15곳, `save_manager.gd` 가 경로 문자열을 참조해 세이브 호환 주의.
 >
-> **판단이 필요한 것:** 스코어어택 모드(메뉴 '새로 시작')를 계속 유지할지 — 현재 두 모드가 병존하며 `stage.gd`의 `GAMEPLAY_ONLY=true` 가 그 경로를 지킨다.
->
+> **판단이 필요한 것:** 스코어어택 모드(「새로 시작」) 유지 여부. 엔딩 저울(`EndingResolver.BURN_HEAVY=3`)이 사이드 진혼 3기 추가로 `BURN_FLAGS` 가 7개가 되면서 「망각」이 쉽게 나올 수 있음 — 임계값 재조정 검토.
 > ---
 >
-> **지금 여기 (2026-08-18 텔레그램/WSL — Godot 바이너리 발견, 사이드 진혼 3기 헤드리스 그린 검증, 푸시·배포 완료):** "HANDOFF 읽고 이어서" 지시로 시작. 직전 세션이 "Godot 없는 세션"으로 기록해뒀으나 이번엔 `~/godot-bin/godot` 4.6.3 headless 바이너리가 실제로 있어 CI와 동일한 절차(`--headless --import .` ×2 → `tests/*.tscn` 전수)로 **헤드리스 46스위트 전부 그린 확인**(exit code + `[FAIL]` 마커 기준, ObjectDB 잔류 경고는 Godot 종료 시 흔한 무해 로그라 오탐 아님 확인). 사이드 진혼 3기(4막/6막전반/7막) 배선이 회귀 없이 정상 동작. PixelLab 잔여 재확인 결과 여전히 만료 상태라 항목 2는 착수 불가. Android SDK도 이 환경엔 없어 항목 4도 불가. 항목 5(씬 파일명 개명)는 세이브 매니저가 경로 문자열을 참조해 리스크가 있다고 판단, 사용자 확인 없이 단독 진행 안 함. 사용자에게 푸시 승인 요청 → **승인받아 `main` 푸시(`96a7ed5`), GitHub Actions CI 둘 다(`Godot Headless Tests`·`Godot Web Export`) success 확인, GitHub Pages 자동 배포 완료.** **다음: 사용자가 폰으로 사이드 진혼 3곳(4막/6막전반/7막) 실플레이 확인 → 피드백 대기. PixelLab 갱신되면 항목 2 재개.**
+> **지금 여기 (2026-08-19 PC — 최종 보스 대개편: 패턴 5종·전용 아트·등장 연출·잡몹 증원):** 사용자 요청 "마지막 보스 퀄리티를 높이자 — 원거리 등 피할 수 있는 패턴 다양하게, 아주 큰 한국적 귀신". **①PixelLab MCP 연결**(프로젝트 `.mcp.json`, gitignore 처리. 최초엔 구독 만료로 생성 불가 → 사용자가 갱신). **②패턴 5종 + 페이즈2**(커밋 `1bdb9e0`): 돌진 하나뿐이던 보스를 **회피 동작이 각기 다른** 다섯으로 — 돌진(점프/뒤로) / 부적 세례(탄 사이) / 물기둥(옆으로, 신규 `WaterPillar`: 예고 중 판정 OFF) / 밀물(점프만, 신규 `TideWave`: 판정 높이 34px) / 소환(페이즈2). 가중 무작위 + 직전 제외, 머리 위 경고 기호를 패턴별로 다르게(`!` `※` `▲` `≈` `＋`). 신규 `test_boss_patterns` 6케이스가 **5패턴 도달·연속반복 없음·소환 페이즈2 전용·물기둥 예고중 무판정·밀물 점프 가능 높이**를 검사. **③전용 아트**(커밋 `e4a12a8`): 시안 5종(A~E) 중 **E안 '수몰 군체 귀'** 채택 — 소복 여귀 몸통 뒤로 죽은 자들의 팔과 얼굴이 솟고 하반신은 거대한 파도(설정과 정확히 일치). 256px v3 + 애니 4종, `tools/pixel/assemble_floodwraith.gd` 로 **전 애니 union bbox 일괄 크롭**해 스트립 조립(200×236). 잡몹 확대본 → 전용 시트 교체. **④난이도·덩치·이펙트·등장·잡몹**(커밋 `61beaf3`): 보스 1.25배(플레이어의 약 5배)·HP 560→760·예고 0.82→0.62초·회복 1.35→0.85초, 패턴 수치 전반 상향. **PixelLab 물 이펙트 6종**(물기둥·밀물·등장 물기둥)을 코드 연출 위에 얹음. **등장 연출** — 물기둥이 솟구쳐 보스를 드러내고 이름판이 뜸(`_play_entrance`). ⚠ **연출이 비동기라 다음 프레임에 패턴이 먼저 나가던 버그**를 `_entrance_playing` 잠금으로 수정(스샷으로 재현·확인). 잡몹 스케일 일괄 상향 + 전투 체인 **17기→33기**. **검증:** 헤드리스 **48스위트 전부 그린**, 보스 접지·등장·물기둥·밀물·잡몹 렌더 확인. PixelLab **113/2000** 사용. **커밋 3개 푸시 완료.** **⚠ 미검증:** 실제 손맛 — 예고 0.6초가 폰에서 반응 가능한 난이도인지는 실플레이 필요.>
+> **이전 (2026-08-18 텔레그램/WSL — Godot 바이너리 발견, 사이드 진혼 3기 헤드리스 그린 검증, 푸시·배포 완료):** "HANDOFF 읽고 이어서" 지시로 시작. 직전 세션이 "Godot 없는 세션"으로 기록해뒀으나 이번엔 `~/godot-bin/godot` 4.6.3 headless 바이너리가 실제로 있어 CI와 동일한 절차(`--headless --import .` ×2 → `tests/*.tscn` 전수)로 **헤드리스 46스위트 전부 그린 확인**(exit code + `[FAIL]` 마커 기준, ObjectDB 잔류 경고는 Godot 종료 시 흔한 무해 로그라 오탐 아님 확인). 사이드 진혼 3기(4막/6막전반/7막) 배선이 회귀 없이 정상 동작. PixelLab 잔여 재확인 결과 여전히 만료 상태라 항목 2는 착수 불가. Android SDK도 이 환경엔 없어 항목 4도 불가. 항목 5(씬 파일명 개명)는 세이브 매니저가 경로 문자열을 참조해 리스크가 있다고 판단, 사용자 확인 없이 단독 진행 안 함. 사용자에게 푸시 승인 요청 → **승인받아 `main` 푸시(`96a7ed5`), GitHub Actions CI 둘 다(`Godot Headless Tests`·`Godot Web Export`) success 확인, GitHub Pages 자동 배포 완료.** **다음: 사용자가 폰으로 사이드 진혼 3곳(4막/6막전반/7막) 실플레이 확인 → 피드백 대기. PixelLab 갱신되면 항목 2 재개.**
 >
 > **이전 (2026-08-18 텔레그램/WSL, Godot 없는 세션 — 사이드 진혼 1호 배선 + PixelLab 만료 발견):** "HANDOFF 읽고 이어서" 지시로 시작. 로컬이 `4751f99`(스코어어택 피벗)에 멈춰 있어 `git pull`로 `d80adf4`까지 동기(스토리 v2 대개편이 이미 반영돼 있었음 — 로컬 감사 필요했음). "다음 세션 시작점" 항목 3(사이드 진혼 실체화)을 코드/데이터만으로 진행. **①PixelLab 구독 만료 확인**(2026-07-26 만료, 잔여 0/2000, 갱신 전까지 생성 불가) → 항목 2(무릎 꿇은 포즈 아트)는 이 세션에서 착수 불가, 갱신 후로 보류. **②선택 전투 엔진 신설:** 결계(`combat_gate.gd`)가 세던 "enemy" 그룹을 그대로 두고 새 **"enemy_gate"** 그룹을 결계 판정 전용으로 분리 — `patroller.gd`에 `optional`(true면 enemy_gate 미가입, 결계를 막지 않음)+`on_death_flag`(처치 시 플래그) export 신설, `dummy.gd`/`boss.gd`는 무조건 enemy_gate 가입(기존 필수 전투 동작 불변 확인 — 두 곳 다 기본값 false라 회귀 없음). `stage.gd._build_enemies`가 JSON `optional`/`on_death_flag`를 그대로 전달. ③**4막에 1호 배치**(`haewon_3_village.json` — 신칼 두고 간 무당마저 손 못 댄 넋, x=460 Wraith, `haewon_side_lost_wraith`) → `EndingResolver.BURN_FLAGS` 5번째 항목으로 연결(저울 로직은 burned count 기반이라 4→5개도 그대로 동작, `test_endings` 조합 전수 영향 없음 확인). ④**data-integrity 테스트 신설**(`test_story_data._check_side_battle_flags`) — 모든 `on_death_flag`가 `optional=true`이면서 `BURN_FLAGS`에 등록돼 있는지 전수 검사(설계 실수 방지: 필수 전투에 잘못 플래그 달았거나, 죽은 플래그가 남는 경우 즉시 잡음). **⚠ 이 세션은 Godot 없어 헤드리스 미실행·시각 미확인 — 로컬 커밋만 완료, 사용자 승인 전 미푸시([[feedback_git_push]]).**
 >

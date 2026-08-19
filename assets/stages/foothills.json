@@ -1,48 +1,223 @@
 {
-  "auto_quest": { "id": "main_tiger_lord", "stage": "to_forest" },
-  "backdrop": {
-    "sky": [0.79, 0.80, 0.74],
-    "tint": [0.90, 0.90, 0.86],
-    "far_scale": 0.12
-  },
-  "ground": { "tileset": "earth", "width": 2800, "x": -600 },
-  "player_x": 100,
-  "entries": [
-    { "name": "default", "x": 100 },
-    { "name": "from_village", "x": 100 }
-  ],
-  "platforms": [
-    { "x": 620, "y": 620, "w": 150 },
-    { "x": 900, "y": 560, "w": 130 },
-    { "x": 1180, "y": 616, "w": 150 }
-  ],
-  "props": [
-    { "tex": "pine", "x": 220, "y": 686, "scale": 2.2, "offset": [-28, -88] },
-    { "tex": "pine", "x": 500, "y": 686, "scale": 1.5, "offset": [-28, -88] },
-    { "tex": "pine", "x": 940, "y": 686, "scale": 1.9, "offset": [-28, -88] },
-    { "tex": "pine", "x": 1400, "y": 686, "scale": 1.6, "offset": [-28, -88] },
-    { "tex": "jangseung", "x": 560, "y": 628, "scale": 1.4, "offset": [-12, -56] },
-    { "tex": "fence", "x": 400, "y": 660, "scale": 1.5, "offset": [-32, -12] },
-    { "tex": "well", "x": 340, "y": 684, "scale": 1.4, "offset": [-24, -44] },
-    { "tex": "stone", "x": 780, "y": 682, "scale": 1.2, "offset": [-16, -18] },
-    { "tex": "stone", "x": 1240, "y": 682, "scale": 1.0, "offset": [-16, -18] }
-  ],
   "auto_dialogues": [
-    { "x": 150, "dialogue": "res://assets/dialogue/tut_jump.json", "once_flag": "tut_jump_seen", "w": 90 }
+    {
+      "dialogue": "res://assets/dialogue/tut_jump.json",
+      "once_flag": "tut_jump_seen",
+      "w": 90.0,
+      "x": 150.0
+    }
   ],
+  "auto_quest": {
+    "id": "main_tiger_lord",
+    "stage": "to_forest"
+  },
+  "backdrop": {
+    "far_scale": 0.12,
+    "sky": [
+      0.79,
+      0.8,
+      0.74
+    ],
+    "tint": [
+      0.9,
+      0.9,
+      0.86
+    ]
+  },
   "enemies": [
-    { "scene": "Wraith", "x": 760, "y": 640 },
-    { "scene": "DrownedSwarm", "x": 1000, "y": 656 },
-    { "scene": "Wraith", "x": 1180, "y": 640 }
+    {
+      "scene": "Wraith",
+      "x": 760.0,
+      "y": 640.0
+    },
+    {
+      "scene": "DrownedSwarm",
+      "x": 1000.0,
+      "y": 656.0
+    },
+    {
+      "scene": "Wraith",
+      "x": 1180.0,
+      "y": 640.0
+    },
+    {
+      "scene": "DrownedSwarm",
+      "x": 620,
+      "y": 656
+    },
+    {
+      "scene": "DrownedSwarm",
+      "x": 880,
+      "y": 656
+    },
+    {
+      "scene": "DrownedSwarm",
+      "x": 1290,
+      "y": 656
+    }
   ],
-  "gates": [
-    { "x": 1330, "y": 600, "flag": "foothills_cleared", "height": 260 }
+  "entries": [
+    {
+      "name": "default",
+      "x": 100.0
+    },
+    {
+      "name": "from_village",
+      "x": 100.0
+    }
   ],
   "exits": [
-    { "x": 40, "target": "res://scenes/levels/VillageIntro.tscn", "entry": "default", "color": [0.5, 0.55, 0.4, 0.5] },
-    { "x": 1480, "target": "res://scenes/levels/ForestDeep.tscn", "entry": "from_field", "color": [0.45, 0.5, 0.4, 0.5] }
+    {
+      "color": [
+        0.5,
+        0.55,
+        0.4,
+        0.5
+      ],
+      "entry": "default",
+      "target": "res://scenes/levels/VillageIntro.tscn",
+      "x": 40.0
+    },
+    {
+      "color": [
+        0.45,
+        0.5,
+        0.4,
+        0.5
+      ],
+      "entry": "from_field",
+      "target": "res://scenes/levels/ForestDeep.tscn",
+      "x": 1480.0
+    }
   ],
+  "gates": [
+    {
+      "flag": "foothills_cleared",
+      "height": 260.0,
+      "x": 1330.0,
+      "y": 600.0
+    }
+  ],
+  "ground": {
+    "tileset": "earth",
+    "width": 2800.0,
+    "x": -600.0
+  },
   "npcs": [
-    { "x": 300, "dialogue": "res://assets/dialogue/hill_merchant.json", "sheet": "npc/wanderer" }
+    {
+      "dialogue": "res://assets/dialogue/hill_merchant.json",
+      "sheet": "npc/wanderer",
+      "x": 300.0
+    }
+  ],
+  "platforms": [
+    {
+      "w": 150.0,
+      "x": 620.0,
+      "y": 620.0
+    },
+    {
+      "w": 130.0,
+      "x": 900.0,
+      "y": 560.0
+    },
+    {
+      "w": 150.0,
+      "x": 1180.0,
+      "y": 616.0
+    }
+  ],
+  "player_x": 100.0,
+  "props": [
+    {
+      "offset": [
+        -28.0,
+        -88.0
+      ],
+      "scale": 2.2,
+      "tex": "pine",
+      "x": 220.0,
+      "y": 686.0
+    },
+    {
+      "offset": [
+        -28.0,
+        -88.0
+      ],
+      "scale": 1.5,
+      "tex": "pine",
+      "x": 500.0,
+      "y": 686.0
+    },
+    {
+      "offset": [
+        -28.0,
+        -88.0
+      ],
+      "scale": 1.9,
+      "tex": "pine",
+      "x": 940.0,
+      "y": 686.0
+    },
+    {
+      "offset": [
+        -28.0,
+        -88.0
+      ],
+      "scale": 1.6,
+      "tex": "pine",
+      "x": 1400.0,
+      "y": 686.0
+    },
+    {
+      "offset": [
+        -12.0,
+        -56.0
+      ],
+      "scale": 1.4,
+      "tex": "jangseung",
+      "x": 560.0,
+      "y": 628.0
+    },
+    {
+      "offset": [
+        -32.0,
+        -12.0
+      ],
+      "scale": 1.5,
+      "tex": "fence",
+      "x": 400.0,
+      "y": 660.0
+    },
+    {
+      "offset": [
+        -24.0,
+        -44.0
+      ],
+      "scale": 1.4,
+      "tex": "well",
+      "x": 340.0,
+      "y": 684.0
+    },
+    {
+      "offset": [
+        -16.0,
+        -18.0
+      ],
+      "scale": 1.2,
+      "tex": "stone",
+      "x": 780.0,
+      "y": 682.0
+    },
+    {
+      "offset": [
+        -16.0,
+        -18.0
+      ],
+      "scale": 1.0,
+      "tex": "stone",
+      "x": 1240.0,
+      "y": 682.0
+    }
   ]
 }
