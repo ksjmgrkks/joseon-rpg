@@ -141,26 +141,25 @@ func _check_ledger_covers_guts() -> Dictionary:
     return { "name": "ledger_covers_guts", "status": PASS, "reason": "" }
 
 
-# 메뉴에서 이야기 모드로 들어갈 수 있는가 (스코어어택과 별개 진입로).
+# 이야기 모드 진입 경로. 2026-08-19 사용자 요청으로 **메뉴의 「이야기」 버튼은 제거**됐다
+# (시작 화면 단순화). 그래도 이야기 데이터·씬·진입 함수는 살아 있어야 한다 —
+# 버튼만 다시 달면 되살아나도록. 그래서 버튼 유무가 아니라 '경로가 온전한가'를 검사한다.
 func _check_story_entry() -> Dictionary:
     var menu: Control = load("res://scenes/ui/MainMenu.tscn").instantiate()
     add_child(menu)
     await get_tree().process_frame
-    var btn := menu.get_node_or_null("Margin/VBox/Buttons/StoryBtn") as Button
+    var btn := menu.get_node_or_null("Margin/VBox/Buttons/StoryBtn")
     var start_path: String = menu.get("STORY_START_PATH") if menu.get("STORY_START_PATH") != null else ""
     var has_handler := menu.has_method("_on_story")
     menu.queue_free()
-    if btn == null:
-        return { "name": "story_menu_entry", "status": FAIL, "reason": "메뉴에 StoryBtn 이 없음" }
-    if btn.text.strip_edges() == "":
-        return { "name": "story_menu_entry", "status": FAIL, "reason": "StoryBtn 라벨이 비었음" }
+    if btn != null:
+        return { "name": "story_entry_path", "status": FAIL,
+            "reason": "메뉴에 StoryBtn 이 남아 있음(제거하기로 함)" }
     if not has_handler:
-        return { "name": "story_menu_entry", "status": FAIL, "reason": "_on_story 핸들러 없음" }
+        return { "name": "story_entry_path", "status": FAIL, "reason": "_on_story 진입 함수가 사라짐" }
     if not ResourceLoader.exists(start_path):
-        return { "name": "story_menu_entry", "status": FAIL, "reason": "이야기 시작 씬 없음: %s" % start_path }
-    return { "name": "story_menu_entry", "status": PASS, "reason": start_path.get_file() }
-
-
+        return { "name": "story_entry_path", "status": FAIL, "reason": "이야기 시작 씬 없음: %s" % start_path }
+    return { "name": "story_entry_path", "status": PASS, "reason": start_path.get_file() }
 # 사이드 진혼(선택 전투): 스테이지 JSON 의 enemies[].on_death_flag 가 하나라도 있으면
 # EndingResolver.BURN_FLAGS 에도 반드시 엮여 있어야 한다 — 안 그러면 저울에 안 반영되는
 # 죽은 플래그(플레이어가 골라 싸운 보람이 없어짐)가 생긴다. optional 이 아닌데 on_death_flag

@@ -8,15 +8,17 @@
   ],
   "backdrop": {
     "far_scale": 0.06,
+    "mist": true,
+    "night_luminance": 0.32,
     "sky": [
-      0.4,
-      0.46,
-      0.58
+      0.26,
+      0.34,
+      0.48
     ],
     "tint": [
-      0.62,
-      0.68,
-      0.8
+      0.5,
+      0.6,
+      0.74
     ]
   },
   "enemies": [
@@ -27,18 +29,18 @@
     },
     {
       "scene": "DrownedSwarm",
-      "x": 700,
-      "y": 656
+      "x": 700.0,
+      "y": 656.0
     },
     {
       "scene": "DrownedSwarm",
-      "x": 820,
-      "y": 656
+      "x": 820.0,
+      "y": 656.0
     },
     {
       "scene": "DrownedHeavy",
-      "x": 940,
-      "y": 640
+      "x": 940.0,
+      "y": 640.0
     }
   ],
   "entries": [
@@ -155,6 +157,46 @@
       "tex": "stone",
       "x": 1460.0,
       "y": 682.0
+    },
+    {
+      "offset": [
+        -48,
+        -96
+      ],
+      "scale": 0.8,
+      "tex": "mul_deung",
+      "x": 420,
+      "y": 686
+    },
+    {
+      "offset": [
+        -48,
+        -96
+      ],
+      "scale": 0.8,
+      "tex": "mul_deung",
+      "x": 740,
+      "y": 686
+    },
+    {
+      "offset": [
+        -48,
+        -96
+      ],
+      "scale": 0.8,
+      "tex": "mul_deung",
+      "x": 1060,
+      "y": 686
+    },
+    {
+      "offset": [
+        -32,
+        -8
+      ],
+      "scale": 1.6,
+      "tex": "wood_platform",
+      "x": 300,
+      "y": 690
     }
   ],
   "quest_triggers": [

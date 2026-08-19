@@ -5,7 +5,9 @@ extends Control
 
 const START_LEVEL_PATH := "res://scenes/levels/Foothills.tscn"   # 스코어어택: 첫 전투 스테이지(스토리/프롤로그 없음)
 ## 이야기 모드 시작점 — STORY_BIBLE v2 1막 「넋을 달래는 아이」.
-## 스코어어택(새로 시작)과 별개 진입로로 둔다 — 둘 다 살린다(2026-08-18 사용자 결정).
+## 2026-08-19 사용자 요청으로 **메뉴에서 「이야기」 버튼을 뺐다**(시작 화면 단순화).
+## 데이터·씬은 그대로 살아 있으므로, 되살리려면 MainMenu.tscn 에 StoryBtn 을 다시 넣고
+## _on_story 를 연결하면 된다(이 경로로 직접 진입도 가능).
 const STORY_START_PATH := "res://scenes/levels/Haewon0Prologue.tscn"
 const SETTINGS_PATH := "res://scenes/ui/SettingsMenu.tscn"
 
@@ -37,7 +39,6 @@ const SLOT_PICKER_SCENE := preload("res://scenes/ui/SlotPicker.tscn")
 @onready var title_label: Label = $Margin/VBox/Title
 @onready var subtitle_label: Label = $Margin/VBox/Subtitle
 @onready var new_btn: Button = $Margin/VBox/Buttons/NewBtn
-@onready var story_btn: Button = $Margin/VBox/Buttons/StoryBtn
 @onready var continue_btn: Button = $Margin/VBox/Buttons/ContinueBtn
 @onready var settings_btn: Button = $Margin/VBox/Buttons/SettingsBtn
 @onready var quit_btn: Button = $Margin/VBox/Buttons/QuitBtn
@@ -55,7 +56,6 @@ func _ready() -> void:
         logo.visible = false
     Locale.locale_changed.connect(_on_locale_changed)
     new_btn.pressed.connect(_on_new)
-    story_btn.pressed.connect(_on_story)
     continue_btn.pressed.connect(_on_continue)
     settings_btn.pressed.connect(_on_settings)
     quit_btn.pressed.connect(_on_quit)
@@ -68,7 +68,6 @@ func _apply_locale() -> void:
     if title_label:    title_label.text    = Locale.t("menu.title")
     if subtitle_label: subtitle_label.text = Locale.t("menu.subtitle")
     if new_btn:        new_btn.text        = Locale.t("menu.new")
-    if story_btn:      story_btn.text      = Locale.t("menu.story")
     if continue_btn:   continue_btn.text   = Locale.t("menu.continue")
     if settings_btn:   settings_btn.text   = Locale.t("menu.settings")
     if quit_btn:       quit_btn.text       = Locale.t("menu.quit")

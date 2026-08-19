@@ -8,15 +8,17 @@
   ],
   "backdrop": {
     "far_scale": 0.08,
+    "mist": true,
+    "night_luminance": 0.45,
     "sky": [
-      0.52,
-      0.57,
-      0.64
+      0.4,
+      0.48,
+      0.58
     ],
     "tint": [
-      0.7,
-      0.74,
-      0.8
+      0.64,
+      0.72,
+      0.82
     ]
   },
   "enemies": [
@@ -47,18 +49,18 @@
     },
     {
       "scene": "DrownedSwarm",
-      "x": 620,
-      "y": 656
+      "x": 620.0,
+      "y": 656.0
     },
     {
       "scene": "DrownedSwarm",
-      "x": 880,
-      "y": 656
+      "x": 880.0,
+      "y": 656.0
     },
     {
       "scene": "Wraith",
-      "x": 1230,
-      "y": 640
+      "x": 1230.0,
+      "y": 640.0
     }
   ],
   "entries": [
@@ -131,23 +133,23 @@
   "props": [
     {
       "offset": [
-        -28.0,
-        -88.0
+        -48,
+        -96
       ],
-      "scale": 2.0,
-      "tex": "pine",
+      "scale": 0.85,
+      "tex": "mul_deung",
       "x": 260.0,
-      "y": 686.0
+      "y": 686
     },
     {
       "offset": [
-        -28.0,
-        -88.0
+        -48,
+        -96
       ],
-      "scale": 1.5,
-      "tex": "pine",
+      "scale": 0.85,
+      "tex": "mul_deung",
       "x": 860.0,
-      "y": 686.0
+      "y": 686
     },
     {
       "offset": [
@@ -198,6 +200,36 @@
       "tex": "stone",
       "x": 1160.0,
       "y": 682.0
+    },
+    {
+      "offset": [
+        -48,
+        -96
+      ],
+      "scale": 0.8,
+      "tex": "mul_deung",
+      "x": 420,
+      "y": 686
+    },
+    {
+      "offset": [
+        -48,
+        -96
+      ],
+      "scale": 0.8,
+      "tex": "mul_deung",
+      "x": 740,
+      "y": 686
+    },
+    {
+      "offset": [
+        -32,
+        -8
+      ],
+      "scale": 1.6,
+      "tex": "wood_platform",
+      "x": 300,
+      "y": 690
     }
   ],
   "quest_triggers": [

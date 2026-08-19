@@ -107,11 +107,6 @@ layout_mode = 2
 custom_minimum_size = Vector2(0, 44)
 text = "새로 시작"
 
-[node name="StoryBtn" type="Button" parent="Margin/VBox/Buttons"]
-layout_mode = 2
-custom_minimum_size = Vector2(0, 44)
-text = "이야기"
-
 [node name="ContinueBtn" type="Button" parent="Margin/VBox/Buttons"]
 layout_mode = 2
 custom_minimum_size = Vector2(0, 44)
