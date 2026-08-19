@@ -1,38 +1,201 @@
 {
   "_note": "【2스테이지 그슨대 숲 — 3굽이】 고목이 말라죽은 웅덩이 지대. 솟대·장승이 늘어서 있다(민간에서 그슨대를 막으려 세운 흔적). 그슨대 4마리.",
   "backdrop": {
-    "sky": [0.055, 0.06, 0.10],
-    "tint": [0.28, 0.30, 0.38],
+    "clouds": false,
     "far_scale": 0.08,
-    "night_luminance": 0.18,
     "mist": true,
     "mountains": false,
-    "clouds": false
+    "night_luminance": 0.18,
+    "sky": [
+      0.055,
+      0.06,
+      0.1
+    ],
+    "tint": [
+      0.28,
+      0.3,
+      0.38
+    ]
   },
+  "enemies": [
+    {
+      "scene": "Geuseondae",
+      "x": 480.0,
+      "y": 656.0
+    },
+    {
+      "scene": "Geuseondae",
+      "x": 760.0,
+      "y": 656.0
+    },
+    {
+      "scene": "Geuseondae",
+      "x": 1060.0,
+      "y": 656.0
+    },
+    {
+      "scene": "Geuseondae",
+      "x": 1400.0,
+      "y": 656.0
+    }
+  ],
+  "entries": [
+    {
+      "name": "default",
+      "x": 100.0
+    }
+  ],
   "ground": {
     "tileset": "earth",
-    "tint": [0.42, 0.42, 0.40],
+    "tint": [
+      0.42,
+      0.42,
+      0.4
+    ],
     "width": 2800.0,
     "x": -500.0
   },
+  "player_x": 100.0,
   "props": [
-    { "tex": "sotdae", "x": 200.0, "y": 636.0, "scale": 1.4, "offset": [-10.0, -64.0] },
-    { "tex": "jangseung", "x": 380.0, "y": 628.0, "scale": 1.3, "offset": [-12.0, -56.0] },
-    { "tex": "pine", "x": 560.0, "y": 686.0, "scale": 1.6, "offset": [-28.0, -88.0] },
-    { "tex": "lantern", "x": 740.0, "y": 640.0, "scale": 1.1, "offset": [-8.0, -48.0] },
-    { "tex": "jangseung", "x": 940.0, "y": 628.0, "scale": 1.3, "offset": [-12.0, -56.0] },
-    { "tex": "pine", "x": 1120.0, "y": 686.0, "scale": 2.1, "offset": [-28.0, -88.0] },
-    { "tex": "sotdae", "x": 1320.0, "y": 636.0, "scale": 1.4, "offset": [-10.0, -64.0] },
-    { "tex": "lantern", "x": 1500.0, "y": 640.0, "scale": 1.1, "offset": [-8.0, -48.0] }
-  ],
-  "entries": [
-    { "name": "default", "x": 100.0 }
-  ],
-  "enemies": [
-    { "scene": "Geuseondae", "x": 480.0, "y": 656.0 },
-    { "scene": "Geuseondae", "x": 760.0, "y": 656.0 },
-    { "scene": "Geuseondae", "x": 1060.0, "y": 656.0 },
-    { "scene": "Geuseondae", "x": 1400.0, "y": 656.0 }
-  ],
-  "player_x": 100.0
+    {
+      "offset": [
+        -10.0,
+        -64.0
+      ],
+      "scale": 1.4,
+      "tex": "sotdae",
+      "x": 200.0,
+      "y": 636.0
+    },
+    {
+      "offset": [
+        -12.0,
+        -56.0
+      ],
+      "scale": 1.3,
+      "tex": "jangseung",
+      "x": 380.0,
+      "y": 628.0
+    },
+    {
+      "offset": [
+        -28.0,
+        -88.0
+      ],
+      "scale": 1.6,
+      "tex": "pine",
+      "x": 560.0,
+      "y": 686.0
+    },
+    {
+      "offset": [
+        -8.0,
+        -48.0
+      ],
+      "scale": 1.1,
+      "tex": "lantern",
+      "x": 740.0,
+      "y": 640.0
+    },
+    {
+      "offset": [
+        -12.0,
+        -56.0
+      ],
+      "scale": 1.3,
+      "tex": "jangseung",
+      "x": 940.0,
+      "y": 628.0
+    },
+    {
+      "offset": [
+        -28.0,
+        -88.0
+      ],
+      "scale": 2.1,
+      "tex": "pine",
+      "x": 1120.0,
+      "y": 686.0
+    },
+    {
+      "offset": [
+        -10.0,
+        -64.0
+      ],
+      "scale": 1.4,
+      "tex": "sotdae",
+      "x": 1320.0,
+      "y": 636.0
+    },
+    {
+      "offset": [
+        -8.0,
+        -48.0
+      ],
+      "scale": 1.1,
+      "tex": "lantern",
+      "x": 1500.0,
+      "y": 640.0
+    },
+    {
+      "offset": [
+        -64,
+        -110
+      ],
+      "scale": 2.0,
+      "tex": "dead_tree_tall",
+      "x": 60,
+      "y": 684
+    },
+    {
+      "offset": [
+        -64,
+        -64
+      ],
+      "scale": 1.3,
+      "tex": "boulder",
+      "x": 340,
+      "y": 686
+    },
+    {
+      "offset": [
+        -64,
+        -110
+      ],
+      "scale": 1.7,
+      "tex": "dead_tree",
+      "x": 620,
+      "y": 684
+    },
+    {
+      "offset": [
+        -64,
+        -110
+      ],
+      "scale": 1.5,
+      "tex": "dead_tree_tall",
+      "x": 940,
+      "y": 684
+    },
+    {
+      "offset": [
+        -64,
+        -64
+      ],
+      "scale": 1.1,
+      "tex": "boulder_moss",
+      "x": 1240,
+      "y": 686
+    },
+    {
+      "offset": [
+        -64,
+        -110
+      ],
+      "scale": 1.8,
+      "tex": "dead_tree",
+      "x": 1420,
+      "y": 684
+    }
+  ]
 }

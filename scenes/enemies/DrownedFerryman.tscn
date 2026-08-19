@@ -39,7 +39,7 @@ drop_gold_chance = 0.36
 scale = Vector2(1.35, 1.35)
 script = ExtResource("vis_enemy")
 sheet = "enemies/boatman"
-foot_offset = -32.5
+foot_offset = -36.9
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("RectangleShape2D_body")

@@ -1,40 +1,216 @@
 {
   "_note": "【2스테이지 그슨대 숲 — 4굽이(보스 직전)】 곳곳에서 아이 울음이 겹쳐 들리는 마지막 덤불. 그슨대 5마리 — 노괴를 만나기 전 가장 빽빽한 구간.",
   "backdrop": {
-    "sky": [0.05, 0.055, 0.09],
-    "tint": [0.26, 0.28, 0.36],
+    "clouds": false,
     "far_scale": 0.08,
-    "night_luminance": 0.16,
     "mist": true,
     "mountains": false,
-    "clouds": false
+    "night_luminance": 0.16,
+    "sky": [
+      0.05,
+      0.055,
+      0.09
+    ],
+    "tint": [
+      0.26,
+      0.28,
+      0.36
+    ]
   },
+  "enemies": [
+    {
+      "scene": "Geuseondae",
+      "x": 460.0,
+      "y": 656.0
+    },
+    {
+      "scene": "Geuseondae",
+      "x": 700.0,
+      "y": 656.0
+    },
+    {
+      "scene": "Geuseondae",
+      "x": 980.0,
+      "y": 656.0
+    },
+    {
+      "scene": "Geuseondae",
+      "x": 1260.0,
+      "y": 656.0
+    },
+    {
+      "scene": "Geuseondae",
+      "x": 1560.0,
+      "y": 656.0
+    }
+  ],
+  "entries": [
+    {
+      "name": "default",
+      "x": 100.0
+    }
+  ],
   "ground": {
     "tileset": "earth",
-    "tint": [0.40, 0.40, 0.38],
+    "tint": [
+      0.4,
+      0.4,
+      0.38
+    ],
     "width": 3000.0,
     "x": -500.0
   },
+  "player_x": 100.0,
   "props": [
-    { "tex": "pine", "x": 180.0, "y": 686.0, "scale": 2.3, "offset": [-28.0, -88.0] },
-    { "tex": "jangseung", "x": 360.0, "y": 628.0, "scale": 1.3, "offset": [-12.0, -56.0] },
-    { "tex": "pine", "x": 540.0, "y": 686.0, "scale": 1.8, "offset": [-28.0, -88.0] },
-    { "tex": "lantern", "x": 720.0, "y": 640.0, "scale": 1.2, "offset": [-8.0, -48.0] },
-    { "tex": "sotdae", "x": 900.0, "y": 636.0, "scale": 1.4, "offset": [-10.0, -64.0] },
-    { "tex": "pine", "x": 1080.0, "y": 686.0, "scale": 2.0, "offset": [-28.0, -88.0] },
-    { "tex": "jangseung", "x": 1260.0, "y": 628.0, "scale": 1.3, "offset": [-12.0, -56.0] },
-    { "tex": "lantern", "x": 1440.0, "y": 640.0, "scale": 1.2, "offset": [-8.0, -48.0] },
-    { "tex": "pine", "x": 1620.0, "y": 686.0, "scale": 2.2, "offset": [-28.0, -88.0] }
-  ],
-  "entries": [
-    { "name": "default", "x": 100.0 }
-  ],
-  "enemies": [
-    { "scene": "Geuseondae", "x": 460.0, "y": 656.0 },
-    { "scene": "Geuseondae", "x": 700.0, "y": 656.0 },
-    { "scene": "Geuseondae", "x": 980.0, "y": 656.0 },
-    { "scene": "Geuseondae", "x": 1260.0, "y": 656.0 },
-    { "scene": "Geuseondae", "x": 1560.0, "y": 656.0 }
-  ],
-  "player_x": 100.0
+    {
+      "offset": [
+        -28.0,
+        -88.0
+      ],
+      "scale": 2.3,
+      "tex": "pine",
+      "x": 180.0,
+      "y": 686.0
+    },
+    {
+      "offset": [
+        -12.0,
+        -56.0
+      ],
+      "scale": 1.3,
+      "tex": "jangseung",
+      "x": 360.0,
+      "y": 628.0
+    },
+    {
+      "offset": [
+        -28.0,
+        -88.0
+      ],
+      "scale": 1.8,
+      "tex": "pine",
+      "x": 540.0,
+      "y": 686.0
+    },
+    {
+      "offset": [
+        -8.0,
+        -48.0
+      ],
+      "scale": 1.2,
+      "tex": "lantern",
+      "x": 720.0,
+      "y": 640.0
+    },
+    {
+      "offset": [
+        -10.0,
+        -64.0
+      ],
+      "scale": 1.4,
+      "tex": "sotdae",
+      "x": 900.0,
+      "y": 636.0
+    },
+    {
+      "offset": [
+        -28.0,
+        -88.0
+      ],
+      "scale": 2.0,
+      "tex": "pine",
+      "x": 1080.0,
+      "y": 686.0
+    },
+    {
+      "offset": [
+        -12.0,
+        -56.0
+      ],
+      "scale": 1.3,
+      "tex": "jangseung",
+      "x": 1260.0,
+      "y": 628.0
+    },
+    {
+      "offset": [
+        -8.0,
+        -48.0
+      ],
+      "scale": 1.2,
+      "tex": "lantern",
+      "x": 1440.0,
+      "y": 640.0
+    },
+    {
+      "offset": [
+        -28.0,
+        -88.0
+      ],
+      "scale": 2.2,
+      "tex": "pine",
+      "x": 1620.0,
+      "y": 686.0
+    },
+    {
+      "offset": [
+        -64,
+        -110
+      ],
+      "scale": 1.8,
+      "tex": "dead_tree",
+      "x": 40,
+      "y": 684
+    },
+    {
+      "offset": [
+        -64,
+        -110
+      ],
+      "scale": 2.1,
+      "tex": "dead_tree_tall",
+      "x": 300,
+      "y": 684
+    },
+    {
+      "offset": [
+        -64,
+        -64
+      ],
+      "scale": 1.2,
+      "tex": "boulder",
+      "x": 560,
+      "y": 686
+    },
+    {
+      "offset": [
+        -64,
+        -110
+      ],
+      "scale": 1.6,
+      "tex": "dead_tree",
+      "x": 860,
+      "y": 684
+    },
+    {
+      "offset": [
+        -64,
+        -64
+      ],
+      "scale": 1.4,
+      "tex": "boulder_moss",
+      "x": 1120,
+      "y": 686
+    },
+    {
+      "offset": [
+        -64,
+        -110
+      ],
+      "scale": 1.9,
+      "tex": "dead_tree_tall",
+      "x": 1380,
+      "y": 684
+    }
+  ]
 }

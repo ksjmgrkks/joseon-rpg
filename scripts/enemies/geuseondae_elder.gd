@@ -15,7 +15,13 @@ class_name GeuseondaeElder
 @export var revealed_color: Color = Color(1, 1, 1, 1)
 @export var revealed_sheet: String = "enemies/geuseondae_elder_shadow"
 @export var revealed_sprite_scale: float = 1.0
-@export var revealed_foot_offset: float = -61.5
+## 정체(그림자) 시트의 발 정렬. 시트 실측값 기준 — 어긋나면 보스가 공중에 뜬다.
+## (2026-08-19: 그림자 시트를 PixelLab 로 재제작 170x247·발끝 247. 정체 변신 때
+##  콜리전도 60x120 으로 키우므로 half=60 → foot_offset = 60 - 123.5 = -63.5)
+@export var revealed_foot_offset: float = -63.5
+## 정체는 위장(소년)보다 훨씬 크다 — 변신 순간 몸·피격 판정도 같이 키운다.
+@export var revealed_body_size: Vector2 = Vector2(60, 120)
+@export var revealed_hurt_size: Vector2 = Vector2(76, 150)
 
 var _disguised: bool = true
 var _threat: int = 0
@@ -89,6 +95,7 @@ func _reveal() -> void:
 	health.hp_changed.emit(health.hp, health.max_hp)
 	health.shield_charges = 0
 	attack_damage = revealed_attack_damage * (1.0 + threat_dmg_mult * float(_threat))
+	_grow_collision()
 	if sprite and is_instance_valid(sprite):
 		sprite.set_sheet(revealed_sheet, revealed_sprite_scale, revealed_foot_offset)
 		sprite.modulate = revealed_color
@@ -96,3 +103,24 @@ func _reveal() -> void:
 	SkillFx.impact(global_position + Vector2(0, -20), true)
 	ScreenFx.shake(12.0 + float(_threat) * 2.0, 0.3)
 	Audio.play_sfx(Sfx.WARD)
+
+
+## 정체를 드러내면 덩치가 확 커진다 — 스프라이트만 키우면 판정이 발밑에만 남아
+## "때려도 안 맞는" 느낌이 되므로, 몸·피격 판정도 같이 키운다.
+func _grow_collision() -> void:
+	var body := get_node_or_null("CollisionShape2D") as CollisionShape2D
+	if body != null and body.shape is RectangleShape2D:
+		var s := (body.shape as RectangleShape2D).duplicate() as RectangleShape2D
+		s.size = revealed_body_size
+		body.shape = s
+	var hb := get_node_or_null("Hurtbox/HurtboxShape") as CollisionShape2D
+	if hb != null and hb.shape is RectangleShape2D:
+		var hs := (hb.shape as RectangleShape2D).duplicate() as RectangleShape2D
+		hs.size = revealed_hurt_size
+		hb.shape = hs
+		hb.position = Vector2(0, -(revealed_hurt_size.y - revealed_body_size.y) * 0.5)
+	# HP 바는 붙을 때 '위장' 시트를 재서 자리를 잡았다 — 정체는 훨씬 크므로 다시 재게 한다
+	# (안 하면 거대 그림자의 몸통 한가운데에 바가 걸린다).
+	for c in get_children():
+		if c is EnemyHpBar:
+			(c as EnemyHpBar).call_deferred("_fit_to_host", self, true)

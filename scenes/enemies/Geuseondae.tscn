@@ -31,7 +31,7 @@ xp_reward = 26
 [node name="Sprite2D" type="AnimatedSprite2D" parent="."]
 script = ExtResource("vis_enemy")
 sheet = "enemies/geuseondae"
-foot_offset = -24.5
+foot_offset = -8.5
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("RectangleShape2D_body")
