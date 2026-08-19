@@ -9,7 +9,8 @@ const CHAIN := {
 	"res://scenes/levels/ForestDeep.tscn": "res://scenes/levels/MountainPass.tscn",
 	"res://scenes/levels/MountainPass.tscn": "res://scenes/levels/RuinedTemple.tscn",
 	"res://scenes/levels/RuinedTemple.tscn": "res://scenes/levels/SacredAltar.tscn",
-	"res://scenes/levels/SacredAltar.tscn": "res://scenes/ui/Clear.tscn",
+	"res://scenes/levels/SacredAltar.tscn": "res://scenes/levels/ForestShadow.tscn",
+	"res://scenes/levels/ForestShadow.tscn": "res://scenes/ui/Clear.tscn",
 }
 
 

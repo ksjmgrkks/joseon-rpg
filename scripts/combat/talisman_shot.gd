@@ -87,6 +87,12 @@ func _physics_process(delta: float) -> void:
 func _on_body_entered(body: Node) -> void:
 	if not body.is_in_group("enemy"):
 		return
+	# 특수 반응 훅 — 부적(빛)에만 반응하는 적(예: 위장 상태의 그슨대)이 데미지 대신
+	# 자체 처리를 하고 싶을 때 이 메서드를 구현해두면 여기서 대신 호출한다.
+	if body.has_method("_on_talisman_hit"):
+		body._on_talisman_hit(damage, attacker)
+		queue_free()
+		return
 	var hc: HealthComponent = body.get_node_or_null("HealthComponent")
 	if hc:
 		hc.take_damage(damage, attacker)

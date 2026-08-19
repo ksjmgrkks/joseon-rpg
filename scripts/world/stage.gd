@@ -47,13 +47,15 @@ const CAMERA_OFFSET_Y := 160.0   # 카메라를 위로 이만큼 띄워 지면�
 # 스토리를 되살리려면 GAMEPLAY_ONLY 를 false 로만 바꾸면 기존 데이터 흐름이 복구된다.
 const GAMEPLAY_ONLY := true
 # 난이도 곡선: 잡몹 → 잡몹+호랑이 → 더 많은 잡몹 → 중간보스(구미호 여왕) → 최종보스(대호)
-const CHAIN := ["foothills", "forest_deep", "mountain_pass", "ruined_temple", "sacred_altar"]
+# 2스테이지(그슨대 숲) 수직 슬라이스 — 정식 굽이 4개 + 보스는 추후, 지금은 1칸만 임시 연결.
+const CHAIN := ["foothills", "forest_deep", "mountain_pass", "ruined_temple", "sacred_altar", "forest_shadow"]
 const CHAIN_TSCN := {
     "foothills": "res://scenes/levels/Foothills.tscn",
     "forest_deep": "res://scenes/levels/ForestDeep.tscn",
     "ruined_temple": "res://scenes/levels/RuinedTemple.tscn",
     "mountain_pass": "res://scenes/levels/MountainPass.tscn",
     "sacred_altar": "res://scenes/levels/SacredAltar.tscn",
+    "forest_shadow": "res://scenes/levels/ForestShadow.tscn",
 }
 const CLEAR_SCENE := "res://scenes/ui/Clear.tscn"
 const FWD_GATE_X := 1360.0       # 전진 차단 결계 x
