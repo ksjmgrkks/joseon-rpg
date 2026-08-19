@@ -36,20 +36,6 @@ func _ready() -> void:
 	health.shield_broken.connect(_on_disguised_hit)
 
 
-## 물기둥/밀물은 물 스테이지 전용 연출이라 이 던전(그슨대 숲)엔 안 어울려 제외.
-## 돌진(그림자 손톱) · 부적 세례(영혼 구슬) · 소환(작은 그슨대들을 불러모음)만 사용.
-func _choose_pattern() -> int:
-	var pool: Array = [Pattern.DASH, Pattern.DASH, Pattern.VOLLEY, Pattern.SUMMON]
-	if _phase >= 2:
-		pool.append_array([Pattern.DASH, Pattern.VOLLEY, Pattern.SUMMON, Pattern.SUMMON])
-	var picks: Array = []
-	for x in pool:
-		if x != _last_pattern:
-			picks.append(x)
-	if picks.is_empty():
-		picks = pool
-	return picks[randi() % picks.size()]
-
 
 ## 아직 "안전한" 위장 단계(위협도 < threat_attack_at)면 어떤 패턴도 꺼내지 않는다 —
 ## 플레이어가 계속 접근해도 그저 서서 운다(유인). 위협도가 쌓이면 그때부터 패턴 시작.
@@ -124,3 +110,165 @@ func _grow_collision() -> void:
 	for c in get_children():
 		if c is EnemyHpBar:
 			(c as EnemyHpBar).call_deferred("_fit_to_host", self, true)
+
+
+# ══════════ 그슨대 전용 패턴 (2026-08-19 신설) ══════════
+#
+# 물 보스에게서 물려받은 돌진/부적/소환만으로는 이 보스의 정체성이 안 산다.
+# 그슨대는 **그림자**이고 **울음으로 부르며** **베일수록 자라는** 것이다. 그 셋을 패턴으로:
+#   · 그림자 늪  — 바닥에 검은 웅덩이를 퍼뜨려 발을 묶는다(직접 피해보다 '가둠'이 목적)
+#   · 갈퀴 훑기  — 긴 그림자 팔이 지면을 훑는다. **점프로만** 넘는다
+#   · 암전 강습  — 화면이 캄캄해진 사이 플레이어 뒤로 돌아가 내리찍는다. 예고 표식을 보고 피한다
+#
+# 부모(boss.gd)의 Pattern enum 을 확장할 수 없으므로, 부모가 안 쓰는 큰 정수를 전용 값으로 쓴다.
+const P_SHADOW_POOL := 100
+const P_CLAW_SWEEP := 101
+const P_BLACKOUT := 102
+
+@export_group("그슨대 패턴")
+## 그림자 늪 — 한 번에 퍼뜨릴 웅덩이 수와 지속 피해.
+@export var pool_count: int = 3
+@export var pool_damage: float = 8.0
+## 갈퀴 훑기 — 지면을 훑는 속도·피해.
+@export var claw_damage: float = 14.0
+@export var claw_speed: float = 330.0
+## 암전 강습 — 어둠이 깔린 시간과 내리찍기 피해.
+@export var blackout_time: float = 0.75
+@export var blackout_damage: float = 22.0
+
+
+## 패턴 선택 — 부모 것(돌진/부적/소환)에 전용 패턴 셋을 섞는다.
+## 위장 단계에선 부모가 이미 막고 있으므로 여기선 순수 선택만 담당.
+func _choose_pattern() -> int:
+	var pool: Array = [Pattern.DASH, Pattern.VOLLEY, P_SHADOW_POOL, P_CLAW_SWEEP]
+	if _phase >= 2:
+		pool.append_array([P_BLACKOUT, P_CLAW_SWEEP, P_SHADOW_POOL, Pattern.SUMMON, P_BLACKOUT])
+	else:
+		pool.append(Pattern.SUMMON)
+	var picks: Array = []
+	for x in pool:
+		if x != _last_pattern:
+			picks.append(x)
+	if picks.is_empty():
+		picks = pool
+	return picks[randi() % picks.size()]
+
+
+func _telegraph_time(pat: int) -> float:
+	match pat:
+		P_SHADOW_POOL: return 0.5 * _phase_mult_telegraph()
+		P_CLAW_SWEEP:  return 0.62 * _phase_mult_telegraph()
+		P_BLACKOUT:    return 0.45 * _phase_mult_telegraph()
+	return super._telegraph_time(pat)
+
+
+func _warn_glyph(pat: int) -> String:
+	match pat:
+		P_SHADOW_POOL: return "●"
+		P_CLAW_SWEEP:  return "〜"
+		P_BLACKOUT:    return "×"
+	return super._warn_glyph(pat)
+
+
+func _warn_color(pat: int) -> Color:
+	match pat:
+		P_SHADOW_POOL: return Color(0.55, 0.42, 0.72)
+		P_CLAW_SWEEP:  return Color(0.72, 0.70, 0.78)
+		P_BLACKOUT:    return Color(0.95, 0.95, 1.0)
+	return super._warn_color(pat)
+
+
+func _telegraph_fx(pat: int) -> void:
+	match pat:
+		P_SHADOW_POOL, P_CLAW_SWEEP, P_BLACKOUT:
+			# 그림자가 몸으로 모여든다 — 물 보스의 물 연출 대신 어둠으로.
+			SkillFx.shadow_gather(global_position, _telegraph_time(pat) * 0.9)
+		_:
+			super._telegraph_fx(pat)
+
+
+func _enter_attack() -> void:
+	match _pattern:
+		P_SHADOW_POOL:
+			_hide_warn(); _state = State.ATTACK; _last_pattern = _pattern
+			_state_timer = 0.8
+			_do_shadow_pool()
+		P_CLAW_SWEEP:
+			_hide_warn(); _state = State.ATTACK; _last_pattern = _pattern
+			_state_timer = 0.6
+			_do_claw_sweep()
+		P_BLACKOUT:
+			_hide_warn(); _state = State.ATTACK; _last_pattern = _pattern
+			_state_timer = blackout_time + 0.5
+			_do_blackout()
+		_:
+			super._enter_attack()
+
+
+## ① 그림자 늪 — 플레이어 발밑과 그 좌우로 웅덩이를 퍼뜨린다.
+func _do_shadow_pool() -> void:
+	var host := get_parent()
+	var p := _player()
+	if host == null or p == null:
+		return
+	var base_x: float = p.global_position.x
+	var ground_y: float = global_position.y + 24.0
+	var n := maxi(1, pool_count + (1 if _phase >= 2 else 0))
+	for i in range(n):
+		var off := 0.0 if i == 0 else float(i) * 120.0 * (1.0 if i % 2 == 1 else -1.0)
+		ShadowPool.spawn(host, Vector2(base_x + off, ground_y), pool_damage, 0.5 + float(i) * 0.12)
+	Audio.play_sfx(Sfx.WARD)
+	ScreenFx.shake(4.0, 0.15)
+
+
+## ② 갈퀴 훑기 — 긴 그림자 팔이 지면을 훑고 지나간다. 점프로만 넘는다.
+func _do_claw_sweep() -> void:
+	var host := get_parent()
+	if host == null:
+		return
+	var dir := 1.0 if _facing_right else -1.0
+	ShadowClaw.spawn(host, Vector2(global_position.x + dir * 40.0, global_position.y + 24.0),
+		dir, claw_damage, claw_speed)
+	if _phase >= 2:
+		# 페이즈 2 — 뒤쪽에서도 한 손 더. 점프 타이밍을 두 번 잡아야 한다.
+		await get_tree().create_timer(0.35).timeout
+		if is_instance_valid(self) and _state != State.DEAD:
+			ShadowClaw.spawn(host, Vector2(global_position.x - dir * 40.0, global_position.y + 24.0),
+				-dir, claw_damage, claw_speed * 0.9)
+	Audio.play_sfx(Sfx.ATTACK)
+	ScreenFx.shake(6.0, 0.18)
+
+
+## ③ 암전 강습 — 화면이 캄캄해진 사이 플레이어 뒤로 돌아가 내리찍는다.
+## 어둠 속에서도 **착지 지점에 표식**이 떠서, 보고 피할 수 있다(무조건 맞는 패턴 금지).
+func _do_blackout() -> void:
+	var host := get_parent()
+	var p := _player()
+	if host == null or p == null:
+		return
+	SkillFx.blackout(blackout_time)
+	Audio.play_sfx(Sfx.WARD)
+	await get_tree().create_timer(blackout_time * 0.45).timeout
+	if not is_instance_valid(self) or _state == State.DEAD or not is_instance_valid(p):
+		return
+	# 플레이어 뒤편(등 뒤)으로 이동 — 화면 밖으로 나가지 않게 x 만 옮긴다.
+	var behind := -1.0 if p.global_position.x >= global_position.x else 1.0
+	var target := p.global_position.x + behind * 120.0
+	global_position.x = target
+	_facing_right = p.global_position.x >= global_position.x
+	SkillFx.shadow_burst(global_position + Vector2(0, -30.0))
+	# 착지 표식 — 어둠 속에서도 이것만은 보인다
+	SkillFx.strike_marker(Vector2(global_position.x, global_position.y + 24.0), blackout_time * 0.55)
+	await get_tree().create_timer(blackout_time * 0.55).timeout
+	if not is_instance_valid(self) or _state == State.DEAD:
+		return
+	# 내리찍기 — 표식 자리에 판정
+	if attack_hitbox:
+		attack_hitbox.position.x = 0.0
+		attack_hitbox.damage = blackout_damage * (1.0 + threat_dmg_mult * float(_threat))
+		attack_hitbox.knockback = attack_knockback
+		attack_hitbox.activate(0.22)
+	SkillFx.shadow_slam(Vector2(global_position.x, global_position.y + 24.0))
+	ScreenFx.shake(14.0, 0.35)
+	ScreenFx.rumble(70)
+	Audio.play_sfx(Sfx.HIT, 2.0)

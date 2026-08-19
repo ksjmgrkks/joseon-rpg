@@ -23,6 +23,13 @@ const SCENE_BGM := {
     "RuinedTemple":     "res://assets/audio/bgm/night.wav",
     "MountainPass":     "res://assets/audio/bgm/forest.wav",
     "SacredAltar":      "res://assets/audio/bgm/boss.wav",
+    # 2스테이지(그슨대 숲) — 전용곡. 느린 계면조 가야금 + 성긴 장구 + 멀리서 아이 울음.
+    # 보스 굽이(ElderHollow)만 전투곡(boss) 유지 — 1스테이지 SacredAltar 와 같은 규약.
+    "ForestShadow":   "res://assets/audio/bgm/geuseondae.wav",
+    "ForestMist":     "res://assets/audio/bgm/geuseondae.wav",
+    "WitheredHollow": "res://assets/audio/bgm/geuseondae.wav",
+    "WailingThicket": "res://assets/audio/bgm/geuseondae.wav",
+    "ElderHollow":    "res://assets/audio/bgm/boss.wav",
     # 「해원」 6굽이 — 굽이별 전용곡으로 정서 분화.
     #   river 강가 진혼(프롤/1/2굽이) · grief 죄의 확인(3굽이) ·
     #   hollow 빈 고을 공허(5굽이) · requiem 최종 진혼·승화(6굽이/엔딩).

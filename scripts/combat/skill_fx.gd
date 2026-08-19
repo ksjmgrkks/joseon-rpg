@@ -1158,3 +1158,116 @@ func boss_water_rise(pos: Vector2, dur: float = 1.6) -> void:
             var end := pos + Vector2(cos(a), sin(a)) * randf_range(70.0, 190.0)
             _mote(host, pos, end, randf_range(2.0, 4.0), FOAM if i == 0 else WATER, randf_range(0.35, 0.6), 25)
         await get_tree().create_timer(0.12).timeout
+
+
+# ════════════ 그슨대(그림자) 전용 이펙트 ════════════
+
+const SHADOW := Color(0.06, 0.05, 0.09)
+const SHADOW_SOFT := Color(0.16, 0.14, 0.20)
+
+## 시전 예고 — 사방의 어둠이 보스 몸으로 모여든다(물 보스의 river_gather 대응).
+func shadow_gather(pos: Vector2, dur: float = 0.6) -> void:
+    var host := _host()
+    if host == null:
+        return
+    var center := pos + Vector2(0, -40)
+    var ticks := maxi(2, int(dur / 0.07))
+    for t in range(ticks):
+        if not is_instance_valid(host):
+            return
+        for i in range(2):
+            var a := randf() * TAU
+            var start := center + Vector2(cos(a), sin(a)) * randf_range(70.0, 130.0)
+            _mote(host, start, center + Vector2(randf_range(-8, 8), randf_range(-8, 8)),
+                randf_range(2.2, 3.8), SHADOW_SOFT, 0.26, 33, true)
+        if t % 3 == 0:
+            var ring := _line(_circle_pts(64.0, 20), 3.0, Color(SHADOW_SOFT.r, SHADOW_SOFT.g, SHADOW_SOFT.b, 0.7), 30)
+            ring.global_position = center
+            host.add_child(ring)
+            var rt := ring.create_tween()
+            rt.tween_property(ring, "scale", Vector2(0.25, 0.25), 0.3).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+            rt.parallel().tween_property(ring, "modulate:a", 0.0, 0.3)
+            rt.tween_callback(ring.queue_free)
+        await get_tree().create_timer(0.07).timeout
+
+
+## 순간이동 직후 터지는 그림자 — 어디서 나타났는지 알려주는 신호.
+func shadow_burst(pos: Vector2) -> void:
+    var host := _host()
+    if host == null:
+        return
+    _pulse_ring(host, pos, 18.0, 5.0, Color(SHADOW_SOFT.r, SHADOW_SOFT.g, SHADOW_SOFT.b, 0.9), 3.4, 0.4, 34)
+    for i in range(12):
+        var a := TAU * i / 12.0 + randf() * 0.3
+        _mote(host, pos, pos + Vector2(cos(a), sin(a)) * randf_range(40.0, 110.0),
+            randf_range(2.0, 3.6), SHADOW if i % 2 == 0 else SHADOW_SOFT, randf_range(0.3, 0.5), 34)
+
+
+## 내리찍기 자국 — 지면에 검은 균열이 방사형으로 번진다.
+func shadow_slam(pos: Vector2) -> void:
+    var host := _host()
+    if host == null:
+        return
+    for side in [-1.0, 1.0]:
+        var crack := PackedVector2Array()
+        var x := 0.0
+        while x < 220.0:
+            crack.append(Vector2(side * x, randf_range(-4.0, 4.0)))
+            x += 32.0
+        var cl := _line(crack, 4.0, Color(SHADOW.r, SHADOW.g, SHADOW.b, 0.95), 33)
+        cl.global_position = pos
+        cl.scale = Vector2(0.1, 1.0)
+        host.add_child(cl)
+        var ct := cl.create_tween()
+        ct.tween_property(cl, "scale", Vector2(1.0, 1.0), 0.18).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+        ct.tween_interval(0.3)
+        ct.tween_property(cl, "modulate:a", 0.0, 0.4)
+        ct.tween_callback(cl.queue_free)
+    _pulse_ring(host, pos, 22.0, 6.0, Color(SHADOW_SOFT.r, SHADOW_SOFT.g, SHADOW_SOFT.b, 0.85), 4.2, 0.45, 33)
+    _ground_dust(pos)
+
+
+## 착지 표식 — 어둠 속에서도 이것만은 보인다. 여기 서 있으면 맞는다는 경고.
+func strike_marker(pos: Vector2, lead: float) -> void:
+    var host := _host()
+    if host == null:
+        return
+    var mark := _line(_circle_pts(46.0, 18), 3.0, Color(0.95, 0.92, 0.85, 0.95), 45)
+    mark.global_position = pos
+    mark.scale = Vector2(1.0, 0.4)              # 바닥에 눕힌 원
+    host.add_child(mark)
+    var tw := mark.create_tween()
+    tw.tween_property(mark, "scale", Vector2(0.45, 0.18), lead).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+    tw.parallel().tween_property(mark, "modulate:a", 0.35, lead)
+    tw.tween_callback(mark.queue_free)
+    # 표식 위로 깜빡이는 십자 — 시선을 끈다
+    var cross := _line(PackedVector2Array([Vector2(-16, 0), Vector2(16, 0)]), 3.0, Color(1, 0.95, 0.85, 0.9), 45)
+    cross.global_position = pos
+    host.add_child(cross)
+    var ct := cross.create_tween().set_loops()
+    ct.tween_property(cross, "modulate:a", 0.2, 0.12)
+    ct.tween_property(cross, "modulate:a", 0.9, 0.12)
+    get_tree().create_timer(lead).timeout.connect(func() -> void:
+        if is_instance_valid(cross):
+            cross.queue_free())
+
+
+## 암전 — 화면 전체가 잠깐 캄캄해진다(보스가 어둠 속으로 사라지는 순간).
+func blackout(dur: float = 0.75) -> void:
+    var host := _host()
+    if host == null:
+        return
+    var cl := CanvasLayer.new()
+    cl.layer = 44
+    var rect := ColorRect.new()
+    rect.color = Color(0.02, 0.02, 0.04, 0.0)
+    rect.anchor_right = 1.0
+    rect.anchor_bottom = 1.0
+    rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    cl.add_child(rect)
+    host.add_child(cl)
+    var tw := rect.create_tween()
+    tw.tween_property(rect, "color:a", 0.88, dur * 0.25)
+    tw.tween_interval(dur * 0.4)
+    tw.tween_property(rect, "color:a", 0.0, dur * 0.35)
+    tw.tween_callback(cl.queue_free)

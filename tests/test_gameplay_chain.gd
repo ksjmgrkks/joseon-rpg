@@ -55,8 +55,20 @@ func _check(src: String, expect_target: String) -> Dictionary:
 	# 적 스폰
 	var enemies := get_tree().get_nodes_in_group("enemy").size()
 	# NPC / 자동대사 없음
+	# NPC 는 여전히 없어야 한다(전투 전용 모드).
 	var npcs := _find(s, "Npc").size()
-	var autodlg := _find(s, "AutoDialogue").size()
+	# 자동대사는 2026-08-19 부터 허용 — 새 기믹(그슨대: 칼이 안 먹힘)처럼 모르면 막히는
+	# 규칙은 게임 안에서 알려줘야 하기 때문. 다만 **해원 스토리 캠페인(haewon/*) 대사가
+	# 전투 체인에 섞이는 것**은 여전히 금지(모드 혼선)라 그것만 센다.
+	var story_dlg := 0
+	for a in _find(s, "AutoDialogue"):
+		var dp := ""
+		if "dialogue_path" in a:
+			dp = String(a.dialogue_path)
+		elif "dialogue" in a:
+			dp = String(a.dialogue)
+		if dp.contains("/haewon/"):
+			story_dlg += 1
 	# 전진 출구 + 게이트
 	var exits := _find(s, "LevelExit")
 	var gates := _find(s, "CombatGate")
@@ -68,8 +80,8 @@ func _check(src: String, expect_target: String) -> Dictionary:
 	await get_tree().process_frame
 	if enemies <= 0:
 		return {"name": nm, "status": FAIL, "reason": "적 미스폰"}
-	if npcs != 0 or autodlg != 0:
-		return {"name": nm, "status": FAIL, "reason": "스토리 잔존 npc=%d autodlg=%d" % [npcs, autodlg]}
+	if npcs != 0 or story_dlg != 0:
+		return {"name": nm, "status": FAIL, "reason": "스토리 잔존 npc=%d haewon대사=%d" % [npcs, story_dlg]}
 	if not fwd_ok:
 		return {"name": nm, "status": FAIL, "reason": "전진 출구 target!=%s (exits=%d)" % [expect_target, exits.size()]}
 	if gates.size() <= 0:

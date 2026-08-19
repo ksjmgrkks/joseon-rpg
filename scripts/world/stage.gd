@@ -554,6 +554,9 @@ func _build_gameplay(data: Dictionary) -> void:
     _build_ground(data.get("ground", {}))
     _build_platforms(data.get("platforms", []), String(data.get("ground", {}).get("tileset", "earth")))
     _build_props(data.get("props", []))
+    # 전투 전용 모드에도 위치 대사를 허용한다 — 새 기믹(그슨대: 칼이 안 먹힘)처럼
+    # **플레이어가 모르면 막히는 규칙**은 게임 안에서 한 줄이라도 알려줘야 한다.
+    _build_auto_dialogues(data.get("auto_dialogues", []))
     _build_interactables(data.get("interactables", []))
     _build_entries(data.get("entries", []))
     var has_enemies := (data.get("enemies", []) as Array).size() > 0

@@ -1,5 +1,19 @@
 {
   "_note": "【2스테이지 수직 슬라이스 — 그슨대 숲】 그슨대(운몽선 설화)만 등장하는 시험 구간. 칼로는 안 죽고 맞을수록 커지며, 부적(TalismanShot)으로 정체를 드러내야 진혼 가능. sacred_altar 클리어 뒤 CHAIN 다음 칸으로 임시 연결(HANDOFF 참고 — 정식 2스테이지 5개 굽이 중 첫 칸).",
+  "auto_dialogues": [
+    {
+      "dialogue": "res://assets/dialogue/geuseondae/talisman_hint.json",
+      "once_flag": "geuseondae_hint_seen",
+      "w": 120,
+      "x": 220
+    },
+    {
+      "dialogue": "res://assets/dialogue/geuseondae/child_cry.json",
+      "once_flag": "geuseondae_child_seen",
+      "w": 120,
+      "x": 640
+    }
+  ],
   "backdrop": {
     "clouds": false,
     "far_scale": 0.1,
@@ -124,53 +138,53 @@
     },
     {
       "offset": [
-        -64,
-        -64
+        -64.0,
+        -64.0
       ],
       "scale": 1.1,
       "tex": "boulder",
-      "x": -40,
-      "y": 686
+      "x": -40.0,
+      "y": 686.0
     },
     {
       "offset": [
-        -64,
-        -110
+        -64.0,
+        -110.0
       ],
       "scale": 1.5,
       "tex": "dead_tree",
-      "x": 380,
-      "y": 684
+      "x": 380.0,
+      "y": 684.0
     },
     {
       "offset": [
-        -64,
-        -64
+        -64.0,
+        -64.0
       ],
       "scale": 0.9,
       "tex": "boulder_moss",
-      "x": 660,
-      "y": 686
+      "x": 660.0,
+      "y": 686.0
     },
     {
       "offset": [
-        -64,
-        -110
+        -64.0,
+        -110.0
       ],
       "scale": 1.7,
       "tex": "dead_tree_tall",
-      "x": 1080,
-      "y": 684
+      "x": 1080.0,
+      "y": 684.0
     },
     {
       "offset": [
-        -64,
-        -64
+        -64.0,
+        -64.0
       ],
       "scale": 1.0,
       "tex": "boulder",
-      "x": 1300,
-      "y": 686
+      "x": 1300.0,
+      "y": 686.0
     }
   ]
 }

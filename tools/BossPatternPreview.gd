@@ -14,6 +14,7 @@ func _ready() -> void:
             var kv := a.substr(2).split("=", true, 1)
             args[kv[0]] = kv[1]
     var pattern := String(args.get("pattern", "pillars"))
+    var boss_path := String(args.get("boss", "res://scenes/enemies/FloodWraith.tscn"))
     var out := String(args.get("out", "shots/verify/bp"))
 
     if WorldTint and "_modulate" in WorldTint and WorldTint._modulate != null:
@@ -52,10 +53,12 @@ func _ready() -> void:
     add_child(player)
     player.global_position = Vector2(360, GROUND_Y - 60)
 
-    var boss: Node2D = load("res://scenes/enemies/FloodWraith.tscn").instantiate()
+    var boss: Node2D = load(boss_path).instantiate()
     add_child(boss)
     boss.global_position = Vector2(900, GROUND_Y - 75)
     boss.set("_phase", 2)
+    if boss.has_method("_reveal"):
+        boss.call("_reveal")          # 그슨대 노괴는 정체를 드러낸 상태로 본다
     await get_tree().process_frame
     for i in range(30):
         await get_tree().physics_frame
@@ -77,6 +80,9 @@ func _ready() -> void:
         get_tree().quit(0)
         return
     match pattern:
+        "pool":    boss.call("_do_shadow_pool")
+        "claw":    boss.call("_do_claw_sweep")
+        "blackout": boss.call("_do_blackout")
         "volley":  boss.call("_do_volley")
         "pillars": boss.call("_do_pillars")
         "wave":    boss.call("_do_wave")

@@ -81,6 +81,8 @@ var _skill_dash_timer: float = 0.0
 var _skill_dash_speed: float = 0.0
 # 공중 부양 스킬(궁극기·물등) 중 — 중력·이동·입력을 모두 끄고 트윈이 위치를 잡는다.
 var _hover_lock: bool = false
+## 지형 효과로 인한 이동 속도 배율 — 그림자 늪(ShadowPool)에 잠기면 낮아진다. 1.0 = 정상.
+var move_speed_mult: float = 1.0
 const ULT_RISE: float = 120.0        # 떠오르는 높이(px)
 const ULT_RISE_TIME: float = 0.3
 const ULT_SLAM_TIME: float = 0.12    # 내리꽂는 시간 — 짧을수록 묵직
@@ -260,6 +262,7 @@ func _physics_process(delta: float) -> void:
 
     # 좌우 이동 — 가속/마찰 기반(즉시 스냅 대신 발구름·관성). 차지 중엔 목표 속도가 느림.
     var move_speed := SPEED_CHARGING if (_hold_time >= CHARGE_THRESHOLD) else SPEED
+    move_speed *= move_speed_mult      # 그림자 늪 등 지형 효과(1.0 = 정상)
     var direction := Input.get_axis("move_left", "move_right")
     var accel := ACCEL if on_floor else AIR_ACCEL
     var fric := FRICTION if on_floor else AIR_FRICTION
