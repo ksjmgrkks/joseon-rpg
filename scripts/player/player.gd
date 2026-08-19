@@ -25,9 +25,7 @@ const FRICTION: float = 2800.0         # 지상 감속(마찰) — 멈출 때 �
 const AIR_FRICTION: float = 700.0      # 공중 감속(관성 더 살림)
 const COYOTE_TIME: float = 0.10        # 발판 떠난 뒤에도 점프 허용 시간
 const JUMP_BUFFER_TIME: float = 0.12   # 착지 직전 누른 점프 입력 기억 시간
-const JUMP_CUT_MULT: float = 0.45      # 상승 중 점프 떼면 상승 속도 깎기(짧은 점프)
 const FALL_GRAVITY_MULT: float = 1.45  # 하강 시 중력 가중 — 붕 뜨지 않고 떨어지는 손맛
-const LOW_JUMP_GRAVITY_MULT: float = 1.9   # 상승 중 점프 안 누르면 더 빨리 정점(칼 같은 단타 점프)
 const APEX_THRESHOLD: float = 40.0     # 점프 정점 부근(|vy|<이값) 판정 속도
 const APEX_BONUS_ACCEL: float = 1.2    # 정점 부근 가로 가속 보너스(공중 미세 제어감)
 const TURN_BOOST: float = 1.0          # 반대 방향 전환 시 추가 가속(= +FRICTION 만큼)
@@ -60,7 +58,6 @@ var _facing_right: bool = true
 # 점프 손맛 상태 (코요테/버퍼/가변 점프)
 var _coyote_timer: float = 0.0           # >0 이면 (지상이 아니어도) 점프 가능
 var _jump_buffer_timer: float = 0.0      # >0 이면 최근 점프 입력이 살아있음
-var _jumping: bool = false               # 이번 점프가 상승 중인가(가변 점프 컷용)
 var _was_on_floor: bool = false          # 직전 프레임 접지 여부(착지 감지)
 var _air_fall_speed: float = 0.0         # 공중에서의 마지막 낙하 속도(착지 피드백용)
 # 공격 런지 — 콤보/강타 시 전방으로 짧게 치고 나가는 잔여 속도
@@ -149,8 +146,6 @@ func _physics_process(delta: float) -> void:
         var g := GRAVITY
         if velocity.y > 0.0:
             g *= FALL_GRAVITY_MULT                       # 하강은 더 묵직하게
-        elif velocity.y < 0.0 and not Input.is_action_pressed("jump"):
-            g *= LOW_JUMP_GRAVITY_MULT                   # 상승 중 점프 뗌 → 정점 빨리
         velocity.y = minf(velocity.y + g * delta, MAX_FALL_SPEED)
         _air_fall_speed = velocity.y                     # 착지 피드백용 낙하속도 기록
     else:
@@ -162,7 +157,6 @@ func _physics_process(delta: float) -> void:
     # 코요테 타임 — 발판을 떠난 직후에도 잠깐 점프 가능(낭떠러지 직전 점프 구제)
     if on_floor:
         _coyote_timer = COYOTE_TIME
-        _jumping = false
         if not _was_on_floor and _air_fall_speed >= LAND_SHAKE_MIN_FALL:
             ScreenFx.shake(LAND_SHAKE, 0.06)             # 빠르게 떨어져 착지하면 가벼운 흔들림
         _air_fall_speed = 0.0
@@ -217,18 +211,12 @@ func _physics_process(delta: float) -> void:
     else:
         _jump_buffer_timer = maxf(0.0, _jump_buffer_timer - delta)
 
-    # 점프 실행 — 버퍼된 입력 + (지상 or 코요테 타임)
+    # 점프 실행 — 버퍼된 입력 + (지상 or 코요테 타임). 탭이든 홀드든 항상 풀 점프(가변 높이 없음).
     if _jump_buffer_timer > 0.0 and _coyote_timer > 0.0:
         velocity.y = JUMP_VELOCITY
         _jump_buffer_timer = 0.0
         _coyote_timer = 0.0
-        _jumping = true
         Audio.play_sfx(Sfx.JUMP)
-
-    # 가변 점프 — 상승 중 점프를 떼면 상승 속도를 즉시 깎아 짧은 점프
-    if _jumping and velocity.y < 0.0 and not Input.is_action_pressed("jump"):
-        velocity.y *= JUMP_CUT_MULT
-        _jumping = false
 
     # 콤보 윈도우 카운트다운
     if _combo_timer > 0.0:

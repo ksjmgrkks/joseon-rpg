@@ -16,7 +16,7 @@ func _ready() -> void:
     results.append(_check_input_map())
     results.append(_check_player_scene())
     results.append(await _check_player_gravity())
-    results.append(await _check_variable_jump())
+    results.append(await _check_full_jump())
     results.append(await _check_coyote_jump())
 
     var failed := 0
@@ -123,15 +123,15 @@ func _jump_peak(hold_frames: int) -> float:
     return peak
 
 
-# 가변 점프 — 짧게 탭한 점프가 길게 누른 점프보다 낮아야 한다(손맛: 단타/풀점프 구분)
-func _check_variable_jump() -> Dictionary:
+# 풀 점프 고정 — 짧게 탭하든 길게 누르든 같은(풀) 높이여야 한다(가변 점프 컷 제거됨)
+func _check_full_jump() -> Dictionary:
     var tap := await _jump_peak(1)
     var hold := await _jump_peak(60)
     if tap <= 1.0:
-        return { "name": "variable_jump", "status": FAIL, "reason": "tap jump produced no height (%.1f)" % tap }
-    if hold <= tap + 6.0:
-        return { "name": "variable_jump", "status": FAIL, "reason": "hold(%.1f) not higher than tap(%.1f)" % [hold, tap] }
-    return { "name": "variable_jump", "status": PASS, "reason": "tap=%.1f < hold=%.1f" % [tap, hold] }
+        return { "name": "full_jump", "status": FAIL, "reason": "tap jump produced no height (%.1f)" % tap }
+    if absf(hold - tap) > 6.0:
+        return { "name": "full_jump", "status": FAIL, "reason": "tap(%.1f) and hold(%.1f) heights differ — jump cut still active" % [tap, hold] }
+    return { "name": "full_jump", "status": PASS, "reason": "tap=%.1f ≈ hold=%.1f (uniform full jump)" % [tap, hold] }
 
 
 # 코요테 타임 — 발판을 막 떠난 직후(윈도우 내)에도 점프가 먹어야 한다
