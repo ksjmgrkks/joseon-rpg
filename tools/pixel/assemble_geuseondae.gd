@@ -1,0 +1,73 @@
+extends SceneTree
+##
+## PixelLab 「그슨대」 프레임 → Godot 스프라이트 시트 조립.
+##
+## 실행: godot --headless --path . --script res://tools/pixel/assemble_geuseondae.gd
+##
+## 입력:  .pl_tmp/geuseondae/<anim>/<i>.png   (east 방향 프레임, PixelLab CDN 에서 받은 것)
+## 출력:  assets/sprites/enemies/geuseondae/<anim>.png (가로 스트립) + manifest.json
+##
+## 규약(tools/pixel/AGENT_GUIDE.md §2): 전 애니·전 프레임의 불투명 영역을 합집합(union bbox)으로
+## 구해 한 번에 크롭한다 — 애니 전환 시 캐릭터가 튀지 않도록.
+##
+
+const SRC := "res://.pl_tmp/geuseondae"
+const OUT := "res://assets/sprites/enemies/geuseondae"
+const ANIMS := {
+    "idle":   {"frames": 5, "fps": 6,  "loop": true},
+    "walk":   {"frames": 5, "fps": 8,  "loop": true},
+    "attack": {"frames": 5, "fps": 12, "loop": false},
+    "death":  {"frames": 5, "fps": 8,  "loop": false},
+}
+
+
+func _init() -> void:
+    var loaded := {}
+    var union := Rect2i()
+    var first := true
+    for anim in ANIMS:
+        var arr: Array[Image] = []
+        for i in range(int(ANIMS[anim]["frames"])):
+            var path := "%s/%s/%d.png" % [SRC, anim, i]
+            var img := Image.load_from_file(path)
+            if img == null:
+                push_error("프레임 없음: " + path)
+                quit(1)
+                return
+            arr.append(img)
+            var r := img.get_used_rect()
+            if r.size.x <= 0:
+                continue
+            if first:
+                union = r
+                first = false
+            else:
+                union = union.merge(r)
+        loaded[anim] = arr
+    print("union bbox: ", union)
+
+    DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUT))
+    for anim in ANIMS:
+        var arr: Array = loaded[anim]
+        var n := arr.size()
+        var strip := Image.create(union.size.x * n, union.size.y, false, Image.FORMAT_RGBA8)
+        strip.fill(Color(0, 0, 0, 0))
+        for i in range(n):
+            var src: Image = arr[i]
+            strip.blit_rect(src, union, Vector2i(i * union.size.x, 0))
+        var out_path := "%s/%s.png" % [OUT, anim]
+        strip.save_png(ProjectSettings.globalize_path(out_path))
+        print("  %s.png  %dx%d (%d프레임)" % [anim, strip.get_width(), strip.get_height(), n])
+
+    var manifest := {"frame_w": union.size.x, "frame_h": union.size.y, "anims": ANIMS}
+    var f := FileAccess.open("%s/manifest.json" % OUT, FileAccess.WRITE)
+    f.store_string(JSON.stringify(manifest, "  "))
+    f.close()
+
+    var idle0: Image = loaded["idle"][0]
+    var r0 := idle0.get_used_rect()
+    var foot_in_frame := (r0.position.y + r0.size.y) - union.position.y
+    var foot_offset := -(float(union.size.y) - float(foot_in_frame)) - float(union.size.y) * 0.5
+    print("frame: %dx%d / 발끝(크롭 기준) y=%d / 권장 foot_offset=%.1f"
+        % [union.size.x, union.size.y, foot_in_frame, foot_offset])
+    quit(0)

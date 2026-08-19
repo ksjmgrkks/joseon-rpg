@@ -36,6 +36,10 @@ class_name Boss
 @export var flag_on_death: String = ""
 # 사망 후 전환할 씬(비우면 전환 안 함) — 최종 보스가 엔딩으로 갈 때.
 @export var scene_on_death: String = ""
+# 이름표 아래 소제목 — 보스마다 다른 한 줄 사극체 설명.
+@export var subtitle: String = "닫힌 수문 앞에서 잠긴 넋들"
+# 등장 연출에 물기둥 솟구침을 쓸지 — 물 스테이지 전용 보스가 아니면 false.
+@export var water_entrance: bool = true
 
 @onready var sprite: AnimatedSprite2D = $Sprite2D
 @onready var hurtbox: Hurtbox = $Hurtbox
@@ -196,7 +200,8 @@ func _play_entrance() -> void:
     Audio.play_sfx(Sfx.WARD)
     ScreenFx.shake(16.0, 0.6)
     ScreenFx.rumble(120)
-    SkillFx.boss_water_rise(global_position, 1.6)
+    if water_entrance:
+        SkillFx.boss_water_rise(global_position, 1.6)
     SkillFx.boss_entrance(global_position)
     _show_name_plate()
     await get_tree().create_timer(1.15).timeout
@@ -232,7 +237,7 @@ func _show_name_plate() -> void:
     name_label.add_theme_constant_override("outline_size", 8)
     box.add_child(name_label)
     var sub := Label.new()
-    sub.text = "닫힌 수문 앞에서 잠긴 넋들"
+    sub.text = subtitle
     sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
     sub.add_theme_font_size_override("font_size", 16)
     sub.add_theme_color_override("font_color", Color(0.72, 0.78, 0.84))

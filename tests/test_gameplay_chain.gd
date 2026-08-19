@@ -10,7 +10,11 @@ const CHAIN := {
 	"res://scenes/levels/MountainPass.tscn": "res://scenes/levels/RuinedTemple.tscn",
 	"res://scenes/levels/RuinedTemple.tscn": "res://scenes/levels/SacredAltar.tscn",
 	"res://scenes/levels/SacredAltar.tscn": "res://scenes/levels/ForestShadow.tscn",
-	"res://scenes/levels/ForestShadow.tscn": "res://scenes/ui/Clear.tscn",
+	"res://scenes/levels/ForestShadow.tscn": "res://scenes/levels/ForestMist.tscn",
+	"res://scenes/levels/ForestMist.tscn": "res://scenes/levels/WitheredHollow.tscn",
+	"res://scenes/levels/WitheredHollow.tscn": "res://scenes/levels/WailingThicket.tscn",
+	"res://scenes/levels/WailingThicket.tscn": "res://scenes/levels/ElderHollow.tscn",
+	"res://scenes/levels/ElderHollow.tscn": "res://scenes/ui/Clear.tscn",
 }
 
 
