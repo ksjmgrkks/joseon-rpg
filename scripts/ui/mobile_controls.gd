@@ -107,7 +107,7 @@ func _build() -> void:
         defs.append({"id": String(id), "slot": int(SkillManager.get_def(id).get("slot", 1))})
     defs.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return int(a["slot"]) < int(b["slot"]))
     for d in defs:
-        var btn := _add_button("skill_%d" % int(d["slot"]), "", 40.0)
+        var btn := _add_button("skill_%d" % int(d["slot"]), "", 40.0, "skill_frame")
         _attach_skill_face(btn, String(d["id"]), 40.0)
     _layout()
 
@@ -182,14 +182,29 @@ func _place(action: String, default_center: Vector2) -> void:
 
 # ────────────────────────── 버튼 만들기 ──────────────────────────
 
+## PixelLab 신규 아트 경로 — 액션 이름과 같은 파일이 있으면 그걸 쓰고, 없으면
+## 코드로 그린 원(구 방식)으로 폴백한다(스킬 프레임처럼 art_name 을 따로 줄 수도 있다).
+const ART_DIR := "res://assets/ui/mobile/btn_%s.png"
+const C_PRESS_TINT := Color(0.72, 0.55, 0.52, 1.0)   # 새 아트 눌림 표현 — 살짝 어둡게(단청 톤)
+
 ## 그려지는 원(radius)보다 판정원을 HIT_MARGIN 배 크게 잡는다 — 손가락이 조금 빗나가도
 ## 눌리도록. 텍스처를 판정원 크기 캔버스에 '가운데 정렬'로 그려서 그림과 판정이 동심원이 된다.
-func _add_button(action: String, label: String, radius: float) -> TouchScreenButton:
+func _add_button(action: String, label: String, radius: float, art_name: String = "") -> TouchScreenButton:
     var hit := radius * HIT_MARGIN
     var b := TouchScreenButton.new()
     b.action = action
-    b.texture_normal = _circle_tex(radius, hit, C_FILL, C_EDGE, C_RING)
-    b.texture_pressed = _circle_tex(radius, hit, C_FILL_ON, C_EDGE, C_RING_ON)
+    var art_path := ART_DIR % (art_name if art_name != "" else action)
+    var use_art := ResourceLoader.exists(art_path)
+    if use_art:
+        var tex := _resized_art(art_path, hit)
+        b.texture_normal = tex
+        b.texture_pressed = tex   # 같은 그림 — 눌림은 modulate 로 어둡게 표현(아래)
+        b.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+        b.pressed.connect(func() -> void: b.modulate = C_PRESS_TINT)
+        b.released.connect(func() -> void: b.modulate = Color.WHITE)
+    else:
+        b.texture_normal = _circle_tex(radius, hit, C_FILL, C_EDGE, C_RING)
+        b.texture_pressed = _circle_tex(radius, hit, C_FILL_ON, C_EDGE, C_RING_ON)
     var shape := CircleShape2D.new()
     shape.radius = hit
     b.shape = shape
@@ -202,7 +217,9 @@ func _add_button(action: String, label: String, radius: float) -> TouchScreenBut
     b.set_meta("draw_radius", radius)
     add_child(b)
     _buttons.append(b)
-    if label != "":
+    # 새 아트는 그림 자체가 뜻을 담고 있어(화살표·칼 등) 글자를 얹으면 지저분해진다 —
+    # 아트가 없어 코드로 그린 원일 때만(구 폴백) 글자로 뜻을 보완한다.
+    if label != "" and not use_art:
         var lbl := Label.new()
         lbl.text = label
         lbl.size = Vector2(hit * 2.0, hit * 2.0)
@@ -215,6 +232,16 @@ func _add_button(action: String, label: String, radius: float) -> TouchScreenBut
         lbl.add_theme_constant_override("outline_size", 4)
         b.add_child(lbl)
     return b
+
+
+## 신규 PixelLab 아트를 판정원 캔버스 크기(canvas_r*2)에 맞춰 리샘플 — 버튼마다
+## 그리는 반지름이 달라(이동 58 / 공격 66 / 조사 42 …) 원본 그림을 그 크기에 맞춘다.
+func _resized_art(path: String, canvas_r: float) -> ImageTexture:
+    var tex: Texture2D = load(path)
+    var img := tex.get_image()
+    var size := maxi(2, int(canvas_r * 2.0))
+    img.resize(size, size, Image.INTERPOLATE_LANCZOS)
+    return ImageTexture.create_from_image(img)
 
 
 ## 스킬 버튼 얼굴 — 아이콘 + 쿨다운 숫자(잠김이면 '잠김').

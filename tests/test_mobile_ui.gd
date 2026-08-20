@@ -32,6 +32,7 @@ func _ready() -> void:
     results.append(_check_haptics_persist())
     results.append(_check_hit_geometry())
     results.append(_check_portrait_guard())
+    results.append(_check_new_art_wired())
 
     var failed := 0
     for r in results:
@@ -162,3 +163,20 @@ func _check_hit_geometry() -> Dictionary:
             return { "name": "hit_geometry", "status": FAIL,
                 "reason": "%s: passby_press 꺼짐 — 손가락을 끌면 안 눌린다" % b.action }
     return { "name": "hit_geometry", "status": PASS, "reason": "" }
+
+
+## 신규 PixelLab 아트(assets/ui/mobile/btn_*.png)가 실제로 쓰이는지 — 코드로 그린
+## 원(구 폴백)으로 조용히 되돌아가 있으면 못 알아채기 쉬워서 명시적으로 고정한다.
+func _check_new_art_wired() -> Dictionary:
+    var art_actions := ["move_left", "move_right", "interact", "attack", "jump", "dodge"]
+    for a in art_actions:
+        if not ResourceLoader.exists("res://assets/ui/mobile/btn_%s.png" % a):
+            return { "name": "new_art_wired", "status": FAIL,
+                "reason": "assets/ui/mobile/btn_%s.png 가 없음" % a }
+    for b in _btns():
+        if not art_actions.has(String(b.action)) and not String(b.action).begins_with("skill_"):
+            continue
+        if b.modulate != Color.WHITE:
+            return { "name": "new_art_wired", "status": FAIL,
+                "reason": "%s: 시작 modulate 가 흰색이 아님(눌림 틴트가 안 풀렸을 가능성)" % b.action }
+    return { "name": "new_art_wired", "status": PASS, "reason": "" }
