@@ -10,6 +10,7 @@ class_name Stage
 ## {
 ##   "backdrop": {"sky":[r,g,b], "tint":[r,g,b], "far_scale":0.12},
 ##   "ground":   {"tex":"ground_dirt", "width":2800, "x":-600},   # 시각 타일 + 충돌 자동
+##   "water_pools": [{"x":900, "width":220}],   # 지면 위 물웅덩이 구간(선택) — 밟으면 물이 튄다(피해 없음)
 ##   "player_x": 120,
 ##   "entries":  [{"name":"default","x":120}, {"name":"from_town","x":1480}],
 ##   "props":    [{"tex":"house_tile","x":300,"y":684,"scale":2.0,"offset":[-48,-80]}],
@@ -101,6 +102,7 @@ func _ready() -> void:
     _build_backdrop(data.get("backdrop", {}))
     _build_ground(data.get("ground", {}))
     _build_platforms(data.get("platforms", []), String(data.get("ground", {}).get("tileset", "earth")))
+    _build_water_pools(data.get("water_pools", []))
     _build_props(data.get("props", []))
     _build_entries(data.get("entries", []))
     if not cleared:
@@ -337,6 +339,27 @@ func _build_platforms(items: Array, ground_tileset: String) -> void:
         add_child(body)
 
 
+## 지면 위 물웅덩이 — 흙/풀 지면 위에 물 구간을 얹어 시각적으로 섞고, 그 구간에
+## 밟으면 물이 튀는 WaterZone 을 함께 둔다(피해 없음, 순수 연출). "side/river" 타일셋 필요.
+const RIVER_TILESET := "river"
+func _build_water_pools(pools: Array) -> void:
+    if pools.is_empty() or not ResourceLoader.exists(SIDE_DIR % RIVER_TILESET):
+        return
+    var sheet: Texture2D = load(SIDE_DIR % RIVER_TILESET)
+    var surf := _crop_tile(sheet, SURFACE_TILE)
+    var fill := _crop_tile(sheet, FILL_TILE)
+    for entry in pools:
+        if not (entry is Dictionary):
+            continue
+        var px := float(entry.get("x", 0))
+        var pw := int(entry.get("width", 200))
+        var left := px - pw / 2.0
+        # 기존 지면(_build_ground) 위에 덧그려 그 구간만 물로 바꾼다 — 같은 배치 공식 재사용.
+        _tiled_from_tex(fill, pw, 360, Vector2(left, GROUND_TOP), Color(0.94, 0.92, 0.89))
+        _tiled_from_tex(surf, pw, 32, Vector2(left, GROUND_TOP - SURFACE_RISE), Color(0.94, 0.92, 0.89))
+        WaterZone.spawn(self, px, GROUND_Y, float(pw))
+
+
 func _build_props(props: Array) -> void:
     for p in props:
         if not (p is Dictionary):
@@ -560,6 +583,7 @@ func _build_gameplay(data: Dictionary) -> void:
     _build_backdrop(data.get("backdrop", {}))
     _build_ground(data.get("ground", {}))
     _build_platforms(data.get("platforms", []), String(data.get("ground", {}).get("tileset", "earth")))
+    _build_water_pools(data.get("water_pools", []))
     _build_props(data.get("props", []))
     # 전투 전용 모드에도 위치 대사를 허용한다 — 새 기믹(그슨대: 칼이 안 먹힘)처럼
     # **플레이어가 모르면 막히는 규칙**은 게임 안에서 한 줄이라도 알려줘야 한다.
