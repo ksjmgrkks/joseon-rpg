@@ -35,6 +35,7 @@ const AREA_SCENES := {
     "그 문, 다시": "res://scenes/levels/Haewon6Yunseul.tscn",
 }
 const SLOT_PICKER_SCENE := preload("res://scenes/ui/SlotPicker.tscn")
+const STAGE_SELECT_SCENE := preload("res://scenes/ui/StageSelect.tscn")
 
 @onready var title_label: Label = $Margin/VBox/Title
 @onready var subtitle_label: Label = $Margin/VBox/Subtitle
@@ -44,6 +45,7 @@ const SLOT_PICKER_SCENE := preload("res://scenes/ui/SlotPicker.tscn")
 @onready var quit_btn: Button = $Margin/VBox/Buttons/QuitBtn
 
 var _picker: Control = null
+var _stage_select: Control = null
 
 
 func _ready() -> void:
@@ -87,9 +89,26 @@ func _any_save_exists() -> bool:
 
 
 func _on_new() -> void:
-    # 새로 시작 — 진행 상태 초기화 후 곧장 첫 전투 스테이지(스토리/프롤로그 없음)
+    # 새로 시작 — 완성된 전투체인 1~3스테이지 중 하나를 고르는 선택 화면을 연다.
+    if _stage_select != null:
+        return
+    _stage_select = STAGE_SELECT_SCENE.instantiate()
+    _stage_select.stage_chosen.connect(_on_stage_picked)
+    _stage_select.cancelled.connect(_close_stage_select)
+    add_child(_stage_select)
+
+
+func _on_stage_picked(scene_path: String) -> void:
     _fresh_run()
-    SceneManager.change_scene(START_LEVEL_PATH)
+    ScoreManager.start_run()
+    _close_stage_select()
+    SceneManager.change_scene(scene_path)
+
+
+func _close_stage_select() -> void:
+    if _stage_select:
+        _stage_select.queue_free()
+        _stage_select = null
 
 
 ## 이야기 — 같은 초기화를 하고 1막부터. 진혼의 대가(기억)는 온전한 상태에서 출발한다.
