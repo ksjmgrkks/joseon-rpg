@@ -45,6 +45,13 @@ const BAR_HEIGHT := 158.0        # 하단 바 높이(말/혼잣말)
 const NARR_HEIGHT := 90.0        # 나레이션 자막 띠 높이
 const BAR_BOTTOM_GAP := 22.0     # 하단 바와 화면 바닥 사이 간격
 
+# 초상화 — 2차 피드백(2026-08-20): 하단 바에 틈 없이 딱 붙고, 화면(720 기준 뷰포트)의
+# 1/3 정도를 차지할 만큼 커야 한다. 높이는 뷰포트 비율로, 폭은 매팅된 초상화 원본 비율
+# (실측 201:248 ≈ 0.81)에 맞춰 계산 — TextureRect 가 STRETCH_KEEP_ASPECT_CENTERED 라
+# 비율이 살짝 달라도 잘리지 않고 안에서 맞춰지지만, 폭도 맞춰두면 여백이 안 생긴다.
+const PORTRAIT_HEIGHT_RATIO := 1.0 / 3.0
+const PORTRAIT_ASPECT := 0.81     # width / height
+
 const PORTRAIT_DIR := "res://assets/ui/portraits/protagonist/"
 const PANEL_TEXTURE_PATH := "res://assets/ui/dialogue_panel.png"
 const PANEL_MARGIN := 18         # dialogue_panel.png 프레임 두께(9-slice)
@@ -367,11 +374,23 @@ func _on_dialogue_ended() -> void:
 ## _process 대신 표시 시점(_on_dialogue_event)에 한 번만 배치한다.
 func _place_bar() -> void:
     var vp := get_viewport().get_visible_rect().size
+    var bar_top: float
     if _mode == MODE_NARRATION:
         var sz := Vector2(NARR_MIN_W, NARR_HEIGHT)
         bubble.size = sz
         bubble.position = Vector2((vp.x - sz.x) * 0.5, vp.y * 0.76 - sz.y)
+        bar_top = bubble.position.y
     else:
         var bar_w := vp.x - BAR_SIDE_MARGIN * 2.0
         bubble.size = Vector2(bar_w, BAR_HEIGHT)
-        bubble.position = Vector2(BAR_SIDE_MARGIN, vp.y - BAR_HEIGHT - BAR_BOTTOM_GAP)
+        bar_top = vp.y - BAR_HEIGHT - BAR_BOTTOM_GAP
+        bubble.position = Vector2(BAR_SIDE_MARGIN, bar_top)
+    _place_portrait(vp, bar_top)
+
+
+## 초상화를 하단 바 상단에 틈 없이 붙여, 뷰포트 높이의 1/3 크기로 배치.
+func _place_portrait(vp: Vector2, bar_top: float) -> void:
+    var h := vp.y * PORTRAIT_HEIGHT_RATIO
+    var w := h * PORTRAIT_ASPECT
+    portrait.size = Vector2(w, h)
+    portrait.position = Vector2((vp.x - w) * 0.5, bar_top - h)

@@ -19,7 +19,14 @@ const OUT_DIR := "res://assets/ui/portraits/protagonist"
 ## 큰 구멍을 냈다(교훈: 반드시 실측 후 임계값 결정). 배경은 아주 낮게, 침식은 여러 번 얕게.
 const BG_THRESH := 2.0           # 이보다 어두우면 '배경'으로 간주(플러드필 통과) — 진짜 배경은 0
 const EDGE_ERODE_THRESH := 16.0  # 경계 침식 대상 밝기 상한(캐릭터 최암부 10~34보다 낮게 잡아 보존)
-const EDGE_ERODE_ITERS := 2      # 침식 반복 횟수 — JPEG 링잉 폭만큼만 얕게 깎음
+const EDGE_ERODE_ITERS := 3      # 침식 반복 횟수 — JPEG 링잉 폭만큼만 얕게 깎음(2차 피드백으로 1회 추가)
+
+## 2차 피드백("초록색 노이즈 남아있음") 원인: 옆 칸(casting/profile_staff)의 초록 이펙트 wisp가
+## 밝기(lum>2)를 가져 테두리 플러드필을 통과하지 못하고, 배경에서 캐릭터 몸통과 연결되지 않은
+## '섬'으로 뚝 떨어져 남았다 — 침식/색상 판정으로는 못 잡는다(어둡지 않고 색도 없음).
+## 해결: 매팅 후 알파>0 픽셀의 연결요소를 구해 가장 큰 것(몸통)만 남기고 나머지 섬은 전부 지운다.
+## 단, casting/profile_staff 두 칸은 초록 이펙트 자체가 '자기 것'(의도된 디자인)이라 건너뛴다.
+const SKIP_COMPONENT_CLEAN := ["casting", "profile_staff"]
 
 const GRID_X0 := 610
 const GRID_X1 := 1275
@@ -128,11 +135,83 @@ func _erode_dark_fringe(img: Image) -> void:
         img.set_pixel(p.x, p.y, Color(c.r, c.g, c.b, 0.0))
 
 
-func _process_and_save(img: Image, out_path: String) -> void:
+## 알파>0 픽셀들의 4방향 연결요소 중 가장 큰 것(=캐릭터 몸통)만 남기고 나머지(색이 있든 없든
+## 배경에 고립된 섬 전부)를 투명화한다. 초록 wisp 잔여물처럼 밝아서(lum>2) 플러드필도 못 뚫고
+## 어둡지도 않아서(lum>=16) 침식도 못 잡는 '색 있는 섬' 노이즈에 유일하게 먹히는 방법.
+func _keep_largest_component(img: Image) -> void:
+    var w := img.get_width()
+    var h := img.get_height()
+    var comp := PackedInt32Array()
+    comp.resize(w * h)
+    comp.fill(-1)
+    var sizes: Array[int] = []
+    for sy in range(h):
+        for sx in range(w):
+            var start_idx := sy * w + sx
+            if comp[start_idx] != -1 or img.get_pixel(sx, sy).a <= 0.0:
+                continue
+            var cid := sizes.size()
+            var count := 0
+            var stack: Array[Vector2i] = [Vector2i(sx, sy)]
+            comp[start_idx] = cid
+            while not stack.is_empty():
+                var p: Vector2i = stack.pop_back()
+                count += 1
+                var dirs: Array[Vector2i] = [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]
+                for d in dirs:
+                    var np: Vector2i = p + d
+                    if np.x < 0 or np.y < 0 or np.x >= w or np.y >= h:
+                        continue
+                    var nidx := np.y * w + np.x
+                    if comp[nidx] != -1 or img.get_pixel(np.x, np.y).a <= 0.0:
+                        continue
+                    comp[nidx] = cid
+                    stack.append(np)
+            sizes.append(count)
+    if sizes.is_empty():
+        return
+    var largest_cid := 0
+    for i in range(1, sizes.size()):
+        if sizes[i] > sizes[largest_cid]:
+            largest_cid = i
+    for y in range(h):
+        for x in range(w):
+            var idx := y * w + x
+            if comp[idx] != -1 and comp[idx] != largest_cid:
+                var c := img.get_pixel(x, y)
+                img.set_pixel(x, y, Color(c.r, c.g, c.b, 0.0))
+
+
+## 3차 조치: 남은 초록 얼룩은 몸통과 픽셀이 이어져 있어(연결요소 정리로도 안 잡힘) — 실측
+## (probe_green.gd/probe_trim.gd) 결과, 시트 왼쪽 전신 일러스트의 지팡이 결정 초록빛이 그리드
+## 0열 칸 왼쪽 경계로 번져 들어온 것으로, 로브의 진짜 청록 자수(저채도, g<0.20)보다 훨씬
+## 채도 높고 밝다(g>=0.20, g가 r·b보다 뚜렷이 높음). 이 색 시그니처로만 직접 걷어낸다.
+## (casting/profile_staff 두 칸은 초록 이펙트 자체가 디자인이라 건너뜀 — 같은 skip 목록 재사용)
+func _strip_bleed_green(img: Image) -> void:
+    var w := img.get_width()
+    var h := img.get_height()
+    for y in range(h):
+        for x in range(w):
+            var c := img.get_pixel(x, y)
+            if c.a <= 0.0:
+                continue
+            if c.g < 0.20:
+                continue
+            if c.g - minf(c.r, c.b) <= 0.10:
+                continue
+            if c.b >= c.g * 0.85:
+                continue
+            img.set_pixel(x, y, Color(c.r, c.g, c.b, 0.0))
+
+
+func _process_and_save(img: Image, out_path: String, skip_component_clean: bool) -> void:
     img.convert(Image.FORMAT_RGBA8)
     _matte_background(img)
     for i in range(EDGE_ERODE_ITERS):
         _erode_dark_fringe(img)
+    if not skip_component_clean:
+        _strip_bleed_green(img)
+        _keep_largest_component(img)
     DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUT_DIR))
     img.save_png(ProjectSettings.globalize_path(out_path))
     print("saved: ", out_path, "  ", img.get_width(), "x", img.get_height())
@@ -158,6 +237,6 @@ func _init() -> void:
             var cw := int(cell_w) - int(trim[0]) - int(trim[2])
             var ch := int(cell_h) - int(trim[1]) - int(trim[3])
             var crop := sheet.get_region(Rect2i(x0, y0, cw, ch))
-            _process_and_save(crop, "%s/%s.png" % [OUT_DIR, name])
+            _process_and_save(crop, "%s/%s.png" % [OUT_DIR, name], SKIP_COMPONENT_CLEAN.has(name))
 
     quit(0)
