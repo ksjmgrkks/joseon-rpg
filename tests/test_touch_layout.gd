@@ -23,6 +23,8 @@ func _ready() -> void:
     results.append(await _check_override_applied())
     results.append(await _check_reset_restores_default())
     results.append(await _check_untouched_action_unaffected())
+    results.append(await _check_scale_roundtrip_and_applied())
+    results.append(_check_drag_uses_absolute_position_not_accumulated())
 
     TouchLayoutConfig.reset_all()   # 다른 테스트에 영향 주지 않도록 원복
 
@@ -119,6 +121,58 @@ func _check_reset_restores_default() -> Dictionary:
         return { "name": "reset_restores_default", "status": FAIL,
             "reason": "초기화 후 %s ≠ 원래 기본값 %s" % [str(after_center), str(default_center)] }
     return { "name": "reset_restores_default", "status": PASS, "reason": "" }
+
+
+## 크기 배율(+/-) 이 저장·복원되고 실제 MobileControls 버튼의 scale 에 반영되는가.
+func _check_scale_roundtrip_and_applied() -> Dictionary:
+    TouchLayoutConfig.reset_all()
+    TouchLayoutConfig.set_scale("attack", 1.4)
+    TouchLayoutConfig.commit()
+
+    if not is_equal_approx(TouchLayoutConfig.get_scale("attack"), 1.4):
+        return { "name": "scale_roundtrip_and_applied", "status": FAIL,
+            "reason": "저장한 1.4 가 복원되지 않음(%.2f)" % TouchLayoutConfig.get_scale("attack") }
+
+    var mc := await _spawn_controls()
+    var btn := _find_button(mc, "attack")
+    var other := _find_button(mc, "jump")   # 커스텀 안 한 버튼은 배율 1.0 유지돼야 함
+    var scale_attack: float = btn.scale.x if btn else 0.0
+    var scale_jump: float = other.scale.x if other else 0.0
+    mc.queue_free()
+
+    var ok := is_equal_approx(scale_attack, 1.4) and is_equal_approx(scale_jump, 1.0)
+    var reason := "" if ok else "attack scale=%.2f(기대 1.4) jump scale=%.2f(기대 1.0)" % [scale_attack, scale_jump]
+    return { "name": "scale_roundtrip_and_applied", "status": PASS if ok else FAIL, "reason": reason }
+
+
+## 드래그 편집기 핸들 — 한 프레임 안에 여러 드래그 이벤트가 몰려도(웹/터치 흔한 상황)
+## event.relative 누적이 아니라 event.position 절대좌표 기준이라 튀지 않는다.
+func _check_drag_uses_absolute_position_not_accumulated() -> Dictionary:
+    var h := TouchLayoutHandle.new()
+    h.action = "attack"
+    h.radius = 40.0
+    h.size = Vector2(80, 80)
+    add_child(h)
+
+    var down := InputEventScreenTouch.new()
+    down.pressed = true
+    down.position = Vector2(100, 100)
+    h.position = Vector2(80, 80)   # 손가락(100,100)이 핸들 안쪽 어딘가를 짚었다고 가정
+    h._gui_input(down)
+
+    # 같은 "프레임"에 몰려 들어온 드래그 이벤트 3개 — 전부 같은 최종 위치(140,100)를 가리킴.
+    # 구 방식(relative 누적)이었다면 이 3개가 각각 델타로 더해져 실제보다 훨씬 멀리 튀었을 것.
+    for i in range(3):
+        var drag := InputEventScreenDrag.new()
+        drag.position = Vector2(140, 100)
+        drag.relative = Vector2(40, 0) / 3.0   # 세 이벤트로 쪼개져 들어온 것처럼
+        h._gui_input(drag)
+
+    var expect_x := 80.0 + 40.0   # 손가락이 40px 오른쪽으로 간 만큼만 핸들도 40px 이동
+    var ok := is_equal_approx(h.position.x, expect_x)
+    var reason := "" if ok else "position.x=%.1f (기대 %.1f) — 이벤트가 여러 개 몰리면 튀는 문제 재발" % [h.position.x, expect_x]
+    h.queue_free()
+    return { "name": "drag_uses_absolute_position", "status": PASS if ok else FAIL, "reason": reason }
 
 
 func _check_untouched_action_unaffected() -> Dictionary:

@@ -171,7 +171,12 @@ func _place(action: String, default_center: Vector2) -> void:
     for b in _buttons:
         if b.action == action:
             var r: float = b.get_meta("radius", 40.0)
-            b.position = center - Vector2(r, r)
+            # 크기 배율 — 시각(텍스처)과 판정원(Node2D 변환에 같이 걸림) 둘 다 커진다.
+            # scale 은 노드 원점(=텍스처 좌상단) 기준으로 걸리므로, 중심이 그대로 center 에
+            # 오도록 position 도 배율만큼 같이 보정한다(안 하면 커질수록 중심이 우하단으로 밀림).
+            var s := TouchLayoutConfig.get_scale(action)
+            b.scale = Vector2.ONE * s
+            b.position = center - Vector2(r, r) * s
             return
 
 

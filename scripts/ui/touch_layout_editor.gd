@@ -23,7 +23,7 @@ var _size := Vector2.ZERO
 
 
 func _ready() -> void:
-    hint_label.text = "버튼을 드래그해서 위치를 조정하세요"
+    hint_label.text = "버튼을 드래그해서 위치를, +/- 로 크기를 조정하세요"
     save_btn.pressed.connect(_on_save)
     reset_btn.pressed.connect(_on_reset)
     back_btn.pressed.connect(_on_back)
@@ -63,12 +63,17 @@ func _make_handle(action: String, center: Vector2, radius: float, tex: Texture2D
     h.texture = tex
     h.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
     h.size = Vector2(radius * 2.0, radius * 2.0)
+    h.pivot_offset = Vector2(radius, radius)   # 중심 기준으로 커지도록
     h.position = center - Vector2(radius, radius)
     h.mouse_filter = Control.MOUSE_FILTER_STOP
     h.clamp_rect = clamp_rect
     h.moved.connect(_on_handle_moved)
     handle_layer.add_child(h)
     _handles[action] = h
+    # 기존 저장값 반영 — 시그널을 쓰지 않고 직접 대입(초기 로드에 "저장 필요" 상태 문구가
+    # 뜨는 걸 막는다. set_scale_mult() 는 사용자가 실제로 +/- 를 눌렀을 때만 쓴다).
+    h.scale_mult = TouchLayoutConfig.get_scale(action)
+    h.scale = Vector2.ONE * h.scale_mult
 
     var lbl := Label.new()
     lbl.text = action
@@ -82,6 +87,45 @@ func _make_handle(action: String, center: Vector2, radius: float, tex: Texture2D
     lbl.add_theme_constant_override("outline_size", 3)
     h.add_child(lbl)
 
+    _make_resize_buttons(h)
+
+
+## 핸들 옆에 +/- 버튼을 달아 그 자리에서 크기를 조정한다. 버튼 자체는 pivot 영향을
+## 안 받도록 핸들의 '고정 크기' 자식이 아니라 핸들 스케일과 무관하게 위치만 매 프레임
+## 핸들을 따라가는 별도 오버레이로 둔다(핸들이 커지면 버튼까지 같이 커져 버리는 것 방지).
+func _make_resize_buttons(h: TouchLayoutHandle) -> void:
+    var box := HBoxContainer.new()
+    box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    box.add_theme_constant_override("separation", 2)
+    handle_layer.add_child(box)
+
+    var minus := Button.new()
+    minus.text = "-"
+    minus.custom_minimum_size = Vector2(28, 28)
+    minus.focus_mode = Control.FOCUS_NONE
+    minus.pressed.connect(func() -> void: h.set_scale_mult(h.scale_mult - 0.1))
+    box.add_child(minus)
+
+    var plus := Button.new()
+    plus.text = "+"
+    plus.custom_minimum_size = Vector2(28, 28)
+    plus.focus_mode = Control.FOCUS_NONE
+    plus.pressed.connect(func() -> void: h.set_scale_mult(h.scale_mult + 0.1))
+    box.add_child(plus)
+
+    # 핸들이 드래그로 움직이거나 +/- 로 크기가 바뀔 때마다(moved 시그널) 그 바로 아래에
+    # 다시 자리잡는다 — 핸들 자체의 자식으로 두지 않는 이유는 핸들의 scale 을 그대로
+    # 물려받아 버튼까지 커져 버리는 걸 피하기 위함.
+    var reposition := func() -> void:
+        if not is_instance_valid(h):
+            box.queue_free()
+            return
+        var center := h.position + Vector2(h.radius, h.radius)
+        var bottom_y := center.y + h.radius * h.scale_mult
+        box.position = Vector2(center.x - box.size.x * 0.5, bottom_y + 6.0)
+    h.moved.connect(func(_a, _c) -> void: reposition.call())
+    reposition.call()
+
 
 func _on_handle_moved(_action: String, _center: Vector2) -> void:
     status_label.text = "드래그 중 — [저장]을 눌러야 반영됩니다"
@@ -92,6 +136,7 @@ func _on_save() -> void:
         var h: TouchLayoutHandle = _handles[action]
         var center: Vector2 = h.position + Vector2(h.radius, h.radius)
         TouchLayoutConfig.set_position(action, center, _origin, _size)
+        TouchLayoutConfig.set_scale(action, h.scale_mult)
     TouchLayoutConfig.commit()
     status_label.text = "저장됨"
 

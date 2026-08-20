@@ -12,10 +12,14 @@ extends Node
 
 const CFG_PATH := "user://touch_layout.cfg"
 const SECTION := "positions"
+const SCALE_SECTION := "scales"
+const MIN_SCALE := 0.6
+const MAX_SCALE := 1.6
 
 signal layout_changed
 
 var _ratios: Dictionary = {}   # action(String) -> Vector2(rx, ry) in [0,1]
+var _scales: Dictionary = {}   # action(String) -> float 크기 배율 (기본 1.0)
 
 
 func _ready() -> void:
@@ -42,16 +46,28 @@ func set_position(action: String, center: Vector2, origin: Vector2, size: Vector
     _ratios[action] = r
 
 
+## 버튼 크기 배율(기본 1.0) — 편집기의 +/- 로 조정.
+func get_scale(action: String) -> float:
+    return float(_scales.get(action, 1.0))
+
+
+func set_scale(action: String, s: float) -> void:
+    _scales[action] = clampf(s, MIN_SCALE, MAX_SCALE)
+
+
 func commit() -> void:
     var cfg := ConfigFile.new()
     for action in _ratios:
         cfg.set_value(SECTION, action, _ratios[action])
+    for action in _scales:
+        cfg.set_value(SCALE_SECTION, action, _scales[action])
     cfg.save(CFG_PATH)
     layout_changed.emit()
 
 
 func reset_all() -> void:
     _ratios.clear()
+    _scales.clear()
     if FileAccess.file_exists(CFG_PATH):
         DirAccess.remove_absolute(CFG_PATH)
     layout_changed.emit()
@@ -65,3 +81,7 @@ func _load() -> void:
         var v = cfg.get_value(SECTION, action, null)
         if v is Vector2:
             _ratios[action] = v
+    for action in cfg.get_section_keys(SCALE_SECTION):
+        var s = cfg.get_value(SCALE_SECTION, action, null)
+        if s is float or s is int:
+            _scales[action] = clampf(float(s), MIN_SCALE, MAX_SCALE)
