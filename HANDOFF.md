@@ -83,7 +83,21 @@
 >
 > **추가(같은 날, 대화창 개편):** 사용자 피드백 3건 중 1번(대화창 개편) 완료. `scripts/ui/dialogue_balloon.gd` + `scenes/ui/DialogueBalloon.tscn` 전면 개편 — 화자 머리 위로 떠다니던 말풍선을 **화면 하단 고정 바**(스테이지 선택 화면과 같은 PixelLab `create_ui_asset` 창틀 스타일 재사용, `assets/ui/dialogue_panel.png` — 이번엔 UI 키트 시트를 한 번에 받아 그중 필요한 패널만 크롭해 재사용, 신규 40gen)로 옮기고, **주인공("길손")이 화자일 때 화면 상단에 고퀄리티 초상화**를 띄우도록 바꿨다. 초상화는 **사용자가 외부(비-PixelLab) AI로 직접 만들어 온 글로시 애니메이션 CG 원본**(3×3 표정 그리드 + 클로즈업 1장)을 그대로 써달라는 명시적 요청 — PixelLab이 아니라 배경 매팅만 우리가 처리(`tools/pixel/extract_protagonist_portraits.gd`, `extract_protagonist_closeup.gd`). **매팅 실패담(교훈):** 처음엔 밝기<24 를 배경으로 보는 테두리 플러드필을 썼다가 캐릭터 옷·모자(실측 lum 10~34)까지 배경으로 오인해 큰 구멍이 났다 — `probe_luminance`로 실측해보니 진짜 배경은 정확히 (0,0,0)이었고, 임계값을 2.0으로 낮추고 경계만 얕게(2회) 침식하는 방식으로 교체해서 해결(다음에 비슷한 매팅 작업할 때 반드시 실측 먼저). 표정 9종(`neutral/glance/downcast/smirk/thinking/shocked/back/casting/profile_staff.png`) + 보너스 풀샷(`signature_full.png`)을 `assets/ui/portraits/protagonist/`에 저장, `docs/STYLE_BIBLE.md` §9에 "이 초상화만 픽셀아트 규칙 예외" 의도적 조항 명시(과거 주인공 아트 되돌림 이력이 있어 다음 세션이 오인해 되돌리지 않도록). 대화 노드 JSON에 `"expression":"smirk"` 식으로 표정 지정 가능(없으면 말=neutral, 혼잣말=thinking 기본값), `Dialogue.meta("expression")` 로 읽음. 신규 `tests/test_dialogue_portrait.gd`(4케이스: 주인공 기본 표정/expression 메타 반영/NPC 초상화 숨김/나레이션 숨김)로 고정 — **헤드리스 59스위트(211케이스) 전부 그린**. 이번 세션은 드물게 **X서버가 살아 있어서**(`DISPLAY=:0` + `tools/DlgShot.gd`) 실제로 스크린샷 캡처·육안 검증까지 했음(하단 바 아트·상단 초상화·말/혼잣말 모드 전환 전부 확인) — 텔레그램으로 스크린샷 전송함. 로컬 커밋만, **푸시는 사용자 승인 대기**. **다음 할 일(2/3번, 이번 세션 미착수):** ② 모바일 키 설정 화면에 드래그로 버튼 위치 직접 조정하는 기능, ③ 웹에서 세로→가로→세로→가로 회전 시 "가로로 돌려주세요" 안내 문구가 그 후로도 안 사라지는 버그.
 >
-> ## ▶ 다음 세션 시작점 (2026-08-20 갱신 · 여기부터 읽으면 됨)
+> ## ▶ 다음 세션 시작점 (2026-08-21 갱신 · 여기부터 읽으면 됨)
+>
+> **추가(2026-08-21, 1스테이지 4굽이 지형 재제작):** 전날 foothills 만 rock→earth+물웅덩이로
+> 고쳐놓고 나머지(forest_deep/mountain_pass/ruined_temple/sacred_altar)는 그대로 둔 채라
+> "1스테이지=물"컨셉인데 정작 4곳엔 물이 없어 뒤죽박죽으로 보인다는 재지적을 받음.
+> 스코프 확인("지형/타일셋/소품만, 몬스터·보스는 그대로") 후 나머지 4굽이 전부 재작업 —
+> forest_deep 은 earth 유지+물웅덩이 확장, mountain_pass 는 신규 PixelLab "cliff"
+> 타일셋(자연 균열 바위, 기존 rock 대체)+물웅덩이, ruined_temple·sacred_altar 는 신규
+> "ruins" 타일셋(침수가 타일 자체에 녹아든 물 얼룩 판석, 기존 stone 대체)+물웅덩이(뒤로
+> 갈수록 더 넓게 — 보스 직전 sacred_altar 가 가장 침수됨). 신규 소품 3종(갈대·유목·이끼
+> 석등)으로 4굽이가 전부 똑같이 복붙하던 boulder/dead_tree 세트를 다양화. 몬스터 배치·
+> FloodWraith 보스·NPC·퀘스트는 전부 그대로(요청 스코프 밖). 헤드리스 전체(64스위트)
+> 그린(`997a4be`). **⚠ 시각 미확인 — 이번 스테이지1 재제작은 특히 확인이 중요함**(타일셋
+> 2종 신규 생성이라 실제 조합이 어떻게 보이는지 전혀 못 봄, X서버 죽어있음). 로컬 커밋만,
+> **푸시는 사용자 승인 대기**.
 >
 > **추가(같은 날, 그슨대 조사식 노출 + 스킬 아이콘 4종 재생성):** ① "부적(스킬)을 맞혀야
 > 정체가 드러나는 것 대신, 조사 버튼으로" — `Geuseondae`/`GeuseondaeElder` 둘 다 위장 중
