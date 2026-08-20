@@ -1,21 +1,20 @@
 extends CanvasLayer
 ##
-## 대화 말풍선 UI — Dialogue autoload 시그널에 반응. 세 가지 표현 모드:
-##  ① 말(SPEECH)    — 화자 머리 위 한지 말풍선 + 뾰족한 꼬리. 글자는 좌→우 타이핑.
-##  ② 혼잣말(THOUGHT) — 주인공의 속내(괄호 대사/독백). 말풍선 아래 '…' 점 3개로 생각임을 표시.
-##  ③ 나레이션(NARRATION) — 화자 없는 상황 설명. 말풍선이 아니라 화면 아래 '수묵 자막 띠'로
-##     깔려, 누가 말하는 것처럼 보이지 않게 한다(몰입 보존).
+## 대화 UI — Dialogue autoload 시그널에 반응. 2026-08-20 개편: 머리 위로 떠다니던 말풍선을
+## 화면 하단 고정 바(스테이지 선택 화면과 같은 PixelLab 목재 프레임 아트 재사용)로 옮기고,
+## 주인공("길손")이 화자일 때는 화면 상단에 고퀄리티 초상화(사용자가 외부에서 만들어 온 것을
+## assets/ui/portraits/protagonist/ 에 매팅해 넣음 — STYLE_BIBLE 픽셀아트 규칙의 의도적 예외,
+## 자세한 사유는 docs/STYLE_BIBLE.md 끝부분 참고)를 띄운다. 세 가지 표현 모드는 유지:
+##  ① 말(SPEECH)     — 하단 바 + (주인공이면) 상단 초상화.
+##  ② 혼잣말(THOUGHT)  — 하단 바(살짝 다른 톤) + 기본 "생각하는" 표정 초상화.
+##  ③ 나레이션(NARRATION) — 화자 없는 상황 설명. 여전히 화면 아래쪽 '수묵 자막 띠'로 깔려
+##     누가 말하는 것처럼 보이지 않게 한다(몰입 보존) — 이 모드만 하단 바 아트를 쓰지 않음.
 ##
 ## 가독성: 본문 색은 모드별로 '일정'하게 고정한다. 「해원」 시그니처(기억이 지워질수록 글자가
 ## 흐려짐)는 **진혼 직후 그 한 줄에만**(JSON `"dissolve": true`) 켜 — 평소 대사는 또렷이 읽힌다.
-## 한지·먹 톤은 코드 StyleBox 로 입혀 별도 에셋(PNG) 없이 web 에 바로 반영된다.
 ##
 
 const REVEAL_CPS: float = 34.0          # 초당 드러나는 글자 수(타이핑 속도)
-const TAIL_W: float = 16.0
-const TAIL_H: float = 10.0
-const HEAD_MARGIN: float = 10.0         # 꼬리 끝을 머리 꼭대기보다 살짝 안쪽으로
-const THOUGHT_GAP: float = 26.0         # 혼잣말: 말풍선과 머리 사이 '…' 점 자리
 
 # 표현 모드
 const MODE_SPEECH := 0
@@ -41,8 +40,17 @@ const NARR_HINT := Color(0.68, 0.65, 0.58)
 const SPEECH_MIN_W := 236.0
 const NARR_MIN_W := 460.0
 
+const BAR_SIDE_MARGIN := 32.0    # 하단 바 좌우 여백
+const BAR_HEIGHT := 158.0        # 하단 바 높이(말/혼잣말)
+const NARR_HEIGHT := 90.0        # 나레이션 자막 띠 높이
+const BAR_BOTTOM_GAP := 22.0     # 하단 바와 화면 바닥 사이 간격
+
+const PORTRAIT_DIR := "res://assets/ui/portraits/protagonist/"
+const PANEL_TEXTURE_PATH := "res://assets/ui/dialogue_panel.png"
+const PANEL_MARGIN := 18         # dialogue_panel.png 프레임 두께(9-slice)
+
 @onready var bubble: PanelContainer = $Bubble
-@onready var tail: Control = $Tail
+@onready var portrait: TextureRect = $Portrait
 @onready var tap_catcher: Button = $TapCatcher
 @onready var speaker_label: Label = $Bubble/Margin/VBox/HBox/SpeakerLabel
 @onready var rule: HSeparator = $Bubble/Margin/VBox/Rule
@@ -50,24 +58,20 @@ const NARR_MIN_W := 460.0
 @onready var choices_container: VBoxContainer = $Bubble/Margin/VBox/ChoicesContainer
 @onready var advance_hint: Label = $Bubble/Margin/VBox/HBox/AdvanceHint
 
-var _target: Node = null                 # 현재 화자 월드 노드(없으면 중앙 폴백)
 var _mode: int = MODE_SPEECH
 var _revealing: bool = false             # 본문이 좌→우로 타이핑되는 중
 var _reveal_tween: Tween = null
-var _thought_span: float = 18.0          # 혼잣말 점들이 내려갈 거리
 
-var _sb_speech: StyleBoxFlat
-var _sb_thought: StyleBoxFlat
+var _sb_speech: StyleBox
+var _sb_thought: StyleBox
 var _sb_narration: StyleBoxFlat
 
 
 func _ready() -> void:
     _build_styleboxes()
     bubble.visible = false
-    tail.visible = false
+    portrait.visible = false
     tap_catcher.visible = false
-    set_process(false)
-    tail.draw.connect(_draw_tail)
     # 모바일 터치/마우스로 대화 넘기기 — 전체화면 투명 버튼(중복 입력 없이 1탭 1회).
     tap_catcher.pressed.connect(_on_tap_advance)
     Dialogue.dialogue_started.connect(_on_dialogue_event)
@@ -76,24 +80,37 @@ func _ready() -> void:
 
 
 func _build_styleboxes() -> void:
-    # 말풍선 — 맑은 한지에 옅은 먹 테두리, 크게 둥근 모서리와 은은한 그림자로 떠 있는 느낌.
-    _sb_speech = StyleBoxFlat.new()
-    _sb_speech.bg_color = BG
-    _sb_speech.border_color = BORDER
-    _sb_speech.set_border_width_all(2)
-    _sb_speech.set_corner_radius_all(11)
-    _sb_speech.shadow_color = Color(0, 0, 0, 0.30)
-    _sb_speech.shadow_size = 7
-    _sb_speech.shadow_offset = Vector2(0, 4)
+    # 하단 바 — 스테이지 선택 화면과 같은 PixelLab 목재 프레임 아트(9-slice). 없으면(테스트
+    # 환경 등) 예전 코드 StyleBox 로 안전하게 폴백.
+    if ResourceLoader.exists(PANEL_TEXTURE_PATH):
+        var tex := load(PANEL_TEXTURE_PATH)
+        var sbt := StyleBoxTexture.new()
+        sbt.texture = tex
+        sbt.texture_margin_left = PANEL_MARGIN
+        sbt.texture_margin_right = PANEL_MARGIN
+        sbt.texture_margin_top = PANEL_MARGIN
+        sbt.texture_margin_bottom = PANEL_MARGIN
+        _sb_speech = sbt
+        # 혼잣말 — 같은 프레임 아트에 살짝 청먹 틴트(패널 자체가 아니라 Bubble.modulate 로 입힘).
+        _sb_thought = sbt
+    else:
+        _sb_speech = StyleBoxFlat.new()
+        _sb_speech.bg_color = BG
+        _sb_speech.border_color = BORDER
+        _sb_speech.set_border_width_all(2)
+        _sb_speech.set_corner_radius_all(11)
+        _sb_speech.shadow_color = Color(0, 0, 0, 0.30)
+        _sb_speech.shadow_size = 7
+        _sb_speech.shadow_offset = Vector2(0, 4)
 
-    _sb_thought = StyleBoxFlat.new()
-    _sb_thought.bg_color = THOUGHT_BG
-    _sb_thought.border_color = THOUGHT_BORDER
-    _sb_thought.set_border_width_all(2)
-    _sb_thought.set_corner_radius_all(16)   # 더 둥글게 — 생각 구름 느낌
-    _sb_thought.shadow_color = Color(0, 0, 0, 0.22)
-    _sb_thought.shadow_size = 6
-    _sb_thought.shadow_offset = Vector2(0, 3)
+        _sb_thought = StyleBoxFlat.new()
+        _sb_thought.bg_color = THOUGHT_BG
+        _sb_thought.border_color = THOUGHT_BORDER
+        _sb_thought.set_border_width_all(2)
+        _sb_thought.set_corner_radius_all(16)   # 더 둥글게 — 생각 구름 느낌
+        _sb_thought.shadow_color = Color(0, 0, 0, 0.22)
+        _sb_thought.shadow_size = 6
+        _sb_thought.shadow_offset = Vector2(0, 3)
 
     _sb_narration = StyleBoxFlat.new()
     _sb_narration.bg_color = NARR_BG
@@ -184,11 +201,11 @@ func _move_focus(step: int) -> void:
 func _on_dialogue_event(speaker: String, text: String, choices: Array) -> void:
     bubble.visible = true
     tap_catcher.visible = true
-    set_process(true)
 
     _mode = _classify(speaker, text)
     _apply_mode_skin(_mode)
-    _target = _resolve_speaker_node(speaker) if _mode != MODE_NARRATION else null
+    _update_portrait(speaker, _mode)
+    _place_bar()
 
     speaker_label.text = speaker
     speaker_label.visible = _mode == MODE_SPEECH and speaker.strip_edges() != ""
@@ -235,12 +252,16 @@ func _classify(speaker: String, text: String) -> int:
     return MODE_SPEECH
 
 
+## 화자 이름(괄호 태그 제거)이 주인공("길손"/"나")인지.
+func _is_player_speaker(speaker: String) -> bool:
+    var base := speaker.split("(")[0].strip_edges()
+    return base == "길손" or base.begins_with("길손") or base == "나"
+
+
 ## 주인공의 속내인가 — 화자가 길손이고 ①본문이 통째 괄호이거나 ②화자에 (독백)/(속으로)/(생각) 꼬리표.
 ## "길손(낮게)" 처럼 소리 내어 읊는 말은 제외(괄호 본문이 아님 → 말로 분류).
 func _is_inner_thought(speaker: String, text: String) -> bool:
-    var base := speaker.split("(")[0].strip_edges()
-    var is_player := base == "길손" or base.begins_with("길손") or base == "나"
-    if not is_player:
+    if not _is_player_speaker(speaker):
         return false
     if speaker.find("독백") >= 0 or speaker.find("속으로") >= 0 or speaker.find("생각") >= 0:
         return true
@@ -255,21 +276,45 @@ func _strip_parens(text: String) -> String:
     return t
 
 
+## 화면 상단 주인공 초상화 — 화자가 주인공이고 나레이션이 아닐 때만 표시.
+## 표정은 대화 노드의 "expression" 메타(JSON `"expression":"smirk"` 등)를 우선하고,
+## 없으면 혼잣말은 "thinking", 그 외엔 "neutral" 로 기본값을 둔다.
+func _update_portrait(speaker: String, mode: int) -> void:
+    if mode == MODE_NARRATION or not _is_player_speaker(speaker):
+        portrait.visible = false
+        return
+    var expr_meta: Variant = Dialogue.meta("expression")
+    var expr: String = String(expr_meta) if expr_meta != null else ""
+    if expr.is_empty():
+        expr = "thinking" if mode == MODE_THOUGHT else "neutral"
+    var path := "%s%s.png" % [PORTRAIT_DIR, expr]
+    if not ResourceLoader.exists(path):
+        path = "%sneutral.png" % PORTRAIT_DIR
+    if not ResourceLoader.exists(path):
+        portrait.visible = false
+        return
+    portrait.texture = load(path)
+    portrait.visible = true
+
+
 ## 모드별 스킨(말풍선 배경·글자색·본문 폭·화자색)을 일정하게 적용.
 func _apply_mode_skin(mode: int) -> void:
     match mode:
         MODE_THOUGHT:
             bubble.add_theme_stylebox_override("panel", _sb_thought)
+            bubble.modulate = Color(0.86, 0.90, 1.0, 1.0)   # 살짝 청먹 틴트 — 속내임을 구분
             text_label.add_theme_color_override("default_color", THOUGHT_TEXT)
             advance_hint.add_theme_color_override("font_color", HINT_COL)
             text_label.custom_minimum_size = Vector2(SPEECH_MIN_W, 24)
         MODE_NARRATION:
             bubble.add_theme_stylebox_override("panel", _sb_narration)
+            bubble.modulate = Color(1, 1, 1, 1)
             text_label.add_theme_color_override("default_color", NARR_TEXT)
             advance_hint.add_theme_color_override("font_color", NARR_HINT)
             text_label.custom_minimum_size = Vector2(NARR_MIN_W, 24)
         _:
             bubble.add_theme_stylebox_override("panel", _sb_speech)
+            bubble.modulate = Color(1, 1, 1, 1)
             text_label.add_theme_color_override("default_color", INK_TEXT)
             speaker_label.add_theme_color_override("font_color", SPEAKER_COL)
             advance_hint.add_theme_color_override("font_color", HINT_COL)
@@ -310,155 +355,23 @@ func _on_dialogue_ended() -> void:
         _reveal_tween.kill()
     _revealing = false
     bubble.visible = false
-    tail.visible = false
+    portrait.visible = false
     tap_catcher.visible = false
-    set_process(false)
-    _target = null
     for child in choices_container.get_children():
         child.queue_free()
 
 
-# ════════════ 위치 추적 ════════════
-func _process(_delta: float) -> void:
-    if not bubble.visible:
-        return
+# ════════════ 위치 ════════════
+## 2026-08-20: 화자 머리 위로 떠다니던 배치를 버리고 고정 레이아웃으로 — 나레이션은 여전히
+## 화면 아래쪽 자막 띠, 그 외(말/혼잣말)는 화면 하단 고정 바. 매 프레임 재계산할 이유가 없어
+## _process 대신 표시 시점(_on_dialogue_event)에 한 번만 배치한다.
+func _place_bar() -> void:
+    var vp := get_viewport().get_visible_rect().size
     if _mode == MODE_NARRATION:
-        _place_narration()
-    elif _target != null and is_instance_valid(_target) and _target is Node2D:
-        _place_above_target()
+        var sz := Vector2(NARR_MIN_W, NARR_HEIGHT)
+        bubble.size = sz
+        bubble.position = Vector2((vp.x - sz.x) * 0.5, vp.y * 0.76 - sz.y)
     else:
-        _place_centered()
-
-
-func _place_above_target() -> void:
-    var node := _target as Node2D
-    var ct := get_viewport().get_canvas_transform()
-    var head_world := _head_world(node)          # 실제 스프라이트 머리 꼭대기(월드)
-    var sp: Vector2 = ct * head_world            # 카메라 보정된 화면 좌표
-    var sz := bubble.size
-    var vp := get_viewport().get_visible_rect().size
-    var tip := sp + Vector2(0, HEAD_MARGIN)
-    var gap := TAIL_H if _mode == MODE_SPEECH else THOUGHT_GAP
-    var x := clampf(tip.x - sz.x * 0.5, 8.0, maxf(8.0, vp.x - sz.x - 8.0))
-    var y := clampf(tip.y - gap - sz.y, 8.0, maxf(8.0, vp.y - sz.y - 8.0))
-    bubble.position = Vector2(x, y)
-    var tip_x := clampf(tip.x, x + 12.0, x + sz.x - 12.0)
-    if _mode == MODE_THOUGHT:
-        # 말풍선 아래변에서 머리까지 '…' 점 3개(생각 표시).
-        tail.position = Vector2(tip_x, y + sz.y)
-        _thought_span = maxf(tip.y - (y + sz.y), 18.0)
-    else:
-        tail.position = Vector2(tip_x - TAIL_W * 0.5, y + sz.y)
-    tail.visible = true
-    tail.queue_redraw()
-
-
-## 화자 스프라이트의 머리 꼭대기 월드 좌표(없으면 원점 기준 근사).
-func _head_world(node: Node2D) -> Vector2:
-    var spr := _find_sprite(node)
-    if spr != null:
-        var h := _sprite_frame_h(spr)
-        if h > 0.0:
-            var local_top := Vector2.ZERO
-            if "offset" in spr:
-                local_top = spr.offset
-            var centered := true
-            if "centered" in spr:
-                centered = spr.centered
-            if centered:
-                local_top.y -= h * 0.5
-            return spr.get_global_transform() * local_top
-    return node.global_position + Vector2(0, _fallback_offset(node))
-
-
-func _find_sprite(node: Node) -> Node2D:
-    var v := node.get_node_or_null("Visual")
-    if v is AnimatedSprite2D or v is Sprite2D:
-        return v
-    for c in node.get_children():
-        if c is AnimatedSprite2D or c is Sprite2D:
-            return c
-    return null
-
-
-func _sprite_frame_h(spr: Node2D) -> float:
-    if spr is AnimatedSprite2D:
-        var asp := spr as AnimatedSprite2D
-        if asp.sprite_frames == null or not asp.sprite_frames.has_animation(asp.animation):
-            return 0.0
-        var tex := asp.sprite_frames.get_frame_texture(asp.animation, asp.frame)
-        return float(tex.get_height()) if tex != null else 0.0
-    if spr is Sprite2D:
-        var ssp := spr as Sprite2D
-        if ssp.texture == null:
-            return 0.0
-        return float(ssp.texture.get_height()) / float(maxi(1, ssp.vframes))
-    return 0.0
-
-
-## 나레이션 — 화면 아래쪽 가운데 '수묵 자막 띠'. 누가 말하는 게 아니라 상황을 깐다.
-func _place_narration() -> void:
-    var sz := bubble.size
-    var vp := get_viewport().get_visible_rect().size
-    bubble.position = Vector2((vp.x - sz.x) * 0.5, vp.y * 0.76 - sz.y)
-    tail.visible = false
-
-
-func _place_centered() -> void:
-    var sz := bubble.size
-    var vp := get_viewport().get_visible_rect().size
-    bubble.position = Vector2((vp.x - sz.x) * 0.5, vp.y * 0.16)
-    tail.visible = false
-
-
-## 스프라이트를 못 찾았을 때의 머리 높이 근사(월드 기준, 음수=위).
-func _fallback_offset(node: Node) -> float:
-    if node.is_in_group("player"):
-        return -74.0
-    if node.is_in_group("enemy"):
-        return -56.0
-    return -64.0
-
-
-func _draw_tail() -> void:
-    if _mode == MODE_THOUGHT:
-        _draw_thought_dots()
-        return
-    var pts := PackedVector2Array([
-        Vector2(0, 0), Vector2(TAIL_W, 0), Vector2(TAIL_W * 0.5, TAIL_H)])
-    tail.draw_colored_polygon(pts, BG)
-    # 좌·우 테두리(윗변은 말풍선과 맞닿아 생략)
-    tail.draw_line(Vector2(0, 0), Vector2(TAIL_W * 0.5, TAIL_H), BORDER, 2.0)
-    tail.draw_line(Vector2(TAIL_W, 0), Vector2(TAIL_W * 0.5, TAIL_H), BORDER, 2.0)
-
-
-## 혼잣말 표시 — 말풍선 아래로 내려가며 작아지는 점 3개(…).
-func _draw_thought_dots() -> void:
-    var span := _thought_span
-    var ts := [0.16, 0.5, 0.84]
-    var rs := [4.0, 3.0, 2.2]
-    for i in range(3):
-        var c := Vector2(0, span * ts[i])
-        tail.draw_circle(c, rs[i], THOUGHT_BG)
-        tail.draw_arc(c, rs[i], 0.0, TAU, 14, THOUGHT_BORDER, 1.5)
-
-
-# ════════════ 화자 이름 → 월드 노드 매칭 ════════════
-func _resolve_speaker_node(speaker: String) -> Node:
-    var base := speaker.split("(")[0].strip_edges()
-    if base == "":
-        return null                          # 나레이션 — 자막 띠
-    var player := get_tree().get_first_node_in_group("player")
-    if player and (base == "길손" or base.begins_with("길손") or base == "나"):
-        return player
-    # NPC 대화는 트리거가 넘긴 상대 노드(말을 거는 그 NPC)가 곧 화자.
-    var partner := Dialogue.partner_node()
-    if partner != null and is_instance_valid(partner) and partner != player:
-        return partner
-    # 적/보스는 display_name 으로 매칭(전투 중 일갈 등).
-    for n in get_tree().get_nodes_in_group("enemy"):
-        if "display_name" in n:
-            var dn := String(n.display_name)
-            if dn != "" and (speaker.find(dn) >= 0 or dn.find(base) >= 0):
-                return n
-    return null
+        var bar_w := vp.x - BAR_SIDE_MARGIN * 2.0
+        bubble.size = Vector2(bar_w, BAR_HEIGHT)
+        bubble.position = Vector2(BAR_SIDE_MARGIN, vp.y - BAR_HEIGHT - BAR_BOTTOM_GAP)
