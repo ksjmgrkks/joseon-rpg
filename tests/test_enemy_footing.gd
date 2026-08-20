@@ -10,10 +10,17 @@ extends Node
 ## 검사식: 발 월드y = node.y + (offset + foot - frame_h/2) * scale, 콜리전 바닥 = node.y + half
 ##         두 값의 차(gap)가 허용치를 넘으면 실패. gap<0 = 공중에 뜸, gap>0 = 땅에 파묻힘.
 ##
+## 2026-08-20 사고 ②: 3스테이지 보스(도깨비 대장)는 idle 은 맞는데 attack 에서만 파고들었다 —
+## 원인은 attack/telegraph 원본 프레임이 idle/walk 와 다른 캔버스 크기(220 vs 160)로 나왔는데
+## 조립 스크립트가 서로 다른 캔버스의 get_used_rect() 를 그대로 merge 해서, "발끝"이 애니메이션마다
+## 달라졌다(idle 기준으로만 맞춘 foot_offset 이 다른 애니에서는 안 맞음). idle 프레임만 보는 위 검사로는
+## 못 잡는 종류의 버그라, 아래에서 시트의 **모든 애니메이션 프레임0의 발끝**이 idle과 일치하는지도 검사한다.
+##
 
 const PASS := "PASS"
 const FAIL := "FAIL"
 const TOLERANCE := 6.0     # px — 이 이상 어긋나면 눈에 띈다
+const ANIM_TOLERANCE := 8.0   # px — 애니메이션 간 발끝 어긋남 허용치(자연스러운 동작 편차 감안)
 
 
 func _ready() -> void:
@@ -41,6 +48,8 @@ func _ready() -> void:
                 info["name"],
                 "공중에 %.0fpx 뜸" % -float(info["gap"]) if float(info["gap"]) < 0 else "%.0fpx 파묻힘" % float(info["gap"]),
                 info["cur"], info["want"]])
+        for mismatch in _check_anim_consistency(info["sheet"], int(info["foot"])):
+            bad.append("%s: %s" % [info["name"], mismatch])
     for r in rows:
         print(r)
     if not bad.is_empty():
@@ -99,4 +108,36 @@ func _measure(scene_path: String) -> Dictionary:
     var nm := scene_path.get_file().get_basename()
     inst.free()
     return {"name": nm, "frame": "%dx%d" % [fw, fh], "foot": foot, "cur": cur, "want": want, "gap": gap,
-        "node_scale": node_scale}
+        "node_scale": node_scale, "sheet": sheet, "fw": fw, "fh": fh}
+
+
+## idle 이외의 모든 애니메이션(walk/attack/telegraph/death 등) 프레임0 발끝이 idle 발끝과
+## ANIM_TOLERANCE 이내인지 검사 — 애니메이션마다 원본 캔버스 크기가 달라져도 조립 단계에서
+## 공통 중심으로 맞춰졌다면 여기서 걸리지 않는다(dokkaebi_chief 버그 재발 방지).
+func _check_anim_consistency(sheet: String, idle_foot: int) -> Array[String]:
+    var out: Array[String] = []
+    var man := SpriteDb.manifest(sheet)
+    var anims: Dictionary = man.get("anims", {})
+    var fw := int(man.get("frame_w", 32))
+    var fh := int(man.get("frame_h", 64))
+    for anim_name in anims:
+        if anim_name == "idle":
+            continue
+        var apath := "res://assets/sprites/%s/%s.png" % [sheet, anim_name]
+        if not ResourceLoader.exists(apath):
+            continue
+        var strip: Texture2D = load(apath)
+        var img := strip.get_image()
+        if img == null:
+            continue
+        var frame := Image.create(fw, fh, false, img.get_format())
+        frame.blit_rect(img, Rect2i(0, 0, fw, fh), Vector2i.ZERO)
+        var used := frame.get_used_rect()
+        if used.size.y <= 0:
+            continue
+        var foot := used.position.y + used.size.y
+        var diff := absf(float(foot - idle_foot))
+        if diff > ANIM_TOLERANCE:
+            out.append("%s 발끝 %d vs idle 발끝 %d (차이 %.0fpx) — 원본 캔버스 크기가 idle과 다르게 조립됐을 가능성" % [
+                anim_name, foot, idle_foot, diff])
+    return out

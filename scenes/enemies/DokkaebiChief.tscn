@@ -50,7 +50,7 @@ flag_on_death = "dokkaebi_chief_defeated"
 script = ExtResource("5_vis")
 sheet = "enemies/dokkaebi_chief"
 sprite_scale = 1.6
-foot_offset = -11.6
+foot_offset = -25.6
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("body")
