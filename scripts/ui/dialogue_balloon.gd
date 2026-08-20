@@ -45,11 +45,13 @@ const BAR_HEIGHT := 158.0        # 하단 바 높이(말/혼잣말)
 const NARR_HEIGHT := 90.0        # 나레이션 자막 띠 높이
 const BAR_BOTTOM_GAP := 22.0     # 하단 바와 화면 바닥 사이 간격
 
-# 초상화 — 2차 피드백(2026-08-20): 하단 바에 틈 없이 딱 붙고, 화면(720 기준 뷰포트)의
-# 1/3 정도를 차지할 만큼 커야 한다. 높이는 뷰포트 비율로, 폭은 매팅된 초상화 원본 비율
-# (실측 201:248 ≈ 0.81)에 맞춰 계산 — TextureRect 가 STRETCH_KEEP_ASPECT_CENTERED 라
-# 비율이 살짝 달라도 잘리지 않고 안에서 맞춰지지만, 폭도 맞춰두면 여백이 안 생긴다.
-const PORTRAIT_HEIGHT_RATIO := 1.0 / 3.0
+# 초상화 — 3차 피드백(2026-08-21): "대화할 때 일러스트가 대화창 위로 화면의 거의 절반을
+# 차지했으면" → 높이 비율을 1/3 에서 0.48 로. 720 기준 뷰포트에서 초상화 높이 346px,
+# 상단 여백 194px 이 남아 하단 바(158)+간격(22) 위에 잘리지 않고 들어간다.
+# 폭은 매팅된 초상화 원본 비율(실측 201:248 ≈ 0.81)에 맞춰 계산 — TextureRect 가
+# STRETCH_KEEP_ASPECT_CENTERED 라 비율이 살짝 달라도 잘리지 않고 안에서 맞춰지지만,
+# 폭도 맞춰두면 여백이 안 생긴다.
+const PORTRAIT_HEIGHT_RATIO := 0.48
 const PORTRAIT_ASPECT := 0.81     # width / height
 
 const PORTRAIT_DIR := "res://assets/ui/portraits/protagonist/"
@@ -388,7 +390,7 @@ func _place_bar() -> void:
     _place_portrait(vp, bar_top)
 
 
-## 초상화를 하단 바 상단에 틈 없이 붙여, 뷰포트 높이의 1/3 크기로 배치.
+## 초상화를 하단 바 상단에 틈 없이 붙여, 뷰포트 높이의 약 절반 크기로 배치.
 func _place_portrait(vp: Vector2, bar_top: float) -> void:
     var h := vp.y * PORTRAIT_HEIGHT_RATIO
     var w := h * PORTRAIT_ASPECT
