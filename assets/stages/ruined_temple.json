@@ -7,8 +7,8 @@
       "x": 900.0
     },
     {
-      "dialogue": "res://assets/dialogue/temple_reaper.json",
-      "once_flag": "temple_reaper_seen",
+      "dialogue": "res://assets/dialogue/temple_imugi.json",
+      "once_flag": "temple_imugi_seen",
       "x": 1040.0
     }
   ],
@@ -34,27 +34,32 @@
       "y": 656.0
     },
     {
+      "scene": "Mulgwisin",
+      "x": 1000.0,
+      "y": 656.0
+    },
+    {
       "scene": "DrownedChild",
       "x": 1080.0,
       "y": 656.0
     },
     {
-      "scene": "DrownedHeavy",
+      "scene": "Mulgwisin",
       "x": 1260.0,
       "y": 640.0
     },
     {
-      "scene": "ReaperLord",
+      "scene": "Imugi",
       "x": 1180.0,
       "y": 628.0
     },
     {
-      "scene": "DrownedSwarm",
+      "scene": "Dueoksini",
       "x": 560.0,
       "y": 656.0
     },
     {
-      "scene": "DrownedSwarm",
+      "scene": "Dueoksini",
       "x": 840.0,
       "y": 656.0
     },
@@ -64,7 +69,7 @@
       "y": 656.0
     },
     {
-      "scene": "Reaper",
+      "scene": "Changgwi",
       "x": 1340.0,
       "y": 656.0
     }
@@ -228,6 +233,26 @@
       "scale": 0.8,
       "tex": "mul_deung",
       "x": 1420.0,
+      "y": 686.0
+    },
+    {
+      "offset": [
+        -48.0,
+        -96.0
+      ],
+      "scale": 0.75,
+      "tex": "mul_deung",
+      "x": 1120.0,
+      "y": 686.0
+    },
+    {
+      "offset": [
+        -48.0,
+        -96.0
+      ],
+      "scale": 0.7,
+      "tex": "mul_deung",
+      "x": 1290.0,
       "y": 686.0
     },
     {

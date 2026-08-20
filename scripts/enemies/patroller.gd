@@ -124,8 +124,15 @@ func _do_attack(player: Node2D) -> void:
             player.velocity.y = -120.0
         Audio.play_sfx(Sfx.HURT)
         ScreenFx.shake(3.5, 0.12)
+        _on_attack_hit(player)
     await get_tree().create_timer(0.18).timeout
     _attacking = false
+
+
+## 근접 타격이 실제로 적중한 직후 호출되는 훅 — 기본은 아무것도 안 한다.
+## 붙잡기·중독 같은 부가 효과가 있는 적은 이걸 오버라이드한다(mulgwisin.gd 참고).
+func _on_attack_hit(_player: Node2D) -> void:
+    pass
 
 
 func get_player() -> Node:

@@ -1,7 +1,8 @@
 [gd_scene load_steps=11 format=3]
 
-; 휩쓸린 넋 — 급류에 휩쓸려 간 이들의 넋. 「해원」 잡몹(빠르고 약한 무리, 옛 도깨비/구미호 대체).
-; 파리하게 빠르게 달려와 매달린다. 낮은 HP·낮은 피해·넓은 시야.
+; 창귀(倀鬼) — 호랑이에게 물려 죽은 이의 넋. 산길에서 사람을 홀려 제 대신 잡아먹히게 한다.
+; 1스테이지(음침한 산골짜기) 원거리 잡몹 — 옛 저승사자(Reaper)를 컨셉에 맞게 대체.
+; 멀찍이서 홀리는 넋을 던지고, 가까워지면 손톱으로 할퀸다.
 
 [ext_resource type="Script" path="res://scripts/enemies/patroller.gd" id="1_p"]
 [ext_resource type="Script" path="res://scripts/visual/enemy_visual.gd" id="vis_enemy"]
@@ -13,32 +14,34 @@
 [ext_resource type="Script" path="res://scripts/ai/states/chase_state.gd" id="7_chase"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_body"]
-size = Vector2(16, 30)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_hurt"]
 size = Vector2(18, 32)
 
-[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_p"]
-size = Vector2(16, 30)
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_hurt"]
+size = Vector2(20, 34)
 
-[node name="DrownedSwarm" type="CharacterBody2D"]
+[node name="Changgwi" type="CharacterBody2D"]
 script = ExtResource("1_p")
-display_name = "휩쓸린 넋"
-attack_damage = 4.0
-attack_cooldown = 0.9
-attack_telegraph = 0.16
-attack_knockback = 120.0
-body_color = Color(0.66, 0.78, 0.86, 1)
-detect_range = 320.0
-xp_reward = 14
-drop_chance = 0.28
-drop_gold_chance = 0.22
+display_name = "창귀"
+attack_damage = 7.0
+ranged = true
+ranged_damage = 6.0
+ranged_min = 100.0
+ranged_max = 340.0
+ranged_cooldown = 2.2
+drop_item = "potion_minor"
+drop_icon = "herb"
+drop_chance = 0.45
+attack_cooldown = 1.2
+attack_telegraph = 0.30
+body_color = Color(0.72, 0.76, 0.80, 1)
+detect_range = 300.0
+xp_reward = 30
 
 [node name="Sprite2D" type="AnimatedSprite2D" parent="."]
-scale = Vector2(1.05, 1.05)
 script = ExtResource("vis_enemy")
-sheet = "enemies/wraith"
-foot_offset = -24.4
+sprite_scale = 1.3
+sheet = "enemies/changgwi"
+foot_offset = -17.2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("RectangleShape2D_body")
@@ -51,7 +54,7 @@ shape = SubResource("RectangleShape2D_hurt")
 
 [node name="HealthComponent" type="Node" parent="."]
 script = ExtResource("3_health")
-max_hp = 45.0
+max_hp = 95.0
 hurtbox_path = NodePath("../Hurtbox")
 
 [node name="StateMachine" type="Node" parent="."]
@@ -60,15 +63,15 @@ initial_state = NodePath("Idle")
 
 [node name="Idle" type="Node" parent="StateMachine"]
 script = ExtResource("5_idle")
-idle_duration = 1.0
+idle_duration = 1.8
 
 [node name="Patrol" type="Node" parent="StateMachine"]
 script = ExtResource("6_patrol")
-patrol_speed = 95.0
-patrol_range = 140.0
-patrol_duration = 3.2
+patrol_speed = 52.0
+patrol_range = 110.0
+patrol_duration = 4.0
 
 [node name="Chase" type="Node" parent="StateMachine"]
 script = ExtResource("7_chase")
-chase_speed = 182.0
+chase_speed = 118.0
 lose_distance = 420.0

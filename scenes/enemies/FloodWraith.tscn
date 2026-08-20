@@ -51,7 +51,7 @@ flag_on_death = "great_tiger_defeated"
 
 [node name="Sprite2D" type="AnimatedSprite2D" parent="."]
 script = ExtResource("5_vis")
-scale = Vector2(1.25, 1.25)
+sprite_scale = 1.25
 sheet = "enemies/flood_wraith"
 foot_offset = -41.6
 

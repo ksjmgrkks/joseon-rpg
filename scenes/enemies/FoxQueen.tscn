@@ -33,8 +33,8 @@ reward_item_id = "potion_major"
 reward_item_qty = 1
 
 [node name="Sprite2D" type="AnimatedSprite2D" parent="."]
-scale = Vector2(1.5, 1.5)
 script = ExtResource("5_vis")
+sprite_scale = 1.5
 sheet = "enemies/fox"
 foot_offset = -21.7
 

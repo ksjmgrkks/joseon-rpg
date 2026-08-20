@@ -11,7 +11,7 @@ extends Node2D
 ##
 
 const PLAYER := "res://scenes/player/Player.tscn"
-const ENEMY := "res://scenes/enemies/DrownedSwarm.tscn"
+const ENEMY := "res://scenes/enemies/Dueoksini.tscn"
 const GROUND_Y := 470.0
 
 # 스킬별 캡처 시점(초) — 시전/진행/마무리가 각각 담기게.

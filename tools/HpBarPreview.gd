@@ -10,11 +10,12 @@ extends Node2D
 ##
 
 const ENEMIES := [
-    "res://scenes/enemies/DrownedSwarm.tscn",
+    "res://scenes/enemies/Dueoksini.tscn",
     "res://scenes/enemies/DrownedChild.tscn",
-    "res://scenes/enemies/DrownedHeavy.tscn",
-    "res://scenes/enemies/DrownedFerryman.tscn",
-    "res://scenes/enemies/Reaper.tscn",
+    "res://scenes/enemies/Mulgwisin.tscn",
+    "res://scenes/enemies/Mulgwisin.tscn",
+    "res://scenes/enemies/Changgwi.tscn",
+    "res://scenes/enemies/Imugi.tscn",
     "res://scenes/enemies/FloodWraith.tscn",
 ]
 

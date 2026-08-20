@@ -1,0 +1,78 @@
+[gd_scene load_steps=6 format=3]
+
+; 비틀린 장승 — 2스테이지(그슨대 숲) 중간보스. 민간에서 그슨대를 막으려 세운 장승 중 하나가
+; 되레 어둠에 물들어 제 발로 걷는다. 칼이 통한다(그슨대와 달리 부적이 필요 없다) —
+; "여기서는 베어도 된다"는 대비로 그슨대 규칙을 다시 각인시키는 자리.
+; 크기 서열: 잡몹 그슨대(49px) < **중간보스(~150px)** < 보스 그슨대 노괴(정체 ~247px).
+
+[ext_resource type="Script" path="res://scripts/enemies/boss.gd" id="1_boss"]
+[ext_resource type="Script" path="res://scripts/combat/hurtbox.gd" id="2_hurt"]
+[ext_resource type="Script" path="res://scripts/combat/health_component.gd" id="3_health"]
+[ext_resource type="Script" path="res://scripts/combat/hitbox.gd" id="4_hit"]
+[ext_resource type="Script" path="res://scripts/visual/enemy_visual.gd" id="5_vis"]
+
+[sub_resource type="RectangleShape2D" id="body"]
+size = Vector2(36, 76)
+
+[sub_resource type="RectangleShape2D" id="hurt"]
+size = Vector2(52, 92)
+
+[sub_resource type="RectangleShape2D" id="hit"]
+size = Vector2(76, 72)
+
+[node name="Jangseung" type="CharacterBody2D"]
+script = ExtResource("1_boss")
+display_name = "비틀린 장승"
+subtitle = "막으려 세운 것이 되레 물들었다"
+body_color = Color(0.45, 0.42, 0.3, 1)
+engage_distance = 320.0
+telegraph_seconds = 0.8
+attack_seconds = 0.36
+recover_seconds = 1.2
+dash_speed = 280.0
+dash_reach = 44.0
+volley_count = 4
+volley_damage = 9.0
+volley_speed = 240.0
+volley_spread_deg = 44.0
+summon_scene = "res://scenes/enemies/Geuseondae.tscn"
+summon_count = 2
+; 물기둥·밀물은 1스테이지(물) 전용 연출 — 숲 스테이지에선 컨셉이 섞이므로 뺀다.
+pattern_pool = PackedStringArray("dash", "dash", "volley", "volley", "summon")
+; 물에서 솟구치는 등장 연출도 숲에선 맞지 않는다.
+water_entrance = false
+attack_damage = 15.0
+attack_knockback = 300.0
+xp_reward = 140
+reward_item_id = "rice_bun"
+reward_item_qty = 2
+flag_on_death = "jangseung_defeated"
+
+[node name="Sprite2D" type="AnimatedSprite2D" parent="."]
+script = ExtResource("5_vis")
+sprite_scale = 1.28
+sheet = "enemies/jangseung_gwi"
+foot_offset = -28.8
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("body")
+
+[node name="Hurtbox" type="Area2D" parent="."]
+script = ExtResource("2_hurt")
+
+[node name="HurtboxShape" type="CollisionShape2D" parent="Hurtbox"]
+position = Vector2(0, -16)
+shape = SubResource("hurt")
+
+[node name="HealthComponent" type="Node" parent="."]
+script = ExtResource("3_health")
+max_hp = 380.0
+hurtbox_path = NodePath("../Hurtbox")
+
+[node name="AttackHitbox" type="Area2D" parent="."]
+script = ExtResource("4_hit")
+damage = 15.0
+knockback = 300.0
+
+[node name="HitShape" type="CollisionShape2D" parent="AttackHitbox"]
+shape = SubResource("hit")

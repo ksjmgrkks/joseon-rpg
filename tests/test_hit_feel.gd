@@ -64,7 +64,7 @@ func _sprite_top(host: Node) -> float:
 
 
 func _check_bar_above_head() -> Dictionary:
-    var e := await _spawn("res://scenes/enemies/DrownedHeavy.tscn")
+    var e := await _spawn("res://scenes/enemies/Mulgwisin.tscn")
     var bar := _find_bar(e)
     if bar == null:
         e.queue_free()
@@ -78,7 +78,7 @@ func _check_bar_above_head() -> Dictionary:
 
 
 func _check_bar_thickness() -> Dictionary:
-    var e := await _spawn("res://scenes/enemies/DrownedSwarm.tscn")
+    var e := await _spawn("res://scenes/enemies/Dueoksini.tscn")
     var bar := _find_bar(e)
     if bar == null:
         e.queue_free()
@@ -90,7 +90,7 @@ func _check_bar_thickness() -> Dictionary:
 
 
 func _check_lag_bar() -> Dictionary:
-    var e := await _spawn("res://scenes/enemies/DrownedSwarm.tscn")
+    var e := await _spawn("res://scenes/enemies/Dueoksini.tscn")
     var bar := _find_bar(e)
     var hc := e.get_node_or_null("HealthComponent") as HealthComponent
     if bar == null or hc == null:
@@ -107,7 +107,7 @@ func _check_lag_bar() -> Dictionary:
 
 
 func _check_knockback() -> Dictionary:
-    var e := await _spawn("res://scenes/enemies/DrownedSwarm.tscn")
+    var e := await _spawn("res://scenes/enemies/Dueoksini.tscn")
     var hurtbox := e.get_node_or_null("Hurtbox") as Hurtbox
     if hurtbox == null:
         e.queue_free()

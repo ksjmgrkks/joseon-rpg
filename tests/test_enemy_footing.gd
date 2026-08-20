@@ -33,6 +33,9 @@ func _ready() -> void:
             continue
         rows.append("  %-22s 프레임 %-10s 발끝 %-5d offset %6.1f (권장 %6.1f)  gap %+.0f" % [
             info["name"], info["frame"], info["foot"], info["cur"], info["want"], info["gap"]])
+        if absf(float(info.get("node_scale", 1.0)) - 1.0) > 0.001:
+            bad.append("%s: Sprite2D 노드 scale=%.2f — 런타임에 sprite_scale 로 덮어써져 무시된다. sprite_scale 로 옮길 것" % [
+                info["name"], float(info["node_scale"])])
         if absf(float(info["gap"])) > TOLERANCE:
             bad.append("%s: %s (offset %.1f → %.1f 권장)" % [
                 info["name"],
@@ -82,7 +85,12 @@ func _measure(scene_path: String) -> Dictionary:
     var half := 16.0
     if col.shape is RectangleShape2D:
         half = (col.shape as RectangleShape2D).size.y * 0.5
-    var sc: float = absf(spr.scale.y) if spr.scale.y != 0.0 else 1.0
+    # 런타임 실효 스케일은 노드 scale 이 아니라 CharacterVisual.sprite_scale 이다 —
+    # _ready() 가 scale 을 sprite_scale 로 덮어쓰기 때문(2026-08-20 크기 버그의 원인).
+    var sc: float = float(spr.get("sprite_scale")) if spr.get("sprite_scale") != null else 1.0
+    if sc <= 0.0:
+        sc = 1.0
+    var node_scale: float = absf(spr.scale.y)
     # CharacterVisual._ready() 가 offset 을 세팅하는데, 테스트는 트리에 안 넣으므로
     # 원본 export 인 foot_offset 을 직접 읽는다(안 그러면 전부 0 으로 읽힌다).
     var cur: float = float(spr.get("foot_offset")) if spr.get("foot_offset") != null else 0.0
@@ -90,4 +98,5 @@ func _measure(scene_path: String) -> Dictionary:
     var gap := (cur + float(foot) - fh / 2.0) * sc - half
     var nm := scene_path.get_file().get_basename()
     inst.free()
-    return {"name": nm, "frame": "%dx%d" % [fw, fh], "foot": foot, "cur": cur, "want": want, "gap": gap}
+    return {"name": nm, "frame": "%dx%d" % [fw, fh], "foot": foot, "cur": cur, "want": want, "gap": gap,
+        "node_scale": node_scale}

@@ -65,8 +65,13 @@ class_name Boss
 @export var wave_damage: float = 12.0
 @export var wave_speed: float = 250.0
 ## 소환(페이즈 2 전용) — 잡귀를 불러 압박한다.
-@export var summon_scene: String = "res://scenes/enemies/DrownedSwarm.tscn"
+@export var summon_scene: String = "res://scenes/enemies/Dueoksini.tscn"
 @export var summon_count: int = 2
+## 이 보스가 쓸 패턴 목록(가중치를 주려면 같은 이름을 여러 번 넣는다).
+## 비워두면 기존 기본 풀(돌진·부적세례·물기둥·밀물, 페이즈2 에 소환)을 그대로 쓴다.
+## 이름: "dash" "volley" "pillars" "wave" "summon".
+## 물기둥·밀물은 물 스테이지 전용 연출이라, 물이 아닌 보스는 여기서 빼면 컨셉이 안 섞인다.
+@export var pattern_pool: PackedStringArray = PackedStringArray()
 
 enum Pattern { DASH, VOLLEY, PILLARS, WAVE, SUMMON }
 
@@ -301,10 +306,15 @@ func _enter_telegraph() -> void:
 
 ## 가중 무작위 — 직전과 같은 패턴은 뽑지 않는다. 페이즈 2 에서 소환이 추가된다.
 func _choose_pattern() -> int:
-    var pool: Array = [Pattern.DASH, Pattern.DASH, Pattern.VOLLEY, Pattern.VOLLEY,
-        Pattern.PILLARS, Pattern.PILLARS, Pattern.WAVE, Pattern.WAVE]
-    if _phase >= 2:
-        pool.append_array([Pattern.VOLLEY, Pattern.PILLARS, Pattern.WAVE, Pattern.SUMMON, Pattern.SUMMON])
+    var pool: Array = _default_pool()
+    if not pattern_pool.is_empty():
+        pool = []
+        for nm in pattern_pool:
+            var pat := _pattern_from_name(String(nm))
+            if pat >= 0:
+                pool.append(pat)
+        if pool.is_empty():
+            pool = _default_pool()
     var picks: Array = []
     for x in pool:
         if x != _last_pattern:
@@ -314,6 +324,25 @@ func _choose_pattern() -> int:
     return picks[randi() % picks.size()]
 
 
+## 기본 풀(물 보스 기준) — pattern_pool 이 비어 있을 때만 쓰인다.
+func _default_pool() -> Array:
+    var pool: Array = [Pattern.DASH, Pattern.DASH, Pattern.VOLLEY, Pattern.VOLLEY,
+        Pattern.PILLARS, Pattern.PILLARS, Pattern.WAVE, Pattern.WAVE]
+    if _phase >= 2:
+        pool.append_array([Pattern.VOLLEY, Pattern.PILLARS, Pattern.WAVE, Pattern.SUMMON, Pattern.SUMMON])
+    return pool
+
+
+## 패턴 이름 → enum. 모르는 이름이면 -1(무시).
+func _pattern_from_name(nm: String) -> int:
+    match nm.strip_edges().to_lower():
+        "dash":    return Pattern.DASH
+        "volley":  return Pattern.VOLLEY
+        "pillars": return Pattern.PILLARS
+        "wave":    return Pattern.WAVE
+        "summon":  return Pattern.SUMMON
+    push_warning("[Boss] 모르는 패턴 이름: %s" % nm)
+    return -1
 func _telegraph_time(pat: int) -> float:
     var base := telegraph_seconds
     match pat:
