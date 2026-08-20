@@ -16,6 +16,9 @@ func _ready() -> void:
 	results.append(await _check_back_hit_is_full_damage())
 	results.append(_check_pattern_pool_excludes_water())
 	results.append(await _check_health_not_auto_bound())
+	results.append(_check_new_patterns_reachable())
+	results.append(await _check_whirl_spawns_hazard())
+	results.append(await _check_stall_toss_spawns_hazard())
 
 	var failed := 0
 	for r in results:
@@ -91,3 +94,58 @@ func _check_health_not_auto_bound() -> Dictionary:
 	b.queue_free()
 	var reason := "" if ok else "hurtbox_path=%s — 자동 연결돼 있음(이중 피해 위험)" % b.health.hurtbox_path
 	return { "name": "health_not_auto_bound_to_hurtbox", "status": PASS if ok else FAIL, "reason": reason }
+
+
+## 전용 패턴 3종(방망이 강타/휘돌리기/좌판 던지기)이 모두 실제로 뽑히는가.
+func _check_new_patterns_reachable() -> Dictionary:
+	var b := _spawn()
+	var seen: Dictionary = {}
+	for i in range(400):
+		b._last_pattern = -1
+		seen[b._choose_pattern()] = true
+	b.queue_free()
+	var missing: Array = []
+	for pat in [b.P_CLUB_SLAM, b.P_WHIRL, b.P_STALL_TOSS]:
+		if not seen.has(pat):
+			missing.append(pat)
+	var ok := missing.is_empty()
+	var reason := "" if ok else "뽑히지 않은 패턴: %s" % [missing]
+	return { "name": "new_patterns_reachable", "status": PASS if ok else FAIL, "reason": reason }
+
+
+## 방망이 휘돌리기 — 실제로 ClubWhirl 위험물을 만들어 내는가(양쪽 다 맞는 원형 판정).
+func _check_whirl_spawns_hazard() -> Dictionary:
+	var b := _spawn()
+	await get_tree().process_frame
+	var before := _count_of(b.get_parent(), "ClubWhirl")
+	b._do_whirl()
+	await get_tree().process_frame
+	var after := _count_of(b.get_parent(), "ClubWhirl")
+	b.queue_free()
+	var ok := after > before
+	var reason := "" if ok else "ClubWhirl 이 생성되지 않음"
+	return { "name": "whirl_spawns_hazard", "status": PASS if ok else FAIL, "reason": reason }
+
+
+## 좌판 던지기 — 실제로 StallDebris 위험물을 만들어 내는가(부적 세례와 다른 시각의 원거리 견제).
+func _check_stall_toss_spawns_hazard() -> Dictionary:
+	var b := _spawn()
+	await get_tree().process_frame
+	var before := _count_of(b.get_parent(), "StallDebris")
+	b._do_stall_toss()
+	await get_tree().process_frame
+	var after := _count_of(b.get_parent(), "StallDebris")
+	b.queue_free()
+	var ok := after > before
+	var reason := "" if ok else "StallDebris 가 생성되지 않음"
+	return { "name": "stall_toss_spawns_hazard", "status": PASS if ok else FAIL, "reason": reason }
+
+
+func _count_of(root: Node, cls: String) -> int:
+	var n := 0
+	for c in root.get_children():
+		var s: Script = c.get_script()
+		if s != null and s.get_global_name() == cls:
+			n += 1
+		n += _count_of(c, cls)
+	return n

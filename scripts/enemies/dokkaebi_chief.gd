@@ -61,21 +61,32 @@ func _is_back_hit(attacker: Node) -> bool:
 	return atk_on_right != _facing_right
 
 
-# ══════════ 도깨비 대장 전용 패턴(방망이) ══════════
+# ══════════ 도깨비 대장 전용 패턴(방망이·저잣거리) ══════════
 # 돌진/부적 세례/소환(페이즈2)은 부모 것을 그대로 쓰되, 물기둥·밀물은 물 스테이지 전용이라 뺀다.
-# 여기에 "방망이 강타" 하나를 더한다 — 넓은 정면 강타로 접근을 억제해, 등 뒤로 도는 선택을
-# 유도한다(정면에서 버티면 이 패턴에 크게 맞는다).
+# 전용 패턴 3종으로 정면/등뒤 기믹을 강화한다:
+#   · 방망이 강타  — 넓은 정면 강타. 정면에서 버티면 크게 맞는다(등 뒤로 도는 선택 유도).
+#   · 방망이 휘돌리기 — 몸을 통째로 돌려 **양쪽 다** 후려친다. 정면/등뒤 구분이 무의미해지는
+#     유일한 예외 패턴 — "등 뒤만 신경 쓰면 되겠지" 하는 플레이를 흔든다. 점프로만 피한다.
+#   · 좌판 던지기 — 저잣거리 좌판을 뒤엎어 던지는 원거리 견제(부적 세례와 다른 시각·서사).
 const P_CLUB_SLAM := 100
+const P_WHIRL := 101
+const P_STALL_TOSS := 102
 
 @export_group("도깨비 패턴")
 @export var club_slam_damage: float = 18.0
 @export var club_slam_reach: float = 56.0
+## 방망이 휘돌리기 — 원형 판정 반경·피해.
+@export var whirl_damage: float = 16.0
+## 좌판 던지기 — 한 번에 던질 개수·피해.
+@export var stall_count: int = 3
+@export var stall_damage: float = 8.0
 
 
 func _choose_pattern() -> int:
-	var pool: Array = [Pattern.DASH, Pattern.DASH, Pattern.VOLLEY, P_CLUB_SLAM, P_CLUB_SLAM]
+	var pool: Array = [Pattern.DASH, Pattern.DASH, Pattern.VOLLEY, P_CLUB_SLAM, P_CLUB_SLAM,
+		P_WHIRL, P_STALL_TOSS, P_STALL_TOSS]
 	if _phase >= 2:
-		pool.append_array([Pattern.VOLLEY, P_CLUB_SLAM, Pattern.SUMMON])
+		pool.append_array([Pattern.VOLLEY, P_CLUB_SLAM, P_WHIRL, P_STALL_TOSS, Pattern.SUMMON])
 	else:
 		pool.append(Pattern.SUMMON)
 	var picks: Array = []
@@ -88,37 +99,57 @@ func _choose_pattern() -> int:
 
 
 func _telegraph_time(pat: int) -> float:
-	if pat == P_CLUB_SLAM:
-		return 0.7 * _phase_mult_telegraph()
+	match pat:
+		P_CLUB_SLAM:   return 0.7 * _phase_mult_telegraph()
+		P_WHIRL:       return 0.55 * _phase_mult_telegraph()
+		P_STALL_TOSS:  return 0.6 * _phase_mult_telegraph()
 	return super._telegraph_time(pat)
 
 
 func _warn_glyph(pat: int) -> String:
-	if pat == P_CLUB_SLAM:
-		return "●"
+	match pat:
+		P_CLUB_SLAM:   return "●"
+		P_WHIRL:       return "◎"
+		P_STALL_TOSS:  return "▨"
 	return super._warn_glyph(pat)
 
 
 func _warn_color(pat: int) -> Color:
-	if pat == P_CLUB_SLAM:
-		return Color(0.85, 0.62, 0.3)
+	match pat:
+		P_CLUB_SLAM:   return Color(0.85, 0.62, 0.3)
+		P_WHIRL:       return Color(0.95, 0.4, 0.25)
+		P_STALL_TOSS:  return Color(0.7, 0.5, 0.28)
 	return super._warn_color(pat)
 
 
 func _telegraph_fx(pat: int) -> void:
-	if pat == P_CLUB_SLAM:
-		SkillFx.charge_aura_tick(global_position + Vector2(0, -30.0), 2)
-		return
-	super._telegraph_fx(pat)
+	match pat:
+		P_CLUB_SLAM:
+			SkillFx.charge_aura_tick(global_position + Vector2(0, -30.0), 2)
+		P_WHIRL:
+			SkillFx.charge_aura_tick(global_position + Vector2(0, -30.0), 2)
+		P_STALL_TOSS:
+			SkillFx.charge_aura_tick(global_position + Vector2(0, -30.0), 1)
+		_:
+			super._telegraph_fx(pat)
 
 
 func _enter_attack() -> void:
-	if _pattern == P_CLUB_SLAM:
-		_hide_warn(); _state = State.ATTACK; _last_pattern = _pattern
-		_state_timer = 0.5
-		_do_club_slam()
-		return
-	super._enter_attack()
+	match _pattern:
+		P_CLUB_SLAM:
+			_hide_warn(); _state = State.ATTACK; _last_pattern = _pattern
+			_state_timer = 0.5
+			_do_club_slam()
+		P_WHIRL:
+			_hide_warn(); _state = State.ATTACK; _last_pattern = _pattern
+			_state_timer = 0.85
+			_do_whirl()
+		P_STALL_TOSS:
+			_hide_warn(); _state = State.ATTACK; _last_pattern = _pattern
+			_state_timer = 0.6
+			_do_stall_toss()
+		_:
+			super._enter_attack()
 
 
 func _do_club_slam() -> void:
@@ -131,3 +162,32 @@ func _do_club_slam() -> void:
 		attack_hitbox.knockback = attack_knockback * 1.3
 		attack_hitbox.activate(0.3)
 	SkillFx.impact(global_position + Vector2(dir * 40.0, -10.0), true)
+
+
+## ② 방망이 휘돌리기 — 원형으로 양쪽을 동시에 후려친다. 점프로만 피한다.
+func _do_whirl() -> void:
+	var host := get_parent()
+	if host == null:
+		return
+	ClubWhirl.spawn(host, global_position, whirl_damage * (1.15 if _phase >= 2 else 1.0), 0.35, 0.5)
+	Audio.play_sfx(Sfx.ATTACK)
+	ScreenFx.shake(9.0, 0.22)
+
+
+## ③ 좌판 던지기 — 저잣거리 좌판 부스러기를 부채꼴로 던진다.
+func _do_stall_toss() -> void:
+	var host := get_parent()
+	if host == null:
+		return
+	var dir := 1.0 if _facing_right else -1.0
+	var n := maxi(1, stall_count + (1 if _phase >= 2 else 0))
+	var origin := global_position + Vector2(dir * 22.0, -44.0)
+	for i in range(n):
+		var delay := float(i) * 0.12
+		if delay <= 0.0:
+			StallDebris.spawn(host, origin, dir, stall_damage)
+		else:
+			get_tree().create_timer(delay).timeout.connect(func() -> void:
+				if is_instance_valid(self) and _state != State.DEAD:
+					StallDebris.spawn(host, origin, dir, stall_damage))
+	Audio.play_sfx(Sfx.WARD)
