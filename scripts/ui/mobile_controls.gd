@@ -132,12 +132,16 @@ func _safe_insets() -> Vector4:
 
 
 ## 버튼 중심 좌표를 화면 크기·안전영역에 맞춰 다시 계산.
+## 사용자가 [[TouchLayoutConfig]] 로 위치를 커스텀했으면 그 값을 우선한다(기본식은 폴백).
 func _layout() -> void:
     var vp := get_viewport().get_visible_rect().size
     var ins := _safe_insets()
     var w := vp.x - ins.z
     var h := vp.y - ins.w
     var l := ins.x
+    var t := ins.y
+    _layout_origin = Vector2(l, t)
+    _layout_size = Vector2(w - l, h - t)
 
     # 버튼이 커진 만큼(판정원 기준) 간격도 넓혀 서로 판정이 겹치지 않게 둔다.
     _place("move_left", Vector2(l + 122.0, h - 120.0))
@@ -155,7 +159,15 @@ func _layout() -> void:
         _place(String(_skill_btns[i]["action"]), Vector2(sx - 108.0 * i, sy))
 
 
-func _place(action: String, center: Vector2) -> void:
+## 사용영역 좌상단(안전영역 반영)·크기 — [[TouchLayoutConfig]] 정규화 좌표계와 공유.
+var _layout_origin := Vector2.ZERO
+var _layout_size := Vector2.ZERO
+
+
+func _place(action: String, default_center: Vector2) -> void:
+    var center := default_center
+    if TouchLayoutConfig.has_custom(action):
+        center = TouchLayoutConfig.get_position(action, _layout_origin, _layout_size)
     for b in _buttons:
         if b.action == action:
             var r: float = b.get_meta("radius", 40.0)

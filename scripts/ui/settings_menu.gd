@@ -7,6 +7,7 @@ extends Control
 ##
 
 const MAIN_MENU_PATH := "res://scenes/ui/MainMenu.tscn"
+const TOUCH_LAYOUT_EDITOR_PATH := "res://scenes/ui/TouchLayoutEditor.tscn"
 
 @onready var master_slider: HSlider = $Margin/VBox/MasterRow/Slider
 @onready var sfx_slider: HSlider = $Margin/VBox/SfxRow/Slider
@@ -32,6 +33,7 @@ func _ready() -> void:
     save_btn.pressed.connect(_on_save)
     back_btn.pressed.connect(_on_back)
     _build_haptics_row()
+    _build_touch_layout_row()
     _build_keys_section()
 
 
@@ -51,6 +53,24 @@ func _build_haptics_row() -> void:
         status_label.text = "진동 %s" % ("켜짐" if on else "꺼짐"))
     row.add_child(chk)
     var spacer := vbox.get_node("Spacer")
+    vbox.add_child(row)
+    vbox.move_child(row, spacer.get_index())
+
+
+## 모바일 터치 버튼 위치를 드래그로 조정하는 편집기 진입 버튼.
+func _build_touch_layout_row() -> void:
+    var spacer := vbox.get_node("Spacer")
+    var row := HBoxContainer.new()
+    row.add_theme_constant_override("separation", 12)
+    var lbl := Label.new()
+    lbl.text = "터치 버튼 위치"
+    lbl.custom_minimum_size = Vector2(200, 0)
+    row.add_child(lbl)
+    var btn := Button.new()
+    btn.text = "드래그로 조정"
+    btn.custom_minimum_size = Vector2(180, 30)
+    btn.pressed.connect(func() -> void: SceneManager.change_scene(TOUCH_LAYOUT_EDITOR_PATH))
+    row.add_child(btn)
     vbox.add_child(row)
     vbox.move_child(row, spacer.get_index())
 
