@@ -1,0 +1,67 @@
+[gd_scene load_steps=9 format=3]
+
+; 도깨비 — 3스테이지(저잣거리) 잡몹. 빠르고 약하며, 무리지어 나온다.
+; 보스(도깨비 대장)의 "정면은 막히고 등 뒤가 빈틈" 규칙은 잡몹에겐 적용되지 않는다 — 그냥 벤다.
+
+[ext_resource type="Script" path="res://scripts/enemies/patroller.gd" id="1_p"]
+[ext_resource type="Script" path="res://scripts/visual/enemy_visual.gd" id="vis_enemy"]
+[ext_resource type="Script" path="res://scripts/combat/hurtbox.gd" id="2_hurt"]
+[ext_resource type="Script" path="res://scripts/combat/health_component.gd" id="3_health"]
+[ext_resource type="Script" path="res://scripts/ai/state_machine.gd" id="4_sm"]
+[ext_resource type="Script" path="res://scripts/ai/states/idle_state.gd" id="5_idle"]
+[ext_resource type="Script" path="res://scripts/ai/states/patrol_state.gd" id="6_patrol"]
+[ext_resource type="Script" path="res://scripts/ai/states/chase_state.gd" id="7_chase"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_body"]
+size = Vector2(16, 32)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_hurt"]
+size = Vector2(18, 34)
+
+[node name="Dokkaebi" type="CharacterBody2D"]
+script = ExtResource("1_p")
+display_name = "도깨비"
+attack_damage = 7.0
+attack_cooldown = 1.1
+body_color = Color(0.42, 0.62, 0.40, 1)
+detect_range = 210.0
+xp_reward = 14
+
+[node name="Sprite2D" type="AnimatedSprite2D" parent="."]
+script = ExtResource("vis_enemy")
+sheet = "enemies/goblin"
+sprite_scale = 1.15
+foot_offset = -17.1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_body")
+
+[node name="Hurtbox" type="Area2D" parent="."]
+script = ExtResource("2_hurt")
+
+[node name="HurtboxShape" type="CollisionShape2D" parent="Hurtbox"]
+shape = SubResource("RectangleShape2D_hurt")
+
+[node name="HealthComponent" type="Node" parent="."]
+script = ExtResource("3_health")
+max_hp = 46.0
+hurtbox_path = NodePath("../Hurtbox")
+
+[node name="StateMachine" type="Node" parent="."]
+script = ExtResource("4_sm")
+initial_state = NodePath("Idle")
+
+[node name="Idle" type="Node" parent="StateMachine"]
+script = ExtResource("5_idle")
+idle_duration = 1.0
+
+[node name="Patrol" type="Node" parent="StateMachine"]
+script = ExtResource("6_patrol")
+patrol_speed = 90.0
+patrol_range = 80.0
+patrol_duration = 3.0
+
+[node name="Chase" type="Node" parent="StateMachine"]
+script = ExtResource("7_chase")
+chase_speed = 175.0
+lose_distance = 320.0

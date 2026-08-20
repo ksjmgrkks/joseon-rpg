@@ -1,0 +1,74 @@
+[gd_scene load_steps=6 format=3]
+
+; 도깨비 대장 — 3스테이지(저잣거리) 최종보스. 방망이로 정면을 완전히 막아낸다(dokkaebi_chief.gd).
+; HealthComponent 는 의도적으로 hurtbox_path 를 비워둔다 — 데미지는 스크립트가 앞/뒤를 판정해
+; health.take_damage() 를 직접 호출한다(자동 연결 시 원본 데미지가 한 번 더 들어가는 이중 피해 버그).
+
+[ext_resource type="Script" path="res://scripts/enemies/dokkaebi_chief.gd" id="1_boss"]
+[ext_resource type="Script" path="res://scripts/combat/hurtbox.gd" id="2_hurt"]
+[ext_resource type="Script" path="res://scripts/combat/health_component.gd" id="3_health"]
+[ext_resource type="Script" path="res://scripts/combat/hitbox.gd" id="4_hit"]
+[ext_resource type="Script" path="res://scripts/visual/enemy_visual.gd" id="5_vis"]
+
+[sub_resource type="RectangleShape2D" id="body"]
+size = Vector2(74, 158)
+
+[sub_resource type="RectangleShape2D" id="hurt"]
+size = Vector2(96, 180)
+
+[sub_resource type="RectangleShape2D" id="hit"]
+size = Vector2(120, 110)
+
+[node name="DokkaebiChief" type="CharacterBody2D"]
+script = ExtResource("1_boss")
+display_name = "도깨비 대장"
+body_color = Color(0.7, 0.32, 0.22, 1)
+engage_distance = 380.0
+telegraph_seconds = 0.85
+attack_seconds = 0.38
+recover_seconds = 1.5
+dash_speed = 280.0
+dash_reach = 50.0
+volley_count = 5
+volley_damage = 11.0
+volley_speed = 260.0
+volley_spread_deg = 44.0
+summon_scene = "res://scenes/enemies/Dokkaebi.tscn"
+summon_count = 2
+club_slam_damage = 20.0
+club_slam_reach = 70.0
+front_block_mult = 0.2
+back_bonus_mult = 1.4
+attack_damage = 24.0
+attack_knockback = 340.0
+xp_reward = 260
+reward_item_id = "rice_bun"
+reward_item_qty = 4
+flag_on_death = "dokkaebi_chief_defeated"
+
+[node name="Sprite2D" type="AnimatedSprite2D" parent="."]
+script = ExtResource("5_vis")
+sheet = "enemies/dokkaebi_chief"
+sprite_scale = 1.6
+foot_offset = -11.6
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("body")
+
+[node name="Hurtbox" type="Area2D" parent="."]
+script = ExtResource("2_hurt")
+
+[node name="HurtboxShape" type="CollisionShape2D" parent="Hurtbox"]
+shape = SubResource("hurt")
+
+[node name="HealthComponent" type="Node" parent="."]
+script = ExtResource("3_health")
+max_hp = 760.0
+
+[node name="AttackHitbox" type="Area2D" parent="."]
+script = ExtResource("4_hit")
+damage = 24.0
+knockback = 340.0
+
+[node name="HitShape" type="CollisionShape2D" parent="AttackHitbox"]
+shape = SubResource("hit")

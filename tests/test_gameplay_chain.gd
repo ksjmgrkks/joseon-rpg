@@ -14,7 +14,12 @@ const CHAIN := {
 	"res://scenes/levels/ForestMist.tscn": "res://scenes/levels/WitheredHollow.tscn",
 	"res://scenes/levels/WitheredHollow.tscn": "res://scenes/levels/WailingThicket.tscn",
 	"res://scenes/levels/WailingThicket.tscn": "res://scenes/levels/ElderHollow.tscn",
-	"res://scenes/levels/ElderHollow.tscn": "res://scenes/ui/Clear.tscn",
+	"res://scenes/levels/ElderHollow.tscn": "res://scenes/levels/MarketRuins.tscn",
+	"res://scenes/levels/MarketRuins.tscn": "res://scenes/levels/BrokenStalls.tscn",
+	"res://scenes/levels/BrokenStalls.tscn": "res://scenes/levels/WellCourt.tscn",
+	"res://scenes/levels/WellCourt.tscn": "res://scenes/levels/LanternAlley.tscn",
+	"res://scenes/levels/LanternAlley.tscn": "res://scenes/levels/GoblinCourt.tscn",
+	"res://scenes/levels/GoblinCourt.tscn": "res://scenes/ui/Clear.tscn",
 }
 
 

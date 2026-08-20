@@ -47,10 +47,12 @@ const CAMERA_OFFSET_Y := 160.0   # 카메라를 위로 이만큼 띄워 지면�
 # 스토리를 되살리려면 GAMEPLAY_ONLY 를 false 로만 바꾸면 기존 데이터 흐름이 복구된다.
 const GAMEPLAY_ONLY := true
 # 난이도 곡선: 잡몹 → 잡몹+호랑이 → 더 많은 잡몹 → 중간보스(구미호 여왕) → 최종보스(대호)
-# 1스테이지(물, foothills~sacred_altar/FloodWraith) 뒤로 2스테이지(그슨대 숲, forest_shadow~elder_hollow/GeuseondaeElder)가 이어진다.
+# 1스테이지(물, foothills~sacred_altar/FloodWraith) 뒤로 2스테이지(그슨대 숲, forest_shadow~elder_hollow/GeuseondaeElder)가,
+# 그 뒤로 3스테이지(저잣거리 도깨비, market_ruins~goblin_court/DokkaebiChief)가 이어진다.
 const CHAIN := [
     "foothills", "forest_deep", "mountain_pass", "ruined_temple", "sacred_altar",
     "forest_shadow", "forest_mist", "withered_hollow", "wailing_thicket", "elder_hollow",
+    "market_ruins", "broken_stalls", "well_court", "lantern_alley", "goblin_court",
 ]
 const CHAIN_TSCN := {
     "foothills": "res://scenes/levels/Foothills.tscn",
@@ -63,6 +65,11 @@ const CHAIN_TSCN := {
     "withered_hollow": "res://scenes/levels/WitheredHollow.tscn",
     "wailing_thicket": "res://scenes/levels/WailingThicket.tscn",
     "elder_hollow": "res://scenes/levels/ElderHollow.tscn",
+    "market_ruins": "res://scenes/levels/MarketRuins.tscn",
+    "broken_stalls": "res://scenes/levels/BrokenStalls.tscn",
+    "well_court": "res://scenes/levels/WellCourt.tscn",
+    "lantern_alley": "res://scenes/levels/LanternAlley.tscn",
+    "goblin_court": "res://scenes/levels/GoblinCourt.tscn",
 }
 const CLEAR_SCENE := "res://scenes/ui/Clear.tscn"
 const FWD_GATE_X := 1360.0       # 전진 차단 결계 x

@@ -1,0 +1,76 @@
+[gd_scene load_steps=6 format=3]
+
+; 곤봉 도깨비 — 3스테이지(저잣거리) 중간보스. 무리를 이끄는 덩치 큰 도깨비.
+; 칼이 그냥 통한다(도깨비 대장과 달리 앞/뒤 규칙이 없다) — "여기서는 정면에서 싸워도 된다"는
+; 대비로, 다음 판(보스)에서만 등 뒤 규칙이 온다는 걸 자연스럽게 각인시키는 자리.
+; 크기 서열: 잡몹 도깨비(~68px) < **중간보스(~148px)** < 보스 도깨비 대장(신규 아트, ~250px대).
+
+[ext_resource type="Script" path="res://scripts/enemies/boss.gd" id="1_boss"]
+[ext_resource type="Script" path="res://scripts/combat/hurtbox.gd" id="2_hurt"]
+[ext_resource type="Script" path="res://scripts/combat/health_component.gd" id="3_health"]
+[ext_resource type="Script" path="res://scripts/combat/hitbox.gd" id="4_hit"]
+[ext_resource type="Script" path="res://scripts/visual/enemy_visual.gd" id="5_vis"]
+
+[sub_resource type="RectangleShape2D" id="body"]
+size = Vector2(40, 80)
+
+[sub_resource type="RectangleShape2D" id="hurt"]
+size = Vector2(46, 88)
+
+[sub_resource type="RectangleShape2D" id="hit"]
+size = Vector2(70, 60)
+
+[node name="DokkaebiBrute" type="CharacterBody2D"]
+script = ExtResource("1_boss")
+display_name = "곤봉 도깨비"
+subtitle = "무리를 이끄는 덩치, 아직은 정면 승부"
+body_color = Color(0.5, 0.34, 0.24, 1)
+engage_distance = 340.0
+telegraph_seconds = 0.75
+attack_seconds = 0.34
+recover_seconds = 1.1
+dash_speed = 300.0
+dash_reach = 48.0
+volley_count = 4
+volley_damage = 10.0
+volley_speed = 250.0
+volley_spread_deg = 42.0
+summon_scene = "res://scenes/enemies/Dokkaebi.tscn"
+summon_count = 2
+; 물기둥·밀물은 1스테이지 전용 연출 — 저잣거리엔 맞지 않는다.
+pattern_pool = PackedStringArray("dash", "dash", "volley", "volley", "summon")
+water_entrance = false
+attack_damage = 16.0
+attack_knockback = 300.0
+xp_reward = 170
+reward_item_id = "rice_bun"
+reward_item_qty = 2
+flag_on_death = "dokkaebi_brute_defeated"
+
+[node name="Sprite2D" type="AnimatedSprite2D" parent="."]
+script = ExtResource("5_vis")
+sheet = "enemies/goblin"
+sprite_scale = 2.5
+foot_offset = -15.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("body")
+
+[node name="Hurtbox" type="Area2D" parent="."]
+script = ExtResource("2_hurt")
+
+[node name="HurtboxShape" type="CollisionShape2D" parent="Hurtbox"]
+shape = SubResource("hurt")
+
+[node name="HealthComponent" type="Node" parent="."]
+script = ExtResource("3_health")
+max_hp = 420.0
+hurtbox_path = NodePath("../Hurtbox")
+
+[node name="AttackHitbox" type="Area2D" parent="."]
+script = ExtResource("4_hit")
+damage = 16.0
+knockback = 300.0
+
+[node name="HitShape" type="CollisionShape2D" parent="AttackHitbox"]
+shape = SubResource("hit")
