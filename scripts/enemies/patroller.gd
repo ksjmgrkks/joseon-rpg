@@ -117,14 +117,17 @@ func _do_attack(player: Node2D) -> void:
     # 타격 판정 — 여전히 사거리 안이면 적중
     if is_instance_valid(player) and global_position.distance_to(player.global_position) <= attack_range + 14.0:
         var ph: HealthComponent = player.get_node_or_null("HealthComponent")
-        if ph:
-            ph.take_damage(attack_damage, self)
-        if "velocity" in player:
-            player.velocity.x = attack_knockback * facing
-            player.velocity.y = -120.0
-        Audio.play_sfx(Sfx.HURT)
-        ScreenFx.shake(3.5, 0.12)
-        _on_attack_hit(player)
+        # 이미 무적(직전 피격 직후)이면 이 몬스터의 타격은 그냥 무산 —
+        # 여럿에게 짧은 시간 안에 겹쳐 맞아도 넉백이 뚝뚝 끊기지 않게 한다.
+        if ph == null or not ph.is_invulnerable():
+            if ph:
+                ph.take_damage(attack_damage, self)
+            if "velocity" in player:
+                player.velocity.x = attack_knockback * facing
+                player.velocity.y = -120.0
+            Audio.play_sfx(Sfx.HURT)
+            ScreenFx.shake(3.5, 0.12)
+            _on_attack_hit(player)
     await get_tree().create_timer(0.18).timeout
     _attacking = false
 

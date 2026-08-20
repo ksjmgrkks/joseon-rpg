@@ -131,6 +131,9 @@ func _on_body_entered(body: Node) -> void:
         return
     _hit_done = true                  # 기둥 하나당 1회만
     var hc: HealthComponent = body.get_node_or_null("HealthComponent")
+    # 이미 무적(직전 피격 직후)이면 피해·넉백·효과음 생략 — 다른 패턴과 겹쳐도 안 끊기게.
+    if hc != null and hc.is_invulnerable():
+        return
     if hc:
         hc.take_damage(damage, self)
     if "velocity" in body:

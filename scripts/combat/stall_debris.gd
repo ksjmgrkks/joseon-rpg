@@ -61,9 +61,11 @@ func _on_body_entered(body: Node) -> void:
     if not body.is_in_group("player"):
         return
     var hc: HealthComponent = body.get_node_or_null("HealthComponent")
-    if hc:
-        hc.take_damage(damage, self)
-    if "velocity" in body:
-        body.velocity.x = 140.0 * signf(velocity.x)
-    Audio.play_sfx(Sfx.HURT)
+    # 이미 무적(직전 피격 직후)이면 피해·넉백·효과음 생략 — 다른 패턴과 겹쳐도 안 끊기게.
+    if hc == null or not hc.is_invulnerable():
+        if hc:
+            hc.take_damage(damage, self)
+        if "velocity" in body:
+            body.velocity.x = 140.0 * signf(velocity.x)
+        Audio.play_sfx(Sfx.HURT)
     queue_free()
