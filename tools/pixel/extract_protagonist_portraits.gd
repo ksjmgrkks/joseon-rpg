@@ -1,242 +1,216 @@
 extends SceneTree
 ##
-## 유저가 외부(비-PixelLab) 생성한 주인공 초상화 시트에서 표정 9종을 잘라
-## 검정 배경을 투명화(테두리 플러드필)하고, 컷 경계의 JPEG 잔여 노이즈를 정리해
+## 유저가 외부(비-PixelLab)에서 만들어 온 주인공 초상화 시트에서 표정 9종을 잘라
 ## assets/ui/portraits/protagonist/*.png 로 저장한다.
 ##
 ## 실행: godot --headless --path . --script res://tools/pixel/extract_protagonist_portraits.gd
+## 입력: .art_ref_incoming/protagonist_portrait_sheet.png (커밋 안 함 — .gitignore)
 ##
-## 배경 제거 방식: 셀 자기 테두리(둘레 전체)에서 시작하는 4방향 플러드필로 '어두운 배경'만
-## 투명화 — 캐릭터 옷(검정 도포)이 테두리에 닿지 않는 한 옷 내부는 그대로 불투명 유지된다.
-## 이어서 경계 픽셀 중 어둡고(밝기<EDGE_ERODE_THRESH) 투명 이웃이 있는 픽셀을 1px 침식해
-## 사용자가 지적한 "초록색 노이즈"(JPEG 압축 경계 잔상) 프린지를 제거한다.
+## 2026-08-21 전면 재작성. 이전 판은 **검은 배경 JPEG** 전제라 테두리 플러드필 매팅 +
+## 경계 침식 + 연결요소 청소까지 했고, 그래도 JPEG 링잉 탓에 초록 프린지가 남았다.
+## 새 원본은 **배경이 이미 알파 0(투명)** 이라 매팅 자체가 필요 없다 — 잘라내기만 하면
+## 프린지 문제가 원천적으로 사라진다. 하드코딩 그리드 좌표도 버리고 자동 검출로 바꿨다:
+##   ① 오른쪽만 봤을 때 행 밴드가 정확히 3개가 되는 x 를 찾아 좌우를 가른다
+##   ② 그리드 영역 안에서 완전히 투명한 행 구간 → 3개 행 밴드
+##   ③ 각 행 밴드 안에서 완전히 투명한 열 구간 → 3개 칸
+## 원본 해상도가 바뀌어도 좌표를 다시 재지 않아도 된다.
 ##
 
-const SRC := "res://.art_ref_incoming/protagonist_portrait_sheet.jpg"
+const SRC := "res://.art_ref_incoming/protagonist_portrait_sheet.png"
 const OUT_DIR := "res://assets/ui/portraits/protagonist"
-## 실측(probe_luminance.gd): 진짜 배경은 (0,0,0)=lum 0.0, 캐릭터 최암부(모자/로브 그림자)도
-## lum 10~34 라 배경보다 훨씬 밝다 — 예전 임계값(24)은 캐릭터 어두운 영역까지 배경으로 오인해
-## 큰 구멍을 냈다(교훈: 반드시 실측 후 임계값 결정). 배경은 아주 낮게, 침식은 여러 번 얕게.
-const BG_THRESH := 2.0           # 이보다 어두우면 '배경'으로 간주(플러드필 통과) — 진짜 배경은 0
-const EDGE_ERODE_THRESH := 16.0  # 경계 침식 대상 밝기 상한(캐릭터 최암부 10~34보다 낮게 잡아 보존)
-const EDGE_ERODE_ITERS := 3      # 침식 반복 횟수 — JPEG 링잉 폭만큼만 얕게 깎음(2차 피드백으로 1회 추가)
+const ALPHA_MIN := 0.5      # 이 이상이면 '내용 있음'
+const MIN_BAND := 40        # 밴드로 인정할 최소 두께(px) — 잡티 한 줄을 칸으로 오인하지 않게
+const PAD := 2              # 칸을 잘라낸 뒤 사방으로 남길 여백(px)
+## 이 칸들은 보랏빛 이펙트가 '자기 것'이라 연결요소 청소를 건너뛴다(청소하면 이펙트가 날아감).
+const SKIP_COMPONENT_CLEAN := ["casting"]
 
-## 2차 피드백("초록색 노이즈 남아있음") 원인: 옆 칸(casting/profile_staff)의 초록 이펙트 wisp가
-## 밝기(lum>2)를 가져 테두리 플러드필을 통과하지 못하고, 배경에서 캐릭터 몸통과 연결되지 않은
-## '섬'으로 뚝 떨어져 남았다 — 침식/색상 판정으로는 못 잡는다(어둡지 않고 색도 없음).
-## 해결: 매팅 후 알파>0 픽셀의 연결요소를 구해 가장 큰 것(몸통)만 남기고 나머지 섬은 전부 지운다.
-## 단, casting/profile_staff 두 칸은 초록 이펙트 자체가 '자기 것'(의도된 디자인)이라 건너뛴다.
-const SKIP_COMPONENT_CLEAN := ["casting", "profile_staff"]
-
-const GRID_X0 := 610
-const GRID_X1 := 1275
-const GRID_Y0 := 25
-const GRID_Y1 := 795
-
-# (row, col) -> 파일명 (실제 그리드 내용 육안 확인 후 명명)
+# (row, col) -> 파일명. 이름은 이전 판과 동일 — 대화 시스템(dialogue_balloon.gd)이
+# 이 파일명을 그대로 참조하므로 바꾸지 말 것.
 const CELL_NAMES := {
-    "0_0": "neutral",
-    "0_1": "glance",
-    "0_2": "downcast",
-    "1_0": "smirk",
-    "1_1": "thinking",
-    "1_2": "shocked",
-    "2_0": "back",
-    "2_1": "casting",
-    "2_2": "profile_staff",
+	"0_0": "neutral",
+	"0_1": "glance",
+	"0_2": "downcast",
+	"1_0": "smirk",
+	"1_1": "thinking",
+	"1_2": "shocked",
+	"2_0": "back",
+	"2_1": "casting",
+	"2_2": "profile_staff",
 }
-
-## 원본 시트는 칸끼리 여백 없이 붙어 있어, 옆 칸의 이펙트(초록 도깨비불류 wisp)가
-## 매팅 후에도 가장자리에 살짝 남는 칸이 있다(육안 확인, probe 결과). 캐릭터 본체가 각 칸
-## 중앙에 여유 있게 들어있는 칸은 안쪽으로 살짝 더 잘라 이웃 이펙트 잔여물을 제거한다.
-## 이펙트가 '자기 것'인 칸(casting/profile_staff)은 트림하지 않는다.
-## key -> [left, top, right, bottom] px
-const CELL_TRIM := {
-    "0_0": [16, 4, 4, 4],
-    "0_1": [16, 4, 4, 4],
-    "0_2": [12, 4, 4, 4],
-    "1_0": [4, 4, 65, 4],
-    "1_1": [16, 4, 4, 4],
-    "1_2": [10, 4, 4, 4],
-    "2_0": [8, 4, 50, 4],
-    "2_1": [0, 0, 0, 0],
-    "2_2": [0, 0, 0, 0],
-}
-
-
-func _luminance(c: Color) -> float:
-    return (0.299 * c.r + 0.587 * c.g + 0.114 * c.b) * 255.0
-
-
-## 테두리 플러드필로 배경을 투명화. img 는 RGBA8 이어야 함(호출 전 convert).
-func _matte_background(img: Image) -> void:
-    var w := img.get_width()
-    var h := img.get_height()
-    var visited := PackedByteArray()
-    visited.resize(w * h)
-    var stack: Array[Vector2i] = []
-
-    for x in range(w):
-        stack.append(Vector2i(x, 0))
-        stack.append(Vector2i(x, h - 1))
-    for y in range(h):
-        stack.append(Vector2i(0, y))
-        stack.append(Vector2i(w - 1, y))
-
-    while not stack.is_empty():
-        var p: Vector2i = stack.pop_back()
-        if p.x < 0 or p.y < 0 or p.x >= w or p.y >= h:
-            continue
-        var idx := p.y * w + p.x
-        if visited[idx] != 0:
-            continue
-        visited[idx] = 1
-        var c := img.get_pixel(p.x, p.y)
-        if _luminance(c) > BG_THRESH:
-            continue
-        img.set_pixel(p.x, p.y, Color(c.r, c.g, c.b, 0.0))
-        stack.append(Vector2i(p.x + 1, p.y))
-        stack.append(Vector2i(p.x - 1, p.y))
-        stack.append(Vector2i(p.x, p.y + 1))
-        stack.append(Vector2i(p.x, p.y - 1))
-
-
-## 알파 경계에서 1px 침식 — 어둡고(EDGE_ERODE_THRESH 미만) 투명 이웃이 있는 픽셀만 제거.
-## (트림 등 밝은 색은 보존, 배경-캐릭터 경계의 어두운 JPEG 잔상만 정리)
-func _erode_dark_fringe(img: Image) -> void:
-    var w := img.get_width()
-    var h := img.get_height()
-    var to_clear: Array[Vector2i] = []
-    for y in range(h):
-        for x in range(w):
-            var c := img.get_pixel(x, y)
-            if c.a <= 0.0:
-                continue
-            if _luminance(c) >= EDGE_ERODE_THRESH:
-                continue
-            var has_transparent_neighbor := false
-            for dy in range(-1, 2):
-                for dx in range(-1, 2):
-                    if dx == 0 and dy == 0:
-                        continue
-                    var nx := x + dx
-                    var ny := y + dy
-                    if nx < 0 or ny < 0 or nx >= w or ny >= h:
-                        continue
-                    if img.get_pixel(nx, ny).a <= 0.0:
-                        has_transparent_neighbor = true
-                        break
-                if has_transparent_neighbor:
-                    break
-            if has_transparent_neighbor:
-                to_clear.append(Vector2i(x, y))
-    for p in to_clear:
-        var c := img.get_pixel(p.x, p.y)
-        img.set_pixel(p.x, p.y, Color(c.r, c.g, c.b, 0.0))
-
-
-## 알파>0 픽셀들의 4방향 연결요소 중 가장 큰 것(=캐릭터 몸통)만 남기고 나머지(색이 있든 없든
-## 배경에 고립된 섬 전부)를 투명화한다. 초록 wisp 잔여물처럼 밝아서(lum>2) 플러드필도 못 뚫고
-## 어둡지도 않아서(lum>=16) 침식도 못 잡는 '색 있는 섬' 노이즈에 유일하게 먹히는 방법.
-func _keep_largest_component(img: Image) -> void:
-    var w := img.get_width()
-    var h := img.get_height()
-    var comp := PackedInt32Array()
-    comp.resize(w * h)
-    comp.fill(-1)
-    var sizes: Array[int] = []
-    for sy in range(h):
-        for sx in range(w):
-            var start_idx := sy * w + sx
-            if comp[start_idx] != -1 or img.get_pixel(sx, sy).a <= 0.0:
-                continue
-            var cid := sizes.size()
-            var count := 0
-            var stack: Array[Vector2i] = [Vector2i(sx, sy)]
-            comp[start_idx] = cid
-            while not stack.is_empty():
-                var p: Vector2i = stack.pop_back()
-                count += 1
-                var dirs: Array[Vector2i] = [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]
-                for d in dirs:
-                    var np: Vector2i = p + d
-                    if np.x < 0 or np.y < 0 or np.x >= w or np.y >= h:
-                        continue
-                    var nidx := np.y * w + np.x
-                    if comp[nidx] != -1 or img.get_pixel(np.x, np.y).a <= 0.0:
-                        continue
-                    comp[nidx] = cid
-                    stack.append(np)
-            sizes.append(count)
-    if sizes.is_empty():
-        return
-    var largest_cid := 0
-    for i in range(1, sizes.size()):
-        if sizes[i] > sizes[largest_cid]:
-            largest_cid = i
-    for y in range(h):
-        for x in range(w):
-            var idx := y * w + x
-            if comp[idx] != -1 and comp[idx] != largest_cid:
-                var c := img.get_pixel(x, y)
-                img.set_pixel(x, y, Color(c.r, c.g, c.b, 0.0))
-
-
-## 3차 조치: 남은 초록 얼룩은 몸통과 픽셀이 이어져 있어(연결요소 정리로도 안 잡힘) — 실측
-## (probe_green.gd/probe_trim.gd) 결과, 시트 왼쪽 전신 일러스트의 지팡이 결정 초록빛이 그리드
-## 0열 칸 왼쪽 경계로 번져 들어온 것으로, 로브의 진짜 청록 자수(저채도, g<0.20)보다 훨씬
-## 채도 높고 밝다(g>=0.20, g가 r·b보다 뚜렷이 높음). 이 색 시그니처로만 직접 걷어낸다.
-## (casting/profile_staff 두 칸은 초록 이펙트 자체가 디자인이라 건너뜀 — 같은 skip 목록 재사용)
-func _strip_bleed_green(img: Image) -> void:
-    var w := img.get_width()
-    var h := img.get_height()
-    for y in range(h):
-        for x in range(w):
-            var c := img.get_pixel(x, y)
-            if c.a <= 0.0:
-                continue
-            if c.g < 0.20:
-                continue
-            if c.g - minf(c.r, c.b) <= 0.10:
-                continue
-            if c.b >= c.g * 0.85:
-                continue
-            img.set_pixel(x, y, Color(c.r, c.g, c.b, 0.0))
-
-
-func _process_and_save(img: Image, out_path: String, skip_component_clean: bool) -> void:
-    img.convert(Image.FORMAT_RGBA8)
-    _matte_background(img)
-    for i in range(EDGE_ERODE_ITERS):
-        _erode_dark_fringe(img)
-    if not skip_component_clean:
-        _strip_bleed_green(img)
-        _keep_largest_component(img)
-    DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUT_DIR))
-    img.save_png(ProjectSettings.globalize_path(out_path))
-    print("saved: ", out_path, "  ", img.get_width(), "x", img.get_height())
 
 
 func _init() -> void:
-    var sheet := Image.load_from_file(ProjectSettings.globalize_path(SRC))
-    if sheet == null:
-        push_error("시트 로드 실패: " + SRC)
-        quit(1)
-        return
+	var img := Image.load_from_file(SRC)
+	if img == null:
+		push_error("원본 없음: %s" % SRC)
+		quit(1)
+		return
+	img.convert(Image.FORMAT_RGBA8)
+	var w := img.get_width()
+	var h := img.get_height()
+	print("원본 %dx%d" % [w, h])
 
-    var cell_w := float(GRID_X1 - GRID_X0) / 3.0
-    var cell_h := float(GRID_Y1 - GRID_Y0) / 3.0
+	# ① 왼쪽 대형 일러스트 / 오른쪽 9칸 그리드를 가르는 x
+	var split := _find_split(img)
+	if split < 0:
+		push_error("좌우 분리 실패 — 오른쪽만 봤을 때 행이 3개가 되는 x 를 못 찾았다")
+		quit(1)
+		return
 
-    for row in range(3):
-        for col in range(3):
-            var key := "%d_%d" % [row, col]
-            var name: String = CELL_NAMES.get(key, key)
-            var trim: Array = CELL_TRIM.get(key, [0, 0, 0, 0])
-            var x0 := int(GRID_X0 + col * cell_w) + int(trim[0])
-            var y0 := int(GRID_Y0 + row * cell_h) + int(trim[1])
-            var cw := int(cell_w) - int(trim[0]) - int(trim[2])
-            var ch := int(cell_h) - int(trim[1]) - int(trim[3])
-            var crop := sheet.get_region(Rect2i(x0, y0, cw, ch))
-            _process_and_save(crop, "%s/%s.png" % [OUT_DIR, name], SKIP_COMPONENT_CLEAN.has(name))
+	# ② 그리드 영역의 행 밴드 3개
+	var rows := _bands(_empty_rows(img, split, w), h)
+	if rows.size() != 3:
+		push_error("행 밴드가 3개가 아니다: %d" % rows.size())
+		quit(1)
+		return
 
-    quit(0)
+	# ③ 열 경계는 '행마다' 구하지 않는다 — 3행(주문 시전)은 보랏빛 이펙트가 칸 경계를
+	#    넘어 번져서 빈 열이 아예 없다(실측). 그리드는 규칙적이므로, 빈 열이 깨끗하게
+	#    나오는 행에서 구한 열 경계를 세 행에 공통으로 적용한다.
+	var cols: Array = []
+	for band in rows:
+		var c := _bands(_empty_columns(img, band.x, band.y + 1), w, split)
+		if c.size() == 3:
+			cols = c
+			break
+	if cols.is_empty():
+		push_error("열 경계를 구할 수 있는 행이 하나도 없다")
+		quit(1)
+		return
+	print("그리드 시작 x=%d / 행 %s / 열 %s" % [split, rows, cols])
+
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUT_DIR))
+	var saved := 0
+	for r in range(3):
+		var band: Vector2i = rows[r]
+		for c in range(3):
+			var cb: Vector2i = cols[c]
+			var rect := Rect2i(cb.x, band.x, cb.y - cb.x + 1, band.y - band.x + 1)
+			var cell := img.get_region(rect)
+			var nm0: String = CELL_NAMES["%d_%d" % [r, c]]
+			if not (nm0 in SKIP_COMPONENT_CLEAN):
+				_keep_largest_component(cell)
+			# 칸 안에서 실제 내용 bbox 로 한 번 더 조인다(칸마다 여백이 제각각이라).
+			var used := cell.get_used_rect()
+			used = used.grow(PAD).intersection(Rect2i(0, 0, cell.get_width(), cell.get_height()))
+			cell = cell.get_region(used)
+			var nm: String = CELL_NAMES["%d_%d" % [r, c]]
+			cell.save_png(ProjectSettings.globalize_path("%s/%s.png" % [OUT_DIR, nm]))
+			print("  %-14s %dx%d" % [nm, cell.get_width(), cell.get_height()])
+			saved += 1
+	print("저장 %d칸" % saved)
+	quit(0)
+## y0..y1 구간에서 '내용이 하나도 없는' 열이면 true
+func _empty_columns(img: Image, y0: int, y1: int) -> PackedByteArray:
+	var out := PackedByteArray()
+	out.resize(img.get_width())
+	for x in range(img.get_width()):
+		var empty := 1
+		for y in range(y0, mini(y1, img.get_height())):
+			if img.get_pixel(x, y).a > ALPHA_MIN:
+				empty = 0
+				break
+		out[x] = empty
+	return out
+
+
+## x0..x1 구간에서 '내용이 하나도 없는' 행이면 true
+func _empty_rows(img: Image, x0: int, x1: int) -> PackedByteArray:
+	var out := PackedByteArray()
+	out.resize(img.get_height())
+	for y in range(img.get_height()):
+		var empty := 1
+		for x in range(x0, mini(x1, img.get_width())):
+			if img.get_pixel(x, y).a > ALPHA_MIN:
+				empty = 0
+				break
+		out[y] = empty
+	return out
+
+
+## 빈칸 플래그 배열 → 내용이 있는 구간(밴드) 목록. from 이후만 본다.
+func _bands(empty: PackedByteArray, n: int, from: int = 0) -> Array:
+	var out: Array = []
+	var start := -1
+	for i in range(from, n):
+		if empty[i] == 0:
+			if start < 0:
+				start = i
+		elif start >= 0:
+			if i - start >= MIN_BAND:
+				out.append(Vector2i(start, i - 1))
+			start = -1
+	if start >= 0 and n - start >= MIN_BAND:
+		out.append(Vector2i(start, n - 1))
+	return out
+
+
+## 좌우 분리 지점 자동 탐색.
+## 이 시트는 칸끼리 딱 붙어 있고 인물이 칸 경계까지 차 있어, '완전히 빈 열'은 없다 —
+## 대신 **그리드 영역으로 범위를 좁히면 행 사이에는 진짜 빈 줄이 생긴다**(실측 확인).
+## 그래서 후보 x 를 왼쪽부터 훑으며 "이 x 오른쪽만 봤을 때 행 밴드가 정확히 3개"인
+## 첫 지점을 분리선으로 채택한다(자기검증형 — 좌표 하드코딩 없이 해상도 변화에 견딤).
+## 행이 비었는지는 행별 '마지막 불투명 x'만 미리 구해두면 O(1) 로 판정된다.
+func _find_split(img: Image) -> int:
+	var w := img.get_width()
+	var h := img.get_height()
+	var max_x := PackedInt32Array()
+	max_x.resize(h)
+	for y in range(h):
+		var m := -1
+		for x in range(w - 1, -1, -1):
+			if img.get_pixel(x, y).a > ALPHA_MIN:
+				m = x
+				break
+		max_x[y] = m
+	for split in range(int(w * 0.30), int(w * 0.70), 4):
+		var empty := PackedByteArray()
+		empty.resize(h)
+		for y in range(h):
+			empty[y] = 1 if max_x[y] < split else 0
+		if _bands(empty, h).size() == 3:
+			return split
+	return -1
+
+
+## 옆 칸에서 넘어온 이펙트 잔여물 제거 — 알파>0 픽셀의 연결요소 중 **가장 큰 것(몸통)만**
+## 남기고 나머지 섬은 지운다. 3행(주문 시전)의 보랏빛 이펙트가 칸 경계를 넘어 옆 칸
+## (뒷모습·옆모습)에 손·빛 조각으로 남는 것을 이렇게 잡는다(실측 확인).
+## `casting` 칸만은 그 이펙트가 '자기 것'이라 건너뛴다.
+func _keep_largest_component(img: Image) -> void:
+	var w := img.get_width()
+	var h := img.get_height()
+	var label := PackedInt32Array()
+	label.resize(w * h)
+	label.fill(0)
+	var best_id := 0
+	var best_size := 0
+	var next_id := 0
+	for sy in range(h):
+		for sx in range(w):
+			var si := sy * w + sx
+			if label[si] != 0 or img.get_pixel(sx, sy).a <= ALPHA_MIN:
+				continue
+			next_id += 1
+			var size := 0
+			var stack: Array[Vector2i] = [Vector2i(sx, sy)]
+			label[si] = next_id
+			while not stack.is_empty():
+				var p: Vector2i = stack.pop_back()
+				size += 1
+				for d in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]:
+					var q: Vector2i = p + d
+					if q.x < 0 or q.y < 0 or q.x >= w or q.y >= h:
+						continue
+					var qi := q.y * w + q.x
+					if label[qi] != 0 or img.get_pixel(q.x, q.y).a <= ALPHA_MIN:
+						continue
+					label[qi] = next_id
+					stack.append(q)
+			if size > best_size:
+				best_size = size
+				best_id = next_id
+	for y in range(h):
+		for x in range(w):
+			if label[y * w + x] != best_id:
+				img.set_pixel(x, y, Color(0, 0, 0, 0))

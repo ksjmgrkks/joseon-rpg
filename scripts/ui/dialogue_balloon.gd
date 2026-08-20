@@ -48,11 +48,12 @@ const BAR_BOTTOM_GAP := 22.0     # 하단 바와 화면 바닥 사이 간격
 # 초상화 — 3차 피드백(2026-08-21): "대화할 때 일러스트가 대화창 위로 화면의 거의 절반을
 # 차지했으면" → 높이 비율을 1/3 에서 0.48 로. 720 기준 뷰포트에서 초상화 높이 346px,
 # 상단 여백 194px 이 남아 하단 바(158)+간격(22) 위에 잘리지 않고 들어간다.
-# 폭은 매팅된 초상화 원본 비율(실측 201:248 ≈ 0.81)에 맞춰 계산 — TextureRect 가
-# STRETCH_KEEP_ASPECT_CENTERED 라 비율이 살짝 달라도 잘리지 않고 안에서 맞춰지지만,
-# 폭도 맞춰두면 여백이 안 생긴다.
+# 폭은 초상화 원본 중 '가장 넓은' 비율에 맞춘다(2026-08-21 새 일러스트 실측: 정면 268:279,
+# 미소 271:275 → 최대 0.99). TextureRect 가 STRETCH_KEEP_ASPECT_CENTERED 라 상자 안에
+# 맞춰 들어가는데, 상자 폭이 좁으면 폭에 걸려 높이가 목표치까지 안 커진다 —
+# 가장 넓은 것 기준으로 잡아야 모든 표정이 제 높이(화면 절반)를 채운다.
 const PORTRAIT_HEIGHT_RATIO := 0.48
-const PORTRAIT_ASPECT := 0.81     # width / height
+const PORTRAIT_ASPECT := 0.99     # width / height
 
 const PORTRAIT_DIR := "res://assets/ui/portraits/protagonist/"
 const PANEL_TEXTURE_PATH := "res://assets/ui/dialogue_panel.png"
