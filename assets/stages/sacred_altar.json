@@ -67,20 +67,25 @@
     }
   ],
   "ground": {
-    "tileset": "stone",
+    "tileset": "ruins",
+    "tint": [
+      0.76,
+      0.8,
+      0.84
+    ],
     "width": 2800.0,
     "x": -600.0
   },
   "npcs": [],
   "platforms": [
     {
-      "tileset": "stone",
+      "tileset": "ruins",
       "w": 140.0,
       "x": 420.0,
       "y": 606.0
     },
     {
-      "tileset": "stone",
+      "tileset": "ruins",
       "w": 140.0,
       "x": 1720.0,
       "y": 606.0
@@ -120,6 +125,16 @@
     },
     {
       "offset": [
+        -27.5,
+        -83.0
+      ],
+      "scale": 1.0,
+      "tex": "reed",
+      "x": 250.0,
+      "y": 684.0
+    },
+    {
+      "offset": [
         -48.0,
         -72.0
       ],
@@ -137,6 +152,16 @@
       "tex": "mul_deung",
       "x": 760.0,
       "y": 686.0
+    },
+    {
+      "offset": [
+        -20.0,
+        -69.0
+      ],
+      "scale": 1.0,
+      "tex": "seokdeung",
+      "x": 650.0,
+      "y": 684.0
     },
     {
       "offset": [
@@ -160,6 +185,16 @@
     },
     {
       "offset": [
+        -27.5,
+        -83.0
+      ],
+      "scale": 1.0,
+      "tex": "reed",
+      "x": 1000.0,
+      "y": 684.0
+    },
+    {
+      "offset": [
         -48.0,
         -96.0
       ],
@@ -177,26 +212,6 @@
       "tex": "sotdae",
       "x": 1400.0,
       "y": 682.0
-    },
-    {
-      "offset": [
-        -64,
-        -110
-      ],
-      "scale": 1.5,
-      "tex": "dead_tree",
-      "x": 200,
-      "y": 684
-    },
-    {
-      "offset": [
-        -64,
-        -110
-      ],
-      "scale": 1.7,
-      "tex": "dead_tree_tall",
-      "x": 1180,
-      "y": 684
     }
   ],
   "quest_triggers": [
@@ -205,6 +220,20 @@
       "quest": "main_great_tiger",
       "stage": "to_altar",
       "x": 240.0
+    }
+  ],
+  "water_pools": [
+    {
+      "width": 260.0,
+      "x": 250.0
+    },
+    {
+      "width": 300.0,
+      "x": 650.0
+    },
+    {
+      "width": 280.0,
+      "x": 1000.0
     }
   ]
 }

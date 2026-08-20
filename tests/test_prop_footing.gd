@@ -12,13 +12,16 @@ extends Node
 ## 다른 소품(jangseung/sotdae/well/lantern 등)은 인스턴스마다 offset 이 여러 종류라
 ## 수작업으로 다르게 배치된 것으로 보여 여기 대상에서 뺐다 — 눈으로 확인 후 필요하면 추가.
 ##
+## 2026-08-21 추가: 1스테이지 재제작(reed/driftwood/seokdeung 신규 소품)도 같은
+## get_used_rect() 공식으로 offset 을 계산해서 배치했으므로 같이 고정한다.
+##
 
 const PASS := "PASS"
 const FAIL := "FAIL"
 const TOLERANCE := 4.0    # px
 const GROUND_TOP := 684.0
 # 바닥에 서 있어야 하는 소품 텍스처만 검증 대상으로 삼는다(위 사고 기록 참고).
-const GROUNDED_TEX := ["boulder", "boulder_moss"]
+const GROUNDED_TEX := ["boulder", "boulder_moss", "reed", "driftwood", "seokdeung"]
 
 
 func _ready() -> void:
