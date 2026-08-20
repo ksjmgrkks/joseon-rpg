@@ -85,6 +85,26 @@
 >
 > ## ▶ 다음 세션 시작점 (2026-08-20 갱신 · 여기부터 읽으면 됨)
 >
+> **추가(같은 날, 사용자 피드백 3건 — 접촉 넉백/지형지물/1스테이지 강가):** ① 몬스터 접촉 피해가
+> 무적시간(0.55초) 중에도 넉백·효과음을 중복 적용해 "뚝뚝 끊기는" 느낌 — 패트롤러 근접 타격
+> + 투사체/장판류 5종(SpiritOrb/WaterPillar/TideWave/ShadowClaw/ClubWhirl/StallDebris)에서
+> `HealthComponent.is_invulnerable()` 체크 후 무적 중이면 통째로 무시하도록 통일(`6ce6f01`).
+> ② "지형지물이 바닥을 뚫고 간다" — 실측해보니 boulder/boulder_moss 소품이 12개 스테이지
+> 34곳에서 전부 offset [-64,-64](캔버스 절반, 실제 그림 바닥과 무관)를 써서 지면보다
+> 44~82px 파묻혀 있었음 → `offset.y = -(used_rect.y+used_rect.h)` 공식으로 전부 교정,
+> `tests/test_prop_footing.gd` 로 고정(`5480a76`). **"주인공/몬스터가 가려져야 하는데 위에
+> 있다"는 원인도 찾음** — props 가 항상 enemies/npc/player 보다 먼저 add_child 돼서 캐릭터가
+> 구조적으로 항상 맨 위에 그려짐(z_index 전부 기본값 0, 순서로만 결정) — 다만 **어떤 소품을
+> 실제로 앞에 나오게 해야 할지는 눈으로 봐야 판단 가능**해서 이번엔 손 안 댐(다음 세션: 사용자가
+> 스크린샷/스테이지 지목해주면 그 소품만 z_index 로 앞에 오게 태깅). ③ 1스테이지(foothills)
+> 지면 `rock`(벽돌처럼 보임) → `earth`(흙+풀)로 교체 + PixelLab 신규 "river" 타일셋(물+젖은
+> 모래, earth 와 base_tile_id 연결) 생성 → `stage.gd`에 `water_pools` JSON 필드 신설, 지면
+> 위 특정 구간에 덧그리고 그 구간에 `WaterZone`(신규)을 깔아 걸으면 기존 SkillFx 물보라가
+> 튀게 함(피해 없는 순수 연출) — foothills.json 에 물웅덩이 3곳 배치(`d0f9d2e`). 관련
+> 헤드리스 **전체 스위트(64개) 그린**(회귀 없음). **⚠ 시각 미확인:** X서버 죽어있어 실제
+> 화면은 못 봄 — boulder 파묻힘 교정과 강가 흙/풀/물 배합, 물보라 타이밍은 폰에서 확인 필요.
+> 커밋 3개 로컬만, **푸시는 사용자 승인 대기**([[feedback_git_push]]).
+>
 > **추가(같은 날, 3스테이지 이후):** 메인 메뉴 「새로 시작」이 이제 **스테이지 선택 화면**(`scenes/ui/StageSelect.tscn` + `scripts/ui/stage_select.gd`)을 먼저 연다 — 1/2/3스테이지 중 하나를 골라 그 스테이지 첫 굽이부터 새 런(스코어 리셋)으로 시작. 카드/배경은 **PixelLab `create_ui_asset` 신규 생성**(`assets/ui/stage_select_window.png` 688×384 창틀, `stage_select_button.png` 560×192 버튼판 — 각 40gen, 총 80gen 사용, 466→**546/2000**). 버튼 3개는 같은 판 텍스처를 재사용하고 스테이지별 은은한 색조(modulate)로만 구분(물=청, 숲=녹, 저잣거리=주황) — 원본 PNG 팔레트는 그대로. `main.gd`(구 `_on_new`)는 `_fresh_run()`+`ScoreManager.start_run()`을 그대로 재사용하되 트리거 지점만 선택 화면의 `stage_chosen` 신호로 옮김(`stage.gd`의 CHAIN[0] 판정은 손대지 않음 — 신규 런이 `start_run()`을 먼저 호출하고 이후 `Stage._ready()`의 `resume()`은 `_running=true`만 재확인하므로 안전). 신규 `tests/test_stage_select.gd`(4케이스)로 카드 3장·경로 매핑·클릭→emit·아트 존재를 고정. **헤드리스 58스위트(207케이스) 전부 그린.** 이 화면도 실기기(폰) 눈으로는 아직 확인 못 함 — 카드 레이아웃·터치 히트박스 크기가 다음 세션 확인 대상.
 >
 > **추가(같은 날, 보스 패턴 재탕 피드백 → 3스테이지 전용 패턴 2종 신설):** 사용자가 텔레그램으로 "2·3스테이지 보스 패턴이 단순하거나 재탕 같다" 피드백. 조사해보니 **2스테이지(그슨대 노괴)는 이미 전날 커밋(`aba886d`, HANDOFF 기록 누락)으로 전용 패턴 3종(그림자 늪/갈퀴 훑기/암전 강습)이 들어가 있었음** — 실제로 빈약한 쪽은 **3스테이지(도깨비 대장)** 였다(방망이 강타 1개뿐, 나머지는 부모 돌진/부적세례/소환 그대로). `scripts/enemies/dokkaebi_chief.gd`에 전용 패턴 2종 추가: ① **방망이 휘돌리기**(P_WHIRL, 신규 `scripts/combat/club_whirl.gd`) — 몸을 돌려 양쪽을 동시에 후려친다. 이 보스의 핵심 규칙("정면=막힘/등뒤=빈틈")이 통하지 않는 유일한 예외 패턴이라, 등 뒤만 노리고 버티는 플레이를 흔든다. 점프로만 회피. ② **좌판 던지기**(P_STALL_TOSS, 신규 `scripts/combat/stall_debris.gd`) — 저잣거리 좌판 부스러기를 던지는 원거리 견제. 부적 세례(SpiritOrb, 물 보스와 시각 공유)와 겹치지 않게 나무 상자가 회전하며 포물선을 그리는 별도 투사체로 새로 만듦. 둘 다 그슨대 전용 패턴과 같은 방식으로 **코드 생성**(Polygon2D/Line2D, PixelLab 신규 생성 0건). `tests/test_dokkaebi_chief.gd`에 3케이스 추가(신규 패턴 풀 도달성, 각 패턴 위험물 생성 확인) — 관련 헤드리스(`test_dokkaebi_chief`/`test_geuseondae_elder`/`test_boss_patterns`/`test_midboss`/`test_stage_roster`/`test_gameplay_chain`/`test_enemy_footing`/`test_enemy_attack`) 전부 그린(회귀 없음). **⚠ 시각 미확인:** 실기기(폰)에서 새 패턴 두 개의 손맛·타이밍은 아직 못 봄 — 다음 세션 확인 대상. 커밋(`5cb9880`)은 로컬만, **푸시는 사용자 승인 대기**([[feedback_git_push]]).
