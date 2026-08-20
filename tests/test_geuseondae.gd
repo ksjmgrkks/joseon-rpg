@@ -15,6 +15,8 @@ func _ready() -> void:
     results.append(await _check_disguised_blocks_damage_and_grows())
     results.append(await _check_talisman_reveals())
     results.append(await _check_revealed_takes_real_damage())
+    results.append(await _check_interact_prompt_range())
+    results.append(await _check_interact_reveals())
 
     var failed := 0
     for r in results:
@@ -70,3 +72,57 @@ func _check_revealed_takes_real_damage() -> Dictionary:
     var reason := "" if ok else "hp=%.1f, expected %.1f" % [g.health.hp, hp_before - 20.0]
     g.queue_free()
     return { "name": "revealed_takes_real_damage", "status": PASS if ok else FAIL, "reason": reason }
+
+
+func _prompt_visible(g: Node) -> bool:
+    var lbl: Label = g._interact_prompt
+    return lbl != null and lbl.visible
+
+
+func _fake_player(pos: Vector2) -> Node2D:
+    var p := Node2D.new()
+    p.add_to_group("player")
+    add_child(p)
+    p.global_position = pos
+    return p
+
+
+## 위장 상태 + 조사 사거리 안일 때만 "!" 프롬프트가 뜬다(멀면 안 뜨고, 노출되면 사라짐).
+func _check_interact_prompt_range() -> Dictionary:
+    var g := _spawn()
+    await get_tree().process_frame
+    var far := _fake_player(g.global_position + Vector2(500, 0))
+    g._physics_process(0.016)
+    var hidden_far := not _prompt_visible(g)
+
+    far.global_position = g.global_position + Vector2(g.interact_range * 0.5, 0)
+    g._physics_process(0.016)
+    var visible_near := _prompt_visible(g)
+
+    var ok := hidden_far and visible_near
+    var reason := "" if ok else "hidden_far=%s visible_near=%s" % [hidden_far, visible_near]
+    far.queue_free()
+    g.queue_free()
+    return { "name": "interact_prompt_range", "status": PASS if ok else FAIL, "reason": reason }
+
+
+## 조사 사거리 안에서 interact 를 누르면(스킬로 맞히지 않아도) 정체가 드러난다.
+func _check_interact_reveals() -> Dictionary:
+    var g := _spawn()
+    await get_tree().process_frame
+    var p := _fake_player(g.global_position + Vector2(20, 0))
+    g._physics_process(0.016)
+    if not g._in_interact_range:
+        p.queue_free(); g.queue_free()
+        return { "name": "interact_reveals", "status": FAIL, "reason": "테스트 셋업 실패 — 사거리 판정이 안 됨" }
+
+    var ev := InputEventAction.new()
+    ev.action = "interact"
+    ev.pressed = true
+    g._unhandled_input(ev)
+
+    var ok: bool = (g._disguised == false) and not _prompt_visible(g)
+    var reason := "" if ok else "disguised=%s prompt_visible=%s" % [g._disguised, _prompt_visible(g)]
+    p.queue_free()
+    g.queue_free()
+    return { "name": "interact_reveals", "status": PASS if ok else FAIL, "reason": reason }

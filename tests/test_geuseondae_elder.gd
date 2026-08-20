@@ -16,6 +16,8 @@ func _ready() -> void:
 	results.append(await _check_reveal_scales_max_hp())
 	results.append(await _check_revealed_takes_real_damage())
 	results.append(_check_pattern_pool_excludes_water())
+	results.append(await _check_interact_prompt_range())
+	results.append(await _check_interact_reveals())
 
 	var failed := 0
 	for r in results:
@@ -86,3 +88,59 @@ func _check_pattern_pool_excludes_water() -> Dictionary:
 	var ok := not bad
 	var reason := "" if ok else "물 전용 패턴이 나왔음: %s" % [seen.keys()]
 	return { "name": "pattern_pool_excludes_water_patterns", "status": PASS if ok else FAIL, "reason": reason }
+
+
+## boss.gd 도 텔레그래프용 "!" 라벨(_warn)을 따로 갖고 있어 텍스트로 찾으면 헷갈린다 —
+## 우리가 만든 조사 프롬프트 참조(_interact_prompt)를 직접 읽는다.
+func _prompt_visible(b: Node) -> bool:
+	var lbl: Label = b._interact_prompt
+	return lbl != null and lbl.visible
+
+
+func _fake_player(pos: Vector2) -> Node2D:
+	var p := Node2D.new()
+	p.add_to_group("player")
+	add_child(p)
+	p.global_position = pos
+	return p
+
+
+## 위장 상태 + 조사 사거리 안일 때만 "!" 프롬프트가 뜬다.
+func _check_interact_prompt_range() -> Dictionary:
+	var b := _spawn()
+	await get_tree().process_frame
+	var far := _fake_player(b.global_position + Vector2(600, 0))
+	b._physics_process(0.016)
+	var hidden_far := not _prompt_visible(b)
+
+	far.global_position = b.global_position + Vector2(b.interact_range * 0.5, 0)
+	b._physics_process(0.016)
+	var visible_near := _prompt_visible(b)
+
+	var ok := hidden_far and visible_near
+	var reason := "" if ok else "hidden_far=%s visible_near=%s" % [hidden_far, visible_near]
+	far.queue_free()
+	b.queue_free()
+	return { "name": "interact_prompt_range", "status": PASS if ok else FAIL, "reason": reason }
+
+
+## 조사 사거리 안에서 interact 를 누르면(부적을 맞히지 않아도) 노괴 정체가 드러난다.
+func _check_interact_reveals() -> Dictionary:
+	var b := _spawn()
+	await get_tree().process_frame
+	var p := _fake_player(b.global_position + Vector2(20, 0))
+	b._physics_process(0.016)
+	if not b._in_interact_range:
+		p.queue_free(); b.queue_free()
+		return { "name": "interact_reveals", "status": FAIL, "reason": "테스트 셋업 실패 — 사거리 판정이 안 됨" }
+
+	var ev := InputEventAction.new()
+	ev.action = "interact"
+	ev.pressed = true
+	b._unhandled_input(ev)
+
+	var ok: bool = (b._disguised == false) and not _prompt_visible(b)
+	var reason := "" if ok else "disguised=%s prompt_visible=%s" % [b._disguised, _prompt_visible(b)]
+	p.queue_free()
+	b.queue_free()
+	return { "name": "interact_reveals", "status": PASS if ok else FAIL, "reason": reason }

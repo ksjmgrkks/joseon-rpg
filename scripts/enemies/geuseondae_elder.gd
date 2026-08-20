@@ -23,8 +23,13 @@ class_name GeuseondaeElder
 @export var revealed_body_size: Vector2 = Vector2(60, 120)
 @export var revealed_hurt_size: Vector2 = Vector2(76, 150)
 
+## 조사(interact) 로 정체를 드러낼 수 있는 사거리 — 부적 대신 다가가서 버튼으로 확인한다.
+@export var interact_range: float = 78.0
+
 var _disguised: bool = true
 var _threat: int = 0
+var _in_interact_range: bool = false
+var _interact_prompt: Label = null
 
 
 func _ready() -> void:
@@ -34,7 +39,54 @@ func _ready() -> void:
 	attack_damage = 0.0                # 위장 중엔 순수 유인 — 패턴 잠금 해제 전엔 공격 안 함
 	health.shield_charges = 999        # 칼이 안 먹힘 — 대신 맞을 때마다 커짐
 	health.shield_broken.connect(_on_disguised_hit)
+	_build_interact_prompt()
 
+
+## "!" — 조사 사거리 안에 들어오면 뜬다(위장 중일 때만). 「조사」키로 정체를 확인.
+func _build_interact_prompt() -> void:
+	var lbl := Label.new()
+	lbl.text = "!"
+	lbl.add_theme_font_size_override("font_size", 30)
+	lbl.add_theme_color_override("font_color", Color(0.95, 0.85, 0.35))
+	lbl.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.85))
+	lbl.add_theme_constant_override("outline_size", 5)
+	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	lbl.position = Vector2(-10, -86)
+	lbl.z_index = 40
+	lbl.visible = false
+	add_child(lbl)
+	_interact_prompt = lbl
+
+
+func _physics_process(delta: float) -> void:
+	_update_interact_prompt()
+	super._physics_process(delta)
+
+
+func _update_interact_prompt() -> void:
+	if not _disguised or _state == State.DEAD:
+		if _in_interact_range:
+			_in_interact_range = false
+			if _interact_prompt:
+				_interact_prompt.visible = false
+		return
+	var p := _player()
+	var near := p != null and global_position.distance_to(p.global_position) <= interact_range
+	if near != _in_interact_range:
+		_in_interact_range = near
+		if _interact_prompt:
+			_interact_prompt.visible = near
+
+
+## 조사 버튼 — 부적(스킬)을 맞히는 대신, 다가가서 눌러 정체를 드러낸다.
+func _unhandled_input(event: InputEvent) -> void:
+	if not _disguised or not _in_interact_range or _state == State.DEAD:
+		return
+	if Dialogue and Dialogue.is_active():
+		return
+	if event.is_action_pressed("interact"):
+		_reveal()
+		get_viewport().set_input_as_handled()
 
 
 ## 아직 "안전한" 위장 단계(위협도 < threat_attack_at)면 어떤 패턴도 꺼내지 않는다 —
@@ -75,6 +127,9 @@ func _on_talisman_hit(damage: float, attacker: Node) -> void:
 
 func _reveal() -> void:
 	_disguised = false
+	_in_interact_range = false
+	if _interact_prompt:
+		_interact_prompt.visible = false
 	var mult := 1.0 + threat_hp_mult * float(_threat)
 	health.max_hp *= mult
 	health.hp = health.max_hp

@@ -11,9 +11,13 @@ class_name Geuseondae
 @export var revealed_color: Color = Color(0.85, 0.25, 0.2, 1)
 @export var max_threat: int = 4          # 이 이상 커지면 성장 멈춤(과한 비대화 방지)
 @export var threat_attack_at: int = 2    # 이 위협도부터는 위장 중에도 공격 시작
+## 조사(interact) 로 정체를 드러낼 수 있는 사거리 — 부적 대신 다가가서 버튼으로 확인한다.
+@export var interact_range: float = 68.0
 
 var _disguised: bool = true
 var _threat: int = 0
+var _in_interact_range: bool = false
+var _interact_prompt: Label = null
 
 
 func _ready() -> void:
@@ -21,12 +25,56 @@ func _ready() -> void:
     attack_damage = 0.0                  # 위장 중엔 순수 유인 — 공격 안 함
     health.shield_charges = 999          # 칼이 안 먹힘(사실상 무한 방패) — 대신 맞을 때마다 커짐
     health.shield_broken.connect(_on_disguised_hit)
+    _build_interact_prompt()
+
+
+## "!" — 조사 사거리 안에 들어오면 뜬다(위장 중일 때만). 「조사」키로 정체를 확인.
+func _build_interact_prompt() -> void:
+    var lbl := Label.new()
+    lbl.text = "!"
+    lbl.add_theme_font_size_override("font_size", 24)
+    lbl.add_theme_color_override("font_color", Color(0.95, 0.85, 0.35))
+    lbl.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.85))
+    lbl.add_theme_constant_override("outline_size", 4)
+    lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+    lbl.position = Vector2(-8, -66)
+    lbl.z_index = 40
+    lbl.visible = false
+    add_child(lbl)
+    _interact_prompt = lbl
 
 
 func _physics_process(delta: float) -> void:
+    _update_interact_prompt()
     if _disguised and _threat < threat_attack_at:
         return   # 아직 "안전한" 위장 단계 — 공격 판정 생략(이동은 StateMachine이 계속 처리)
     super._physics_process(delta)
+
+
+func _update_interact_prompt() -> void:
+    if not _disguised:
+        if _in_interact_range:
+            _in_interact_range = false
+            if _interact_prompt:
+                _interact_prompt.visible = false
+        return
+    var p := get_player()
+    var near := p != null and global_position.distance_to((p as Node2D).global_position) <= interact_range
+    if near != _in_interact_range:
+        _in_interact_range = near
+        if _interact_prompt:
+            _interact_prompt.visible = near
+
+
+## 조사 버튼 — 부적(스킬)을 맞히는 대신, 다가가서 눌러 정체를 드러낸다.
+func _unhandled_input(event: InputEvent) -> void:
+    if not _disguised or not _in_interact_range or _dying:
+        return
+    if Dialogue and Dialogue.is_active():
+        return
+    if event.is_action_pressed("interact"):
+        _reveal()
+        get_viewport().set_input_as_handled()
 
 
 ## 위장 상태에서 근접/광역 공격에 맞았을 때(HealthComponent.shield_broken) — 데미지 대신 성장.
@@ -61,6 +109,9 @@ func _on_talisman_hit(damage: float, attacker: Node) -> void:
 
 func _reveal() -> void:
     _disguised = false
+    _in_interact_range = false
+    if _interact_prompt:
+        _interact_prompt.visible = false
     health.shield_charges = 0
     attack_damage = revealed_attack_damage
     if sprite and is_instance_valid(sprite):
