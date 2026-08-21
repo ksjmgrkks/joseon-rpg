@@ -466,6 +466,9 @@ func river_cleave(pos: Vector2, facing_right: bool) -> void:
     if host == null:
         return
     var dir := 1.0 if facing_right else -1.0
+    # PixelLab 페인티드 물빛 초승달(주역) — 벡터 파문 위에 질감을 얹는다.
+    _painted("skill_river_slash", pos + Vector2(dir * 34.0, -14.0), 0.5, 0.85, 0.22,
+        not facing_right, 0.0, 0.0, Color(1, 1, 1, 0.95), 31)
     var root := Node2D.new()
     root.global_position = pos
     root.z_index = 30
@@ -516,6 +519,9 @@ func requiem_lantern(pos: Vector2) -> void:
     if host == null:
         return
     var center := pos + Vector2(0, -16)
+    # PixelLab 페인티드 물등(주역) — 중심 불빛 자리에 질감을 얹는다.
+    _painted("skill_requiem_burst", center, 0.3, 1.4, 0.6, false, 0.0, 0.0,
+        Color(1, 1, 1, 0.95), 34)
     # 밖으로 퍼지는 파문 — 물빛 2겹 + 물등 따뜻한 빛 1겹
     _pulse_ring(host, center, 22.0, 5.0, Color(WATER.r, WATER.g, WATER.b, 0.8), 4.6, 0.5, 31)
     _pulse_ring(host, center, 30.0, 3.0, Color(WATER_DEEP.r, WATER_DEEP.g, WATER_DEEP.b, 0.6), 3.4, 0.6, 30)
@@ -666,6 +672,9 @@ func ward_cast(pos: Vector2) -> void:
     if host == null:
         return
     var center := pos + Vector2(0, -16)
+    # PixelLab 페인티드 부적 만다라(주역) — 봉인 자리에 질감을 얹는다.
+    _painted("skill_ward_cast", center, 0.35, 1.0, 0.32, false, 0.0, 0.0,
+        Color(1, 1, 1, 0.9), 34)
     # 밖에서 몸으로 모여드는 한지 조각
     for i in range(10):
         var a := TAU * i / 10.0 + randf() * 0.3
