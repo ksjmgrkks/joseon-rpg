@@ -17,7 +17,13 @@
 ## 개발 환경 (중요)
 - 폰(텔레그램) 세션과 PC 세션이 섞인다. PC 세션에서는 Godot 윈도우 실행·스크린샷 캡처가 가능하다.
 - **시각 검증은 스크린샷 캡처 루프로 스스로 확인**한다 (tools/ 의 캡처 러너). 캡처로 확인 못 한 것(애니메이션 타이밍·손맛)만 사용자 확인 항목으로 남길 것.
-- 로컬 Godot: `C:\Users\User\Downloads\Godot_v4.6.3-stable_win64.exe\Godot_v4.6.3-stable_win64.exe` (본체 exe 사용, console 래퍼 금지, 항상 timeout 감싸기)
+- 로컬 Godot(PC, GUI 가능): `C:\Users\User\Downloads\Godot_v4.6.3-stable_win64.exe\Godot_v4.6.3-stable_win64.exe` (본체 exe 사용, console 래퍼 금지, 항상 timeout 감싸기)
+- **WSL/텔레그램 세션에도 헤드리스 Godot이 있다 — `~/godot-bin/godot`(v4.6.3.stable, CI와 동일 빌드).**
+  2026-08-21까지 여러 세션이 "이 환경엔 Godot이 없어 헤드리스 검증 못 함"이라고 잘못 기록해왔음
+  (사실이 아니었다) — **세션 시작 시 `~/godot-bin/godot --version`부터 확인할 것.** 화면 캡처는
+  못 해도(DISPLAY 없음) 헤드리스 테스트는 CI 푸시 왕복 없이 바로 돌릴 수 있다:
+  `~/godot-bin/godot --headless res://tests/<파일>.tscn`, 전체 스위트는
+  `for t in tests/*.tscn; do ~/godot-bin/godot --headless "res://$t"; done`.
 
 ## 절대 규칙 (Always)
 1. **작업 단위마다 git 커밋.** 의미 있는 변경 후 명확한 메시지로 커밋한다. 커밋이 곧 롤백 지점 — 확인 대신 커밋으로 통제한다.

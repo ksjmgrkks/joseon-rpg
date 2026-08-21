@@ -33,8 +33,13 @@ func _check_grab_slows_then_restores() -> Dictionary:
     player.global_position = Vector2(4000, 0)
     await get_tree().process_frame
 
+    # _on_attack_hit 의 대입은 첫 await(복구 타이머) 이전까지 동기 실행되므로
+    # 프레임을 기다리지 않고 바로 확인한다 — 한 프레임이라도 기다리면, CI처럼
+    # 프레임 하나가 0.15초(테스트용 grab_slow_seconds)를 넘어가는 순간
+    # 그 안에서 복구 타이머까지 같이 발동해 버려 "직후" 확인이 이미 복구된
+    # 상태를 보는 레이스가 생긴다(실측: 로컬에선 항상 통과, CI에선 종종
+    # "직후 배율=1.00"으로 실패).
     m._on_attack_hit(player)
-    await get_tree().process_frame
     var slowed: bool = player.move_speed_mult < 1.0
     await get_tree().create_timer(0.4).timeout
     var restored: bool = is_equal_approx(player.move_speed_mult, 1.0)
