@@ -1,6 +1,12 @@
 {
   "auto_dialogues": [
     {
+      "dialogue": "res://assets/dialogue/s1_skill3.json",
+      "once_flag": "s1_skill3_seen",
+      "x": 200.0,
+      "w": 110.0
+    },
+    {
       "dialogue": "res://assets/dialogue/pass_intro.json",
       "once_flag": "pass_intro_seen",
       "x": 380.0

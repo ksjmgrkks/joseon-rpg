@@ -1,0 +1,16 @@
+{
+  "id": "s1_move",
+  "start": "a",
+  "nodes": {
+    "a": {
+      "speaker": "",
+      "text": "발밑은 아직 질척하다. 앞으로 나아가야 한다.",
+      "next": "b"
+    },
+    "b": {
+      "speaker": "",
+      "text": "〔← → 또는 A·D 로 걷는다.〕",
+      "next": null
+    }
+  }
+}

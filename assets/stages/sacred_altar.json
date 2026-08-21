@@ -1,6 +1,12 @@
 {
   "auto_dialogues": [
     {
+      "dialogue": "res://assets/dialogue/s1_skill4.json",
+      "once_flag": "s1_skill4_seen",
+      "x": 250.0,
+      "w": 120.0
+    },
+    {
       "dialogue": "res://assets/dialogue/great_flood_intro.json",
       "once_flag": "great_flood_intro_seen",
       "x": 520.0
