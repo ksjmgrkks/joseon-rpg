@@ -20,7 +20,7 @@ func _ready() -> void:
     SkillFx.combo(Vector2(650, y), true, 3)
     SkillFx.slash(Vector2(870, y), true, SkillFx.GOLD)
     SkillFx.impact(Vector2(1190, y), true)
-    # 진혼(해원) 스킬 4종 — 여울 가르기 / 진혼의 물등 / 호신부 / 귀창 강림
+    # 진혼(해원) 스킬 4종 — 도혼참 / 진혼등 / 호신부 / 귀창 강림
     SkillFx.river_cleave(Vector2(170, y + 150), true)
     SkillFx.requiem_lantern(Vector2(430, y + 150))
     SkillFx.ward_cast(Vector2(680, y + 150))

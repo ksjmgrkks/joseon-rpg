@@ -458,7 +458,7 @@ func spin(pos: Vector2, color: Color = BRIGHT) -> void:
 
 # ════════════ 진혼 스킬 VFX (해원 — 물살/물등) ════════════
 
-## 스킬1 「여울 가르기」 — 앞으로 강물을 갈라 밀어내는 물살 참(斬).
+## 스킬1 「도혼참」 — 앞으로 강물을 갈라 밀어내는 물살 참(斬).
 ## 전방으로 물빛 초승달 + 앞으로 날아가는 물마루 + 흩뿌리는 물방울 + 발밑 파문.
 ## (기존 보랏빛 '일섬'을 물빛으로 리테마 — 넋을 씻어 보내는 진혼 톤.)
 func river_cleave(pos: Vector2, facing_right: bool) -> void:
@@ -512,7 +512,7 @@ func river_cleave(pos: Vector2, facing_right: bool) -> void:
     tw.tween_callback(root.queue_free)
 
 
-## 스킬2 「진혼의 물등」 — 물등을 밝혀 사방의 넋을 달래는 파문.
+## 스킬2 「진혼등」 — 물등을 밝혀 사방의 넋을 달래는 파문.
 ## 중심에서 물등 불빛이 떠오르고, 물빛+따뜻한 빛 파문이 밖으로 퍼진다(광역 위무).
 func requiem_lantern(pos: Vector2) -> void:
     var host := _host()
@@ -906,7 +906,7 @@ func charge_ready(pos: Vector2) -> void:
         _mote(host, pos, end, randf_range(1.8, 2.8), GOLD, randf_range(0.22, 0.36), 34, false)
 
 
-# ════════════ 스킬1 「여울 가르기」 확장 — 시전 → 돌진 → 지나간 자리의 파도 ════════════
+# ════════════ 스킬1 「도혼참」 확장 — 시전 → 돌진 → 지나간 자리의 파도 ════════════
 
 ## ① 시전(windup) — 발밑에 물이 감겨 들어온다. dur 초 동안 반복 연출.
 func river_gather(pos: Vector2, facing_right: bool, dur: float = 0.3) -> void:
