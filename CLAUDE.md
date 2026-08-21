@@ -20,10 +20,18 @@
 - 로컬 Godot(PC, GUI 가능): `C:\Users\User\Downloads\Godot_v4.6.3-stable_win64.exe\Godot_v4.6.3-stable_win64.exe` (본체 exe 사용, console 래퍼 금지, 항상 timeout 감싸기)
 - **WSL/텔레그램 세션에도 헤드리스 Godot이 있다 — `~/godot-bin/godot`(v4.6.3.stable, CI와 동일 빌드).**
   2026-08-21까지 여러 세션이 "이 환경엔 Godot이 없어 헤드리스 검증 못 함"이라고 잘못 기록해왔음
-  (사실이 아니었다) — **세션 시작 시 `~/godot-bin/godot --version`부터 확인할 것.** 화면 캡처는
-  못 해도(DISPLAY 없음) 헤드리스 테스트는 CI 푸시 왕복 없이 바로 돌릴 수 있다:
-  `~/godot-bin/godot --headless res://tests/<파일>.tscn`, 전체 스위트는
-  `for t in tests/*.tscn; do ~/godot-bin/godot --headless "res://$t"; done`.
+  (사실이 아니었다) — **세션 시작 시 `~/godot-bin/godot --version`부터 확인할 것.** 헤드리스
+  테스트는 CI 푸시 왕복 없이 바로 돌릴 수 있다: `~/godot-bin/godot --headless
+  res://tests/<파일>.tscn`, 전체 스위트는 `for t in tests/*.tscn; do ~/godot-bin/godot
+  --headless "res://$t"; done`.
+- **WSL 세션에 실제 화면 캡처도 가능하다 — WSLg 덕에 `DISPLAY=:0`에 진짜 X서버가 떠 있다.**
+  마찬가지로 "이 환경은 X서버가 죽어있어 화면 확인 못 함"이라고 잘못 기록해온 세션이 많았음
+  (2026-08-21에 `DISPLAY=:0`로 `tools/DlgShot.gd` 실행해서 실제로 확인함, 렌더러는 소프트웨어
+  llvmpipe라 느리지만 정상 동작). **세션 시작 시 `DISPLAY=:0 timeout 60 ~/godot-bin/godot
+  --path . res://tools/DlgShot.tscn -- --scene=<레벨.tscn> --dialogue=<대사.json> --adv=N
+  --out=shots/x.png`로 대화창류 UI를 직접 캡처해서 눈으로 검증할 것** — "실기기 확인
+  필요"로 넘기기 전에 먼저 시도. `--headless`로는 안 됨(RenderingServer가 실제로 안 그려서
+  걸림) — 반드시 `DISPLAY=:0`을 주고 `--headless` 플래그는 빼야 한다.
 
 ## 절대 규칙 (Always)
 1. **작업 단위마다 git 커밋.** 의미 있는 변경 후 명확한 메시지로 커밋한다. 커밋이 곧 롤백 지점 — 확인 대신 커밋으로 통제한다.
