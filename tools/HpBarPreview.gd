@@ -15,7 +15,7 @@ const ENEMIES := [
     "res://scenes/enemies/Mulgwisin.tscn",
     "res://scenes/enemies/Mulgwisin.tscn",
     "res://scenes/enemies/Changgwi.tscn",
-    "res://scenes/enemies/Imugi.tscn",
+    "res://scenes/enemies/DrownedMudang.tscn",
     "res://scenes/enemies/FloodWraith.tscn",
 ]
 

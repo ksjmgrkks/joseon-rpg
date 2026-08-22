@@ -157,6 +157,18 @@
   "player_x": 100.0,
   "props": [
     {
+      "scale": 1.35,
+      "tex": "flood_pool_a",
+      "x": 500.0,
+      "y": 684.0
+    },
+    {
+      "scale": 1.25,
+      "tex": "flood_pool_c",
+      "x": 1120.0,
+      "y": 684.0
+    },
+    {
       "offset": [
         -16.0,
         -60.0

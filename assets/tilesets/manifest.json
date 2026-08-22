@@ -85,6 +85,27 @@
       "frames": 1,
       "_note": "물등(유등) — 2026-08-22 Stage 1 pro 리마스터. 글자 없는 한지 연꽃등과 낮은 뗏목."
     },
+    "flood_pool_a": {
+      "file": "flood_pool_a.png",
+      "frame_w": 256,
+      "frame_h": 56,
+      "frames": 1,
+      "_note": "물이 잠긴 골짜기용 얕은 범람수 A."
+    },
+    "flood_pool_b": {
+      "file": "flood_pool_b.png",
+      "frame_w": 256,
+      "frame_h": 56,
+      "frames": 1,
+      "_note": "물이 잠긴 골짜기용 얕은 범람수 B."
+    },
+    "flood_pool_c": {
+      "file": "flood_pool_c.png",
+      "frame_w": 256,
+      "frame_h": 56,
+      "frames": 1,
+      "_note": "물이 잠긴 골짜기용 얕은 범람수 C."
+    },
     "mul_deung_stand": {
       "file": "mul_deung_stand.png",
       "frame_w": 96,

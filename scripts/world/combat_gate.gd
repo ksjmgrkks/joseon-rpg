@@ -4,7 +4,7 @@ class_name CombatGate
 ## 전투 게이트 — 구역의 적("enemy" 그룹)을 모두 처치할 때까지 길을 막는 장벽.
 ## 적이 0이 되면 장벽을 걷고 토스트로 알린 뒤, 옵션 플래그를 세운다.
 ##
-## 빌더가 생성: 보이는 반투명 결계 + 충돌 벽(StaticBody2D). 적 처치 완료 시 스스로 개방.
+## 빌더가 생성: 금줄 경계석 + 충돌 벽(StaticBody2D). 적 처치 완료 시 금줄이 풀린다.
 ## 스테이지 시작 시 적이 없으면(0) 즉시 열림.
 ##
 
@@ -18,11 +18,12 @@ signal opened
 
 var _barrier: StaticBody2D
 var _label: Label
+var _art: AnimatedSprite2D
 var _open: bool = false
 var _grace: float = 0.4                    # 적 스폰 대기(시작 직후 오판 방지)
 
-## 결계 아트 폭(px) — 원본 64px 그림을 그대로 쓴다.
-const BARRIER_ART_W: float = 64.0
+## Stage 의 기본 게이트 중심 y=600에서 지면선 y=684까지의 거리.
+const ART_GROUND_FROM_ORIGIN := 84.0
 
 
 func _ready() -> void:
@@ -35,51 +36,14 @@ func _ready() -> void:
     cs.shape = shape
     _barrier.add_child(cs)
     add_child(_barrier)
-    # 시각 결계 — 부적을 매단 빛기둥(PixelLab pro, 2026-08-22 교체).
-    #
-    # 「애니메이션 결계」 요청에 대해: PixelLab 의 animate_image 로 8프레임을 뽑아봤으나
-    # 프레임마다 빛기둥이 사라지거나 색이 튀어(생성 드리프트) 루프가 지저분했다.
-    # 정지 그림 한 장 + **엔진에서 두 겹으로 움직이는 방식**이 훨씬 깨끗하다:
-    #   ① 본체는 천천히 밝아졌다 어두워지고(숨쉬는 장막)
-    #   ② 그 위에 반투명 사본이 위로 흘러 올라간다(기가 솟는 결)
-    var tex_path := "res://assets/sprites/fx/gate_barrier.png"
-    if ResourceLoader.exists(tex_path):
-        var tex: Texture2D = load(tex_path)
-        # 두 겹이 결계 밖으로 새지 않도록 잘라내는 틀. 없으면 흐르는 겹이 화면 위아래로 뻗는다.
-        var frame := Control.new()
-        frame.clip_contents = true
-        frame.size = Vector2(BARRIER_ART_W, gate_height)
-        frame.position = Vector2(-BARRIER_ART_W / 2.0, -gate_height / 2.0)
-        frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
-        _barrier.add_child(frame)
-
-        var art := TextureRect.new()
-        art.texture = tex
-        art.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-        art.stretch_mode = TextureRect.STRETCH_TILE
-        art.size = Vector2(BARRIER_ART_W, gate_height)
-        art.modulate = Color(1, 1, 1, 0.95)
-        frame.add_child(art)
-        var tw := art.create_tween().set_loops()
-        tw.tween_property(art, "modulate:a", 0.74, 1.5).set_trans(Tween.TRANS_SINE)
-        tw.tween_property(art, "modulate:a", 0.95, 1.5).set_trans(Tween.TRANS_SINE)
-
-        # 흐르는 겹 — 한 타일 높이만큼 위로 올라갔다 제자리로(이어 붙어 티가 안 난다).
-        var th := float(tex.get_height())
-        var flow := TextureRect.new()
-        flow.texture = tex
-        flow.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-        flow.stretch_mode = TextureRect.STRETCH_TILE
-        flow.size = Vector2(BARRIER_ART_W, gate_height + th)
-        flow.position = Vector2(0, 0)
-        flow.modulate = Color(0.85, 0.95, 1.0, 0.28)
-        frame.add_child(flow)
-        var ft := flow.create_tween().set_loops()
-        ft.tween_property(flow, "position:y", -th, 2.6).set_trans(Tween.TRANS_LINEAR)
-        ft.tween_callback(func() -> void: flow.position.y = 0.0)
+    # A안 금줄 경계석. 처치 전과 통과 후가 같은 구조이며, 실제 6프레임으로 줄이 풀린다.
+    _art = GateArt.make_sprite(false)
+    if _art.sprite_frames != null and _art.sprite_frames.has_animation("closed"):
+        _art.position.y = ART_GROUND_FROM_ORIGIN - GateArt.FRAME_SIZE.y * 0.5
+        _barrier.add_child(_art)
     else:
         var rect := ColorRect.new()
-        rect.color = Color(0.25, 0.42, 0.55, 0.35)
+        rect.color = Color(0.36, 0.30, 0.20, 0.65)
         rect.offset_left = -8
         rect.offset_top = -gate_height / 2.0
         rect.offset_right = 8
@@ -87,11 +51,11 @@ func _ready() -> void:
         _barrier.add_child(rect)
     # 남은 적 안내 라벨 (결계 위)
     _label = Label.new()
-    _label.text = "결계가 막혀 있다"
+    _label.text = "금줄이 길을 막고 있다"
     _label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
     _label.position = Vector2(-80, -gate_height / 2.0 - 28)
     _label.size = Vector2(160, 24)
-    _label.add_theme_color_override("font_color", Color(0.85, 0.92, 1.0))
+    _label.add_theme_color_override("font_color", Color(0.92, 0.87, 0.72))
     _label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.7))
     _label.add_theme_constant_override("outline_size", 4)
     _barrier.add_child(_label)
@@ -113,12 +77,27 @@ func _open_gate() -> void:
     _open = true
     if open_flag != "":
         Flags.set_flag(open_flag, true)
+    # 충돌부터 풀어 플레이어가 애니메이션 도중에도 갇히지 않게 한다.
+    _barrier.collision_layer = 0
+    _barrier.collision_mask = 0
+    for child in _barrier.get_children():
+        if child is CollisionShape2D:
+            child.set_deferred("disabled", true)
     opened.emit()
     if QuestToast:
-        QuestToast._show("길이 열렸다 — 나아가라")
+        QuestToast._show("금줄이 풀렸다 — 나아가라")
     if ScreenFx:
         ScreenFx.shake(3.0, 0.2)
-    # 결계 사라지는 연출
-    var tw := create_tween()
-    tw.tween_property(_barrier, "modulate:a", 0.0, 0.4)
-    tw.tween_callback(_barrier.queue_free)
+    # 별도 통과문으로 교체하지 않는다. 같은 경계석의 금줄이 풀리고 마지막 프레임이 남는다.
+    if is_instance_valid(_art) and _art.sprite_frames.has_animation("release"):
+        _art.animation_finished.connect(_on_gate_release_finished, CONNECT_ONE_SHOT)
+        _art.play("release")
+    if is_instance_valid(_label):
+        var tw := create_tween()
+        tw.tween_property(_label, "modulate:a", 0.0, 0.25)
+        tw.tween_callback(_label.queue_free)
+
+
+func _on_gate_release_finished() -> void:
+    if is_instance_valid(_art) and _art.sprite_frames.has_animation("open"):
+        _art.play("open")

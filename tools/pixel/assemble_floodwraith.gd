@@ -1,6 +1,6 @@
 extends SceneTree
 ##
-## PixelLab 「수문의 원혼」(수몰 군체 귀) 프레임 → Godot 스프라이트 시트 조립.
+## PixelLab 「골짜기의 수살귀」(수몰 군체 귀) 프레임 → Godot 스프라이트 시트 조립.
 ##
 ## 실행: godot --headless --path . --script res://tools/pixel/assemble_floodwraith.gd
 ##

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cky37djwn2rgo"
-path="res://.godot/imported/gate_barrier.png-67e446287ca9b7ff795ff29ab55487cd.ctex"
+uid="uid://br74ajficcg7y"
+path="res://.godot/imported/death.png-23f205687de09e9c163e7361ca69c6ec.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/sprites/fx/gate_barrier.png"
-dest_files=["res://.godot/imported/gate_barrier.png-67e446287ca9b7ff795ff29ab55487cd.ctex"]
+source_file="res://assets/sprites/enemies/drowned_mudang/death.png"
+dest_files=["res://.godot/imported/death.png-23f205687de09e9c163e7361ca69c6ec.ctex"]
 
 [params]
 

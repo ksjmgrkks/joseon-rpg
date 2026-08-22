@@ -16,7 +16,7 @@ const FAIL := "FAIL"
 const LADDER := {
     "1스테이지": {
         "mobs": ["Wraith", "Dueoksini", "DrownedChild", "Changgwi", "Mulgwisin"],
-        "mid": "Imugi",
+        "mid": "DrownedMudang",
         "boss": "FloodWraith",
     },
     "2스테이지": {

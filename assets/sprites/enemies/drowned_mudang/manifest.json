@@ -1,13 +1,13 @@
 {
   "anims": {
     "attack": {
-      "fps": 12,
+      "fps": 11,
       "frames": 5,
       "loop": false
     },
     "death": {
       "fps": 8,
-      "frames": 5,
+      "frames": 6,
       "loop": false
     },
     "idle": {
@@ -21,6 +21,6 @@
       "loop": false
     }
   },
-  "frame_h": 125,
-  "frame_w": 101
+  "frame_h": 176,
+  "frame_w": 160
 }

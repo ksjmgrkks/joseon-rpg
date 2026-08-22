@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cc6yio6a4roh8"
-path="res://.godot/imported/idle.png-7ead695410f9bf0fa90d47029f8646bc.ctex"
+uid="uid://3bva0sfkf73m"
+path="res://.godot/imported/attack.png-e95134cfda627a6d1c2bf6ae261f71bc.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/sprites/enemies/imugi/idle.png"
-dest_files=["res://.godot/imported/idle.png-7ead695410f9bf0fa90d47029f8646bc.ctex"]
+source_file="res://assets/sprites/enemies/drowned_mudang/attack.png"
+dest_files=["res://.godot/imported/attack.png-e95134cfda627a6d1c2bf6ae261f71bc.ctex"]
 
 [params]
 

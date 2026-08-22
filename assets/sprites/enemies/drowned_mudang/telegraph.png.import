@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b5mkss115iu0f"
-path="res://.godot/imported/level_exit_gate.png-cb3ff0220f1a52a55e1d82199cda19cc.ctex"
+uid="uid://nrpo4vsx52ht"
+path="res://.godot/imported/telegraph.png-e95e66c5504e19795390eadb4dd8680c.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/sprites/fx/level_exit_gate.png"
-dest_files=["res://.godot/imported/level_exit_gate.png-cb3ff0220f1a52a55e1d82199cda19cc.ctex"]
+source_file="res://assets/sprites/enemies/drowned_mudang/telegraph.png"
+dest_files=["res://.godot/imported/telegraph.png-e95e66c5504e19795390eadb4dd8680c.ctex"]
 
 [params]
 

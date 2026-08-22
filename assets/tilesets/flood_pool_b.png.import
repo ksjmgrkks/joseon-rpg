@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://yo3xqrc8qf18"
-path="res://.godot/imported/death.png-d54867e44bd9e31121c94d2bf9d0e4dd.ctex"
+uid="uid://csr1brv7x8c3"
+path="res://.godot/imported/flood_pool_b.png-b677154edaab8fc52407b8392cadcb84.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/sprites/enemies/imugi/death.png"
-dest_files=["res://.godot/imported/death.png-d54867e44bd9e31121c94d2bf9d0e4dd.ctex"]
+source_file="res://assets/tilesets/flood_pool_b.png"
+dest_files=["res://.godot/imported/flood_pool_b.png-b677154edaab8fc52407b8392cadcb84.ctex"]
 
 [params]
 

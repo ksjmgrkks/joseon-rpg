@@ -37,7 +37,7 @@ class_name Boss
 # 사망 후 전환할 씬(비우면 전환 안 함) — 최종 보스가 엔딩으로 갈 때.
 @export var scene_on_death: String = ""
 # 이름표 아래 소제목 — 보스마다 다른 한 줄 사극체 설명.
-@export var subtitle: String = "닫힌 수문 앞에서 잠긴 넋들"
+@export var subtitle: String = "잠긴 골짜기에 남은 넋"
 # 등장 연출에 물기둥 솟구침을 쓸지 — 물 스테이지 전용 보스가 아니면 false.
 @export var water_entrance: bool = true
 

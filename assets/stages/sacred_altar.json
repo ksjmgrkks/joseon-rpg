@@ -7,8 +7,8 @@
       "w": 120.0
     },
     {
-      "dialogue": "res://assets/dialogue/great_flood_intro.json",
-      "once_flag": "great_flood_intro_seen",
+      "dialogue": "res://assets/dialogue/valley_susalgwi_intro.json",
+      "once_flag": "valley_susalgwi_intro_seen",
       "x": 520.0
     }
   ],
@@ -100,6 +100,24 @@
   ],
   "player_x": 120.0,
   "props": [
+    {
+      "scale": 1.45,
+      "tex": "flood_pool_b",
+      "x": 370.0,
+      "y": 684.0
+    },
+    {
+      "scale": 1.3,
+      "tex": "flood_pool_a",
+      "x": 850.0,
+      "y": 684.0
+    },
+    {
+      "scale": 1.15,
+      "tex": "flood_pool_c",
+      "x": 1250.0,
+      "y": 684.0
+    },
     {
       "offset": [
         -64.5,

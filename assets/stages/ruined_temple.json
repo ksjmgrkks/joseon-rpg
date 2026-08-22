@@ -7,8 +7,8 @@
       "x": 900.0
     },
     {
-      "dialogue": "res://assets/dialogue/temple_imugi.json",
-      "once_flag": "temple_imugi_seen",
+      "dialogue": "res://assets/dialogue/temple_mudang.json",
+      "once_flag": "temple_mudang_seen",
       "x": 1040.0
     }
   ],
@@ -50,7 +50,7 @@
       "y": 640.0
     },
     {
-      "scene": "Imugi",
+      "scene": "DrownedMudang",
       "x": 1180.0,
       "y": 628.0
     },
@@ -146,6 +146,24 @@
   ],
   "player_x": 120.0,
   "props": [
+    {
+      "scale": 1.35,
+      "tex": "flood_pool_a",
+      "x": 470.0,
+      "y": 684.0
+    },
+    {
+      "scale": 1.2,
+      "tex": "flood_pool_b",
+      "x": 1080.0,
+      "y": 684.0
+    },
+    {
+      "scale": 1.0,
+      "tex": "flood_pool_c",
+      "x": 1370.0,
+      "y": 684.0
+    },
     {
       "offset": [
         -64.5,

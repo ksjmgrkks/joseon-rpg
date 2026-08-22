@@ -50,7 +50,7 @@ const CAMERA_OFFSET_Y := 160.0   # 카메라를 위로 이만큼 띄워 지면�
 # 스토리를 되살리려면 GAMEPLAY_ONLY 를 false 로만 바꾸면 기존 데이터 흐름이 복구된다.
 const GAMEPLAY_ONLY := true
 # 난이도 곡선: 잡몹 → 잡몹+호랑이 → 더 많은 잡몹 → 중간보스(구미호 여왕) → 최종보스(대호)
-# 1스테이지(물, foothills~sacred_altar/FloodWraith) 뒤로 2스테이지(그슨대 숲, forest_shadow~elder_hollow/GeuseondaeElder)가,
+# 1스테이지(물이 잠긴 골짜기, foothills~sacred_altar/골짜기의 수살귀) 뒤로 2스테이지(그슨대 숲)가,
 # 그 뒤로 3스테이지(저잣거리 도깨비, market_ruins~goblin_court/DokkaebiChief)가 이어진다.
 const CHAIN := [
     "foothills", "forest_deep", "mountain_pass", "ruined_temple", "sacred_altar",
@@ -591,7 +591,8 @@ func _build_exits(exits: Array) -> void:
 
 ## 출구 영역 1개 생성(전진/스토리 공용).
 ## 만든 출구 Area2D 를 돌려준다(결계와 연동해 열고 닫기 위해).
-func _spawn_exit(x: float, target: String, entry: String, color: Color, y: float = 620.0) -> Area2D:
+func _spawn_exit(x: float, target: String, entry: String, color: Color, y: float = 620.0,
+        show_art: bool = true) -> Area2D:
     if target.is_empty():
         return null
     var area := Area2D.new()
@@ -605,23 +606,19 @@ func _spawn_exit(x: float, target: String, entry: String, color: Color, y: float
     shape.size = Vector2(32, 96)
     cs.shape = shape
     area.add_child(cs)
-    # 출구 표식 — 한옥 문(PixelLab 아트, 2026-08-22 교체). 예전엔 색깔 네모였다.
-    var gate_tex := "res://assets/sprites/fx/level_exit_gate.png"
-    if ResourceLoader.exists(gate_tex):
-        var art := Sprite2D.new()
-        art.texture = load(gate_tex)
-        art.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-        art.position = Vector2(0, -8)     # 문 바닥이 지면에 닿게
-        # 스테이지별 색조는 '힌트' 정도로만 — 그대로 곱하면 나무가 초록으로 물든다.
-        art.modulate = color.lerp(Color.WHITE, 0.78)
-        art.modulate.a = 1.0
-        area.add_child(art)
-    else:
-        var mark := ColorRect.new()
-        mark.color = color
-        mark.offset_left = -16; mark.offset_top = -48
-        mark.offset_right = 16; mark.offset_bottom = 48
-        area.add_child(mark)
+    # 열린 출구도 결계와 같은 금줄 경계석의 마지막 상태를 쓴다.
+    # 전투 게이트가 함께 있으면 그 노드가 해제 후 그대로 남으므로 중복 그림은 만들지 않는다.
+    if show_art:
+        if ResourceLoader.exists(GateArt.SHEET):
+            var art := GateArt.make_sprite(true)
+            art.position = Vector2(0, -40)     # area y=620 기준 바닥 y=684
+            area.add_child(art)
+        else:
+            var mark := ColorRect.new()
+            mark.color = color
+            mark.offset_left = -16; mark.offset_top = -48
+            mark.offset_right = 16; mark.offset_bottom = 48
+            area.add_child(mark)
     add_child(area)
     return area
 
@@ -655,12 +652,12 @@ func _build_gameplay(data: Dictionary) -> void:
         gate.open_flag = clear_flag
         gate.gate_height = 260
         add_child(gate)
-    # 전진 출구 — 결계와 **같은 자리**에 낸다(2026-08-22 기획 변경).
-    # 부적 결계가 막고 있다가, 다 처치하면 그 자리에서 결계가 걷히고 문이 열린다.
-    # 예전엔 결계 너머 140px 지점에 따로 문이 있어 "왜 여기가 열렸지"가 안 읽혔다.
-    var exit_node := _spawn_exit(FWD_GATE_X, _next_target(), "default", Color(0.5, 0.55, 0.4, 0.5))
+    # 전진 출구 — 결계와 **같은 자리**에 낸다. 금줄 경계석 하나가 봉인과 통과 표식을 겸한다.
+    # 다 처치하면 금줄이 실제로 풀리고, 별도 문으로 교체하지 않는다.
+    var exit_node := _spawn_exit(FWD_GATE_X, _next_target(), "default", Color(0.5, 0.55, 0.4, 0.5),
+        620.0, gate == null)
     if gate != null and exit_node != null:
-        # 결계가 살아 있는 동안 문은 잠겨 있다(보이지도, 통하지도 않는다).
+        # 금줄이 묶인 동안 출구 판정은 잠겨 있다(보이지도, 통하지도 않는다).
         exit_node.visible = false
         exit_node.set_deferred("monitoring", false)
         gate.opened.connect(func() -> void:

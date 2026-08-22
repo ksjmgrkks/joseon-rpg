@@ -1,7 +1,7 @@
 [gd_scene load_steps=6 format=3]
 
-; 수문의 원혼(水門怨魂) — 닫힌 수문 앞에서 물에 잠겨 죽은 이들의 한이 하나로 뭉친 거대 원혼.
-; 「해원」 최종 진혼 대상(옛 대호 GreatTiger 대체). 크고 느리되 무겁게 짓누른다.
+; 골짜기의 수살귀 — 갑자기 물이 차오른 산골에서 죽은 넋들이 서로 붙들다 한 몸이 된 거대 원혼.
+; 1스테이지 최종 진혼 대상. 크고 느리되 무겁게 짓누른다.
 
 [ext_resource type="Script" path="res://scripts/enemies/boss.gd" id="1_boss"]
 [ext_resource type="Script" path="res://scripts/combat/hurtbox.gd" id="2_hurt"]
@@ -20,7 +20,8 @@ size = Vector2(160, 150)
 
 [node name="Boss" type="CharacterBody2D"]
 script = ExtResource("1_boss")
-display_name = "수문의 원혼"
+display_name = "골짜기의 수살귀"
+subtitle = "잠긴 산골의 넋들이 서로 붙들다 한 몸이 된 것"
 body_color = Color(0.42, 0.58, 0.64, 1)
 engage_distance = 440.0
 telegraph_seconds = 0.62

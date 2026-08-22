@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c6hnby1yih3ha"
-path="res://.godot/imported/telegraph.png-9c5ef962a20b7b82ee175cf8a2648f1d.ctex"
+uid="uid://ds0x5yhrlfh3r"
+path="res://.godot/imported/candidate_c_spirit_lantern_road.png-a06d021e271b1d8723771929ce8f8126.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/sprites/enemies/imugi/telegraph.png"
-dest_files=["res://.godot/imported/telegraph.png-9c5ef962a20b7b82ee175cf8a2648f1d.ctex"]
+source_file="res://docs/concepts/gate_candidates/candidate_c_spirit_lantern_road.png"
+dest_files=["res://.godot/imported/candidate_c_spirit_lantern_road.png-a06d021e271b1d8723771929ce8f8126.ctex"]
 
 [params]
 
