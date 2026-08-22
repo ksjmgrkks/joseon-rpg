@@ -198,14 +198,19 @@ func _check_all_player_attack_feedback_routes() -> Dictionary:
 func _check_camera_feedback_profile() -> Dictionary:
     var feedback := load("res://scripts/combat/hit_feedback.gd")
     var feel: Dictionary = feedback.profile(1, 1.0)
+    var heavy: Dictionary = feedback.profile(1, 2.0)
     var screen_fx_src := (load("res://scripts/combat/screen_fx.gd") as GDScript).get_source_code()
     var player_src := (load("res://scripts/player/player.gd") as GDScript).get_source_code()
     var landed_section := player_src.get_slice("func _on_hitbox_landed", 1).get_slice("func _start_dodge", 0)
     var ratio := float(feel.get("zoom_ratio", 9.0))
     var slow_scale := float(feel.get("slow_scale", 0.0))
-    var ok := ratio >= 1.01 and ratio <= 1.02 \
-        and slow_scale >= 0.5 and slow_scale <= 0.8 \
-        and float(feel.get("slow_duration", 1.0)) <= 0.05 \
+    var ok := ratio >= 1.018 and ratio <= 1.022 \
+        and slow_scale >= 0.6 and slow_scale <= 0.7 \
+        and float(feel.get("slow_duration", 0.0)) >= 0.035 \
+        and float(feel.get("slow_duration", 1.0)) <= 0.04 \
+        and float(heavy.get("zoom_ratio", 0.0)) > ratio \
+        and float(heavy.get("slow_duration", 0.0)) > float(feel.get("slow_duration", 0.0)) \
+        and float(heavy.get("slow_scale", 1.0)) < slow_scale \
         and screen_fx_src.contains("func impact_focus") \
         and screen_fx_src.contains("func slow_motion") \
         and not landed_section.contains("ScreenFx.hit_stop")

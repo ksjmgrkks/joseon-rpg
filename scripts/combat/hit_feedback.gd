@@ -13,11 +13,11 @@ static func profile(hit_count: int = 1, power: float = 1.0, pitch_bias: float = 
     return {
         "volume_db": 1.0 + minf(4.0, float(stack)),
         "pitch": clampf(1.0 + pitch_bias + 0.05 * float(stack), 0.85, 1.35),
-        "zoom_ratio": 1.0 + minf(0.03, 0.006 + 0.008 * weight + 0.0025 * float(stack)),
-        "zoom_in": minf(0.018 + 0.003 * weight, 0.027),
-        "zoom_out": minf(0.065 + 0.008 * weight, 0.09),
-        "slow_duration": minf(0.012 + 0.014 * weight, 0.05),
-        "slow_scale": clampf(0.9 - 0.2 * weight, 0.5, 0.8),
+        "zoom_ratio": 1.0 + minf(0.04, 0.009 + 0.010 * weight + 0.003 * float(stack)),
+        "zoom_in": minf(0.021 + 0.0035 * weight, 0.032),
+        "zoom_out": minf(0.075 + 0.010 * weight, 0.11),
+        "slow_duration": minf(0.018 + 0.018 * weight, 0.07),
+        "slow_scale": clampf(0.86 - 0.2 * weight, 0.42, 0.76),
         "heavy": stack >= 1,
         "stack": stack,
     }
