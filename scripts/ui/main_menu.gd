@@ -37,12 +37,12 @@ const AREA_SCENES := {
 const SLOT_PICKER_SCENE := preload("res://scenes/ui/SlotPicker.tscn")
 const STAGE_SELECT_SCENE := preload("res://scenes/ui/StageSelect.tscn")
 
-@onready var title_label: Label = $Margin/VBox/Title
-@onready var subtitle_label: Label = $Margin/VBox/Subtitle
-@onready var new_btn: Button = $Margin/VBox/Buttons/NewBtn
-@onready var continue_btn: Button = $Margin/VBox/Buttons/ContinueBtn
-@onready var settings_btn: Button = $Margin/VBox/Buttons/SettingsBtn
-@onready var quit_btn: Button = $Margin/VBox/Buttons/QuitBtn
+@onready var title_label: Label = $Plaque/TitleKo
+@onready var subtitle_label: Label = $Subtitle
+@onready var new_btn: Button = $Buttons/NewBtn
+@onready var continue_btn: Button = $Buttons/ContinueBtn
+@onready var settings_btn: Button = $Buttons/SettingsBtn
+@onready var quit_btn: Button = $Buttons/QuitBtn
 
 var _picker: Control = null
 var _stage_select: Control = null
@@ -50,12 +50,6 @@ var _stage_select: Control = null
 
 func _ready() -> void:
     _apply_locale()
-    # 「해원」 타이틀(텍스트) 표시. 옛 그래픽 로고(TitleLogo)는 '귀창록' 잔재라 숨김 유지.
-    if title_label:    title_label.visible = true
-    if subtitle_label: subtitle_label.visible = true
-    var logo := get_node_or_null("TitleLogo")
-    if logo:
-        logo.visible = false
     Locale.locale_changed.connect(_on_locale_changed)
     new_btn.pressed.connect(_on_new)
     continue_btn.pressed.connect(_on_continue)
@@ -64,6 +58,67 @@ func _ready() -> void:
     # 슬롯 1~3 중 하나라도 저장이 있어야 '이어하기' 활성화
     continue_btn.disabled = not _any_save_exists()
     new_btn.call_deferred("grab_focus")   # 키보드로 바로 메뉴 조작
+    _animate_title()
+
+
+## ─────────── 시작 화면 연출 ───────────
+## 정지 화면이면 아무리 좋은 배경도 '그림 한 장'으로 보인다. 아주 느린 움직임 세 겹으로
+## 화면이 숨쉬게 만든다 — 전부 tween 이라 매 프레임 코드가 돌지 않는다.
+##   ① 안개 두 겹이 서로 반대 방향으로 흐름(속도도 다름 → 깊이감)
+##   ② 물등이 제각기 다른 주기로 위아래 부유(같은 주기면 기계처럼 보인다)
+##   ③ 현판이 아주 미세하게 호흡(1.0 ↔ 1.008)
+## 흐름 폭은 안개 텍스처 한 장 너비(672px)와 정확히 같아야 이어붙은 자리가 안 보인다.
+const MIST_TILE_W := 672.0
+const LANTERN_BOB := [
+    {"amp": 5.0, "period": 2.6},
+    {"amp": 4.0, "period": 3.4},
+    {"amp": 6.0, "period": 2.9},
+    {"amp": 3.5, "period": 3.9},
+]
+
+
+func _animate_title() -> void:
+    _drift_mist($MistFar, 52.0, 1.0)
+    _drift_mist($MistNear, 31.0, -1.0)
+
+    var lanterns := get_node_or_null("Lanterns")
+    if lanterns:
+        var i := 0
+        for l in lanterns.get_children():
+            if not (l is Control):
+                continue
+            var cfg: Dictionary = LANTERN_BOB[i % LANTERN_BOB.size()]
+            _bob(l as Control, float(cfg["amp"]), float(cfg["period"]))
+            i += 1
+
+    var plaque := get_node_or_null("Plaque") as Control
+    if plaque:
+        var tw := create_tween().set_loops()
+        tw.tween_property(plaque, "scale", Vector2(1.008, 1.008), 3.2)\
+            .set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+        tw.tween_property(plaque, "scale", Vector2.ONE, 3.2)\
+            .set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+
+
+## 안개 한 겹을 한 타일 폭만큼 흘리고 제자리로 되돌린다(되돌림이 눈에 안 띄는 이유는
+## 텍스처가 좌우로 이어지기 때문 — 정확히 한 타일이어야 한다).
+func _drift_mist(layer: Control, seconds: float, dir: float) -> void:
+    if layer == null:
+        return
+    var start := layer.position.x
+    var tw := create_tween().set_loops()
+    tw.tween_property(layer, "position:x", start + MIST_TILE_W * dir, seconds)\
+        .set_trans(Tween.TRANS_LINEAR)
+    tw.tween_callback(func() -> void: layer.position.x = start)
+
+
+func _bob(node: Control, amp: float, period: float) -> void:
+    var start := node.position.y
+    var tw := create_tween().set_loops()
+    tw.tween_property(node, "position:y", start - amp, period * 0.5)\
+        .set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+    tw.tween_property(node, "position:y", start, period * 0.5)\
+        .set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 
 
 func _apply_locale() -> void:

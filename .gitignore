@@ -33,3 +33,6 @@ __pycache__/
 
 # MCP 설정 — API 키가 들어가므로 커밋 금지 (PixelLab 등)
 .mcp.json
+
+# 외부/생성 아트 원본 (커밋 안 함 — 산출물만 assets/ 로 들어간다)
+.art_gen/

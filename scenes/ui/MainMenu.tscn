@@ -1,9 +1,33 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=10 format=3]
+
+; 시작 화면 「해원」 — 2026-08-22 전면 개편.
+; 레이어: 배경 키비주얼(수문·물등) → 안개 2겹(서로 반대로 흘러감) → 물등(각자 다른 주기로 부유)
+;        → 위 그라디언트 스크림(글자 가독성) → 현판 로고 → 버튼.
+; 애니메이션(안개 흐름·물등 부유·로고 호흡)은 main_menu.gd 가 노드 이름으로 찾아 붙인다.
+; 배경 오른쪽의 수문·정자를 가리지 않도록 로고·버튼을 왼쪽 열로 몰았다.
 
 [ext_resource type="Script" path="res://scripts/ui/main_menu.gd" id="1_menu"]
-[ext_resource type="Texture2D" path="res://assets/ui/title_logo_menu.png" id="2_logo"]
-[ext_resource type="Texture2D" path="res://assets/sprites/bg/bg_mid.png" id="3_mtn"]
-[ext_resource type="Texture2D" path="res://assets/sprites/bg/bg_far.png" id="4_far"]
+[ext_resource type="Texture2D" path="res://assets/ui/title_bg.png" id="2_bg"]
+[ext_resource type="Texture2D" path="res://assets/ui/title_mist.png" id="3_mist"]
+[ext_resource type="Texture2D" path="res://assets/ui/title_lantern.png" id="4_lantern"]
+[ext_resource type="Texture2D" path="res://assets/ui/title_plaque.png" id="5_plaque"]
+[ext_resource type="Texture2D" path="res://assets/ui/title_button.png" id="6_btn"]
+
+[sub_resource type="Gradient" id="grad_top"]
+offsets = PackedFloat32Array(0, 1)
+colors = PackedColorArray(0.04, 0.05, 0.07, 0.75, 0.04, 0.05, 0.07, 0)
+
+[sub_resource type="GradientTexture2D" id="tex_top"]
+gradient = SubResource("grad_top")
+fill_from = Vector2(0, 0)
+fill_to = Vector2(0, 1)
+
+[sub_resource type="StyleBoxTexture" id="btn_box"]
+texture = ExtResource("6_btn")
+texture_margin_left = 16.0
+texture_margin_top = 11.0
+texture_margin_right = 16.0
+texture_margin_bottom = 11.0
 
 [node name="MainMenu" type="Control"]
 layout_mode = 3
@@ -17,107 +41,222 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-color = Color(0.58, 0.53, 0.44, 1)
+color = Color(0.043, 0.051, 0.071, 1)
 
-[node name="FarMtn" type="TextureRect" parent="."]
+[node name="BgArt" type="TextureRect" parent="."]
 texture_filter = 1
-layout_mode = 1
-anchors_preset = 12
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_top = -360.0
-offset_bottom = 0.0
-texture = ExtResource("4_far")
-expand_mode = 1
-stretch_mode = 6
-modulate = Color(1, 1, 1, 0.45)
-
-[node name="Mtn" type="TextureRect" parent="."]
-texture_filter = 1
-layout_mode = 1
-anchors_preset = 12
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_top = -300.0
-offset_bottom = 0.0
-texture = ExtResource("3_mtn")
-expand_mode = 1
-stretch_mode = 6
-
-[node name="TitleLogo" type="TextureRect" parent="."]
-texture_filter = 1
-layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -269.0
-offset_top = 90.0
-offset_right = 269.0
-offset_bottom = 244.0
-texture = ExtResource("2_logo")
-expand_mode = 1
-stretch_mode = 5
-
-[node name="Margin" type="MarginContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-theme_override_constants/margin_left = 64
-theme_override_constants/margin_top = 96
-theme_override_constants/margin_right = 64
-theme_override_constants/margin_bottom = 96
+texture = ExtResource("2_bg")
+expand_mode = 1
+stretch_mode = 6
 
-[node name="VBox" type="VBoxContainer" parent="Margin"]
-layout_mode = 2
-theme_override_constants/separation = 24
+[node name="MistFar" type="TextureRect" parent="."]
+texture_filter = 1
+layout_mode = 0
+offset_left = -700.0
+offset_top = 300.0
+offset_right = 2560.0
+offset_bottom = 520.0
+texture = ExtResource("3_mist")
+expand_mode = 1
+stretch_mode = 1
+modulate = Color(0.78, 0.84, 0.9, 0.05)
 
-[node name="TopSpacer" type="Control" parent="Margin/VBox"]
-layout_mode = 2
-custom_minimum_size = Vector2(0, 120)
+[node name="MistNear" type="TextureRect" parent="."]
+texture_filter = 1
+layout_mode = 0
+offset_left = -700.0
+offset_top = 430.0
+offset_right = 2560.0
+offset_bottom = 700.0
+texture = ExtResource("3_mist")
+expand_mode = 1
+stretch_mode = 1
+modulate = Color(0.82, 0.86, 0.92, 0.08)
 
-[node name="Title" type="Label" parent="Margin/VBox"]
-visible = false
-layout_mode = 2
-theme_override_colors/font_color = Color(0.82, 0.68, 0.36, 1)
+[node name="Lanterns" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="L0" type="TextureRect" parent="Lanterns"]
+texture_filter = 1
+layout_mode = 0
+offset_left = 604.0
+offset_top = 590.0
+offset_right = 668.0
+offset_bottom = 654.0
+texture = ExtResource("4_lantern")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="L1" type="TextureRect" parent="Lanterns"]
+texture_filter = 1
+layout_mode = 0
+offset_left = 760.0
+offset_top = 632.0
+offset_right = 812.0
+offset_bottom = 684.0
+texture = ExtResource("4_lantern")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="L2" type="TextureRect" parent="Lanterns"]
+texture_filter = 1
+layout_mode = 0
+offset_left = 968.0
+offset_top = 596.0
+offset_right = 1024.0
+offset_bottom = 652.0
+texture = ExtResource("4_lantern")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="L3" type="TextureRect" parent="Lanterns"]
+texture_filter = 1
+layout_mode = 0
+offset_left = 1128.0
+offset_top = 640.0
+offset_right = 1176.0
+offset_bottom = 688.0
+texture = ExtResource("4_lantern")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TopScrim" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 300.0
+texture = SubResource("tex_top")
+expand_mode = 1
+stretch_mode = 0
+mouse_filter = 2
+
+[node name="Plaque" type="TextureRect" parent="."]
+texture_filter = 1
+layout_mode = 0
+offset_left = 96.0
+offset_top = 64.0
+offset_right = 576.0
+offset_bottom = 304.0
+pivot_offset = Vector2(240, 120)
+texture = ExtResource("5_plaque")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Title" type="Label" parent="Plaque"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 26.0
+offset_bottom = -78.0
+theme_override_colors/font_color = Color(0.85, 0.71, 0.38, 1)
+theme_override_colors/font_outline_color = Color(0.06, 0.05, 0.04, 1)
+theme_override_constants/outline_size = 8
 theme_override_font_sizes/font_size = 84
+text = "解冤"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="TitleKo" type="Label" parent="Plaque"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 150.0
+offset_bottom = -36.0
+theme_override_colors/font_color = Color(0.8, 0.68, 0.4, 1)
+theme_override_colors/font_outline_color = Color(0.06, 0.05, 0.04, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 30
 text = "해원"
 horizontal_alignment = 1
+vertical_alignment = 1
 
-[node name="Subtitle" type="Label" parent="Margin/VBox"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 20
-text = "解冤 · 강을 거슬러, 맺힌 한을 풀다"
+[node name="Subtitle" type="Label" parent="."]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 316.0
+offset_right = 576.0
+offset_bottom = 344.0
+theme_override_colors/font_color = Color(0.86, 0.85, 0.79, 1)
+theme_override_colors/font_outline_color = Color(0.04, 0.04, 0.05, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 18
+text = "강을 거슬러, 맺힌 한을 풀다"
 horizontal_alignment = 1
-modulate = Color(1, 0.98, 0.92, 0.75)
 
-[node name="Spacer" type="Control" parent="Margin/VBox"]
-layout_mode = 2
-custom_minimum_size = Vector2(0, 40)
+[node name="Buttons" type="VBoxContainer" parent="."]
+layout_mode = 0
+offset_left = 128.0
+offset_top = 352.0
+offset_right = 552.0
+offset_bottom = 688.0
+theme_override_constants/separation = 4
 
-[node name="Buttons" type="VBoxContainer" parent="Margin/VBox"]
+[node name="NewBtn" type="Button" parent="Buttons"]
 layout_mode = 2
-theme_override_constants/separation = 12
-alignment = 1
-
-[node name="NewBtn" type="Button" parent="Margin/VBox/Buttons"]
-layout_mode = 2
-custom_minimum_size = Vector2(0, 44)
+custom_minimum_size = Vector2(0, 78)
+theme_override_colors/font_color = Color(0.16, 0.13, 0.1, 1)
+theme_override_colors/font_hover_color = Color(0.42, 0.28, 0.14, 1)
+theme_override_colors/font_focus_color = Color(0.42, 0.28, 0.14, 1)
+theme_override_colors/font_pressed_color = Color(0.42, 0.28, 0.14, 1)
+theme_override_colors/font_disabled_color = Color(0.52, 0.48, 0.42, 1)
+theme_override_font_sizes/font_size = 22
+theme_override_styles/normal = SubResource("btn_box")
+theme_override_styles/hover = SubResource("btn_box")
+theme_override_styles/pressed = SubResource("btn_box")
+theme_override_styles/focus = SubResource("btn_box")
+theme_override_styles/disabled = SubResource("btn_box")
 text = "새로 시작"
 
-[node name="ContinueBtn" type="Button" parent="Margin/VBox/Buttons"]
+[node name="ContinueBtn" type="Button" parent="Buttons"]
 layout_mode = 2
-custom_minimum_size = Vector2(0, 44)
+custom_minimum_size = Vector2(0, 78)
+theme_override_colors/font_color = Color(0.16, 0.13, 0.1, 1)
+theme_override_colors/font_hover_color = Color(0.42, 0.28, 0.14, 1)
+theme_override_colors/font_focus_color = Color(0.42, 0.28, 0.14, 1)
+theme_override_colors/font_pressed_color = Color(0.42, 0.28, 0.14, 1)
+theme_override_colors/font_disabled_color = Color(0.52, 0.48, 0.42, 1)
+theme_override_font_sizes/font_size = 22
+theme_override_styles/normal = SubResource("btn_box")
+theme_override_styles/hover = SubResource("btn_box")
+theme_override_styles/pressed = SubResource("btn_box")
+theme_override_styles/focus = SubResource("btn_box")
+theme_override_styles/disabled = SubResource("btn_box")
 text = "이어하기"
 
-[node name="SettingsBtn" type="Button" parent="Margin/VBox/Buttons"]
+[node name="SettingsBtn" type="Button" parent="Buttons"]
 layout_mode = 2
-custom_minimum_size = Vector2(0, 44)
+custom_minimum_size = Vector2(0, 78)
+theme_override_colors/font_color = Color(0.16, 0.13, 0.1, 1)
+theme_override_colors/font_hover_color = Color(0.42, 0.28, 0.14, 1)
+theme_override_colors/font_focus_color = Color(0.42, 0.28, 0.14, 1)
+theme_override_colors/font_pressed_color = Color(0.42, 0.28, 0.14, 1)
+theme_override_font_sizes/font_size = 22
+theme_override_styles/normal = SubResource("btn_box")
+theme_override_styles/hover = SubResource("btn_box")
+theme_override_styles/pressed = SubResource("btn_box")
+theme_override_styles/focus = SubResource("btn_box")
 text = "설정"
 
-[node name="QuitBtn" type="Button" parent="Margin/VBox/Buttons"]
+[node name="QuitBtn" type="Button" parent="Buttons"]
 layout_mode = 2
-custom_minimum_size = Vector2(0, 44)
+custom_minimum_size = Vector2(0, 78)
+theme_override_colors/font_color = Color(0.16, 0.13, 0.1, 1)
+theme_override_colors/font_hover_color = Color(0.42, 0.28, 0.14, 1)
+theme_override_colors/font_focus_color = Color(0.42, 0.28, 0.14, 1)
+theme_override_colors/font_pressed_color = Color(0.42, 0.28, 0.14, 1)
+theme_override_font_sizes/font_size = 22
+theme_override_styles/normal = SubResource("btn_box")
+theme_override_styles/hover = SubResource("btn_box")
+theme_override_styles/pressed = SubResource("btn_box")
+theme_override_styles/focus = SubResource("btn_box")
 text = "종료"
