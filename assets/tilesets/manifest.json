@@ -160,6 +160,60 @@
       "frame_w": 96,
       "frame_h": 80,
       "frames": 1
+    },
+    "market_stall_broken": {
+      "file": "market_stall_broken.png",
+      "frame_w": 112,
+      "frame_h": 92,
+      "frames": 1
+    },
+    "market_stall_canopy": {
+      "file": "market_stall_canopy.png",
+      "frame_w": 112,
+      "frame_h": 92,
+      "frames": 1
+    },
+    "market_cart_broken": {
+      "file": "market_cart_broken.png",
+      "frame_w": 112,
+      "frame_h": 84,
+      "frames": 1
+    },
+    "market_well": {
+      "file": "market_well.png",
+      "frame_w": 88,
+      "frame_h": 88,
+      "frames": 1
+    },
+    "ssireum_ring": {
+      "file": "ssireum_ring.png",
+      "frame_w": 120,
+      "frame_h": 52,
+      "frames": 1
+    },
+    "market_goods": {
+      "file": "market_goods.png",
+      "frame_w": 88,
+      "frame_h": 84,
+      "frames": 1
+    },
+    "market_scale": {
+      "file": "market_scale.png",
+      "frame_w": 96,
+      "frame_h": 76,
+      "frames": 1
+    },
+    "dokkaebi_brazier": {
+      "file": "dokkaebi_brazier.png",
+      "frame_w": 72,
+      "frame_h": 88,
+      "frames": 1
+    },
+    "market_banner": {
+      "file": "market_banner.png",
+      "frame_w": 48,
+      "frame_h": 104,
+      "frames": 1
     }
   }
 }

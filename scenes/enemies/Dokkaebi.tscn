@@ -29,9 +29,9 @@ xp_reward = 14
 
 [node name="Sprite2D" type="AnimatedSprite2D" parent="."]
 script = ExtResource("vis_enemy")
-sheet = "enemies/goblin"
-sprite_scale = 1.15
-foot_offset = -17.1
+sheet = "enemies/dokkaebi_minion"
+sprite_scale = 1.0
+foot_offset = -24.0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("RectangleShape2D_body")

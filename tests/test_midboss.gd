@@ -25,7 +25,7 @@ const LADDER := {
         "boss_sheet": "enemies/geuseondae_elder_shadow",   # 보스는 정체를 드러내야 커진다
     },
     "3스테이지": {
-        "mobs": ["Dokkaebi"],
+        "mobs": ["Dokkaebi", "DokkaebiFire"],
         "mid": "DokkaebiBrute",
         "boss": "DokkaebiChief",
     },

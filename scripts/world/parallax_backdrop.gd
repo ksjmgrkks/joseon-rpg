@@ -51,6 +51,11 @@ const ART_SETS := {
         "mid": "res://assets/sprites/bg/stage1/mid.png",
         "near": "res://assets/sprites/bg/stage1/near.png",
     },
+    "stage3": {
+        "far": "res://assets/sprites/bg/stage3/far.png",
+        "mid": "res://assets/sprites/bg/stage3/mid.png",
+        "near": "res://assets/sprites/bg/stage3/near.png",
+    },
 }
 # 옛 seamless 스트립(폴백).
 const BG_FAR := "res://assets/sprites/bg/bg_far.png"
@@ -174,13 +179,13 @@ func _build_mountains(paths: Dictionary) -> void:
     var hill_tex: Texture2D = load(paths["mid"])
     # 원경 먼 산맥 — 하늘색으로 흐려(대기 원근) 위쪽 깊이.
     var far_col := tint.lerp(sky_color, aerial)
-    far_col.a = 0.48 if art_set == "stage1" else 1.0
+    far_col.a = 0.48 if art_set == "stage1" else (0.42 if art_set == "stage3" else 1.0)
     _mountain_layer(far_tex, far_scale, far_col, 1.0, horizon_y + 44.0)
     if mist:
         _add_mist(far_scale + 0.03, horizon_y - 6.0, 0.26, 9.0)
     # 중경 솔숲 — 플레이 지면 바로 뒤에 앉혀 근경감.
     var mid_col := tint.lerp(sky_color, aerial * 0.3)
-    mid_col.a = 0.62 if art_set == "stage1" else 1.0
+    mid_col.a = 0.62 if art_set == "stage1" else (0.68 if art_set == "stage3" else 1.0)
     _mountain_layer(hill_tex, mid_scale, mid_col, 1.0, horizon_y + 120.0)
     if mist:
         _add_mist(mid_scale + 0.04, horizon_y + 84.0, 0.20, 13.0)
@@ -189,7 +194,7 @@ func _build_mountains(paths: Dictionary) -> void:
     if near_path != "" and ResourceLoader.exists(near_path):
         var near_tex: Texture2D = load(near_path)
         var near_col := tint.lerp(sky_color, aerial * 0.08)
-        near_col.a = 0.45
+        near_col.a = 0.45 if art_set == "stage1" else 0.50
         _mountain_layer(near_tex, near_scale, near_col, 1.0, horizon_y + 132.0)
 
 

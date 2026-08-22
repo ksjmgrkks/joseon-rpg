@@ -215,6 +215,12 @@ func _build_backdrop(b: Dictionary) -> void:
         bd.art_set = String(b["art_set"])
     if b.has("far_scale"):
         bd.far_scale = float(b["far_scale"])
+    if b.has("mid_scale"):
+        bd.mid_scale = float(b["mid_scale"])
+    if b.has("near_scale"):
+        bd.near_scale = float(b["near_scale"])
+    if b.has("aerial"):
+        bd.aerial = float(b["aerial"])
     # 장면 성격에 맞춰 원경을 끄고 켠다 — 담 안 마당에 산맥이 보이지 않게.
     if b.has("mountains"):
         bd.mountains = bool(b["mountains"])
@@ -667,8 +673,22 @@ func _build_gameplay(data: Dictionary) -> void:
             exit_node.set_deferred("monitoring", true)
             exit_node.modulate.a = 0.0
             exit_node.create_tween().tween_property(exit_node, "modulate:a", 1.0, 0.5))
+        var clear_dialogue := String(data.get("clear_dialogue", ""))
+        if clear_dialogue != "":
+            gate.opened.connect(_play_gameplay_clear_dialogue.bind(clear_dialogue))
     _build_player(data)
     _build_ui()
+
+
+## 전투 전용 스테이지의 마지막 진혼 대사. 결계 해제 연출이 먼저 읽히도록 한 박자 늦춘다.
+## 클리어 플래그가 이미 선 재방문에서는 gate 자체를 만들지 않으므로 다시 재생되지 않는다.
+func _play_gameplay_clear_dialogue(path: String) -> void:
+    if path == "" or not ResourceLoader.exists(path):
+        return
+    await get_tree().create_timer(0.55).timeout
+    if Dialogue and Dialogue.is_active():
+        await Dialogue.dialogue_ended
+    Dialogue.start(path)
 
 
 ## 배치 좌표 보정 — 규칙을 코드로 못박아 데이터가 어긋나도 플레이가 깨지지 않게 한다.

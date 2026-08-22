@@ -15,6 +15,8 @@ const PASS := "PASS"
 const FAIL := "FAIL"
 const STAGE1 := ["foothills", "forest_deep", "mountain_pass", "ruined_temple", "sacred_altar"]
 const STAGE1_BANNED := ["Reaper", "ReaperLord", "DrownedFerryman", "DrownedSwarm", "DrownedHeavy", "DrownedChild", "Imugi"]
+const STAGE3 := ["market_ruins", "broken_stalls", "well_court", "lantern_alley", "goblin_court"]
+const STAGE3_ALLOWED := ["Dokkaebi", "DokkaebiFire", "DokkaebiBrute", "DokkaebiChief"]
 
 
 func _ready() -> void:
@@ -23,6 +25,7 @@ func _ready() -> void:
         _check_scenes_exist(),
         _check_stage1_concept(),
         _check_stage1_flooded_valley(),
+        _check_stage3_market_concept(),
     ]
     var failed := 0
     for r in results:
@@ -54,6 +57,21 @@ func _check_stage1_concept() -> Dictionary:
             if e in STAGE1_BANNED:
                 bad.append("%s 에 컨셉 밖 %s" % [s, e])
     return { "name": "1스테이지_컨셉_밖_적_없음", "status": PASS if bad.is_empty() else FAIL, "reason": ", ".join(bad) }
+
+
+func _check_stage3_market_concept() -> Dictionary:
+    var bad: Array[String] = []
+    var has_fire := false
+    for stage_id in STAGE3:
+        for enemy in _enemies_of(stage_id):
+            if enemy not in STAGE3_ALLOWED:
+                bad.append("%s 에 장터 밖 적 %s" % [stage_id, enemy])
+            if enemy == "DokkaebiFire":
+                has_fire = true
+    if not has_fire:
+        bad.append("원거리 변주 도깨비불이 한 기도 없음")
+    return {"name": "3스테이지_도깨비_장터_로스터", "status": PASS if bad.is_empty() else FAIL,
+        "reason": ", ".join(bad)}
 
 
 ## 다섯 굽이 모두 화면에 범람수 흔적이 있고, 실제 노출 대사·선택 설명에 폐기한 수문이 없는지.

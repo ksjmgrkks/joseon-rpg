@@ -48,6 +48,22 @@ func _ready() -> void:
     get_tree().root.add_child(inst)
     get_tree().current_scene = inst
 
+    # 캡처 프로세스가 백그라운드에서 뜰 때 Windows가 직전 Q 입력을 전달하는 경우가 있다.
+    # 자동 로드 퀘스트 창이 우연히 열린 채 모든 장면을 가리지 않도록 캡처 직전에 닫는다.
+    var overlay_panels: Array[CanvasItem] = []
+    for panel_path in [
+        "/root/InventoryPanel/Panel",
+        "/root/ShopPanel/Panel",
+        "/root/PauseMenu/Panel",
+        "/root/QuestLog/Panel",
+        "/root/QuestToast/Panel",
+        "/root/GameOverScreen/Panel",
+    ]:
+        var overlay := get_node_or_null(panel_path) as CanvasItem
+        if overlay:
+            overlay.visible = false
+            overlay_panels.append(overlay)
+
     # --cam=x,y : 플레이어(=카메라 부모)를 옮겨 원하는 지점을 프레이밍
     if args.has("cam"):
         var parts := String(args["cam"]).split(",")
@@ -79,6 +95,10 @@ func _ready() -> void:
         _force_touch_ui(get_tree().root)
 
     await get_tree().create_timer(wait_s).timeout
+    # 위 대기 중 늦게 전달된 키 입력까지 정리한다.
+    for overlay in overlay_panels:
+        if is_instance_valid(overlay):
+            overlay.visible = false
     await RenderingServer.frame_post_draw
 
     var img := get_viewport().get_texture().get_image()

@@ -49,9 +49,9 @@ flag_on_death = "dokkaebi_brute_defeated"
 
 [node name="Sprite2D" type="AnimatedSprite2D" parent="."]
 script = ExtResource("5_vis")
-sheet = "enemies/goblin"
-sprite_scale = 2.5
-foot_offset = -15.0
+sheet = "enemies/dokkaebi_brute"
+sprite_scale = 1.15
+foot_offset = -29.2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("body")

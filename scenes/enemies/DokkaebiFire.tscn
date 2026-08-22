@@ -1,0 +1,77 @@
+[gd_scene load_steps=9 format=3]
+
+; 도깨비불 — 3스테이지 원거리 잡몹. 장터의 등잔불과 구분되는 푸른 불씨가 낮게 떠다니며
+; 영혼 구슬을 쏜다. 근접 도깨비만 반복되던 전투 리듬에 거리 압박을 더한다.
+
+[ext_resource type="Script" path="res://scripts/enemies/patroller.gd" id="1_p"]
+[ext_resource type="Script" path="res://scripts/visual/enemy_visual.gd" id="vis_enemy"]
+[ext_resource type="Script" path="res://scripts/combat/hurtbox.gd" id="2_hurt"]
+[ext_resource type="Script" path="res://scripts/combat/health_component.gd" id="3_health"]
+[ext_resource type="Script" path="res://scripts/ai/state_machine.gd" id="4_sm"]
+[ext_resource type="Script" path="res://scripts/ai/states/idle_state.gd" id="5_idle"]
+[ext_resource type="Script" path="res://scripts/ai/states/patrol_state.gd" id="6_patrol"]
+[ext_resource type="Script" path="res://scripts/ai/states/chase_state.gd" id="7_chase"]
+
+[sub_resource type="RectangleShape2D" id="body"]
+size = Vector2(16, 20)
+
+[sub_resource type="RectangleShape2D" id="hurt"]
+size = Vector2(22, 28)
+
+[node name="DokkaebiFire" type="CharacterBody2D"]
+script = ExtResource("1_p")
+display_name = "도깨비불"
+attack_damage = 5.0
+attack_range = 42.0
+attack_knockback = 100.0
+attack_cooldown = 1.4
+attack_telegraph = 0.22
+ranged = true
+ranged_damage = 8.0
+ranged_min = 86.0
+ranged_max = 360.0
+ranged_cooldown = 1.9
+body_color = Color(0.35, 0.65, 0.92, 1)
+detect_range = 320.0
+xp_reward = 24
+drop_chance = 0.24
+
+[node name="Sprite2D" type="AnimatedSprite2D" parent="."]
+script = ExtResource("vis_enemy")
+sheet = "enemies/dokkaebi_fire"
+foot_offset = -21.0
+sprite_scale = 1.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("body")
+
+[node name="Hurtbox" type="Area2D" parent="."]
+script = ExtResource("2_hurt")
+
+[node name="HurtboxShape" type="CollisionShape2D" parent="Hurtbox"]
+position = Vector2(0, -22)
+shape = SubResource("hurt")
+
+[node name="HealthComponent" type="Node" parent="."]
+script = ExtResource("3_health")
+max_hp = 58.0
+hurtbox_path = NodePath("../Hurtbox")
+
+[node name="StateMachine" type="Node" parent="."]
+script = ExtResource("4_sm")
+initial_state = NodePath("Idle")
+
+[node name="Idle" type="Node" parent="StateMachine"]
+script = ExtResource("5_idle")
+idle_duration = 0.8
+
+[node name="Patrol" type="Node" parent="StateMachine"]
+script = ExtResource("6_patrol")
+patrol_speed = 58.0
+patrol_range = 120.0
+patrol_duration = 3.4
+
+[node name="Chase" type="Node" parent="StateMachine"]
+script = ExtResource("7_chase")
+chase_speed = 116.0
+lose_distance = 450.0
