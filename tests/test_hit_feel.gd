@@ -10,8 +10,9 @@ extends Node
 ## 5) 보스 바가 더 두꺼운가
 ## 6) Hitbox 유효 명중 신호가 실제 HP 감소에만 발신되는가
 ## 7) 근접·부적·궁극기가 공통 HitFeedback 경로를 쓰는가
-## 8) 유효 명중 카메라 피드백이 저강도 방향성 펀치인가
-## 9) 연속 카메라 펀치 후 기준 offset으로 정확히 복귀하는가
+## 8) 유효 명중 피드백이 미세 확대+완만한 감속 프로필인가
+## 9) 연속 확대 후 사용자 기준 zoom으로 정확히 복귀하는가
+## 10) 명중 슬로 모션이 실시간 타이머 뒤 원래 time_scale로 복귀하는가
 ##
 
 const PASS := "PASS"
@@ -29,7 +30,8 @@ func _ready() -> void:
     results.append(await _check_valid_hit_signal())
     results.append(_check_all_player_attack_feedback_routes())
     results.append(_check_camera_feedback_profile())
-    results.append(await _check_camera_bump_rebases())
+    results.append(await _check_camera_focus_rebases())
+    results.append(await _check_slow_motion_restores())
 
     var failed := 0
     for r in results:
@@ -198,31 +200,46 @@ func _check_camera_feedback_profile() -> Dictionary:
     var feel: Dictionary = feedback.profile(1, 1.0)
     var screen_fx_src := (load("res://scripts/combat/screen_fx.gd") as GDScript).get_source_code()
     var player_src := (load("res://scripts/player/player.gd") as GDScript).get_source_code()
-    var ok := float(feel.get("kick", 99.0)) <= 2.0 \
-        and float(feel.get("duration", 1.0)) <= 0.085 \
-        and screen_fx_src.contains("func impact_bump") \
-        and player_src.contains("2: ScreenFx.hit_stop") \
-        and not player_src.contains("1: ScreenFx.hit_stop")
-    return {"name": "directional_camera_bump_not_jitter", "status": PASS if ok else FAIL,
-        "reason": "kick=%.2f duration=%.3f" % [feel.get("kick", -1.0), feel.get("duration", -1.0)] if not ok else ""}
+    var landed_section := player_src.get_slice("func _on_hitbox_landed", 1).get_slice("func _start_dodge", 0)
+    var ratio := float(feel.get("zoom_ratio", 9.0))
+    var slow_scale := float(feel.get("slow_scale", 0.0))
+    var ok := ratio >= 1.01 and ratio <= 1.02 \
+        and slow_scale >= 0.5 and slow_scale <= 0.8 \
+        and float(feel.get("slow_duration", 1.0)) <= 0.05 \
+        and screen_fx_src.contains("func impact_focus") \
+        and screen_fx_src.contains("func slow_motion") \
+        and not landed_section.contains("ScreenFx.hit_stop")
+    return {"name": "hit_focus_zoom_and_slow_motion", "status": PASS if ok else FAIL,
+        "reason": "zoom=%.3f slow=%.2f" % [ratio, slow_scale] if not ok else ""}
 
 
-func _check_camera_bump_rebases() -> Dictionary:
+func _check_camera_focus_rebases() -> Dictionary:
     var cam := Camera2D.new()
-    var base := Vector2(0, -80)
-    cam.offset = base
+    var base := Vector2(1.5, 1.5)
+    cam.zoom = base
     add_child(cam)
     cam.make_current()
     await get_tree().process_frame
-    ScreenFx.impact_bump(2.0, 0.06, 1.0)
-    # 렌더 프레임 중간 위치를 재현한 뒤 반대 방향 명중을 넣는다. 이 값이 새 기준점이 되면 안 된다.
-    cam.offset = base + Vector2(1.75, -0.25)
-    ScreenFx.impact_bump(2.5, 0.06, -1.0)
-    var rebased := cam.offset.distance_to(base) < 0.01
-    await get_tree().create_timer(0.10, true, false, true).timeout
-    var returned := cam.offset.distance_to(base) < 0.01
-    var final_offset := cam.offset
+    ScreenFx.impact_focus(1.015, 0.02, 0.06)
+    # 확대 중간값을 재현한 뒤 더 강한 다중 명중을 넣어도 이 값이 새 기본 배율이 되면 안 된다.
+    cam.zoom = base * 1.012
+    ScreenFx.impact_focus(1.025, 0.02, 0.06)
+    await get_tree().create_timer(0.12, true, false, true).timeout
+    var returned := cam.zoom.distance_to(base) < 0.001
+    var final_zoom := cam.zoom
     cam.queue_free()
-    var ok := rebased and returned
-    return {"name": "camera_bump_restores_base_offset", "status": PASS if ok else FAIL,
-        "reason": "rebased=%s final=%s base=%s" % [str(rebased), str(final_offset), str(base)] if not ok else ""}
+    return {"name": "camera_focus_restores_user_zoom", "status": PASS if returned else FAIL,
+        "reason": "final=%s base=%s" % [str(final_zoom), str(base)] if not returned else ""}
+
+
+func _check_slow_motion_restores() -> Dictionary:
+    var original := Engine.time_scale
+    ScreenFx.slow_motion(0.02, 0.7)
+    var slowed := is_equal_approx(Engine.time_scale, 0.7)
+    await get_tree().create_timer(0.05, true, false, true).timeout
+    var restored := is_equal_approx(Engine.time_scale, original)
+    if not restored:
+        Engine.time_scale = original
+    var ok := slowed and restored
+    return {"name": "hit_slow_motion_restores_time_scale", "status": PASS if ok else FAIL,
+        "reason": "slowed=%s restored=%s" % [str(slowed), str(restored)] if not ok else ""}

@@ -13,20 +13,24 @@ static func profile(hit_count: int = 1, power: float = 1.0, pitch_bias: float = 
     return {
         "volume_db": 1.0 + minf(4.0, float(stack)),
         "pitch": clampf(1.0 + pitch_bias + 0.05 * float(stack), 0.85, 1.35),
-        "kick": minf((1.25 + 0.45 * weight) * (1.0 + 0.18 * float(stack)), 4.0),
-        "duration": minf(0.065 + 0.006 * weight, 0.085),
+        "zoom_ratio": 1.0 + minf(0.03, 0.006 + 0.008 * weight + 0.0025 * float(stack)),
+        "zoom_in": minf(0.018 + 0.003 * weight, 0.027),
+        "zoom_out": minf(0.065 + 0.008 * weight, 0.09),
+        "slow_duration": minf(0.012 + 0.014 * weight, 0.05),
+        "slow_scale": clampf(0.9 - 0.2 * weight, 0.5, 0.8),
         "heavy": stack >= 1,
         "stack": stack,
     }
 
 
 static func player_hit(hit_count: int = 1, power: float = 1.0, pitch_bias: float = 0.0,
-        with_camera_bump: bool = true, direction_x: float = 1.0) -> void:
+        with_focus: bool = true) -> void:
     if hit_count <= 0:
         return
     var feel := profile(hit_count, power, pitch_bias)
     Audio.play_sfx(Sfx.HIT_CONFIRM, float(feel.volume_db), float(feel.pitch))
     if bool(feel.heavy):
         Audio.play_sfx(Sfx.HIT_HEAVY, -1.0 + minf(3.0, float(feel.stack)), 1.0)
-    if with_camera_bump:
-        ScreenFx.impact_bump(float(feel.kick), float(feel.duration), direction_x)
+    if with_focus:
+        ScreenFx.impact_focus(float(feel.zoom_ratio), float(feel.zoom_in), float(feel.zoom_out))
+        ScreenFx.slow_motion(float(feel.slow_duration), float(feel.slow_scale))

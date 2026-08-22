@@ -1,10 +1,12 @@
 extends Node
 ##
-## ScreenFx autoload — 화면 진동(camera shake)·히트스톱(hit stop).
+## ScreenFx autoload — 화면 진동·명중 확대·시간 감속.
 ##
 ## 사용:
 ##   ScreenFx.shake(8.0, 0.20)        # 강도 px, 초
 ##   ScreenFx.hit_stop(0.06)          # 초. 폼이 화끈해짐.
+##   ScreenFx.impact_focus(1.015)     # 월드만 1.5% 확대 후 원복
+##   ScreenFx.slow_motion(0.025, 0.7) # 멎지 않는 짧은 명중 감속
 ##
 ## 카메라는 매 호출 시점에 `get_viewport().get_camera_2d()` 로 동적 조회.
 ## 활성 카메라가 없으면 조용히 무시(헤드리스/테스트 안전).
@@ -17,6 +19,12 @@ var _active_tween: Tween = null
 var _active_camera: Camera2D = null
 var _active_base_offset: Vector2 = Vector2.ZERO
 var _camera_fx_serial: int = 0
+# 명중 확대는 일반 shake의 offset과 별도 트랙으로 운용한다.
+var _focus_tween: Tween = null
+var _focus_camera: Camera2D = null
+var _focus_base_zoom: Vector2 = Vector2.ONE
+var _focus_target_ratio: float = 1.0
+var _focus_serial: int = 0
 
 
 func _ready() -> void:
@@ -46,32 +54,52 @@ func shake(intensity: float = 6.0, duration: float = 0.18) -> void:
     _active_tween = tween
 
 
-## 유효 명중용 카메라 펀치. 무작위 떨림 대신 공격 방향으로 한 번 눌렀다가
-## 약한 반동을 거쳐 기준 위치로 돌아와, 짧아도 프레임 드랍처럼 보이지 않는다.
-func impact_bump(intensity: float = 2.0, duration: float = 0.075,
-        direction_x: float = 1.0) -> void:
+## 유효 명중용 임팩트 포커스. 현재 사용자 배율을 기준으로 월드만 미세 확대했다가
+## 빠르게 원래 배율로 돌아온다(CanvasLayer UI는 영향을 받지 않는다).
+## 연속 명중은 같은 펄스를 더 강하게 갱신할 뿐, 확대/축소를 적마다 반복하지 않는다.
+func impact_focus(zoom_ratio: float = 1.015, zoom_in: float = 0.022,
+        zoom_out: float = 0.075) -> void:
     var cam := _current_camera()
     if cam == null:
         return
-    var original := _begin_camera_fx(cam)
-    var serial := _camera_fx_serial
-    var direction := 1.0 if direction_x >= 0.0 else -1.0
-    var kick := Vector2(direction * intensity, -intensity * 0.16)
+    var same_pulse := _focus_tween != null and _focus_tween.is_valid() and _focus_camera == cam
+    if same_pulse:
+        _focus_tween.kill()
+        _focus_target_ratio = maxf(_focus_target_ratio, zoom_ratio)
+    else:
+        if _focus_tween and _focus_tween.is_valid():
+            _focus_tween.kill()
+            if is_instance_valid(_focus_camera):
+                _focus_camera.zoom = _focus_base_zoom
+        _focus_camera = cam
+        _focus_base_zoom = cam.zoom
+        _focus_target_ratio = zoom_ratio
+    _focus_serial += 1
+    var serial := _focus_serial
+    var target := _focus_base_zoom * _focus_target_ratio
     var tween := create_tween()
     tween.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
-    tween.tween_property(cam, "offset", original + kick, duration * 0.22)\
+    tween.tween_property(cam, "zoom", target, zoom_in)\
         .set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-    tween.tween_property(cam, "offset", original - kick * 0.24, duration * 0.28)\
-        .set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
-    tween.tween_property(cam, "offset", original, duration * 0.50)\
+    tween.tween_property(cam, "zoom", _focus_base_zoom, zoom_out)\
         .set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-    tween.tween_callback(func() -> void: _finish_camera_fx(cam, original, serial))
-    _active_tween = tween
+    tween.tween_callback(func() -> void: _finish_focus(cam, serial))
+    _focus_tween = tween
 
 
 ## 히트스톱 — duration 초 동안 시간을 scale 배로 늦춘다.
 ## scale 이 작을수록 더 '딱' 멈춘다(묵직한 타격). 가벼운 타격은 scale 을 키워 살짝만.
 func hit_stop(duration: float = 0.06, scale: float = 0.05) -> void:
+    _time_dilate(duration, scale)
+
+
+## 명중용 완만한 시간 감속. hit-stop과 같은 실시간 복구 장치를 쓰되 0.5 이상만 허용해
+## 화면이 멎지 않고 공격 동작이 잠깐 묵직해지는 정도로 제한한다.
+func slow_motion(duration: float = 0.025, scale: float = 0.7) -> void:
+    _time_dilate(duration, clampf(scale, 0.5, 0.9))
+
+
+func _time_dilate(duration: float, scale: float) -> void:
     if _hit_stopping:
         return
     _hit_stopping = true
@@ -144,3 +172,13 @@ func _finish_camera_fx(cam: Camera2D, original: Vector2, serial: int) -> void:
         cam.offset = original
     _active_tween = null
     _active_camera = null
+
+
+func _finish_focus(cam: Camera2D, serial: int) -> void:
+    if serial != _focus_serial:
+        return
+    if is_instance_valid(cam):
+        cam.zoom = _focus_base_zoom
+    _focus_tween = null
+    _focus_camera = null
+    _focus_target_ratio = 1.0

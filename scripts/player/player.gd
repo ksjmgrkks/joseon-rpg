@@ -5,7 +5,7 @@ extends CharacterBody2D
 ##
 ## 공격 흐름:
 ##   - tap attack: 콤보 1→2→3타. 마지막 타는 데미지·넉백·차지 인디케이터 증가.
-##     COMBO_WINDOW(초) 안에 다음 입력이 안 오면 콤보 리셋. 콤보 단계마다 ScreenFx.shake.
+##     COMBO_WINDOW(초) 안에 다음 입력이 안 오면 콤보 리셋. 명중 시 단계별 focus/slow가 커진다.
 ##   - hold attack >= CHARGE_THRESHOLD 초 → 차지 상태. 놓으면 강타(데미지 2x, 넉백 1.5x).
 ##     차지 중에는 이동 속도 감소·sprite 약간 밝아짐.
 ##
@@ -85,6 +85,7 @@ var _dodge_cd: float = 0.0
 var _dodge_grace: float = 0.0
 ## 이번 스윙에서 맞힌 대상 수 — 0 이면 헛스윙(전용 소리), 2 이상이면 타격감을 누적한다.
 var _swing_hits: int = 0
+var _attack_feedback_power: float = 1.0
 # 스킬 상태 (일섬 돌진)
 var _skill_dash_timer: float = 0.0
 var _skill_dash_speed: float = 0.0
@@ -362,20 +363,17 @@ func _do_combo_attack() -> void:
     # 콤보 단계별 점증 — 1→2→3 으로 데미지·범위·넉백·전진 모두 커진다(범위 공격화).
     var damage_mult := 1.0
     var knock_mult := 1.0
-    var shake_strength := 4.0
     var duration := ATTACK_DURATION
     var hb_w := 28.0          # 히트박스 폭(앞으로 뻗는 사거리) — 1타는 좁은 찌름
     var lunge_amt := 150.0    # 전방 런지(바라보는 쪽으로 치고 나감)
     if _combo_step == 2:
         damage_mult = 1.35
         knock_mult = 1.2
-        shake_strength = 6.0
         hb_w = 44.0           # 2타 — 넓은 횡베기
         lunge_amt = 200.0
     elif _combo_step == 3:
         damage_mult = 2.0
         knock_mult = 1.7
-        shake_strength = 9.0
         duration = ATTACK_DURATION_FINISH
         hb_w = 70.0           # 3타 — 광역 회전 마무리(여러 적 동시 타격)
         lunge_amt = 300.0
@@ -398,9 +396,10 @@ func _do_combo_attack() -> void:
         var trail_tint: Color = SkillFx.MAGE if _combo_step < 3 else SkillFx.MAGE_HOT
         var trail_n := 3 if _combo_step < 3 else 5
         SkillFx.afterimage_burst(sprite, trail_tint, trail_n, duration + ATTACK_RECOVER * 0.6)
-    # 공격 휘두를 때마다 살짝 진동(피드백). 명중 시 추가 진동은 _on_hitbox_landed에서.
-    # 헛스윙일 때 화면이 흔들리면 '맞은 것 같은' 착각을 준다 — 스윙 진동은 아주 약하게만.
-    ScreenFx.shake(shake_strength * 0.25, 0.06)
+    match _combo_step:
+        1: _attack_feedback_power = 1.0
+        2: _attack_feedback_power = 1.45
+        _: _attack_feedback_power = 2.0
     _swing_hits = 0
     await attack_hitbox.activate(duration)
     # 아무도 못 맞혔으면 바람 소리만 남는다 — 명중과 확실히 구분되는 신호.
@@ -439,10 +438,11 @@ func _do_charged_attack() -> void:
     var base_damage: float = Equipment.current_damage(stored_damage)
     attack_hitbox.damage = base_damage * 2.0
     attack_hitbox.knockback = stored_knock * 1.6
+    _attack_feedback_power = 2.1
+    _swing_hits = 0
     attack_hitbox.position.x = 16.0 if _facing_right else -16.0
     _lunge_vel = 150.0 * (1.0 if _facing_right else -1.0)
     Audio.play_sfx(Sfx.ATTACK)
-    ScreenFx.shake(10.0, 0.18)
     # 기 모은 한 방 — 금빛 일섬으로 일반 콤보와 확실히 구분(차지 준비→발동 시각 루프 완성)
     var slash_x := 22.0 if _facing_right else -22.0
     SkillFx.slash(global_position + Vector2(slash_x, -10), _facing_right, SkillFx.GOLD)
@@ -459,22 +459,14 @@ func _do_charged_attack() -> void:
 #
 # 2026-08-22 피드백: "맞췄을 때와 안 맞췄을 때 차이가 확실했으면. 여러 명 맞췄을 때
 # 타격감이 중첩되면 좋겠다." → 한 번의 스윙에서 맞은 수(_swing_hits)를 세어
-# 소리·진동·히트스톱을 **누적**시키고, 0명이면 스윙이 끝날 때 헛스윙 소리를 낸다.
+# 소리·햅틱·확대 강도를 **누적**시키고, 0명이면 스윙이 끝날 때 헛스윙 소리를 낸다.
 func _on_hitbox_landed(area: Area2D) -> void:
     if not (area is Hurtbox):
         return
     _swing_hits += 1
     var stack := _swing_hits - 1                      # 두 번째 대상부터 '겹침'
     # 기본 1~3타·차지·도혼참 모두 같은 실데미지 신호를 쓰므로 여기서 빠짐없이 확인된다.
-    var hit_direction := 1.0 if _facing_right else -1.0
-    HIT_FEEDBACK.player_hit(
-        _swing_hits, 0.75 + 0.3 * float(maxi(1, _combo_step)), 0.0, true, hit_direction
-    )
-    # 모바일에서 렉처럼 보이지 않게 1타는 정지시키지 않고, 2·3타에만 미세 히트스톱을 남긴다.
-    var stop_add := minf(0.01, 0.004 * float(stack))
-    match _combo_step:
-        2: ScreenFx.hit_stop(0.018 + stop_add, 0.55)
-        3: ScreenFx.hit_stop(0.038 + stop_add, 0.35)
+    HIT_FEEDBACK.player_hit(_swing_hits, _attack_feedback_power)
     # 폰 햅틱 — 타수가 커질수록 길게(손끝 타격감). 데스크톱은 무시됨.
     ScreenFx.rumble(10 + 8 * _combo_step + 6 * stack)
     var fx_pos := area.global_position if area else (global_position + Vector2(0, -16))
@@ -582,8 +574,8 @@ func _skill_ultimate() -> void:
             SkillFx.impact(epos, true)
             SkillFx.bleed(epos, _facing_right, true)
     if hit_count > 0:
-        # 착지 자체의 대형 흔들림이 이미 있으므로 공통 함수에서는 확인음·다중 저역만 추가한다.
-        HIT_FEEDBACK.player_hit(hit_count, 2.6, -0.04, false)
+        # 착지 shake와 별개로, 실제 적중했을 때만 월드 확대 포커스를 더한다.
+        HIT_FEEDBACK.player_hit(hit_count, 2.6, -0.04)
     await get_tree().create_timer(0.4).timeout
     _attacking = false
 
@@ -612,6 +604,8 @@ func _skill_ilseom() -> void:
     var stored_damage: float = attack_hitbox.damage
     var stored_knock: float = attack_hitbox.knockback
     attack_hitbox.damage = Equipment.current_damage(stored_damage) * float(def.get("damage_mult", 1.9))
+    _attack_feedback_power = 2.15
+    _swing_hits = 0
     # 물마루 — 앞으로 넓게 뻗는 판정(전방 사거리 확장)
     if attack_shape and attack_shape.shape is RectangleShape2D:
         (attack_shape.shape as RectangleShape2D).size = Vector2(86.0, 40.0)
