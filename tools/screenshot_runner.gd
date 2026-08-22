@@ -48,21 +48,24 @@ func _ready() -> void:
     get_tree().root.add_child(inst)
     get_tree().current_scene = inst
 
-    # 캡처 프로세스가 백그라운드에서 뜰 때 Windows가 직전 Q 입력을 전달하는 경우가 있다.
-    # 자동 로드 퀘스트 창이 우연히 열린 채 모든 장면을 가리지 않도록 캡처 직전에 닫는다.
+    # 캡처 프로세스가 시작되는 순간 물리 키가 눌려 있으면 autoload 패널이 토글될 수 있다.
+    # 전역 메뉴를 비활성화하고 닫아 결과가 입력 상태에 좌우되지 않게 한다.
     var overlay_panels: Array[CanvasItem] = []
-    for panel_path in [
-        "/root/InventoryPanel/Panel",
-        "/root/ShopPanel/Panel",
-        "/root/PauseMenu/Panel",
-        "/root/QuestLog/Panel",
-        "/root/QuestToast/Panel",
-        "/root/GameOverScreen/Panel",
+    for overlay_name in [
+        "InventoryPanel",
+        "ShopPanel",
+        "PauseMenu",
+        "QuestLog",
+        "QuestToast",
+        "GameOverScreen",
     ]:
-        var overlay := get_node_or_null(panel_path) as CanvasItem
-        if overlay:
-            overlay.visible = false
-            overlay_panels.append(overlay)
+        var overlay_root := get_node_or_null("/root/" + overlay_name)
+        if overlay_root:
+            overlay_root.process_mode = Node.PROCESS_MODE_DISABLED
+            var panel := overlay_root.get_node_or_null("Panel") as CanvasItem
+            if panel:
+                panel.visible = false
+                overlay_panels.append(panel)
 
     # --cam=x,y : 플레이어(=카메라 부모)를 옮겨 원하는 지점을 프레이밍
     if args.has("cam"):

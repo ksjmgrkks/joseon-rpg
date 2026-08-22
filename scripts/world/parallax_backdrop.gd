@@ -39,7 +39,7 @@ class_name ParallaxBackdrop
 @export var clouds: bool = true
 # 야간 분위기 자동 판정 임계(하늘 휘도). 이보다 어두우면 별/반딧불 표시. 음수면 끔.
 @export var night_luminance: float = 0.55
-## 비주얼 세트. 빈 문자열은 기존 공용 산수, stage1/3/4는 각 스테이지 전용 리마스터.
+## 비주얼 세트. 빈 문자열은 기존 공용 산수, stage1/2/3/4는 각 스테이지 전용 리마스터.
 @export var art_set: String = ""
 
 # 신규 PixelLab 수묵 산 실루엣(있으면 이걸 쓰고, 없으면 옛 스트립으로 폴백).
@@ -50,6 +50,11 @@ const ART_SETS := {
         "far": "res://assets/sprites/bg/stage1/far.png",
         "mid": "res://assets/sprites/bg/stage1/mid.png",
         "near": "res://assets/sprites/bg/stage1/near.png",
+    },
+    "stage2": {
+        "far": "res://assets/sprites/bg/stage2/far.png",
+        "mid": "res://assets/sprites/bg/stage2/mid.png",
+        "near": "res://assets/sprites/bg/stage2/near.png",
     },
     "stage3": {
         "far": "res://assets/sprites/bg/stage3/far.png",
@@ -186,13 +191,13 @@ func _build_mountains(paths: Dictionary) -> void:
     var hill_tex: Texture2D = load(paths["mid"])
     # 원경 먼 산맥 — 하늘색으로 흐려(대기 원근) 위쪽 깊이.
     var far_col := tint.lerp(sky_color, aerial)
-    far_col.a = 0.48 if art_set == "stage1" else (0.42 if art_set == "stage3" else (0.72 if art_set == "stage4" else 1.0))
+    far_col.a = 0.48 if art_set == "stage1" else (0.72 if art_set == "stage2" else (0.42 if art_set == "stage3" else (0.72 if art_set == "stage4" else 1.0)))
     _mountain_layer(far_tex, far_scale, far_col, 1.0, horizon_y + 44.0)
     if mist:
         _add_mist(far_scale + 0.03, horizon_y - 6.0, 0.26, 9.0)
     # 중경 솔숲 — 플레이 지면 바로 뒤에 앉혀 근경감.
     var mid_col := tint.lerp(sky_color, aerial * 0.3)
-    mid_col.a = 0.62 if art_set == "stage1" else (0.68 if art_set == "stage3" else (0.84 if art_set == "stage4" else 1.0))
+    mid_col.a = 0.62 if art_set == "stage1" else (0.82 if art_set == "stage2" else (0.68 if art_set == "stage3" else (0.84 if art_set == "stage4" else 1.0)))
     _mountain_layer(hill_tex, mid_scale, mid_col, 1.0, horizon_y + 120.0)
     if mist:
         _add_mist(mid_scale + 0.04, horizon_y + 84.0, 0.20, 13.0)
@@ -201,7 +206,7 @@ func _build_mountains(paths: Dictionary) -> void:
     if near_path != "" and ResourceLoader.exists(near_path):
         var near_tex: Texture2D = load(near_path)
         var near_col := tint.lerp(sky_color, aerial * 0.08)
-        near_col.a = 0.45 if art_set == "stage1" else (0.62 if art_set == "stage4" else 0.50)
+        near_col.a = 0.45 if art_set == "stage1" else (0.68 if art_set == "stage2" else (0.62 if art_set == "stage4" else 0.50))
         _mountain_layer(near_tex, near_scale, near_col, 1.0, horizon_y + 132.0)
 
 

@@ -362,6 +362,15 @@ func _build_platforms(items: Array, ground_tileset: String) -> void:
             var fill: Texture2D = patterns["fill"]
             _tiled_from_tex(fill, pw, 40, Vector2(left, py + 12.0), mod)
             _tiled_from_tex(surf, pw, 32, Vector2(left, py - SURFACE_RISE), mod)
+        # 스테이지 전용 투명 발판(예: stage2/root_platform)을 먼저 쓴다.
+        # SIDE atlas가 아닌 일반 반복 텍스처라서 검은 직사각형 속재질 없이
+        # 뿌리·나뭇가지 실루엣만 떠 있는 발판으로 보인다.
+        elif ResourceLoader.exists(TILE_DIR % name):
+            var t := TiledSprite.new()
+            t.tex_path = TILE_DIR % name
+            t.width = pw; t.height = 32
+            t.position = Vector2(left, py - 8.0)
+            add_child(t)
         elif ResourceLoader.exists(TILE_DIR % "wood_platform"):
             var t := TiledSprite.new()
             t.tex_path = TILE_DIR % "wood_platform"
@@ -505,6 +514,7 @@ func _build_auto_dialogues(items: Array) -> void:
         area.position = Vector2(float(a.get("x", 560)), float(a.get("y", 620)))
         area.dialogue_path = String(a.get("dialogue", ""))
         area.once_flag = String(a.get("once_flag", ""))
+        area.requires_flag = String(a.get("requires_flag", ""))
         var cs := CollisionShape2D.new()
         var shape := RectangleShape2D.new()
         shape.size = Vector2(float(a.get("w", 120)), float(a.get("h", 110)))
