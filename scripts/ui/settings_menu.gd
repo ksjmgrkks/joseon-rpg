@@ -33,6 +33,7 @@ func _ready() -> void:
     save_btn.pressed.connect(_on_save)
     back_btn.pressed.connect(_on_back)
     _build_haptics_row()
+    _build_screen_shake_row()
     _build_touch_layout_row()
     _build_view_row()
     _build_keys_section()
@@ -52,6 +53,27 @@ func _build_haptics_row() -> void:
         ScreenFx.set_haptics(on)
         Audio.play_sfx(Sfx.UI)
         status_label.text = "진동 %s" % ("켜짐" if on else "꺼짐"))
+    row.add_child(chk)
+    var spacer := vbox.get_node("Spacer")
+    vbox.add_child(row)
+    vbox.move_child(row, spacer.get_index())
+
+
+## 무작위 카메라 진동만 끄는 접근성 옵션. 명중 확대·슬로 모션은 유지한다.
+func _build_screen_shake_row() -> void:
+    var row := HBoxContainer.new()
+    row.add_theme_constant_override("separation", 12)
+    var lbl := Label.new()
+    lbl.text = "화면 흔들림"
+    lbl.custom_minimum_size = Vector2(200, 0)
+    row.add_child(lbl)
+    var chk := CheckButton.new()
+    chk.button_pressed = ScreenFx.screen_shake_enabled
+    chk.tooltip_text = "무작위 카메라 진동을 켜거나 끕니다"
+    chk.toggled.connect(func(on: bool) -> void:
+        ScreenFx.set_screen_shake(on)
+        Audio.play_sfx(Sfx.UI)
+        status_label.text = "화면 흔들림 %s" % ("켜짐" if on else "꺼짐"))
     row.add_child(chk)
     var spacer := vbox.get_node("Spacer")
     vbox.add_child(row)

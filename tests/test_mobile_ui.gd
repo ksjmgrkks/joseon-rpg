@@ -8,6 +8,7 @@ extends Node
 ## 3) 버튼끼리 겹치지 않는가 (오폭 방지)
 ## 4) 손가락에 맞는 크기인가 (지름 64px 이상)
 ## 5) 진동 설정이 파일에 남는가
+## 6) 화면 흔들림 설정이 파일에 남는가
 ##
 
 const PASS := "PASS"
@@ -30,6 +31,7 @@ func _ready() -> void:
     results.append(_check_no_overlap())
     results.append(_check_touch_size())
     results.append(_check_haptics_persist())
+    results.append(_check_screen_shake_persist())
     results.append(_check_hit_geometry())
     results.append(_check_portrait_guard())
     results.append(_check_new_art_wired())
@@ -117,6 +119,22 @@ func _check_haptics_persist() -> Dictionary:
     if saved != false:
         return { "name": "haptics_persist", "status": FAIL, "reason": "저장값=%s (기대 false)" % str(saved) }
     return { "name": "haptics_persist", "status": PASS, "reason": "" }
+
+
+func _check_screen_shake_persist() -> Dictionary:
+    var before := ScreenFx.screen_shake_enabled
+    ScreenFx.set_screen_shake(false)
+    var cfg := ConfigFile.new()
+    var err := cfg.load(ScreenFx.SETTINGS_PATH)
+    var saved = cfg.get_value("feel", "screen_shake", true) if err == OK else null
+    ScreenFx.set_screen_shake(before)
+    if err != OK:
+        return { "name": "screen_shake_persist", "status": FAIL,
+            "reason": "settings.cfg 저장 안 됨 (err=%d)" % err }
+    if saved != false:
+        return { "name": "screen_shake_persist", "status": FAIL,
+            "reason": "저장값=%s (기대 false)" % str(saved) }
+    return { "name": "screen_shake_persist", "status": PASS, "reason": "" }
 
 
 # 세로로 든 화면에서는 expand 를 끄고 레터박스로 — 하늘만 보이는 화면 방지.

@@ -33,6 +33,8 @@ func _ready() -> void:
 
 
 func shake(intensity: float = 6.0, duration: float = 0.18) -> void:
+    if not screen_shake_enabled:
+        return
     var cam := _current_camera()
     if cam == null:
         return
@@ -117,6 +119,7 @@ func _time_dilate(duration: float, scale: float) -> void:
 ## 설정 메뉴의 토글로 끌 수 있고, user://settings.cfg 에 남는다.
 const SETTINGS_PATH := "user://settings.cfg"
 var haptics_enabled: bool = true
+var screen_shake_enabled: bool = true
 
 
 func set_haptics(on: bool) -> void:
@@ -127,11 +130,24 @@ func set_haptics(on: bool) -> void:
     cfg.save(SETTINGS_PATH)
 
 
+## 무작위 카메라 진동만 제어한다. 명중 확대·슬로 모션은 별도 타격 연출로 유지한다.
+## 끄는 순간 진행 중인 진동도 사용자 기준 offset으로 되돌린다.
+func set_screen_shake(on: bool) -> void:
+    screen_shake_enabled = on
+    if not on:
+        _cancel_camera_shake()
+    var cfg := ConfigFile.new()
+    cfg.load(SETTINGS_PATH)
+    cfg.set_value("feel", "screen_shake", on)
+    cfg.save(SETTINGS_PATH)
+
+
 func _load_settings() -> void:
     var cfg := ConfigFile.new()
     if cfg.load(SETTINGS_PATH) != OK:
         return
     haptics_enabled = bool(cfg.get_value("feel", "haptics", true))
+    screen_shake_enabled = bool(cfg.get_value("feel", "screen_shake", true))
 
 
 func rumble(ms: int = 18) -> void:
@@ -182,3 +198,13 @@ func _finish_focus(cam: Camera2D, serial: int) -> void:
     _focus_tween = null
     _focus_camera = null
     _focus_target_ratio = 1.0
+
+
+func _cancel_camera_shake() -> void:
+    _camera_fx_serial += 1
+    if _active_tween and _active_tween.is_valid():
+        _active_tween.kill()
+    if is_instance_valid(_active_camera):
+        _active_camera.offset = _active_base_offset
+    _active_tween = null
+    _active_camera = null

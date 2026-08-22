@@ -13,6 +13,7 @@ extends Node
 ## 8) 유효 명중 피드백이 미세 확대+완만한 감속 프로필인가
 ## 9) 연속 확대 후 사용자 기준 zoom으로 정확히 복귀하는가
 ## 10) 명중 슬로 모션이 실시간 타이머 뒤 원래 time_scale로 복귀하는가
+## 11) 화면 흔들림을 끄면 offset은 즉시 원복되고 명중 확대는 유지되는가
 ##
 
 const PASS := "PASS"
@@ -32,6 +33,7 @@ func _ready() -> void:
     results.append(_check_camera_feedback_profile())
     results.append(await _check_camera_focus_rebases())
     results.append(await _check_slow_motion_restores())
+    results.append(await _check_screen_shake_toggle_restores_camera())
 
     var failed := 0
     for r in results:
@@ -219,6 +221,8 @@ func _check_camera_feedback_profile() -> Dictionary:
 
 
 func _check_camera_focus_rebases() -> Dictionary:
+    var effect_before := ScreenFx.screen_shake_enabled
+    ScreenFx.set_screen_shake(true)
     var cam := Camera2D.new()
     var base := Vector2(1.5, 1.5)
     cam.zoom = base
@@ -233,6 +237,7 @@ func _check_camera_focus_rebases() -> Dictionary:
     var returned := cam.zoom.distance_to(base) < 0.001
     var final_zoom := cam.zoom
     cam.queue_free()
+    ScreenFx.set_screen_shake(effect_before)
     return {"name": "camera_focus_restores_user_zoom", "status": PASS if returned else FAIL,
         "reason": "final=%s base=%s" % [str(final_zoom), str(base)] if not returned else ""}
 
@@ -248,3 +253,32 @@ func _check_slow_motion_restores() -> Dictionary:
     var ok := slowed and restored
     return {"name": "hit_slow_motion_restores_time_scale", "status": PASS if ok else FAIL,
         "reason": "slowed=%s restored=%s" % [str(slowed), str(restored)] if not ok else ""}
+
+
+func _check_screen_shake_toggle_restores_camera() -> Dictionary:
+    var effect_before := ScreenFx.screen_shake_enabled
+    ScreenFx.set_screen_shake(true)
+    var cam := Camera2D.new()
+    var base_offset := Vector2(7.0, -3.0)
+    var base_zoom := Vector2(1.5, 1.5)
+    cam.offset = base_offset
+    cam.zoom = base_zoom
+    add_child(cam)
+    cam.make_current()
+    await get_tree().process_frame
+
+    ScreenFx.shake(12.0, 0.2)
+    cam.offset = base_offset + Vector2(5.0, 4.0)
+    ScreenFx.set_screen_shake(false)
+    var offset_restored := cam.offset.distance_to(base_offset) < 0.001
+    ScreenFx.impact_focus(1.2, 0.1, 0.2)
+    await get_tree().create_timer(0.06, true, false, true).timeout
+    var focus_kept := cam.zoom.x > base_zoom.x * 1.01
+    await get_tree().create_timer(0.3, true, false, true).timeout
+    var zoom_restored := cam.zoom.distance_to(base_zoom) < 0.001
+    var disabled := not ScreenFx.screen_shake_enabled
+    cam.queue_free()
+    ScreenFx.set_screen_shake(effect_before)
+    var ok := offset_restored and focus_kept and zoom_restored and disabled
+    return {"name": "screen_shake_toggle_restores_camera", "status": PASS if ok else FAIL,
+        "reason": "offset=%s focus=%s zoom=%s disabled=%s" % [str(offset_restored), str(focus_kept), str(zoom_restored), str(disabled)] if not ok else ""}
