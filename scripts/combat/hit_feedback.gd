@@ -13,8 +13,8 @@ static func profile(hit_count: int = 1, power: float = 1.0, pitch_bias: float = 
     return {
         "volume_db": 1.0 + minf(4.0, float(stack)),
         "pitch": clampf(1.0 + pitch_bias + 0.05 * float(stack), 0.85, 1.35),
-        # 2차 튠 대비 정확히 2배: 기본 3.8%, 3타 5.8%, 궁극기 7%, 다중 상한 8%.
-        "zoom_ratio": 1.0 + minf(0.08, 0.018 + 0.020 * weight + 0.006 * float(stack)),
+        # 직전 확대량만 3배: 기본 11.4%, 3타 17.4%, 궁극기 21%, 다중 상한 24%.
+        "zoom_ratio": 1.0 + minf(0.24, 0.054 + 0.060 * weight + 0.018 * float(stack)),
         "zoom_in": minf(0.021 + 0.0035 * weight, 0.032),
         "zoom_out": minf(0.075 + 0.010 * weight, 0.11),
         "slow_duration": minf(0.036 + 0.036 * weight, 0.14),
