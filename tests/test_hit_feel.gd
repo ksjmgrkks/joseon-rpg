@@ -204,10 +204,10 @@ func _check_camera_feedback_profile() -> Dictionary:
     var landed_section := player_src.get_slice("func _on_hitbox_landed", 1).get_slice("func _start_dodge", 0)
     var ratio := float(feel.get("zoom_ratio", 9.0))
     var slow_scale := float(feel.get("slow_scale", 0.0))
-    var ok := ratio >= 1.018 and ratio <= 1.022 \
-        and slow_scale >= 0.6 and slow_scale <= 0.7 \
-        and float(feel.get("slow_duration", 0.0)) >= 0.035 \
-        and float(feel.get("slow_duration", 1.0)) <= 0.04 \
+    var ok := ratio >= 1.036 and ratio <= 1.04 \
+        and slow_scale >= 0.3 and slow_scale <= 0.35 \
+        and float(feel.get("slow_duration", 0.0)) >= 0.07 \
+        and float(feel.get("slow_duration", 1.0)) <= 0.075 \
         and float(heavy.get("zoom_ratio", 0.0)) > ratio \
         and float(heavy.get("slow_duration", 0.0)) > float(feel.get("slow_duration", 0.0)) \
         and float(heavy.get("slow_scale", 1.0)) < slow_scale \

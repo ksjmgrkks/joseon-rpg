@@ -13,11 +13,13 @@ static func profile(hit_count: int = 1, power: float = 1.0, pitch_bias: float = 
     return {
         "volume_db": 1.0 + minf(4.0, float(stack)),
         "pitch": clampf(1.0 + pitch_bias + 0.05 * float(stack), 0.85, 1.35),
-        "zoom_ratio": 1.0 + minf(0.04, 0.009 + 0.010 * weight + 0.003 * float(stack)),
+        # 2차 튠 대비 정확히 2배: 기본 3.8%, 3타 5.8%, 궁극기 7%, 다중 상한 8%.
+        "zoom_ratio": 1.0 + minf(0.08, 0.018 + 0.020 * weight + 0.006 * float(stack)),
         "zoom_in": minf(0.021 + 0.0035 * weight, 0.032),
         "zoom_out": minf(0.075 + 0.010 * weight, 0.11),
-        "slow_duration": minf(0.018 + 0.018 * weight, 0.07),
-        "slow_scale": clampf(0.86 - 0.2 * weight, 0.42, 0.76),
+        "slow_duration": minf(0.036 + 0.036 * weight, 0.14),
+        # time_scale은 작을수록 강한 감속이므로 이전 값을 절반으로 내려 체감 강도를 2배로 한다.
+        "slow_scale": clampf((0.86 - 0.2 * weight) * 0.5, 0.21, 0.38),
         "heavy": stack >= 1,
         "stack": stack,
     }

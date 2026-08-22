@@ -93,10 +93,10 @@ func hit_stop(duration: float = 0.06, scale: float = 0.05) -> void:
     _time_dilate(duration, scale)
 
 
-## 명중용 완만한 시간 감속. hit-stop과 같은 실시간 복구 장치를 쓰되 0.42 이상만 허용해
+## 명중용 시간 감속. hit-stop과 같은 실시간 복구 장치를 쓰되 0.21 이상만 허용해
 ## 화면이 멎지 않고 공격 동작이 잠깐 묵직해지는 정도로 제한한다.
 func slow_motion(duration: float = 0.025, scale: float = 0.7) -> void:
-    _time_dilate(duration, clampf(scale, 0.42, 0.9))
+    _time_dilate(duration, clampf(scale, 0.21, 0.9))
 
 
 func _time_dilate(duration: float, scale: float) -> void:
