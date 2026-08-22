@@ -10,6 +10,8 @@ extends CharacterBody2D
 ##     차지 중에는 이동 속도 감소·sprite 약간 밝아짐.
 ##
 
+const HIT_FEEDBACK := preload("res://scripts/combat/hit_feedback.gd")
+
 const SPEED: float = 220.0           # px/s
 const SPEED_CHARGING: float = 80.0   # 차지 중 이동 속도
 const JUMP_VELOCITY: float = -380.0  # px/s (위쪽이 음수)
@@ -119,8 +121,8 @@ func _ready() -> void:
     if sprite:
         _base_modulate = sprite.modulate
     if attack_hitbox:
-        # 내가 친 게 적의 Hurtbox에 닿으면 화면 fx 발사
-        attack_hitbox.area_entered.connect(_on_hitbox_landed)
+        # Hurtbox가 실제 HP 감소를 확인한 뒤에만 유효 명중 피드백을 발사한다.
+        attack_hitbox.landed.connect(_on_hitbox_landed)
     if attack_shape and attack_shape.shape is RectangleShape2D:
         _hitbox_base_size = (attack_shape.shape as RectangleShape2D).size
     SkillManager.skill_cast.connect(_on_skill_cast)
@@ -463,14 +465,8 @@ func _on_hitbox_landed(area: Area2D) -> void:
         return
     _swing_hits += 1
     var stack := _swing_hits - 1                      # 두 번째 대상부터 '겹침'
-    # 명중 순간에만 나는 전용 파열음. 대상이 늘수록 음정·음량이 올라가며 층을 만든다.
-    Audio.play_sfx(Sfx.HIT_CONFIRM, 1.5 + minf(3.0, float(stack)), 1.0 + 0.055 * float(stack))
-    # 둘 이상 쓸었으면 저역 타격을 한 번 더 얹어 '묵직하게' 만든다.
-    if stack >= 1:
-        Audio.play_sfx(Sfx.HIT_HEAVY, -1.0 + minf(3.0, float(stack)), 1.0)
-    # 짧은 미세 흔들림만 사용해 명중은 읽히되 화면 피로는 남기지 않는다.
-    var landed_strength := (3.2 + 1.1 * float(_combo_step)) * (1.0 + 0.32 * float(stack))
-    ScreenFx.shake(minf(landed_strength, 10.5), 0.11)
+    # 기본 1~3타·차지·도혼참 모두 같은 실데미지 신호를 쓰므로 여기서 빠짐없이 확인된다.
+    HIT_FEEDBACK.player_hit(_swing_hits, 0.75 + 0.3 * float(maxi(1, _combo_step)))
     # 등급별 히트스톱 — 1·2타는 짧고 얕게(경쾌), 3타(마무리)는 길고 '딱' 멈춤(묵직).
     # 여러 명을 쓸었으면 조금 더 길게 멈춰 '한 방에 여럿'이 손에 남게 한다.
     var stop_add := minf(0.03, 0.012 * float(stack))
@@ -572,7 +568,7 @@ func _skill_ultimate() -> void:
     SkillFx.ultimate(ground)
     SkillFx.ground_shock(ground, radius)
     # 사거리 안 모든 적에게 피해 (궁극기는 히트박스를 안 거치므로 피격음을 1회 직접 재생)
-    var hit_any := false
+    var hit_count := 0
     for e in get_tree().get_nodes_in_group("enemy"):
         if not (e is Node2D):
             continue
@@ -580,12 +576,13 @@ func _skill_ultimate() -> void:
             continue
         # 히트박스와 같은 경로 — 궁극기도 데미지 숫자·섬광·움찔이 나오게(2026-08-22).
         if Hurtbox.deal(e, dmg, 220.0 * (1.0 if _facing_right else -1.0), self):
-            hit_any = true
+            hit_count += 1
             var epos: Vector2 = (e as Node2D).global_position + Vector2(0, -16)
             SkillFx.impact(epos, true)
             SkillFx.bleed(epos, _facing_right, true)
-    if hit_any:
-        Audio.play_sfx(Sfx.HIT, 3.0)
+    if hit_count > 0:
+        # 착지 자체의 대형 흔들림이 이미 있으므로 공통 함수에서는 확인음·다중 저역만 추가한다.
+        HIT_FEEDBACK.player_hit(hit_count, 2.6, -0.04, false)
     await get_tree().create_timer(0.4).timeout
     _attacking = false
 

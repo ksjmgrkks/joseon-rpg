@@ -8,6 +8,8 @@ extends Node
 ## 3) 피격 시 잔상(lag) 바가 실제 바보다 뒤에 남는가 (깎인 양이 보임)
 ## 4) 피격 시 넉백이 배수로 커져 실제로 뒤로 밀리는가 + 경직이 걸리는가
 ## 5) 보스 바가 더 두꺼운가
+## 6) Hitbox 유효 명중 신호가 실제 HP 감소에만 발신되는가
+## 7) 근접·부적·궁극기가 공통 HitFeedback 경로를 쓰는가
 ##
 
 const PASS := "PASS"
@@ -22,6 +24,8 @@ func _ready() -> void:
     results.append(await _check_lag_bar())
     results.append(await _check_knockback())
     results.append(await _check_boss_bar())
+    results.append(await _check_valid_hit_signal())
+    results.append(_check_all_player_attack_feedback_routes())
 
     var failed := 0
     for r in results:
@@ -138,3 +142,48 @@ func _check_boss_bar() -> Dictionary:
     var reason := "" if ok else "height=%.1f width=%.1f pos.y=%.1f top=%.1f" % [bar._height, bar._width, bar.position.y, top]
     e.queue_free()
     return { "name": "boss_bar_bigger", "status": PASS if ok else FAIL, "reason": reason }
+
+
+func _check_valid_hit_signal() -> Dictionary:
+    var attacker := Node2D.new()
+    var hitbox := Hitbox.new()
+    hitbox.damage = 10.0
+    attacker.add_child(hitbox)
+    add_child(attacker)
+    var victim := Node2D.new()
+    var hurtbox := Hurtbox.new()
+    hurtbox.name = "Hurtbox"
+    victim.add_child(hurtbox)
+    var health := HealthComponent.new()
+    health.name = "HealthComponent"
+    health.max_hp = 30.0
+    health.hurtbox_path = NodePath("../Hurtbox")
+    victim.add_child(health)
+    add_child(victim)
+    await get_tree().process_frame
+    var landed := [0]
+    hitbox.landed.connect(func(_target: Area2D) -> void: landed[0] += 1)
+    hurtbox._on_area_entered(hitbox)
+    var first_ok: bool = is_equal_approx(health.hp, 20.0) and int(landed[0]) == 1
+    health.shield_charges = 1
+    hurtbox._on_area_entered(hitbox)
+    var shield_ok: bool = is_equal_approx(health.hp, 20.0) and int(landed[0]) == 1
+    attacker.queue_free()
+    victim.queue_free()
+    var ok: bool = first_ok and shield_ok
+    return {"name": "valid_hit_signal_only_after_damage", "status": PASS if ok else FAIL,
+        "reason": "hp=%.0f landed=%d (실피해 1회만 기대)" % [health.hp, landed[0]] if not ok else ""}
+
+
+func _check_all_player_attack_feedback_routes() -> Dictionary:
+    var player_src := (load("res://scripts/player/player.gd") as GDScript).get_source_code()
+    var shot_src := (load("res://scripts/combat/talisman_shot.gd") as GDScript).get_source_code()
+    var problems: Array[String] = []
+    if not player_src.contains("attack_hitbox.landed.connect(_on_hitbox_landed)"):
+        problems.append("기본/차지/도혼참 landed 배선 없음")
+    if player_src.count("HIT_FEEDBACK.player_hit") < 2:
+        problems.append("근접 또는 궁극기 공통 피드백 누락")
+    if not shot_src.contains("HIT_FEEDBACK.player_hit"):
+        problems.append("부적 공통 피드백 누락")
+    return {"name": "all_player_attacks_use_hit_confirm", "status": PASS if problems.is_empty() else FAIL,
+        "reason": ", ".join(problems)}

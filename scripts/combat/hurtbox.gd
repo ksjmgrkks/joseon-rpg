@@ -29,7 +29,13 @@ func _on_area_entered(area: Area2D) -> void:
     var dir_x := signf(global_position.x - area.global_position.x)
     if dir_x == 0.0:
         dir_x = 1.0
+    var health := victim.get_node_or_null("HealthComponent") as HealthComponent
+    var hp_before := health.hp if health != null else -1.0
     hurt.emit(hb.damage, hb.knockback * dir_x, attacker)
+    # 수신 핸들러는 동기 실행된다. HP가 실제로 줄었을 때만 공격자에게 '유효 명중'을 알린다.
+    # 위장 그슨대·보호막·무적 대상에 칼이 닿은 것은 명중 확인음으로 속이지 않는다.
+    if health == null or health.hp < hp_before:
+        hb.landed.emit(self)
 
 
 ## 히트박스를 거치지 않는 피해(투사체·장판·궁극기)를 **히트박스와 같은 경로로** 꽂는다.
@@ -45,11 +51,14 @@ static func deal(target: Node, damage: float, knockback: float, attacker: Node) 
         return false
     var hb := target.get_node_or_null("Hurtbox") as Hurtbox
     if hb != null:
+        var health := target.get_node_or_null("HealthComponent") as HealthComponent
+        var hp_before := health.hp if health != null else -1.0
         hb.hurt.emit(damage, knockback, attacker)
-        return true
+        return health == null or health.hp < hp_before
     # Hurtbox 가 없는 대상(특수 오브젝트)은 예전 경로로 폴백.
     var hc: HealthComponent = target.get_node_or_null("HealthComponent")
     if hc != null:
+        var hp_before := hc.hp
         hc.take_damage(damage, attacker)
-        return true
+        return hc.hp < hp_before
     return false

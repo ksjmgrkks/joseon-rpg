@@ -25,6 +25,7 @@ func _ready() -> void:
     results.append(await _check_cards_built())
     results.append(await _check_pick_emits_scene())
     results.append(_check_art_assets_present())
+    results.append(_check_copy_direction())
 
     var failed := 0
     for r in results:
@@ -52,12 +53,14 @@ func _check_cards_built() -> Dictionary:
     var inst := SELECT_SCENE.instantiate()
     add_child(inst)
     await get_tree().process_frame
-    var cards: VBoxContainer = inst.get_node("Margin/VBox/Cards")
+    var cards: HBoxContainer = inst.get_node("Margin/VBox/Cards")
     var count := cards.get_child_count()
+    var wide_layout := cards is HBoxContainer
+    var card_sized := count == 3 and (cards.get_child(0) as Control).custom_minimum_size.y >= 360.0
     inst.queue_free()
-    if count != 3:
+    if count != 3 or not wide_layout or not card_sized:
         return { "name": "three_stage_cards", "status": FAIL,
-            "reason": "카드 %d개 생성됨 (기대: 3)" % count }
+            "reason": "카드 수=%d 가로배치=%s 카드높이충분=%s" % [count, str(wide_layout), str(card_sized)] }
     return { "name": "three_stage_cards", "status": PASS, "reason": "" }
 
 
@@ -78,7 +81,7 @@ func _check_pick_emits_scene() -> Dictionary:
                 "reason": "슬롯 %d 씬 경로 불일치: %s (기대 %s)" % [i, got, EXPECTED_SCENES[i]] }
     var picked := [""]   # 배열로 감싸야 람다가 참조로 캡처(GDScript 람다는 값 캡처)
     inst.stage_chosen.connect(func(p: String) -> void: picked[0] = p)
-    var cards: VBoxContainer = inst.get_node("Margin/VBox/Cards")
+    var cards: HBoxContainer = inst.get_node("Margin/VBox/Cards")
     (cards.get_child(1) as BaseButton).pressed.emit()
     inst.queue_free()
     if picked[0] != EXPECTED_SCENES[1]:
@@ -88,8 +91,23 @@ func _check_pick_emits_scene() -> Dictionary:
 
 
 func _check_art_assets_present() -> Dictionary:
-    for p in ["res://assets/ui/stage_select_window.png", "res://assets/ui/stage_select_button.png"]:
+    for p in [
+            "res://assets/ui/stage_select_window.png",
+            "res://assets/ui/stage_cards/stage1_flooded_valley.png",
+            "res://assets/ui/stage_cards/stage2_geuseondae_forest.png",
+            "res://assets/ui/stage_cards/stage3_ruined_market.png"]:
         if not ResourceLoader.exists(p):
             return { "name": "pixellab_art_present", "status": FAIL,
                 "reason": "%s 없음 — 플레이스홀더로 폴백" % p }
     return { "name": "pixellab_art_present", "status": PASS, "reason": "" }
+
+
+func _check_copy_direction() -> Dictionary:
+    var subtitle := Locale.t("menu.subtitle")
+    if subtitle != "원혼을 달래, 맺힌 한을 풀다":
+        return {"name": "haewon_copy_direction", "status": FAIL,
+            "reason": "시작 문구가 원혼 진혼 방향이 아님: %s" % subtitle}
+    if Locale.t("stageselect.title") != "해원할 땅을 고르시오":
+        return {"name": "haewon_copy_direction", "status": FAIL,
+            "reason": "스테이지 선택 제목이 새 방향과 다름"}
+    return {"name": "haewon_copy_direction", "status": PASS, "reason": ""}

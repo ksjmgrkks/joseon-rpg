@@ -6,6 +6,8 @@ class_name TalismanShot
 ## SpiritOrb(적 원거리 투사체)와 대칭 구조 — 여긴 반대로 "enemy" 그룹 바디만 감지.
 ##
 
+const HIT_FEEDBACK := preload("res://scripts/combat/hit_feedback.gd")
+
 var velocity: Vector2 = Vector2.ZERO
 var damage: float = 10.0
 var knockback: float = 160.0
@@ -90,9 +92,9 @@ func _on_body_entered(body: Node) -> void:
 	# 특수 반응 훅 — 부적(빛)에만 반응하는 적(예: 위장 상태의 그슨대)이 데미지 대신
 	# 자체 처리를 하고 싶을 때 이 메서드를 구현해두면 여기서 대신 호출한다.
 	if body.has_method("_on_talisman_hit"):
-		body._on_talisman_hit(damage, attacker)
-		Audio.play_sfx(Sfx.HIT_CONFIRM, 0.0, 1.08)
-		ScreenFx.shake(2.8, 0.09)
+		var special_landed := bool(body._on_talisman_hit(damage, attacker))
+		if special_landed:
+			HIT_FEEDBACK.player_hit(1, 0.8, 0.08)
 		queue_free()
 		return
 	# 히트박스와 같은 경로로 꽂아야 데미지 숫자·섬광·움찔·넉백이 근접타와 똑같이 나온다.
@@ -100,6 +102,5 @@ func _on_body_entered(body: Node) -> void:
 	if landed:
 		if body is Node2D:
 			SkillFx.impact((body as Node2D).global_position + Vector2(0, -16), false)
-		Audio.play_sfx(Sfx.HIT_CONFIRM, 1.0, 1.06)
-		ScreenFx.shake(3.0, 0.09)
+		HIT_FEEDBACK.player_hit(1, 0.8, 0.06)
 	queue_free()

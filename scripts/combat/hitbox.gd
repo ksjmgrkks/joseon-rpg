@@ -9,6 +9,10 @@ class_name Hitbox
 ## 겹친 채 다시 켜면 페어가 재생성되지 않아(정지 상태 공격 헛스윙) 사용하지 않는다.
 ##
 
+## Hurtbox가 실제 HP 감소를 확인한 뒤 발신한다. Area2D.area_entered는 이 Hitbox가
+## monitoring=false라 발신되지 않으므로, 명중 피드백은 반드시 이 신호를 사용한다.
+signal landed(target: Area2D)
+
 @export var damage: float = 10.0
 @export var knockback: float = 200.0  # px/s, 양수면 hitbox→target 방향으로 밀려남
 

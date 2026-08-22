@@ -7,6 +7,8 @@ layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 script = ExtResource("1_select")
 
 [node name="Bg" type="ColorRect" parent="."]
@@ -14,7 +16,9 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-color = Color(0.10, 0.09, 0.07, 0.92)
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.035, 0.032, 0.027, 0.98)
 
 [node name="WindowFrame" type="TextureRect" parent="."]
 layout_mode = 1
@@ -23,45 +27,72 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -420.0
-offset_top = -280.0
-offset_right = 420.0
-offset_bottom = 280.0
+offset_left = -590.0
+offset_top = -330.0
+offset_right = 590.0
+offset_bottom = 330.0
+grow_horizontal = 2
+grow_vertical = 2
 expand_mode = 1
 stretch_mode = 6
+modulate = Color(0.82, 0.79, 0.71, 1)
 
 [node name="Margin" type="MarginContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-theme_override_constants/margin_left = 120
-theme_override_constants/margin_top = 90
-theme_override_constants/margin_right = 120
-theme_override_constants/margin_bottom = 90
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 108
+theme_override_constants/margin_top = 68
+theme_override_constants/margin_right = 108
+theme_override_constants/margin_bottom = 92
 
 [node name="VBox" type="VBoxContainer" parent="Margin"]
 layout_mode = 2
-theme_override_constants/separation = 16
+theme_override_constants/separation = 9
 
 [node name="Title" type="Label" parent="Margin/VBox"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 32
-text = "스테이지 선택"
+theme_override_colors/font_color = Color(0.80, 0.67, 0.38, 1)
+theme_override_colors/font_outline_color = Color(0.04, 0.035, 0.03, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 34
+text = "해원할 땅을 고르시오"
 horizontal_alignment = 1
 
-[node name="Cards" type="VBoxContainer" parent="Margin/VBox"]
+[node name="Lead" type="Label" parent="Margin/VBox"]
 layout_mode = 2
-theme_override_constants/separation = 14
+theme_override_colors/font_color = Color(0.68, 0.62, 0.52, 0.92)
+theme_override_font_sizes/font_size = 16
+text = "각 땅에 맺힌 원혼과 사연이 기다립니다"
+horizontal_alignment = 1
+
+[node name="HeaderRule" type="HSeparator" parent="Margin/VBox"]
+layout_mode = 2
+modulate = Color(0.45, 0.34, 0.19, 0.55)
+
+[node name="Cards" type="HBoxContainer" parent="Margin/VBox"]
+custom_minimum_size = Vector2(0, 388)
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 18
+alignment = 1
 
 [node name="Hint" type="Label" parent="Margin/VBox"]
 layout_mode = 2
+theme_override_colors/font_color = Color(0.58, 0.51, 0.40, 0.78)
+theme_override_font_sizes/font_size = 14
 text = "[Backspace] 메인 메뉴"
-modulate = Color(1, 1, 1, 0.6)
 horizontal_alignment = 1
 
 [node name="BackBtn" type="Button" parent="Margin/VBox"]
+custom_minimum_size = Vector2(180, 44)
 layout_mode = 2
-custom_minimum_size = Vector2(160, 0)
 size_flags_horizontal = 4
+theme_override_colors/font_color = Color(0.82, 0.70, 0.43, 1)
+theme_override_colors/font_hover_color = Color(0.96, 0.86, 0.58, 1)
+theme_override_colors/font_pressed_color = Color(0.96, 0.86, 0.58, 1)
+theme_override_font_sizes/font_size = 17
 text = "뒤로"

@@ -117,16 +117,16 @@ func _on_hurt(damage: float, knockback: float, attacker: Node) -> void:
 	super._on_hurt(damage, knockback, attacker)
 
 
-## TalismanShot 전용 훅 — 부적(빛)에만 반응한다. 잡몹 그슨대와 동일한 규약.
-func _on_talisman_hit(damage: float, attacker: Node) -> void:
+## TalismanShot 전용 훅. 반환값은 확인음/흔들림을 낼 유효 적중인가를 뜻한다.
+func _on_talisman_hit(damage: float, attacker: Node) -> bool:
 	if _disguised:
 		_reveal()
-		return
+		return true
 	# 히트박스 경로로 — 부적 명중도 근접타와 같은 반응(숫자·섬광·움찔)이 나오게.
 	var kb := 140.0
 	if attacker is Node2D:
 		kb = 140.0 * signf(global_position.x - (attacker as Node2D).global_position.x)
-	Hurtbox.deal(self, damage, kb, attacker)
+	return Hurtbox.deal(self, damage, kb, attacker)
 
 
 func _reveal() -> void:
