@@ -119,6 +119,20 @@ func _check_assets() -> Dictionary:
                 bad.append("%s %s 없음" % [sheet, anim])
         if not FileAccess.file_exists("res://assets/sprites/enemies/%s/manifest.json" % sheet):
             bad.append("%s manifest 없음" % sheet)
+    var chief_manifest_path := "res://assets/sprites/enemies/dokkaebi_chief/manifest.json"
+    if not FileAccess.file_exists(chief_manifest_path):
+        bad.append("도깨비 대장 Pro manifest 없음")
+    else:
+        var chief_manifest = JSON.parse_string(FileAccess.get_file_as_string(chief_manifest_path))
+        if not (chief_manifest is Dictionary):
+            bad.append("도깨비 대장 Pro manifest JSON 오류")
+        else:
+            if int(chief_manifest.get("frame_w", 0)) != 128 or int(chief_manifest.get("frame_h", 0)) != 128:
+                bad.append("도깨비 대장 Pro 프레임 규격이 128x128이 아님")
+            var chief_anims: Dictionary = chief_manifest.get("anims", {})
+            for anim in ["idle", "walk", "telegraph", "attack", "death"]:
+                if int(chief_anims.get(anim, {}).get("frames", 0)) != 4:
+                    bad.append("도깨비 대장 Pro %s가 4프레임이 아님" % anim)
     if ResourceLoader.exists("res://assets/sprites/enemies/dokkaebi_fire/idle.png"):
         var idle: Texture2D = load("res://assets/sprites/enemies/dokkaebi_fire/idle.png")
         if idle.get_width() != 384 or idle.get_height() != 64:
@@ -126,6 +140,7 @@ func _check_assets() -> Dictionary:
     var expected_sheets := {
         "res://scenes/enemies/Dokkaebi.tscn": "enemies/dokkaebi_minion",
         "res://scenes/enemies/DokkaebiBrute.tscn": "enemies/dokkaebi_brute",
+        "res://scenes/enemies/DokkaebiChief.tscn": "enemies/dokkaebi_chief",
     }
     for scene_path in expected_sheets:
         var scene_source := FileAccess.get_file_as_string(scene_path)

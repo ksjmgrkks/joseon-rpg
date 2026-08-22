@@ -5,25 +5,22 @@ extends SceneTree
 ##
 ## 실행: godot --headless --path . --script res://tools/pixel/assemble_dokkaebi_chief.gd
 ##
-## 입력:  .pl_tmp/dokkaebi_chief/<anim>/<i>.png   (east 방향 프레임)
+## 입력:  .pl_tmp/dokkaebi_chief_pro/<anim>/<i>.png   (PixelLab Pro east 방향 프레임)
 ## 출력:  assets/sprites/enemies/dokkaebi_chief/<anim>.png (가로 스트립) + manifest.json
 ##
-## ⚠ 2026-08-20 버그 수정: telegraph/attack 원본이 idle/walk/death와 다른 캔버스 크기(220 vs 160)로
-## 나왔는데, 예전 코드는 get_used_rect() 들을 그대로 merge() 해서 "공통 크롭 창"을 만들었다 —
-## 서로 다른 캔버스의 좌표를 같은 좌표계인 것처럼 합쳐버려 발끝이 어긋났다(대기=붕 뜸, 공격=파고듦).
-## 캐릭터는 모든 원본에서 자기 캔버스 중심에 동일하게 배치돼 있으므로(측정 확인됨), 각 프레임을
-## "자기 캔버스 중심"을 기준으로 공통 출력 캔버스(가장 큰 원본 크기) 중앙에 붙이면 애니메이션 간
-## 발 위치가 자동으로 맞는다.
+## 생성 원본: PixelLab Pro character 6ce3aa1d-576d-4597-ae37-53c9e02e0ec5
+## 128x128 / east / 애니메이션당 4프레임. 생성 기록은 docs/PROMPTS_STAGE3_REMASTER.md 참고.
+## 모든 프레임은 원본 캔버스 중심을 기준으로 붙여, 애니메이션 간 발 위치를 보존한다.
 ##
 
-const SRC := "res://.pl_tmp/dokkaebi_chief"
+const SRC := "res://.pl_tmp/dokkaebi_chief_pro"
 const OUT := "res://assets/sprites/enemies/dokkaebi_chief"
 const ANIMS := {
     "idle":      {"frames": 4, "fps": 5,  "loop": true},
-    "walk":      {"frames": 6, "fps": 8,  "loop": true},
-    "telegraph": {"frames": 5, "fps": 8,  "loop": false},
-    "attack":    {"frames": 7, "fps": 13, "loop": false},
-    "death":     {"frames": 7, "fps": 8,  "loop": false},
+    "walk":      {"frames": 4, "fps": 7,  "loop": true},
+    "telegraph": {"frames": 4, "fps": 7,  "loop": false},
+    "attack":    {"frames": 4, "fps": 11, "loop": false},
+    "death":     {"frames": 4, "fps": 7,  "loop": false},
 }
 
 

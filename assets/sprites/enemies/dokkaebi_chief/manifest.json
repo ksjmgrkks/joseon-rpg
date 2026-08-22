@@ -1,13 +1,13 @@
 {
   "anims": {
     "attack": {
-      "fps": 13,
-      "frames": 7,
+      "fps": 11,
+      "frames": 4,
       "loop": false
     },
     "death": {
-      "fps": 8,
-      "frames": 7,
+      "fps": 7,
+      "frames": 4,
       "loop": false
     },
     "idle": {
@@ -16,16 +16,16 @@
       "loop": true
     },
     "telegraph": {
-      "fps": 8,
-      "frames": 5,
+      "fps": 7,
+      "frames": 4,
       "loop": false
     },
     "walk": {
-      "fps": 8,
-      "frames": 6,
+      "fps": 7,
+      "frames": 4,
       "loop": true
     }
   },
-  "frame_h": 220,
-  "frame_w": 220
+  "frame_h": 128,
+  "frame_w": 128
 }
