@@ -1,61 +1,61 @@
 {
-  "frame_w": 256,
-  "frame_h": 256,
   "anims": {
-    "idle": {
-      "frames": 5,
-      "fps": 6,
+    "attack": {
+      "fps": 24,
+      "frames": 9,
+      "loop": false
+    },
+    "attack2": {
+      "fps": 24,
+      "frames": 9,
       "loop": true
     },
-    "walk": {
+    "attack3": {
+      "fps": 24,
+      "frames": 9,
+      "loop": true
+    },
+    "charge": {
+      "fps": 9,
+      "frames": 4,
+      "loop": true
+    },
+    "death": {
+      "fps": 10,
       "frames": 7,
+      "loop": false
+    },
+    "dodge": {
+      "fps": 16,
+      "frames": 5,
+      "loop": true
+    },
+    "hurt": {
       "fps": 14,
+      "frames": 7,
+      "loop": true
+    },
+    "idle": {
+      "fps": 6,
+      "frames": 5,
       "loop": true
     },
     "jump": {
-      "frames": 9,
       "fps": 14,
-      "loop": false
-    },
-    "hurt": {
-      "frames": 7,
-      "fps": 14,
-      "loop": false
-    },
-    "death": {
-      "frames": 7,
-      "fps": 10,
-      "loop": false
-    },
-    "attack": {
       "frames": 9,
-      "fps": 24,
-      "loop": false
+      "loop": true
     },
     "run": {
-      "frames": 7,
       "fps": 20,
+      "frames": 7,
       "loop": true
     },
-    "attack2": {
-      "frames": 9,
-      "fps": 24,
-      "loop": false
-    },
-    "attack3": {
-      "frames": 9,
-      "fps": 24,
-      "loop": false
-    },
-    "charge": {
-      "frames": 4,
-      "fps": 9,
+    "walk": {
+      "fps": 14,
+      "frames": 7,
       "loop": true
-    },
-    "dodge": {
-      "frames": 5,
-      "fps": 16,
-      "loop": false
     }
-  }
+  },
+  "frame_h": 119,
+  "frame_w": 143
 }

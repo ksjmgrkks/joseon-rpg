@@ -633,7 +633,13 @@ func _build_player(data: Dictionary) -> void:
     var cam := Camera2D.new()
     # 카메라를 캐릭터 기준 위로 띄워 지면선을 화면 중앙이 아니라 아래쪽(약 70%)으로 내림 —
     # 안 그러면 화면 절반이 땅으로 보이고, 모바일 터치 버튼 클러스터와 캐릭터/적이 겹친다.
-    cam.offset = Vector2(0, -CAMERA_OFFSET_Y)
+    # 설정 → 시야(카메라 배율). ViewConfig 가 이 그룹을 보고 실시간으로 갱신한다.
+    # offset 은 월드 단위라 확대하면 화면에서 그만큼 더 밀린다 — 배율로 나눠
+    # '화면에서 본 지면선 위치'가 배율과 무관하게 같게 유지한다.
+    cam.set_meta("base_offset", Vector2(0, -CAMERA_OFFSET_Y))
+    cam.add_to_group("player_cam")
+    cam.zoom = Vector2(ViewConfig.zoom, ViewConfig.zoom)
+    cam.offset = Vector2(0, -CAMERA_OFFSET_Y / ViewConfig.zoom)
     player.add_child(cam)
 
 

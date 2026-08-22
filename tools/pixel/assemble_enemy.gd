@@ -8,6 +8,7 @@ extends SceneTree
 ##
 ## 입력:  .pl_tmp/<name>/<anim>/<i>.png   (east 방향 프레임)
 ## 출력:  assets/sprites/enemies/<name>/<anim>.png (가로 스트립) + manifest.json
+##        --src=/--out= 로 다른 경로도 지정 가능(주인공은 sprites/protagonist_custom)
 ##
 ## 규약(tools/pixel/AGENT_GUIDE.md §2): 전 애니·전 프레임의 불투명 영역을 합집합(union bbox)으로
 ## 한 번에 크롭한다 — 애니 전환 시 캐릭터가 튀지 않도록.
@@ -32,20 +33,22 @@ func _init() -> void:
 	for spec in String(args.get("anims", "idle:6,walk:8,attack:12,death:8")).split(",", false):
 		var parts := spec.split(":")
 		var an := parts[0]
+		# 형식: 이름[:fps[:프레임수]] — 프레임 수를 생략하면 --frames 값을 쓴다
+		# (애니마다 프레임 수가 다른 주인공 때문에 3번째 칸을 추가함)
 		anims[an] = {
-			"frames": n_frames,
+			"frames": int(parts[2]) if parts.size() > 2 else n_frames,
 			"fps": int(parts[1]) if parts.size() > 1 else 8,
 			"loop": not (an in loop_never),
 		}
 
-	var src := "res://.pl_tmp/%s" % nm
-	var out := "res://assets/sprites/enemies/%s" % nm
+	var src := String(args.get("src", "res://.pl_tmp/%s" % nm))
+	var out := String(args.get("out", "res://assets/sprites/enemies/%s" % nm))
 	var loaded := {}
 	var union := Rect2i()
 	var first := true
 	for anim in anims:
 		var arr: Array[Image] = []
-		for i in range(n_frames):
+		for i in range(int(anims[anim]["frames"])):
 			var path := "%s/%s/%d.png" % [src, anim, i]
 			var img := Image.load_from_file(path)
 			if img == null:

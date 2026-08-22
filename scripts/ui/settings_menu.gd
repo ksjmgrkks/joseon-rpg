@@ -34,6 +34,7 @@ func _ready() -> void:
     back_btn.pressed.connect(_on_back)
     _build_haptics_row()
     _build_touch_layout_row()
+    _build_view_row()
     _build_keys_section()
 
 
@@ -55,6 +56,40 @@ func _build_haptics_row() -> void:
     var spacer := vbox.get_node("Spacer")
     vbox.add_child(row)
     vbox.move_child(row, spacer.get_index())
+
+
+
+
+## 시야(카메라 배율) — "화면이 멀어 몰입이 안 된다"는 피드백(2026-08-22).
+## 월드만 확대되고 HUD·대화창은 그대로다(스타듀밸리식 줌). 바꾸는 즉시 반영된다.
+func _build_view_row() -> void:
+    var spacer := vbox.get_node("Spacer")
+    var row := HBoxContainer.new()
+    row.add_theme_constant_override("separation", 12)
+    var lbl := Label.new()
+    lbl.text = "시야 (화면 배율)"
+    lbl.custom_minimum_size = Vector2(200, 0)
+    row.add_child(lbl)
+    var opt := OptionButton.new()
+    for i in range(ViewConfig.PRESETS.size()):
+        opt.add_item("%s  (x%.2f)" % [_view_label(i), ViewConfig.PRESETS[i]], i)
+    opt.select(ViewConfig.preset_index())
+    opt.custom_minimum_size = Vector2(180, 30)
+    opt.item_selected.connect(func(idx: int) -> void:
+        ViewConfig.set_preset(idx)
+        Audio.play_sfx(Sfx.UI)
+        status_label.text = "시야 %s — 다음 화면부터 적용" % _view_label(idx))
+    row.add_child(opt)
+    vbox.add_child(row)
+    vbox.move_child(row, spacer.get_index())
+
+
+func _view_label(idx: int) -> String:
+    match idx:
+        0: return "기본"
+        1: return "크게"
+        2: return "아주 크게"
+    return "기본"
 
 
 ## 모바일 터치 버튼 위치를 드래그로 조정하는 편집기 진입 버튼.
