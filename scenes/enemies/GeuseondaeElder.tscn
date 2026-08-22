@@ -1,7 +1,7 @@
 [gd_scene load_steps=6 format=3]
 
 ; 그슨대 노괴(老怪) — 2스테이지(그슨대 숲) 보스. 위장 중엔 칼이 안 먹히고 맞을수록 커진다.
-; 부적(TalismanShot)으로 정체를 드러내야 진혼 가능. 참고: https://namu.wiki/w/그슨대
+; 가까이서 조사하거나 부적불로 정체를 드러내야 진혼 가능. 참고: https://namu.wiki/w/그슨대
 
 [ext_resource type="Script" path="res://scripts/enemies/geuseondae_elder.gd" id="1_boss"]
 [ext_resource type="Script" path="res://scripts/combat/hurtbox.gd" id="2_hurt"]

@@ -1,216 +1,52 @@
 {
-  "_note": "【2스테이지 그슨대 숲 — 4굽이(보스 직전)】 곳곳에서 아이 울음이 겹쳐 들리는 마지막 덤불. 그슨대 5마리 — 노괴를 만나기 전 가장 빽빽한 구간.",
+  "_note": "【2스테이지 4굽이 — 이름 잃은 길】 짚인형마다 다른 울음이 걸려 있다. 세 변종이 함께 나오며 조사 순서와 거리 조절을 시험한다.",
+  "auto_dialogues": [
+    {
+      "dialogue": "res://assets/dialogue/geuseondae/wailing_path.json",
+      "once_flag": "geuseondae_wailing_path_seen",
+      "w": 130,
+      "x": 270
+    }
+  ],
   "backdrop": {
+    "art_set": "stage2",
     "clouds": false,
-    "far_scale": 0.08,
+    "far_scale": 0.065,
+    "horizon_y": 554,
     "mist": true,
-    "mountains": false,
-    "night_luminance": 0.16,
-    "sky": [
-      0.05,
-      0.055,
-      0.09
-    ],
-    "tint": [
-      0.26,
-      0.28,
-      0.36
-    ]
+    "mountains": true,
+    "night_luminance": 0.26,
+    "sky": [0.052, 0.06, 0.11],
+    "tint": [0.44, 0.5, 0.62]
   },
   "enemies": [
-    {
-      "scene": "Geuseondae",
-      "x": 460.0,
-      "y": 656.0
-    },
-    {
-      "scene": "Geuseondae",
-      "x": 700.0,
-      "y": 656.0
-    },
-    {
-      "scene": "Geuseondae",
-      "x": 980.0,
-      "y": 656.0
-    },
-    {
-      "scene": "Geuseondae",
-      "x": 1260.0,
-      "y": 656.0
-    },
-    {
-      "scene": "Geuseondae",
-      "x": 1560.0,
-      "y": 656.0
-    }
+    {"scene": "GeuseondaeEcho", "x": 690, "y": 656},
+    {"scene": "Geuseondae", "x": 910, "y": 656},
+    {"scene": "GeuseondaeGloom", "x": 1130, "y": 656},
+    {"scene": "GeuseondaeEcho", "x": 1370, "y": 656}
   ],
-  "entries": [
-    {
-      "name": "default",
-      "x": 100.0
-    }
-  ],
+  "entries": [{"name": "default", "x": 100}],
   "ground": {
-    "tileset": "earth",
-    "tint": [
-      0.4,
-      0.4,
-      0.38
-    ],
-    "width": 3000.0,
-    "x": -500.0
+    "tileset": "shadow_forest",
+    "tint": [0.64, 0.67, 0.74],
+    "width": 3000,
+    "x": -500
   },
-  "player_x": 100.0,
+  "platforms": [
+    {"tileset": "stage2/root_platform", "w": 140, "x": 760, "y": 606, "tint": [0.62, 0.65, 0.72]},
+    {"tileset": "stage2/root_platform", "w": 130, "x": 1240, "y": 582, "tint": [0.6, 0.63, 0.7]}
+  ],
+  "player_x": 100,
   "props": [
-    {
-      "offset": [
-        -28.0,
-        -88.0
-      ],
-      "scale": 2.3,
-      "tex": "pine",
-      "x": 180.0,
-      "y": 686.0
-    },
-    {
-      "offset": [
-        -12.0,
-        -56.0
-      ],
-      "scale": 1.3,
-      "tex": "jangseung",
-      "x": 360.0,
-      "y": 628.0
-    },
-    {
-      "offset": [
-        -28.0,
-        -88.0
-      ],
-      "scale": 1.8,
-      "tex": "pine",
-      "x": 540.0,
-      "y": 686.0
-    },
-    {
-      "offset": [
-        -8.0,
-        -48.0
-      ],
-      "scale": 1.2,
-      "tex": "lantern",
-      "x": 720.0,
-      "y": 640.0
-    },
-    {
-      "offset": [
-        -10.0,
-        -64.0
-      ],
-      "scale": 1.4,
-      "tex": "sotdae",
-      "x": 900.0,
-      "y": 636.0
-    },
-    {
-      "offset": [
-        -28.0,
-        -88.0
-      ],
-      "scale": 2.0,
-      "tex": "pine",
-      "x": 1080.0,
-      "y": 686.0
-    },
-    {
-      "offset": [
-        -12.0,
-        -56.0
-      ],
-      "scale": 1.3,
-      "tex": "jangseung",
-      "x": 1260.0,
-      "y": 628.0
-    },
-    {
-      "offset": [
-        -8.0,
-        -48.0
-      ],
-      "scale": 1.2,
-      "tex": "lantern",
-      "x": 1440.0,
-      "y": 640.0
-    },
-    {
-      "offset": [
-        -28.0,
-        -88.0
-      ],
-      "scale": 2.2,
-      "tex": "pine",
-      "x": 1620.0,
-      "y": 686.0
-    },
-    {
-      "offset": [
-        -64,
-        -110
-      ],
-      "scale": 1.8,
-      "tex": "dead_tree",
-      "x": 40,
-      "y": 684
-    },
-    {
-      "offset": [
-        -64,
-        -110
-      ],
-      "scale": 2.1,
-      "tex": "dead_tree_tall",
-      "x": 300,
-      "y": 684
-    },
-    {
-      "offset": [
-        -64.5,
-        -115.0
-      ],
-      "scale": 1.2,
-      "tex": "boulder",
-      "x": 560,
-      "y": 686
-    },
-    {
-      "offset": [
-        -64,
-        -110
-      ],
-      "scale": 1.6,
-      "tex": "dead_tree",
-      "x": 860,
-      "y": 684
-    },
-    {
-      "offset": [
-        -64.0,
-        -115.0
-      ],
-      "scale": 1.4,
-      "tex": "boulder_moss",
-      "x": 1120,
-      "y": 686
-    },
-    {
-      "offset": [
-        -64,
-        -110
-      ],
-      "scale": 1.9,
-      "tex": "dead_tree_tall",
-      "x": 1380,
-      "y": 684
-    }
+    {"tex": "stage2/pine_crooked", "scale": 1.5, "x": -20, "y": 684},
+    {"tex": "stage2/straw_effigy", "scale": 0.92, "x": 220, "y": 684},
+    {"tex": "stage2/backward_footprints", "scale": 1.0, "x": 360, "y": 684},
+    {"tex": "stage2/straw_effigy", "scale": 0.84, "x": 520, "y": 684},
+    {"tex": "stage2/root_arch", "scale": 1.15, "x": 680, "y": 684},
+    {"tex": "stage2/thorn_brush", "scale": 1.15, "x": 860, "y": 684},
+    {"tex": "stage2/shadow_puddle", "scale": 1.15, "x": 1040, "y": 684},
+    {"tex": "stage2/pine_split", "scale": 1.45, "x": 1190, "y": 684},
+    {"tex": "stage2/straw_effigy", "scale": 0.98, "x": 1370, "y": 684},
+    {"tex": "stage2/jangseung_broken", "scale": 1.0, "x": 1530, "y": 684}
   ]
 }

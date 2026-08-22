@@ -3,7 +3,7 @@ class_name Geuseondae
 ##
 ## 그슨대 — 조선시대 운몽선 설화 속 그림자 요물. 아이 울음소리를 흉내내 유인하고,
 ## 칼(근접 공격)로는 죽지 않는다 — 오히려 맞을 때마다 점점 거대해진다.
-## 여럿이 횃불(부적=TalismanShot)로 덤벼야 그림자 본체가 드러나 비로소 진혼할 수 있다.
+## 가까이 다가가 그림자를 조사하거나 부적불로 비추면 본체가 드러나 비로소 진혼할 수 있다.
 ## 참고: https://namu.wiki/w/%EA%B7%B8%EC%8A%A8%EB%8C%80
 ##
 
@@ -28,16 +28,16 @@ func _ready() -> void:
     _build_interact_prompt()
 
 
-## "!" — 조사 사거리 안에 들어오면 뜬다(위장 중일 때만). 「조사」키로 정체를 확인.
+## "조사" — 조사 사거리 안에 들어오면 뜬다(위장 중일 때만).
 func _build_interact_prompt() -> void:
     var lbl := Label.new()
-    lbl.text = "!"
-    lbl.add_theme_font_size_override("font_size", 24)
+    lbl.text = "조사"
+    lbl.add_theme_font_size_override("font_size", 14)
     lbl.add_theme_color_override("font_color", Color(0.95, 0.85, 0.35))
     lbl.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.85))
     lbl.add_theme_constant_override("outline_size", 4)
     lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-    lbl.position = Vector2(-8, -66)
+    lbl.position = Vector2(-16, -66)
     lbl.z_index = 40
     lbl.visible = false
     add_child(lbl)

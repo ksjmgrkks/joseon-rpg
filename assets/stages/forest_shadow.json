@@ -1,190 +1,53 @@
 {
-  "_note": "【2스테이지 수직 슬라이스 — 그슨대 숲】 그슨대(운몽선 설화)만 등장하는 시험 구간. 칼로는 안 죽고 맞을수록 커지며, 부적(TalismanShot)으로 정체를 드러내야 진혼 가능. sacred_altar 클리어 뒤 CHAIN 다음 칸으로 임시 연결(HANDOFF 참고 — 정식 2스테이지 5개 굽이 중 첫 칸).",
+  "_note": "【2스테이지 1굽이 — 끊어진 서낭 경계】 골짜기를 벗어난 길손이 그슨대의 규칙을 배우고, 울음 대신 그림자를 살피기 시작한다.",
   "auto_dialogues": [
     {
       "dialogue": "res://assets/dialogue/geuseondae/talisman_hint.json",
       "once_flag": "geuseondae_hint_seen",
       "w": 120,
-      "x": 220
+      "x": 210
     },
     {
       "dialogue": "res://assets/dialogue/geuseondae/child_cry.json",
       "once_flag": "geuseondae_child_seen",
-      "w": 120,
-      "x": 640
+      "w": 110,
+      "x": 500
     }
   ],
   "backdrop": {
+    "art_set": "stage2",
     "clouds": false,
-    "far_scale": 0.1,
+    "far_scale": 0.08,
+    "horizon_y": 548,
     "mist": true,
-    "mountains": false,
-    "night_luminance": 0.24,
-    "sky": [
-      0.07,
-      0.08,
-      0.12
-    ],
-    "tint": [
-      0.34,
-      0.38,
-      0.46
-    ]
+    "mountains": true,
+    "night_luminance": 0.32,
+    "sky": [0.09, 0.11, 0.17],
+    "tint": [0.58, 0.65, 0.76]
   },
   "enemies": [
-    {
-      "scene": "Geuseondae",
-      "x": 620.0,
-      "y": 656.0
-    },
-    {
-      "scene": "Geuseondae",
-      "x": 980.0,
-      "y": 656.0
-    },
-    {
-      "scene": "Geuseondae",
-      "x": 1300.0,
-      "y": 656.0
-    }
+    {"scene": "Geuseondae", "x": 800, "y": 656},
+    {"scene": "GeuseondaeEcho", "x": 1080, "y": 656},
+    {"scene": "Geuseondae", "x": 1340, "y": 656}
   ],
-  "entries": [
-    {
-      "name": "default",
-      "x": 100.0
-    }
-  ],
+  "entries": [{"name": "default", "x": 100}],
   "ground": {
-    "tileset": "earth",
-    "tint": [
-      0.5,
-      0.52,
-      0.5
-    ],
-    "width": 2600.0,
-    "x": -500.0
+    "tileset": "shadow_forest",
+    "tint": [0.78, 0.8, 0.84],
+    "width": 2700,
+    "x": -500
   },
-  "player_x": 100.0,
+  "player_x": 100,
   "props": [
-    {
-      "offset": [
-        -28.0,
-        -88.0
-      ],
-      "scale": 2.3,
-      "tex": "pine",
-      "x": 220.0,
-      "y": 686.0
-    },
-    {
-      "offset": [
-        -28.0,
-        -88.0
-      ],
-      "scale": 1.7,
-      "tex": "pine",
-      "x": 460.0,
-      "y": 686.0
-    },
-    {
-      "offset": [
-        -12.0,
-        -56.0
-      ],
-      "scale": 1.3,
-      "tex": "jangseung",
-      "x": 640.0,
-      "y": 628.0
-    },
-    {
-      "offset": [
-        -28.0,
-        -88.0
-      ],
-      "scale": 2.0,
-      "tex": "pine",
-      "x": 820.0,
-      "y": 686.0
-    },
-    {
-      "offset": [
-        -28.0,
-        -88.0
-      ],
-      "scale": 1.8,
-      "tex": "pine",
-      "x": 1080.0,
-      "y": 686.0
-    },
-    {
-      "offset": [
-        -12.0,
-        -56.0
-      ],
-      "scale": 1.3,
-      "tex": "jangseung",
-      "x": 1260.0,
-      "y": 628.0
-    },
-    {
-      "offset": [
-        -28.0,
-        -88.0
-      ],
-      "scale": 2.2,
-      "tex": "pine",
-      "x": 1440.0,
-      "y": 686.0
-    },
-    {
-      "offset": [
-        -64.5,
-        -115.0
-      ],
-      "scale": 1.1,
-      "tex": "boulder",
-      "x": -40.0,
-      "y": 686.0
-    },
-    {
-      "offset": [
-        -64.0,
-        -110.0
-      ],
-      "scale": 1.5,
-      "tex": "dead_tree",
-      "x": 380.0,
-      "y": 684.0
-    },
-    {
-      "offset": [
-        -64.0,
-        -115.0
-      ],
-      "scale": 0.9,
-      "tex": "boulder_moss",
-      "x": 660.0,
-      "y": 686.0
-    },
-    {
-      "offset": [
-        -64.0,
-        -110.0
-      ],
-      "scale": 1.7,
-      "tex": "dead_tree_tall",
-      "x": 1080.0,
-      "y": 684.0
-    },
-    {
-      "offset": [
-        -64.5,
-        -115.0
-      ],
-      "scale": 1.0,
-      "tex": "boulder",
-      "x": 1300.0,
-      "y": 686.0
-    }
+    {"tex": "stage2/geumjul_ruin", "scale": 1.05, "x": 70, "y": 684},
+    {"tex": "stage2/seonang_cairn", "scale": 0.9, "x": 260, "y": 684},
+    {"tex": "stage2/pine_crooked", "scale": 1.4, "x": -30, "y": 684},
+    {"tex": "stage2/pine_crooked", "scale": 1.15, "x": 420, "y": 684},
+    {"tex": "stage2/backward_footprints", "scale": 1.1, "x": 520, "y": 684},
+    {"tex": "stage2/root_arch", "scale": 1.0, "x": 690, "y": 684},
+    {"tex": "stage2/boulder_slate", "scale": 0.9, "x": 910, "y": 684},
+    {"tex": "stage2/pine_split", "scale": 1.25, "x": 1160, "y": 684},
+    {"tex": "stage2/thorn_brush", "scale": 0.9, "x": 1390, "y": 684},
+    {"tex": "stage2/jangseung_broken", "scale": 0.9, "x": 1530, "y": 684}
   ]
 }

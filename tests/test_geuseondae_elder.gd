@@ -105,7 +105,7 @@ func _fake_player(pos: Vector2) -> Node2D:
 	return p
 
 
-## 위장 상태 + 조사 사거리 안일 때만 "!" 프롬프트가 뜬다.
+## 위장 상태 + 조사 사거리 안일 때만 "조사" 프롬프트가 뜬다.
 func _check_interact_prompt_range() -> Dictionary:
 	var b := _spawn()
 	await get_tree().process_frame
@@ -117,8 +117,9 @@ func _check_interact_prompt_range() -> Dictionary:
 	b._physics_process(0.016)
 	var visible_near := _prompt_visible(b)
 
-	var ok := hidden_far and visible_near
-	var reason := "" if ok else "hidden_far=%s visible_near=%s" % [hidden_far, visible_near]
+	var prompt_copy_ok: bool = b._interact_prompt != null and b._interact_prompt.text == "조사"
+	var ok: bool = hidden_far and visible_near and prompt_copy_ok
+	var reason := "" if ok else "hidden_far=%s visible_near=%s prompt=%s" % [hidden_far, visible_near, b._interact_prompt.text]
 	far.queue_free()
 	b.queue_free()
 	return { "name": "interact_prompt_range", "status": PASS if ok else FAIL, "reason": reason }

@@ -1,191 +1,51 @@
 {
-  "_note": "【2스테이지 그슨대 숲 — 2굽이】 안개가 짙어지는 구간. 그슨대 4마리, 좁아진 간격.",
+  "_note": "【2스테이지 2굽이 — 되우는 길】 울음은 앞에서 들리지만 작은 발자국은 뒤로 나 있다. 빠른 메아리 그슨대가 처음 섞인다.",
+  "auto_dialogues": [
+    {
+      "dialogue": "res://assets/dialogue/geuseondae/echo_path.json",
+      "once_flag": "geuseondae_echo_path_seen",
+      "w": 120,
+      "x": 340
+    }
+  ],
   "backdrop": {
+    "art_set": "stage2",
     "clouds": false,
-    "far_scale": 0.09,
+    "far_scale": 0.075,
+    "horizon_y": 550,
     "mist": true,
-    "mountains": false,
-    "night_luminance": 0.2,
-    "sky": [
-      0.06,
-      0.07,
-      0.11
-    ],
-    "tint": [
-      0.3,
-      0.34,
-      0.42
-    ]
+    "mountains": true,
+    "night_luminance": 0.3,
+    "sky": [0.075, 0.09, 0.15],
+    "tint": [0.52, 0.6, 0.72]
   },
   "enemies": [
-    {
-      "scene": "Geuseondae",
-      "x": 520.0,
-      "y": 656.0
-    },
-    {
-      "scene": "Geuseondae",
-      "x": 820.0,
-      "y": 656.0
-    },
-    {
-      "scene": "Geuseondae",
-      "x": 1080.0,
-      "y": 656.0
-    },
-    {
-      "scene": "Geuseondae",
-      "x": 1360.0,
-      "y": 656.0
-    }
+    {"scene": "GeuseondaeEcho", "x": 700, "y": 656},
+    {"scene": "Geuseondae", "x": 960, "y": 656},
+    {"scene": "GeuseondaeEcho", "x": 1210, "y": 656},
+    {"scene": "GeuseondaeGloom", "x": 1410, "y": 656}
   ],
-  "entries": [
-    {
-      "name": "default",
-      "x": 100.0
-    }
-  ],
+  "entries": [{"name": "default", "x": 100}],
   "ground": {
-    "tileset": "earth",
-    "tint": [
-      0.46,
-      0.48,
-      0.46
-    ],
-    "width": 2700.0,
-    "x": -500.0
+    "tileset": "shadow_forest",
+    "tint": [0.72, 0.76, 0.82],
+    "width": 2800,
+    "x": -500
   },
-  "player_x": 100.0,
+  "platforms": [
+    {"tileset": "stage2/root_platform", "w": 150, "x": 930, "y": 604, "tint": [0.68, 0.72, 0.78]}
+  ],
+  "player_x": 100,
   "props": [
-    {
-      "offset": [
-        -28.0,
-        -88.0
-      ],
-      "scale": 2.0,
-      "tex": "pine",
-      "x": 180.0,
-      "y": 686.0
-    },
-    {
-      "offset": [
-        -28.0,
-        -88.0
-      ],
-      "scale": 2.4,
-      "tex": "pine",
-      "x": 380.0,
-      "y": 686.0
-    },
-    {
-      "offset": [
-        -8.0,
-        -48.0
-      ],
-      "scale": 1.2,
-      "tex": "lantern",
-      "x": 560.0,
-      "y": 640.0
-    },
-    {
-      "offset": [
-        -28.0,
-        -88.0
-      ],
-      "scale": 1.9,
-      "tex": "pine",
-      "x": 760.0,
-      "y": 686.0
-    },
-    {
-      "offset": [
-        -12.0,
-        -56.0
-      ],
-      "scale": 1.3,
-      "tex": "jangseung",
-      "x": 940.0,
-      "y": 628.0
-    },
-    {
-      "offset": [
-        -28.0,
-        -88.0
-      ],
-      "scale": 2.2,
-      "tex": "pine",
-      "x": 1140.0,
-      "y": 686.0
-    },
-    {
-      "offset": [
-        -8.0,
-        -48.0
-      ],
-      "scale": 1.2,
-      "tex": "lantern",
-      "x": 1320.0,
-      "y": 640.0
-    },
-    {
-      "offset": [
-        -28.0,
-        -88.0
-      ],
-      "scale": 2.0,
-      "tex": "pine",
-      "x": 1500.0,
-      "y": 686.0
-    },
-    {
-      "offset": [
-        -64,
-        -110
-      ],
-      "scale": 1.6,
-      "tex": "dead_tree",
-      "x": -20,
-      "y": 684
-    },
-    {
-      "offset": [
-        -64.0,
-        -115.0
-      ],
-      "scale": 1.2,
-      "tex": "boulder_moss",
-      "x": 300,
-      "y": 686
-    },
-    {
-      "offset": [
-        -64,
-        -110
-      ],
-      "scale": 1.9,
-      "tex": "dead_tree_tall",
-      "x": 720,
-      "y": 684
-    },
-    {
-      "offset": [
-        -64.5,
-        -115.0
-      ],
-      "scale": 0.9,
-      "tex": "boulder",
-      "x": 1000,
-      "y": 686
-    },
-    {
-      "offset": [
-        -64,
-        -110
-      ],
-      "scale": 1.4,
-      "tex": "dead_tree",
-      "x": 1320,
-      "y": 684
-    }
+    {"tex": "stage2/pine_split", "scale": 1.45, "x": 20, "y": 684},
+    {"tex": "stage2/shadow_puddle", "scale": 1.1, "x": 240, "y": 684},
+    {"tex": "stage2/backward_footprints", "scale": 1.15, "x": 370, "y": 684},
+    {"tex": "stage2/stone_lantern_unlit", "scale": 0.85, "x": 520, "y": 684},
+    {"tex": "stage2/thorn_brush", "scale": 1.0, "x": 680, "y": 684},
+    {"tex": "stage2/root_arch", "scale": 1.05, "x": 850, "y": 684},
+    {"tex": "stage2/pine_crooked", "scale": 1.35, "x": 1040, "y": 684},
+    {"tex": "stage2/shadow_puddle", "scale": 0.95, "x": 1220, "y": 684},
+    {"tex": "stage2/boulder_slate", "scale": 1.0, "x": 1370, "y": 684},
+    {"tex": "stage2/pine_split", "scale": 1.25, "x": 1530, "y": 684}
   ]
 }

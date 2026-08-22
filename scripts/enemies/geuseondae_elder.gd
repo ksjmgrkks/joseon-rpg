@@ -3,7 +3,7 @@ class_name GeuseondaeElder
 ##
 ## 그슨대 노괴(老怪) — 2스테이지(그슨대 숲) 보스. 숲 깊은 곳에 웅크린 늙은 그슨대.
 ## 위장 상태에선 칼이 먹히지 않고, 오히려 맞을 때마다 커진다(최대체력·공격력 배율 상승).
-## 부적(TalismanShot)으로 정체를 드러내야 비로소 real 데미지가 들어가고 진혼할 수 있다.
+## 가까이 다가가 그림자를 조사하거나 부적불로 비추면 정체가 드러나고 진혼할 수 있다.
 ## 잡몹 Geuseondae(scripts/enemies/geuseondae.gd)와 같은 규칙 — 참고: https://namu.wiki/w/그슨대
 ##
 
@@ -42,16 +42,16 @@ func _ready() -> void:
 	_build_interact_prompt()
 
 
-## "!" — 조사 사거리 안에 들어오면 뜬다(위장 중일 때만). 「조사」키로 정체를 확인.
+## "조사" — 조사 사거리 안에 들어오면 뜬다(위장 중일 때만).
 func _build_interact_prompt() -> void:
 	var lbl := Label.new()
-	lbl.text = "!"
-	lbl.add_theme_font_size_override("font_size", 30)
+	lbl.text = "조사"
+	lbl.add_theme_font_size_override("font_size", 16)
 	lbl.add_theme_color_override("font_color", Color(0.95, 0.85, 0.35))
 	lbl.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.85))
 	lbl.add_theme_constant_override("outline_size", 5)
 	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	lbl.position = Vector2(-10, -86)
+	lbl.position = Vector2(-20, -86)
 	lbl.z_index = 40
 	lbl.visible = false
 	add_child(lbl)

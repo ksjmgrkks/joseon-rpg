@@ -1,7 +1,6 @@
 [gd_scene load_steps=11 format=3]
 
-; 그슨대 — 조선시대 운몽선 설화. 아이 울음소리로 유인하는 그림자 요물.
-; 위장 상태에선 칼이 안 먹히고 맞을 때마다 커진다. 가까이서 조사하거나 부적불로 정체를 드러낸다.
+; 먹그림자 그슨대 — 오래 베인 그림자를 먹어 둔 느리고 무거운 변종.
 
 [ext_resource type="Script" path="res://scripts/enemies/geuseondae.gd" id="1_p"]
 [ext_resource type="Script" path="res://scripts/visual/enemy_visual.gd" id="vis_enemy"]
@@ -12,39 +11,45 @@
 [ext_resource type="Script" path="res://scripts/ai/states/patrol_state.gd" id="6_patrol"]
 [ext_resource type="Script" path="res://scripts/ai/states/chase_state.gd" id="7_chase"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_body"]
-size = Vector2(16, 32)
+[sub_resource type="RectangleShape2D" id="body"]
+size = Vector2(20, 36)
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_hurt"]
-size = Vector2(18, 34)
+[sub_resource type="RectangleShape2D" id="hurt"]
+size = Vector2(22, 38)
 
-[node name="Geuseondae" type="CharacterBody2D"]
+[node name="GeuseondaeGloom" type="CharacterBody2D"]
 script = ExtResource("1_p")
-display_name = "그슨대"
+display_name = "먹그림자 그슨대"
+revealed_attack_damage = 14.0
+revealed_color = Color(0.5, 0.24, 0.58, 1)
+max_threat = 5
+threat_attack_at = 3
+interact_range = 74.0
 attack_damage = 0.0
-attack_cooldown = 1.3
-attack_telegraph = 0.24
-body_color = Color(0.2, 0.18, 0.24, 1)
-detect_range = 220.0
-xp_reward = 26
+attack_cooldown = 1.55
+attack_telegraph = 0.34
+body_color = Color(0.16, 0.13, 0.2, 1)
+detect_range = 260.0
+xp_reward = 34
 
 [node name="Sprite2D" type="AnimatedSprite2D" parent="."]
 script = ExtResource("vis_enemy")
 sheet = "enemies/geuseondae"
 foot_offset = -8.5
+sprite_scale = 1.12
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-shape = SubResource("RectangleShape2D_body")
+shape = SubResource("body")
 
 [node name="Hurtbox" type="Area2D" parent="."]
 script = ExtResource("2_hurt")
 
 [node name="HurtboxShape" type="CollisionShape2D" parent="Hurtbox"]
-shape = SubResource("RectangleShape2D_hurt")
+shape = SubResource("hurt")
 
 [node name="HealthComponent" type="Node" parent="."]
 script = ExtResource("3_health")
-max_hp = 60.0
+max_hp = 92.0
 hurtbox_path = NodePath("../Hurtbox")
 
 [node name="StateMachine" type="Node" parent="."]
@@ -53,15 +58,15 @@ initial_state = NodePath("Idle")
 
 [node name="Idle" type="Node" parent="StateMachine"]
 script = ExtResource("5_idle")
-idle_duration = 2.2
+idle_duration = 2.8
 
 [node name="Patrol" type="Node" parent="StateMachine"]
 script = ExtResource("6_patrol")
-patrol_speed = 50.0
-patrol_range = 90.0
-patrol_duration = 3.0
+patrol_speed = 38.0
+patrol_range = 72.0
+patrol_duration = 3.4
 
 [node name="Chase" type="Node" parent="StateMachine"]
 script = ExtResource("7_chase")
-chase_speed = 70.0
-lose_distance = 320.0
+chase_speed = 58.0
+lose_distance = 350.0
