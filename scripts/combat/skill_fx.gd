@@ -760,14 +760,15 @@ func charge_aura_tick(pos: Vector2, level: int = 1) -> void:
     tw.tween_callback(ring.queue_free)
 
 
-## 피격 플래시 — 흰빛으로 번쩍 → 핏빛 → 원래색. 논블로킹(트윈).
+## 피격 플래시 — 디테일을 날리는 흰 과노출 대신 따뜻한 충격색 → 핏빛 → 원래색.
+## 흰 배경처럼 보이는 순간을 없애면서도 명중 여부는 즉시 읽히게 한다.
 ## base_color: 플래시 후 복귀할 색(적 기본 WHITE).
 func hit_flash(sprite: CanvasItem, base_color: Color = Color.WHITE, dur: float = 0.12) -> void:
     if sprite == null or not is_instance_valid(sprite):
         return
-    sprite.modulate = Color(1.9, 1.9, 1.9, 1.0)            # 흰빛 번쩍(과노출)
+    sprite.modulate = Color(1.35, 0.72, 0.60, 1.0)
     var tw := sprite.create_tween()
-    tw.tween_property(sprite, "modulate", Color(1, 0.5, 0.5, 1), dur * 0.35).set_trans(Tween.TRANS_QUAD)
+    tw.tween_property(sprite, "modulate", Color(1.0, 0.42, 0.38, 1.0), dur * 0.35).set_trans(Tween.TRANS_QUAD)
     tw.tween_property(sprite, "modulate", base_color, dur * 0.65)
 
 
@@ -1137,15 +1138,17 @@ func boss_water_rise(pos: Vector2, dur: float = 1.6) -> void:
         return
     # ① 발밑 파문이 크게 번진다
     _pulse_ring(host, pos + Vector2(0, 2), 26.0, 6.0, Color(WATER.r, WATER.g, WATER.b, 0.85), 6.0, dur * 0.5, 29)
-    _pulse_ring(host, pos + Vector2(0, 2), 40.0, 3.0, Color(FOAM.r, FOAM.g, FOAM.b, 0.7), 5.0, dur * 0.7, 29)
-    # ② 거대 물기둥 스프라이트가 솟았다가 가라앉으며 보스를 드러낸다
-    var tex := _fx_tex("boss_geyser")
+    _pulse_ring(host, pos + Vector2(0, 2), 40.0, 3.0, Color(FOAM.r, FOAM.g, FOAM.b, 0.38), 5.0, dur * 0.7, 29)
+    # ② 얇고 반투명한 물기둥이 솟았다가 가라앉으며 보스를 드러낸다.
+    # 넓고 밝은 boss_geyser는 배경이 흰 사각형처럼 보이며 보스를 가렸기 때문에 쓰지 않는다.
+    var tex := _fx_tex("boss_geyser_spire")
     if tex != null:
         var spr := Sprite2D.new()
         spr.texture = tex
         spr.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
         spr.centered = false
-        var s := 2.6
+        spr.modulate = Color(0.72, 0.84, 0.90, 0.68)
+        var s := 2.05
         spr.scale = Vector2(s, 0.1)
         spr.global_position = pos - Vector2(tex.get_width() * s * 0.5, 0.0)
         spr.z_index = 24                       # 보스보다 앞 — 솟구칠 때 잠깐 가린다

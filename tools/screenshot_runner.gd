@@ -4,6 +4,7 @@ extends Node
 ##
 ## 사용:
 ##   godot --path . res://tools/Screenshot.tscn -- --scene=res://scenes/levels/Village.tscn --out=shots/village.png [--wait=0.6] [--night]
+##   --dodge 를 더하면 캡처 직전 플레이어의 실제 회피 상태를 시작한다.
 ##
 ## 동작: 대상 씬을 로드해 current_scene 으로 세우고, wait 초 + 한 프레임 그린 뒤
 ## 뷰포트를 PNG 로 저장하고 종료. --night 면 TimeManager 를 밤으로 고정.
@@ -61,6 +62,16 @@ func _ready() -> void:
         var players := get_tree().get_nodes_in_group("player")
         if not players.is_empty() and players[0] is Node2D:
             (players[0] as Node2D).global_position.x = float(args["player_x"])
+
+    # 실제 Player/PlayerVisual 경로로 구르기 애니메이션이 선택되는지 캡처한다.
+    if args.has("dodge"):
+        # 스폰 직후 공중 자세가 섞이지 않도록 먼저 지면에 안착시킨다.
+        for i in range(45):
+            await get_tree().physics_frame
+        var players := get_tree().get_nodes_in_group("player")
+        if not players.is_empty() and players[0].has_method("_start_dodge"):
+            players[0].call("_start_dodge")
+            print("[Shot] dodge started on %s" % players[0].name)
 
     # --touch : 데스크톱에서도 모바일 터치 컨트롤을 강제로 켜서 폰 화면을 그대로 확인
     if args.has("touch"):

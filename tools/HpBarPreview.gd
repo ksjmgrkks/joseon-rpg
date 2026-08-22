@@ -11,7 +11,6 @@ extends Node2D
 
 const ENEMIES := [
     "res://scenes/enemies/Dueoksini.tscn",
-    "res://scenes/enemies/DrownedChild.tscn",
     "res://scenes/enemies/Mulgwisin.tscn",
     "res://scenes/enemies/Mulgwisin.tscn",
     "res://scenes/enemies/Changgwi.tscn",

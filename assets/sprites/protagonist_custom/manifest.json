@@ -28,7 +28,7 @@
     "dodge": {
       "fps": 14,
       "frames": 4,
-      "loop": true
+      "loop": false
     },
     "hurt": {
       "fps": 14,

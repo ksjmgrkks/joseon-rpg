@@ -91,11 +91,15 @@ func _on_body_entered(body: Node) -> void:
 	# 자체 처리를 하고 싶을 때 이 메서드를 구현해두면 여기서 대신 호출한다.
 	if body.has_method("_on_talisman_hit"):
 		body._on_talisman_hit(damage, attacker)
+		Audio.play_sfx(Sfx.HIT_CONFIRM, 0.0, 1.08)
+		ScreenFx.shake(2.8, 0.09)
 		queue_free()
 		return
 	# 히트박스와 같은 경로로 꽂아야 데미지 숫자·섬광·움찔·넉백이 근접타와 똑같이 나온다.
-	Hurtbox.deal(body, damage, knockback * signf(velocity.x), attacker)
-	if body is Node2D:
-		SkillFx.impact((body as Node2D).global_position + Vector2(0, -16), false)
-	Audio.play_sfx(Sfx.HIT, 3.0)
+	var landed := Hurtbox.deal(body, damage, knockback * signf(velocity.x), attacker)
+	if landed:
+		if body is Node2D:
+			SkillFx.impact((body as Node2D).global_position + Vector2(0, -16), false)
+		Audio.play_sfx(Sfx.HIT_CONFIRM, 1.0, 1.06)
+		ScreenFx.shake(3.0, 0.09)
 	queue_free()

@@ -14,7 +14,7 @@ extends Node
 const PASS := "PASS"
 const FAIL := "FAIL"
 const STAGE1 := ["foothills", "forest_deep", "mountain_pass", "ruined_temple", "sacred_altar"]
-const STAGE1_BANNED := ["Reaper", "ReaperLord", "DrownedFerryman", "DrownedSwarm", "DrownedHeavy", "Imugi"]
+const STAGE1_BANNED := ["Reaper", "ReaperLord", "DrownedFerryman", "DrownedSwarm", "DrownedHeavy", "DrownedChild", "Imugi"]
 
 
 func _ready() -> void:
@@ -61,6 +61,10 @@ func _check_stage1_flooded_valley() -> Dictionary:
     var bad: Array[String] = []
     if ResourceLoader.exists("res://scenes/enemies/Imugi.tscn"):
         bad.append("폐기한 이무기 씬이 남아 있음")
+    if ResourceLoader.exists("res://scenes/enemies/DrownedChild.tscn"):
+        bad.append("폐기한 아이형 적 씬이 남아 있음")
+    if FileAccess.file_exists("res://assets/dialogue/water_child.json"):
+        bad.append("폐기한 아이형 적 조우 대사가 남아 있음")
     if ResourceLoader.exists("res://assets/sprites/fx/gate_barrier.png") or ResourceLoader.exists("res://assets/sprites/fx/level_exit_gate.png"):
         bad.append("폐기한 빛기둥/한옥문 에셋이 남아 있음")
     if not ResourceLoader.exists(GateArt.SHEET):

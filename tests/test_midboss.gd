@@ -15,7 +15,7 @@ const FAIL := "FAIL"
 # 1스테이지(물·골짜기) / 2스테이지(그슨대 숲) 각각의 잡몹·중간보스·보스
 const LADDER := {
     "1스테이지": {
-        "mobs": ["Wraith", "Dueoksini", "DrownedChild", "Changgwi", "Mulgwisin"],
+        "mobs": ["Wraith", "Dueoksini", "Changgwi", "Mulgwisin"],
         "mid": "DrownedMudang",
         "boss": "FloodWraith",
     },

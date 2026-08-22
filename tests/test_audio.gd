@@ -10,7 +10,8 @@ const FAIL := "FAIL"
 
 func _ready() -> void:
     print("=== test_audio ===")
-    var results := [_check_buses(), _check_reverb(), _check_volume(), _check_bgm_paths()]
+    var results := [_check_buses(), _check_reverb(), _check_volume(), _check_bgm_paths(),
+        _check_combat_sfx_paths()]
     var passed := 0
     for r in results:
         print("[%s] %s" % [r.status, r.name])
@@ -70,3 +71,15 @@ func _check_bgm_paths() -> Dictionary:
     if not missing.is_empty():
         return {"name": "bgm_paths_exist", "status": FAIL, "reason": "없는 곡: %s" % ", ".join(missing)}
     return {"name": "bgm_paths_exist", "status": PASS, "reason": ""}
+
+
+## 헛스윙·유효 명중·다중 명중의 세 전투 피드백 음원이 모두 패키징되는가.
+func _check_combat_sfx_paths() -> Dictionary:
+    var missing: Array[String] = []
+    for path in [Sfx.WHIFF, Sfx.HIT_CONFIRM, Sfx.HIT_HEAVY]:
+        if not ResourceLoader.exists(path):
+            missing.append(String(path).get_file())
+    if not missing.is_empty():
+        return {"name": "combat_sfx_paths_exist", "status": FAIL,
+            "reason": "없는 효과음: %s" % ", ".join(missing)}
+    return {"name": "combat_sfx_paths_exist", "status": PASS, "reason": ""}

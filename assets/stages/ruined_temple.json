@@ -1,12 +1,6 @@
 {
   "auto_dialogues": [
     {
-      "dialogue": "res://assets/dialogue/water_child.json",
-      "once_flag": "water_child_seen",
-      "w": 100.0,
-      "x": 900.0
-    },
-    {
       "dialogue": "res://assets/dialogue/temple_mudang.json",
       "once_flag": "temple_mudang_seen",
       "x": 1040.0
@@ -40,11 +34,6 @@
       "y": 656.0
     },
     {
-      "scene": "DrownedChild",
-      "x": 1080.0,
-      "y": 656.0
-    },
-    {
       "scene": "Mulgwisin",
       "x": 1260.0,
       "y": 640.0
@@ -62,11 +51,6 @@
     {
       "scene": "Dueoksini",
       "x": 840.0,
-      "y": 656.0
-    },
-    {
-      "scene": "DrownedChild",
-      "x": 960.0,
       "y": 656.0
     },
     {

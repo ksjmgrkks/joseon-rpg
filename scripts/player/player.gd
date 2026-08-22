@@ -463,13 +463,14 @@ func _on_hitbox_landed(area: Area2D) -> void:
         return
     _swing_hits += 1
     var stack := _swing_hits - 1                      # 두 번째 대상부터 '겹침'
-    # 타격음 — 대상이 늘수록 반음씩 올려 쌓이는 느낌을 만든다(같은 소리 반복은 뭉갠다).
-    Audio.play_sfx(Sfx.HIT, 3.0, 1.0 + 0.06 * float(stack))
+    # 명중 순간에만 나는 전용 파열음. 대상이 늘수록 음정·음량이 올라가며 층을 만든다.
+    Audio.play_sfx(Sfx.HIT_CONFIRM, 1.5 + minf(3.0, float(stack)), 1.0 + 0.055 * float(stack))
     # 둘 이상 쓸었으면 저역 타격을 한 번 더 얹어 '묵직하게' 만든다.
     if stack >= 1:
         Audio.play_sfx(Sfx.HIT_HEAVY, -1.0 + minf(3.0, float(stack)), 1.0)
-    var landed_strength := (4.0 + 1.5 * float(_combo_step)) * (1.0 + 0.4 * float(stack))
-    ScreenFx.shake(minf(landed_strength, 16.0), 0.16)
+    # 짧은 미세 흔들림만 사용해 명중은 읽히되 화면 피로는 남기지 않는다.
+    var landed_strength := (3.2 + 1.1 * float(_combo_step)) * (1.0 + 0.32 * float(stack))
+    ScreenFx.shake(minf(landed_strength, 10.5), 0.11)
     # 등급별 히트스톱 — 1·2타는 짧고 얕게(경쾌), 3타(마무리)는 길고 '딱' 멈춤(묵직).
     # 여러 명을 쓸었으면 조금 더 길게 멈춰 '한 방에 여럿'이 손에 남게 한다.
     var stop_add := minf(0.03, 0.012 * float(stack))
