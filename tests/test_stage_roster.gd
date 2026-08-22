@@ -17,6 +17,8 @@ const STAGE1 := ["foothills", "forest_deep", "mountain_pass", "ruined_temple", "
 const STAGE1_BANNED := ["Reaper", "ReaperLord", "DrownedFerryman", "DrownedSwarm", "DrownedHeavy", "DrownedChild", "Imugi"]
 const STAGE3 := ["market_ruins", "broken_stalls", "well_court", "lantern_alley", "goblin_court"]
 const STAGE3_ALLOWED := ["Dokkaebi", "DokkaebiFire", "DokkaebiBrute", "DokkaebiChief"]
+const STAGE4 := ["funeral_pass", "kkokdu_road", "frozen_rest", "mourning_ridge", "unfinished_grave"]
+const STAGE4_ALLOWED := ["KkokduGuide", "KkokduAcrobat", "PallbearerShadow", "PaperFlowerSpirit", "KkokduGeneral", "Sangyeogwi"]
 
 
 func _ready() -> void:
@@ -26,6 +28,7 @@ func _ready() -> void:
         _check_stage1_concept(),
         _check_stage1_flooded_valley(),
         _check_stage3_market_concept(),
+        _check_stage4_funeral_concept(),
     ]
     var failed := 0
     for r in results:
@@ -71,6 +74,21 @@ func _check_stage3_market_concept() -> Dictionary:
     if not has_fire:
         bad.append("원거리 변주 도깨비불이 한 기도 없음")
     return {"name": "3스테이지_도깨비_장터_로스터", "status": PASS if bad.is_empty() else FAIL,
+        "reason": ", ".join(bad)}
+
+
+func _check_stage4_funeral_concept() -> Dictionary:
+    var bad: Array[String] = []
+    var seen: Dictionary = {}
+    for stage_id in STAGE4:
+        for enemy in _enemies_of(stage_id):
+            if enemy not in STAGE4_ALLOWED:
+                bad.append("%s 에 상여길 밖 적 %s" % [stage_id, enemy])
+            seen[enemy] = true
+    for required in ["KkokduGuide", "KkokduAcrobat", "PallbearerShadow", "PaperFlowerSpirit", "KkokduGeneral", "Sangyeogwi"]:
+        if not seen.has(required):
+            bad.append("4스테이지 필수 적 %s 미배치" % required)
+    return {"name": "4스테이지_눈덮인상여길_로스터", "status": PASS if bad.is_empty() else FAIL,
         "reason": ", ".join(bad)}
 
 

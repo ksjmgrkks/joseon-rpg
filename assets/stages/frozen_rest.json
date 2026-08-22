@@ -1,0 +1,22 @@
+{
+  "_note": "【4스테이지 3굽이·중간보스】 얼어붙은 쉼터에서 나무 말을 탄 꼭두 장군이 길을 막는다.",
+  "backdrop": {
+    "art_set": "stage4", "aerial": 0.12, "clouds": false, "far_scale": 0.07,
+    "horizon_y": 574.0, "mid_scale": 0.34, "mist": true, "mountains": true,
+    "near_scale": 0.68, "night_luminance": 0.28,
+    "sky": [0.035, 0.046, 0.082], "tint": [0.66, 0.74, 0.86]
+  },
+  "enemies": [
+    {"scene": "KkokduGuide", "x": 500.0, "y": 636.0},
+    {"scene": "PaperFlowerSpirit", "x": 760.0, "y": 636.0},
+    {"scene": "KkokduGeneral", "x": 1110.0, "y": 600.0}
+  ],
+  "entries": [{"name": "default", "x": 100.0}],
+  "ground": {"tileset": "snow_pass", "tint": [0.74, 0.79, 0.86], "width": 2800.0, "x": -500.0},
+  "player_x": 100.0,
+  "props": [
+    {"scale": 1.0, "tex": "snow_bridge", "x": 300.0, "y": 684.0},
+    {"scale": 1.0, "tex": "bier_rest", "x": 720.0, "y": 684.0},
+    {"scale": 1.15, "tex": "funeral_bells", "x": 1280.0, "y": 684.0}
+  ]
+}

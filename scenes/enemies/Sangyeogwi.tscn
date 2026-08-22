@@ -1,0 +1,71 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/enemies/sangyeogwi.gd" id="1_b"]
+[ext_resource type="Script" path="res://scripts/combat/hurtbox.gd" id="2_h"]
+[ext_resource type="Script" path="res://scripts/combat/health_component.gd" id="3_hp"]
+[ext_resource type="Script" path="res://scripts/combat/hitbox.gd" id="4_hit"]
+[ext_resource type="Script" path="res://scripts/visual/enemy_visual.gd" id="5_v"]
+
+[sub_resource type="RectangleShape2D" id="body"]
+size = Vector2(112, 140)
+
+[sub_resource type="RectangleShape2D" id="hurt"]
+size = Vector2(188, 164)
+
+[sub_resource type="RectangleShape2D" id="hit"]
+size = Vector2(148, 104)
+
+[node name="Sangyeogwi" type="CharacterBody2D"]
+script = ExtResource("1_b")
+display_name = "상여귀"
+subtitle = "묻히지 못한 빈 상여, 세 번째 종에 움직인다"
+body_color = Color(0.35, 0.28, 0.3, 1)
+engage_distance = 440.0
+telegraph_seconds = 1.2
+attack_seconds = 0.54
+recover_seconds = 1.4
+dash_speed = 340.0
+dash_reach = 86.0
+volley_count = 6
+volley_damage = 12.0
+volley_speed = 270.0
+volley_spread_deg = 52.0
+summon_scene = "res://scenes/enemies/PaperFlowerSpirit.tscn"
+summon_count = 3
+water_entrance = false
+attack_damage = 24.0
+attack_knockback = 360.0
+xp_reward = 320
+reward_item_qty = 5
+flag_on_death = "sangyeogwi_defeated"
+
+[node name="Sprite2D" type="AnimatedSprite2D" parent="."]
+script = ExtResource("5_v")
+sheet = "enemies/sangyeogwi"
+sprite_scale = 1.0
+foot_offset = -43.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -8)
+shape = SubResource("body")
+
+[node name="Hurtbox" type="Area2D" parent="."]
+script = ExtResource("2_h")
+
+[node name="HurtboxShape" type="CollisionShape2D" parent="Hurtbox"]
+position = Vector2(0, -18)
+shape = SubResource("hurt")
+
+[node name="HealthComponent" type="Node" parent="."]
+script = ExtResource("3_hp")
+max_hp = 920.0
+hurtbox_path = NodePath("../Hurtbox")
+
+[node name="AttackHitbox" type="Area2D" parent="."]
+position = Vector2(0, -28)
+script = ExtResource("4_hit")
+damage = 24.0
+knockback = 360.0
+
+[node name="HitShape" type="CollisionShape2D" parent="AttackHitbox"]
+shape = SubResource("hit")

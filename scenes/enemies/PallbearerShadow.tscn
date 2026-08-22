@@ -1,0 +1,68 @@
+[gd_scene load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/enemies/patroller.gd" id="1_p"]
+[ext_resource type="Script" path="res://scripts/visual/enemy_visual.gd" id="2_v"]
+[ext_resource type="Script" path="res://scripts/combat/hurtbox.gd" id="3_h"]
+[ext_resource type="Script" path="res://scripts/combat/health_component.gd" id="4_hp"]
+[ext_resource type="Script" path="res://scripts/ai/state_machine.gd" id="5_sm"]
+[ext_resource type="Script" path="res://scripts/ai/states/idle_state.gd" id="6_i"]
+[ext_resource type="Script" path="res://scripts/ai/states/patrol_state.gd" id="7_p"]
+[ext_resource type="Script" path="res://scripts/ai/states/chase_state.gd" id="8_c"]
+
+[sub_resource type="RectangleShape2D" id="body"]
+size = Vector2(22, 38)
+
+[sub_resource type="RectangleShape2D" id="hurt"]
+size = Vector2(28, 46)
+
+[node name="PallbearerShadow" type="CharacterBody2D"]
+script = ExtResource("1_p")
+display_name = "상여꾼 그림자"
+body_color = Color(0.24, 0.27, 0.34, 1)
+detect_range = 390.0
+attack_damage = 14.0
+attack_range = 72.0
+attack_knockback = 230.0
+attack_cooldown = 1.55
+attack_telegraph = 0.38
+xp_reward = 34
+
+[node name="Sprite2D" type="AnimatedSprite2D" parent="."]
+script = ExtResource("2_v")
+sheet = "enemies/pallbearer_shadow"
+sprite_scale = 0.86
+foot_offset = -18.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("body")
+
+[node name="Hurtbox" type="Area2D" parent="."]
+script = ExtResource("3_h")
+
+[node name="HurtboxShape" type="CollisionShape2D" parent="Hurtbox"]
+position = Vector2(0, -3)
+shape = SubResource("hurt")
+
+[node name="HealthComponent" type="Node" parent="."]
+script = ExtResource("4_hp")
+max_hp = 96.0
+hurtbox_path = NodePath("../Hurtbox")
+
+[node name="StateMachine" type="Node" parent="."]
+script = ExtResource("5_sm")
+initial_state = NodePath("Idle")
+
+[node name="Idle" type="Node" parent="StateMachine"]
+script = ExtResource("6_i")
+idle_duration = 1.15
+
+[node name="Patrol" type="Node" parent="StateMachine"]
+script = ExtResource("7_p")
+patrol_speed = 58.0
+patrol_range = 150.0
+patrol_duration = 4.2
+
+[node name="Chase" type="Node" parent="StateMachine"]
+script = ExtResource("8_c")
+chase_speed = 112.0
+lose_distance = 560.0

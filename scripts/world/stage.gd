@@ -51,11 +51,12 @@ const CAMERA_OFFSET_Y := 160.0   # 카메라를 위로 이만큼 띄워 지면�
 const GAMEPLAY_ONLY := true
 # 난이도 곡선: 잡몹 → 잡몹+호랑이 → 더 많은 잡몹 → 중간보스(구미호 여왕) → 최종보스(대호)
 # 1스테이지(물이 잠긴 골짜기, foothills~sacred_altar/골짜기의 수살귀) 뒤로 2스테이지(그슨대 숲)가,
-# 그 뒤로 3스테이지(저잣거리 도깨비, market_ruins~goblin_court/DokkaebiChief)가 이어진다.
+# 그 뒤로 3스테이지(저잣거리 도깨비), 4스테이지(끊긴 상여길)가 이어진다.
 const CHAIN := [
     "foothills", "forest_deep", "mountain_pass", "ruined_temple", "sacred_altar",
     "forest_shadow", "forest_mist", "withered_hollow", "wailing_thicket", "elder_hollow",
     "market_ruins", "broken_stalls", "well_court", "lantern_alley", "goblin_court",
+    "funeral_pass", "kkokdu_road", "frozen_rest", "mourning_ridge", "unfinished_grave",
 ]
 const CHAIN_TSCN := {
     "foothills": "res://scenes/levels/Foothills.tscn",
@@ -73,6 +74,11 @@ const CHAIN_TSCN := {
     "well_court": "res://scenes/levels/WellCourt.tscn",
     "lantern_alley": "res://scenes/levels/LanternAlley.tscn",
     "goblin_court": "res://scenes/levels/GoblinCourt.tscn",
+    "funeral_pass": "res://scenes/levels/FuneralPass.tscn",
+    "kkokdu_road": "res://scenes/levels/KkokduRoad.tscn",
+    "frozen_rest": "res://scenes/levels/FrozenRest.tscn",
+    "mourning_ridge": "res://scenes/levels/MourningRidge.tscn",
+    "unfinished_grave": "res://scenes/levels/UnfinishedGrave.tscn",
 }
 const CLEAR_SCENE := "res://scenes/ui/Clear.tscn"
 const FWD_GATE_X := 1360.0       # 전진 차단 결계 x

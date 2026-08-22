@@ -1,0 +1,24 @@
+{
+  "_note": "【4스테이지 4굽이】 통곡 고개. 행렬의 그림자와 종이꽃이 한꺼번에 덮친다.",
+  "backdrop": {
+    "art_set": "stage4", "aerial": 0.09, "clouds": false, "far_scale": 0.06,
+    "horizon_y": 578.0, "mid_scale": 0.36, "mist": true, "mountains": true,
+    "near_scale": 0.7, "night_luminance": 0.24,
+    "sky": [0.03, 0.04, 0.072], "tint": [0.61, 0.7, 0.82]
+  },
+  "enemies": [
+    {"scene": "KkokduAcrobat", "x": 400.0, "y": 636.0},
+    {"scene": "PallbearerShadow", "x": 610.0, "y": 636.0},
+    {"scene": "KkokduGuide", "x": 820.0, "y": 636.0},
+    {"scene": "PaperFlowerSpirit", "x": 1030.0, "y": 636.0},
+    {"scene": "KkokduAcrobat", "x": 1220.0, "y": 636.0}
+  ],
+  "entries": [{"name": "default", "x": 100.0}],
+  "ground": {"tileset": "snow_pass", "tint": [0.7, 0.75, 0.83], "width": 2800.0, "x": -500.0},
+  "player_x": 100.0,
+  "props": [
+    {"scale": 1.15, "tex": "mourning_banner", "x": 245.0, "y": 684.0},
+    {"scale": 1.15, "tex": "seonang_snow", "x": 740.0, "y": 684.0},
+    {"scale": 1.0, "tex": "funeral_flowers", "x": 1280.0, "y": 684.0}
+  ]
+}

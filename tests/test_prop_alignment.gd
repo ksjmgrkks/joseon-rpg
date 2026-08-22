@@ -11,11 +11,12 @@ extends Node
 const PASS := "PASS"
 const FAIL := "FAIL"
 const TOLERANCE := 1.0     # px
-## 검사할 스테이지(1·2·3스테이지 전 굽이)
+## 검사할 스테이지(1·2·3·4스테이지 전 굽이)
 const STAGES := [
     "foothills", "forest_deep", "mountain_pass", "ruined_temple", "sacred_altar",
     "forest_shadow", "forest_mist", "withered_hollow", "wailing_thicket", "elder_hollow",
     "market_ruins", "broken_stalls", "well_court", "lantern_alley", "goblin_court",
+    "funeral_pass", "kkokdu_road", "frozen_rest", "mourning_ridge", "unfinished_grave",
 ]
 
 

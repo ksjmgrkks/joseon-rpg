@@ -1,6 +1,6 @@
 extends Control
 ##
-## 스테이지 선택 화면 — 각 던전의 분위기를 한눈에 비교하는 3열 컨셉 카드 갤러리.
+## 스테이지 선택 화면 — 각 던전의 분위기를 한눈에 비교하는 가로 컨셉 카드 갤러리.
 ## 카드 배경은 PixelLab Pro 컨셉 아트, 제목·설명은 런타임 텍스트라 번역/해상도에 안전하다.
 ##
 
@@ -43,6 +43,18 @@ const STAGES := [
         "crop_right": 1,
         "accent": Color(0.68, 0.45, 0.25),
         "wash": Color(0.20, 0.12, 0.08),
+    },
+    {
+        "chapter_key": "stageselect.stage4.chapter",
+        "name_key": "stageselect.stage4.name",
+        "desc_key": "stageselect.stage4.desc",
+        "boss_key": "stageselect.stage4.boss",
+        "scene": "res://scenes/levels/FuneralPass.tscn",
+        "art": "res://assets/ui/stage_cards/stage4_funeral_pass.png",
+        "crop_left": 0,
+        "crop_right": 0,
+        "accent": Color(0.58, 0.68, 0.78),
+        "wash": Color(0.075, 0.09, 0.13),
     },
 ]
 

@@ -1,0 +1,20 @@
+{
+  "_note": "【4스테이지 5굽이·보스】 끝내 닿지 못한 묘역. 빈 상여에 맺힌 상여귀를 진혼한다.",
+  "backdrop": {
+    "art_set": "stage4", "aerial": 0.05, "clouds": false, "far_scale": 0.05,
+    "horizon_y": 580.0, "mid_scale": 0.38, "mist": true, "mountains": true,
+    "near_scale": 0.72, "night_luminance": 0.2,
+    "sky": [0.025, 0.034, 0.062], "tint": [0.56, 0.65, 0.78]
+  },
+  "enemies": [
+    {"scene": "Sangyeogwi", "x": 1020.0, "y": 570.0}
+  ],
+  "entries": [{"name": "default", "x": 100.0}],
+  "ground": {"tileset": "snow_pass", "tint": [0.65, 0.71, 0.8], "width": 2800.0, "x": -500.0},
+  "player_x": 100.0,
+  "props": [
+    {"scale": 0.95, "tex": "funeral_flowers", "x": 300.0, "y": 684.0},
+    {"scale": 1.0, "tex": "unfinished_mound", "x": 1220.0, "y": 684.0},
+    {"scale": 1.1, "tex": "funeral_bells", "x": 1320.0, "y": 684.0}
+  ]
+}

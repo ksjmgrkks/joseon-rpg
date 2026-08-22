@@ -1,0 +1,71 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/enemies/boss.gd" id="1_b"]
+[ext_resource type="Script" path="res://scripts/combat/hurtbox.gd" id="2_h"]
+[ext_resource type="Script" path="res://scripts/combat/health_component.gd" id="3_hp"]
+[ext_resource type="Script" path="res://scripts/combat/hitbox.gd" id="4_hit"]
+[ext_resource type="Script" path="res://scripts/visual/enemy_visual.gd" id="5_v"]
+
+[sub_resource type="RectangleShape2D" id="body"]
+size = Vector2(48, 88)
+
+[sub_resource type="RectangleShape2D" id="hurt"]
+size = Vector2(76, 102)
+
+[sub_resource type="RectangleShape2D" id="hit"]
+size = Vector2(96, 72)
+
+[node name="KkokduGeneral" type="CharacterBody2D"]
+script = ExtResource("1_b")
+display_name = "꼭두 장군"
+subtitle = "나무 말을 타고 멎은 행렬을 지키는 자"
+body_color = Color(0.52, 0.31, 0.22, 1)
+engage_distance = 390.0
+telegraph_seconds = 0.8
+attack_seconds = 0.42
+recover_seconds = 1.2
+dash_speed = 320.0
+dash_reach = 58.0
+volley_count = 4
+volley_damage = 11.0
+volley_speed = 260.0
+volley_spread_deg = 38.0
+summon_scene = "res://scenes/enemies/KkokduGuide.tscn"
+summon_count = 2
+pattern_pool = PackedStringArray("dash", "dash", "volley", "summon")
+water_entrance = false
+attack_damage = 18.0
+attack_knockback = 300.0
+xp_reward = 190
+reward_item_qty = 2
+flag_on_death = "kkokdu_general_defeated"
+
+[node name="Sprite2D" type="AnimatedSprite2D" parent="."]
+script = ExtResource("5_v")
+sheet = "enemies/kkokdu_general"
+sprite_scale = 1.0
+foot_offset = -29.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("body")
+
+[node name="Hurtbox" type="Area2D" parent="."]
+script = ExtResource("2_h")
+
+[node name="HurtboxShape" type="CollisionShape2D" parent="Hurtbox"]
+position = Vector2(0, -8)
+shape = SubResource("hurt")
+
+[node name="HealthComponent" type="Node" parent="."]
+script = ExtResource("3_hp")
+max_hp = 460.0
+hurtbox_path = NodePath("../Hurtbox")
+
+[node name="AttackHitbox" type="Area2D" parent="."]
+position = Vector2(0, -18)
+script = ExtResource("4_hit")
+damage = 18.0
+knockback = 300.0
+
+[node name="HitShape" type="CollisionShape2D" parent="AttackHitbox"]
+shape = SubResource("hit")

@@ -1,0 +1,73 @@
+[gd_scene load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/enemies/patroller.gd" id="1_p"]
+[ext_resource type="Script" path="res://scripts/visual/enemy_visual.gd" id="2_v"]
+[ext_resource type="Script" path="res://scripts/combat/hurtbox.gd" id="3_h"]
+[ext_resource type="Script" path="res://scripts/combat/health_component.gd" id="4_hp"]
+[ext_resource type="Script" path="res://scripts/ai/state_machine.gd" id="5_sm"]
+[ext_resource type="Script" path="res://scripts/ai/states/idle_state.gd" id="6_i"]
+[ext_resource type="Script" path="res://scripts/ai/states/patrol_state.gd" id="7_p"]
+[ext_resource type="Script" path="res://scripts/ai/states/chase_state.gd" id="8_c"]
+
+[sub_resource type="RectangleShape2D" id="body"]
+size = Vector2(16, 26)
+
+[sub_resource type="RectangleShape2D" id="hurt"]
+size = Vector2(26, 34)
+
+[node name="PaperFlowerSpirit" type="CharacterBody2D"]
+script = ExtResource("1_p")
+display_name = "종이꽃 혼"
+body_color = Color(0.72, 0.72, 0.76, 1)
+detect_range = 430.0
+attack_damage = 5.0
+attack_range = 46.0
+attack_cooldown = 1.45
+attack_telegraph = 0.24
+ranged = true
+ranged_damage = 10.0
+ranged_min = 105.0
+ranged_max = 390.0
+ranged_cooldown = 1.85
+xp_reward = 30
+drop_chance = 0.22
+
+[node name="Sprite2D" type="AnimatedSprite2D" parent="."]
+script = ExtResource("2_v")
+sheet = "enemies/paper_flower_spirit"
+sprite_scale = 0.78
+foot_offset = -25.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("body")
+
+[node name="Hurtbox" type="Area2D" parent="."]
+script = ExtResource("3_h")
+
+[node name="HurtboxShape" type="CollisionShape2D" parent="Hurtbox"]
+position = Vector2(0, -12)
+shape = SubResource("hurt")
+
+[node name="HealthComponent" type="Node" parent="."]
+script = ExtResource("4_hp")
+max_hp = 58.0
+hurtbox_path = NodePath("../Hurtbox")
+
+[node name="StateMachine" type="Node" parent="."]
+script = ExtResource("5_sm")
+initial_state = NodePath("Idle")
+
+[node name="Idle" type="Node" parent="StateMachine"]
+script = ExtResource("6_i")
+idle_duration = 0.8
+
+[node name="Patrol" type="Node" parent="StateMachine"]
+script = ExtResource("7_p")
+patrol_speed = 64.0
+patrol_range = 175.0
+patrol_duration = 3.6
+
+[node name="Chase" type="Node" parent="StateMachine"]
+script = ExtResource("8_c")
+chase_speed = 108.0
+lose_distance = 600.0

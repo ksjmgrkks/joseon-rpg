@@ -19,7 +19,12 @@ const CHAIN := {
 	"res://scenes/levels/BrokenStalls.tscn": "res://scenes/levels/WellCourt.tscn",
 	"res://scenes/levels/WellCourt.tscn": "res://scenes/levels/LanternAlley.tscn",
 	"res://scenes/levels/LanternAlley.tscn": "res://scenes/levels/GoblinCourt.tscn",
-	"res://scenes/levels/GoblinCourt.tscn": "res://scenes/ui/Clear.tscn",
+	"res://scenes/levels/GoblinCourt.tscn": "res://scenes/levels/FuneralPass.tscn",
+	"res://scenes/levels/FuneralPass.tscn": "res://scenes/levels/KkokduRoad.tscn",
+	"res://scenes/levels/KkokduRoad.tscn": "res://scenes/levels/FrozenRest.tscn",
+	"res://scenes/levels/FrozenRest.tscn": "res://scenes/levels/MourningRidge.tscn",
+	"res://scenes/levels/MourningRidge.tscn": "res://scenes/levels/UnfinishedGrave.tscn",
+	"res://scenes/levels/UnfinishedGrave.tscn": "res://scenes/ui/Clear.tscn",
 }
 
 

@@ -30,6 +30,12 @@ const SCENE_BGM := {
     "WellCourt":     "res://assets/audio/bgm/stage3.wav",
     "LanternAlley":  "res://assets/audio/bgm/stage3.wav",
     "GoblinCourt":   "res://assets/audio/bgm/boss.wav",
+    # 4스테이지(끊긴 상여길) — 느린 가야금과 세 번의 상여 종소리.
+    "FuneralPass":      "res://assets/audio/bgm/stage4.wav",
+    "KkokduRoad":       "res://assets/audio/bgm/stage4.wav",
+    "FrozenRest":       "res://assets/audio/bgm/stage4.wav",
+    "MourningRidge":    "res://assets/audio/bgm/stage4.wav",
+    "UnfinishedGrave":  "res://assets/audio/bgm/boss.wav",
     # 옛 스토리/마을 씬 — 기존 곡 유지
     "VillageIntro": "res://assets/audio/bgm/village.wav",
     "Village":   "res://assets/audio/bgm/village.wav",

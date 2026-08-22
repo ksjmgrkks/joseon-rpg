@@ -1,0 +1,23 @@
+{
+  "_note": "【4스테이지 2굽이】 버려진 상여 쉼터와 길을 잘못 이끄는 꼭두들.",
+  "backdrop": {
+    "art_set": "stage4", "aerial": 0.16, "clouds": false, "far_scale": 0.07,
+    "horizon_y": 570.0, "mid_scale": 0.32, "mist": true, "mountains": true,
+    "near_scale": 0.65, "night_luminance": 0.32,
+    "sky": [0.04, 0.052, 0.09], "tint": [0.7, 0.78, 0.88]
+  },
+  "enemies": [
+    {"scene": "KkokduAcrobat", "x": 430.0, "y": 636.0},
+    {"scene": "KkokduGuide", "x": 680.0, "y": 636.0},
+    {"scene": "PaperFlowerSpirit", "x": 940.0, "y": 636.0},
+    {"scene": "PallbearerShadow", "x": 1190.0, "y": 636.0}
+  ],
+  "entries": [{"name": "default", "x": 100.0}],
+  "ground": {"tileset": "snow_pass", "tint": [0.78, 0.82, 0.88], "width": 2800.0, "x": -500.0},
+  "player_x": 100.0,
+  "props": [
+    {"scale": 1.05, "tex": "bier_rest", "x": 315.0, "y": 684.0},
+    {"scale": 1.0, "tex": "mourning_banner", "x": 780.0, "y": 684.0},
+    {"scale": 1.05, "tex": "funeral_bells", "x": 1260.0, "y": 684.0}
+  ]
+}

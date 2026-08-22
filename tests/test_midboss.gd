@@ -29,9 +29,18 @@ const LADDER := {
         "mid": "DokkaebiBrute",
         "boss": "DokkaebiChief",
     },
+    "4스테이지": {
+        "mobs": ["KkokduGuide", "KkokduAcrobat", "PallbearerShadow", "PaperFlowerSpirit"],
+        "mid": "KkokduGeneral",
+        "boss": "Sangyeogwi",
+    },
 }
 # 중간보스가 쓰면 안 되는 패턴 — 물기둥/밀물은 물 스테이지 전용 연출.
-const FORBIDDEN := {"Jangseung": ["pillars", "wave"], "DokkaebiBrute": ["pillars", "wave"]}
+const FORBIDDEN := {
+    "Jangseung": ["pillars", "wave"],
+    "DokkaebiBrute": ["pillars", "wave"],
+    "KkokduGeneral": ["pillars", "wave"],
+}
 
 
 func _ready() -> void:

@@ -132,6 +132,24 @@ func water_drop(out: PackedFloat32Array, t0: float, gain: float) -> void:
 		out[pos] += sin(TAU * f * t) * env * gain
 
 
+## 낮은 놋쇠 상여 종 — 서로 어긋난 부분음이 길게 감쇠해 장례 행렬의 거리감을 만든다.
+func funeral_bell(out: PackedFloat32Array, t0: float, gain: float, base_freq: float = 196.0) -> void:
+	var start := int(t0 * SR)
+	var count := int(2.8 * SR)
+	var partials := [1.0, 1.47, 2.09, 2.63, 3.71]
+	var weights := [1.0, 0.55, 0.34, 0.22, 0.12]
+	for i in range(count):
+		var pos := start + i
+		if pos < 0 or pos >= out.size():
+			break
+		var t := float(i) / float(SR)
+		var env := exp(-1.75 * t) * minf(1.0, t / 0.012)
+		var sample := 0.0
+		for p in range(partials.size()):
+			sample += sin(TAU * base_freq * partials[p] * t) * weights[p]
+		out[pos] += sample * env * gain
+
+
 # ── 유틸 ───────────────────────────────────────────────
 
 ## "D2" "F#4" "Bb3" 같은 음이름 → 주파수(Hz)

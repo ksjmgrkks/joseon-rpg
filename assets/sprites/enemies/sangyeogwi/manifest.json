@@ -1,0 +1,11 @@
+{
+  "frame_w": 320,
+  "frame_h": 240,
+  "anims": {
+    "idle": {"frames": 1, "fps": 4, "loop": true},
+    "walk": {"frames": 1, "fps": 5, "loop": true},
+    "attack": {"frames": 3, "fps": 8, "loop": false},
+    "telegraph": {"frames": 1, "fps": 5, "loop": true},
+    "death": {"frames": 1, "fps": 5, "loop": false}
+  }
+}

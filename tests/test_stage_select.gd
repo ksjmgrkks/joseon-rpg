@@ -3,7 +3,7 @@ extends Node
 ## 스테이지 선택 화면 검증 (헤드리스).
 ## 실행: `godot --headless res://tests/test_stage_select.tscn`
 ##
-## "새로 시작"이 1/2/3스테이지 중 하나를 고르는 화면으로 이어지고,
+## "새로 시작"이 1/2/3/4스테이지 중 하나를 고르는 화면으로 이어지고,
 ## 각 카드가 정확한 체인 시작 씬으로 연결되는지 확인한다.
 ##
 
@@ -15,6 +15,7 @@ const EXPECTED_SCENES := [
     "res://scenes/levels/Foothills.tscn",
     "res://scenes/levels/ForestShadow.tscn",
     "res://scenes/levels/MarketRuins.tscn",
+    "res://scenes/levels/FuneralPass.tscn",
 ]
 
 
@@ -56,12 +57,12 @@ func _check_cards_built() -> Dictionary:
     var cards: HBoxContainer = inst.get_node("Margin/VBox/Cards")
     var count := cards.get_child_count()
     var wide_layout := cards is HBoxContainer
-    var card_sized := count == 3 and (cards.get_child(0) as Control).custom_minimum_size.y >= 360.0
+    var card_sized := count == 4 and (cards.get_child(0) as Control).custom_minimum_size.y >= 360.0
     inst.queue_free()
-    if count != 3 or not wide_layout or not card_sized:
-        return { "name": "three_stage_cards", "status": FAIL,
+    if count != 4 or not wide_layout or not card_sized:
+        return { "name": "four_stage_cards", "status": FAIL,
             "reason": "카드 수=%d 가로배치=%s 카드높이충분=%s" % [count, str(wide_layout), str(card_sized)] }
-    return { "name": "three_stage_cards", "status": PASS, "reason": "" }
+    return { "name": "four_stage_cards", "status": PASS, "reason": "" }
 
 
 func _check_pick_emits_scene() -> Dictionary:
@@ -95,7 +96,8 @@ func _check_art_assets_present() -> Dictionary:
             "res://assets/ui/stage_select_window.png",
             "res://assets/ui/stage_cards/stage1_flooded_valley.png",
             "res://assets/ui/stage_cards/stage2_geuseondae_forest.png",
-            "res://assets/ui/stage_cards/stage3_ruined_market.png"]:
+            "res://assets/ui/stage_cards/stage3_ruined_market.png",
+            "res://assets/ui/stage_cards/stage4_funeral_pass.png"]:
         if not ResourceLoader.exists(p):
             return { "name": "pixellab_art_present", "status": FAIL,
                 "reason": "%s 없음 — 플레이스홀더로 폴백" % p }

@@ -19,3 +19,4 @@ const WARD   := "res://assets/audio/sfx/ward.wav"         # 호신부 가호(절
 const WHIFF  := "res://assets/audio/sfx/whiff.wav"        # 헛스윙(아무도 못 맞힘) — 맞았을 때와 대비시키는 소리
 const HIT_HEAVY := "res://assets/audio/sfx/hit_heavy.wav" # 다중 히트·마무리타에 겹쳐 얹는 묵직한 저역
 const HIT_CONFIRM := "res://assets/audio/sfx/hit_confirm.wav" # 명중 순간만 나는 짧은 창끝 파열음
+const FUNERAL_BELL := "res://assets/audio/sfx/funeral_bell.wav" # 상여귀 공격 예고 — 낮은 놋쇠 종

@@ -1,0 +1,10 @@
+{
+  "frame_w": 96,
+  "frame_h": 96,
+  "anims": {
+    "idle": {"frames": 1, "fps": 4, "loop": true},
+    "walk": {"frames": 1, "fps": 6, "loop": true},
+    "attack": {"frames": 1, "fps": 8, "loop": false},
+    "death": {"frames": 1, "fps": 5, "loop": false}
+  }
+}

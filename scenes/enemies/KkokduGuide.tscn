@@ -1,0 +1,66 @@
+[gd_scene load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/enemies/patroller.gd" id="1_p"]
+[ext_resource type="Script" path="res://scripts/visual/enemy_visual.gd" id="2_v"]
+[ext_resource type="Script" path="res://scripts/combat/hurtbox.gd" id="3_h"]
+[ext_resource type="Script" path="res://scripts/combat/health_component.gd" id="4_hp"]
+[ext_resource type="Script" path="res://scripts/ai/state_machine.gd" id="5_sm"]
+[ext_resource type="Script" path="res://scripts/ai/states/idle_state.gd" id="6_i"]
+[ext_resource type="Script" path="res://scripts/ai/states/patrol_state.gd" id="7_p"]
+[ext_resource type="Script" path="res://scripts/ai/states/chase_state.gd" id="8_c"]
+
+[sub_resource type="RectangleShape2D" id="body"]
+size = Vector2(18, 36)
+
+[sub_resource type="RectangleShape2D" id="hurt"]
+size = Vector2(22, 42)
+
+[node name="KkokduGuide" type="CharacterBody2D"]
+script = ExtResource("1_p")
+display_name = "길잡이 꼭두"
+body_color = Color(0.42, 0.3, 0.22, 1)
+detect_range = 340.0
+attack_damage = 9.0
+attack_range = 58.0
+attack_cooldown = 1.25
+xp_reward = 24
+
+[node name="Sprite2D" type="AnimatedSprite2D" parent="."]
+script = ExtResource("2_v")
+sheet = "enemies/kkokdu_guide"
+sprite_scale = 0.82
+foot_offset = -20.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("body")
+
+[node name="Hurtbox" type="Area2D" parent="."]
+script = ExtResource("3_h")
+
+[node name="HurtboxShape" type="CollisionShape2D" parent="Hurtbox"]
+position = Vector2(0, -2)
+shape = SubResource("hurt")
+
+[node name="HealthComponent" type="Node" parent="."]
+script = ExtResource("4_hp")
+max_hp = 62.0
+hurtbox_path = NodePath("../Hurtbox")
+
+[node name="StateMachine" type="Node" parent="."]
+script = ExtResource("5_sm")
+initial_state = NodePath("Idle")
+
+[node name="Idle" type="Node" parent="StateMachine"]
+script = ExtResource("6_i")
+idle_duration = 0.9
+
+[node name="Patrol" type="Node" parent="StateMachine"]
+script = ExtResource("7_p")
+patrol_speed = 72.0
+patrol_range = 150.0
+patrol_duration = 3.8
+
+[node name="Chase" type="Node" parent="StateMachine"]
+script = ExtResource("8_c")
+chase_speed = 132.0
+lose_distance = 520.0

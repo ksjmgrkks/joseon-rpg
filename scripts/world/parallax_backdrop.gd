@@ -39,7 +39,7 @@ class_name ParallaxBackdrop
 @export var clouds: bool = true
 # 야간 분위기 자동 판정 임계(하늘 휘도). 이보다 어두우면 별/반딧불 표시. 음수면 끔.
 @export var night_luminance: float = 0.55
-## 비주얼 세트. 빈 문자열은 기존 공용 산수, "stage1"은 1스테이지 전용 pro 리마스터.
+## 비주얼 세트. 빈 문자열은 기존 공용 산수, stage1/3/4는 각 스테이지 전용 리마스터.
 @export var art_set: String = ""
 
 # 신규 PixelLab 수묵 산 실루엣(있으면 이걸 쓰고, 없으면 옛 스트립으로 폴백).
@@ -55,6 +55,11 @@ const ART_SETS := {
         "far": "res://assets/sprites/bg/stage3/far.png",
         "mid": "res://assets/sprites/bg/stage3/mid.png",
         "near": "res://assets/sprites/bg/stage3/near.png",
+    },
+    "stage4": {
+        "far": "res://assets/sprites/bg/stage4/far.png",
+        "mid": "res://assets/sprites/bg/stage4/mid.png",
+        "near": "res://assets/sprites/bg/stage4/near.png",
     },
 }
 # 옛 seamless 스트립(폴백).
@@ -79,6 +84,8 @@ func _ready() -> void:
     if mountains:
         var paths := _mountain_paths()
         if ResourceLoader.exists(paths["far"]) and ResourceLoader.exists(paths["mid"]):
+            if art_set == "stage4":
+                _add_stage4_moon()
             _build_mountains(paths)
         else:
             _build_legacy_strips()
@@ -179,13 +186,13 @@ func _build_mountains(paths: Dictionary) -> void:
     var hill_tex: Texture2D = load(paths["mid"])
     # 원경 먼 산맥 — 하늘색으로 흐려(대기 원근) 위쪽 깊이.
     var far_col := tint.lerp(sky_color, aerial)
-    far_col.a = 0.48 if art_set == "stage1" else (0.42 if art_set == "stage3" else 1.0)
+    far_col.a = 0.48 if art_set == "stage1" else (0.42 if art_set == "stage3" else (0.72 if art_set == "stage4" else 1.0))
     _mountain_layer(far_tex, far_scale, far_col, 1.0, horizon_y + 44.0)
     if mist:
         _add_mist(far_scale + 0.03, horizon_y - 6.0, 0.26, 9.0)
     # 중경 솔숲 — 플레이 지면 바로 뒤에 앉혀 근경감.
     var mid_col := tint.lerp(sky_color, aerial * 0.3)
-    mid_col.a = 0.62 if art_set == "stage1" else (0.68 if art_set == "stage3" else 1.0)
+    mid_col.a = 0.62 if art_set == "stage1" else (0.68 if art_set == "stage3" else (0.84 if art_set == "stage4" else 1.0))
     _mountain_layer(hill_tex, mid_scale, mid_col, 1.0, horizon_y + 120.0)
     if mist:
         _add_mist(mid_scale + 0.04, horizon_y + 84.0, 0.20, 13.0)
@@ -194,8 +201,24 @@ func _build_mountains(paths: Dictionary) -> void:
     if near_path != "" and ResourceLoader.exists(near_path):
         var near_tex: Texture2D = load(near_path)
         var near_col := tint.lerp(sky_color, aerial * 0.08)
-        near_col.a = 0.45 if art_set == "stage1" else 0.50
+        near_col.a = 0.45 if art_set == "stage1" else (0.62 if art_set == "stage4" else 0.50)
         _mountain_layer(near_tex, near_scale, near_col, 1.0, horizon_y + 132.0)
+
+
+func _add_stage4_moon() -> void:
+    var path := "res://assets/sprites/bg/stage4/moon.png"
+    if not ResourceLoader.exists(path):
+        return
+    var layer := ParallaxLayer.new()
+    layer.motion_scale = Vector2(0.025, 0.1)
+    add_child(layer)
+    var moon := Sprite2D.new()
+    moon.texture = load(path)
+    moon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+    moon.position = Vector2(176.0, 198.0)
+    moon.modulate = Color(0.78, 0.84, 0.94, 0.78)
+    moon.z_index = 1
+    layer.add_child(moon)
 
 
 ## 한 산맥 레이어: 완성된 수묵 산수 한 장을 가로로 이어붙여 무한반복. base_y = 이미지 밑동 y.
@@ -204,12 +227,16 @@ func _mountain_layer(tex: Texture2D, motion: float, mod_col: Color, s: float, ba
     var layer := ParallaxLayer.new()
     layer.motion_scale = Vector2(motion, 1.0)
     var tw := float(tex.get_width()) * s
+    # 4스테이지 생성 배경은 좌우 절반을 알파 크로스페이드해 겹친다.
+    # 설경의 옅은 안개·능선이 타일 경계에서 네모나게 끊기지 않게 한다.
+    var overlap := 320.0 * s if art_set == "stage4" else 0.0
+    var step := tw - overlap
     var y := base_y - float(tex.get_height()) * s
     # 화면(그리고 여유)을 덮도록 짝수 개 이어붙임 — 반전 교대 주기(2칸)에 맞춰 짝수.
-    var cols := int(ceil(FIELD / tw))
+    var cols := int(ceil(FIELD / step))
     if cols % 2 == 1:
         cols += 1
-    layer.motion_mirroring = Vector2(cols * tw, 0)   # 이음매(짝수칸)에서 깨끗이 반복
+    layer.motion_mirroring = Vector2(cols * step, 0)   # 이음매(짝수칸)에서 깨끗이 반복
     add_child(layer)
     for i in range(cols + 1):
         var spr := Sprite2D.new()
@@ -219,7 +246,12 @@ func _mountain_layer(tex: Texture2D, motion: float, mod_col: Color, s: float, ba
         spr.flip_h = (i % 2 == 1)   # 교대 반전 → 이음매 모서리 일치
         spr.scale = Vector2(s, s)
         spr.modulate = mod_col
-        spr.position = Vector2(i * tw, y)
+        # stage4는 좌우 절반을 의도적으로 크로스페이드하므로 반전 원점을 오른쪽 끝에 둔다.
+        # 기존 stage1/3 원본은 예전 중첩 배치 자체를 전제로 만들어져 있어 동작을 보존한다.
+        var tile_x := float(i) * step
+        if art_set == "stage4" and spr.flip_h:
+            tile_x += tw
+        spr.position = Vector2(tile_x, y)
         layer.add_child(spr)
 
 
