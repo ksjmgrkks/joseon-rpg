@@ -16,6 +16,7 @@
   - `exec-0c163e98-23f2-43bb-ba71-16cc07f73a24.png` → `jangseung_sealed_source.png`
   - `exec-0dd06b47-3700-452e-8d38-b441c0b0b7d5.png` → `mtn_near_fixed_source.png`
   - `exec-1fe95d75-8fb7-4276-8b15-5a0a413706c1.png` → `mtn_mid_fixed_source.png`
+  - `exec-88459a65-4650-4b0f-b163-12d8d69adc63.png` → `jangseung_awakened_source.png`
 
 ## 공통 제약
 
@@ -59,7 +60,13 @@
 
 > Strict 1-row × 5-column transparent pixel-art strip of an ordinary stationary late-Joseon Korean guardian jangseung before possession is revealed. A planted weathered wooden post with stern closed face, small straw cap, faded hemp rope and cloth scraps, no arms and no legs; only a barely visible dark seam and subtle cloth/eye flicker across five restrained idle frames. Shared baseline and equal cells, orthographic side view, no attack pose, no monster limbs, no writing, no scenery rectangle, no torii, shimenawa, pagoda, Chinese guardian, logo or watermark.
 
-발견 뒤에는 기존 `jangseung_gwi` 시트로 바뀌어 팔다리가 돋고 체력바·공격 AI가 함께 활성화된다. 위장 상태에서는 이동·공격·체력바가 꺼지고 `찾기`만 노출한다.
+위장 상태에서는 이동·공격·체력바가 꺼지고 `찾기`만 노출한다.
+
+### 중간 보스 발견 후 각성 장승 — `assets/sprites/enemies/jangseung_awakened/`
+
+> Use the enormous frightening carved jangseung at the far-right edge of the game's start-screen art as the primary face, menace, wood-carving and silhouette reference, and the sealed jangseung sheet as the same-object identity reference. Create a much larger discovered-after midboss made entirely from one massive blackened tree trunk: deeply gouged furious brow, recessed staring eyes with cold celadon pinlights, broad flattened nose, rigid carved wooden teeth, heavy shoulder knots, enormous crooked branch arms, thick root legs, torn hanji streamers and old geumjul rope. Strict 5-row × 5-column grid: threatening idle, heavy root-legged walk, eye/crack telegraph, brutal sweeping branch-arm attack, and splitting/collapsing death. Premium hard-edged 16-bit pixel art, about three player-heights in game, genuinely transparent background. No skinny body, passive human face, flesh, goblin/orc anatomy, comedy, armor, metal weapons, non-Korean motifs, text, borders, scenery, logo or watermark.
+
+기존 `jangseung_gwi`의 초록 피부·익살스러운 사람형 비율은 사용하지 않는다. 시작 화면 오른쪽 장승의 큰 눈구멍과 나무 이빨을 직접 계승하고, 발견 전 장승의 삿갓·밧줄·세로 통나무 재질이 뿌리 다리와 가지 팔로 갈라지도록 이어 붙였다. 런타임 규격은 프레임 `176×192`, 5프레임 5동작, 표시 배율 `1.06`으로 플레이어 약 3배이며 피격·공격 판정도 커진 상체에 맞춰 확장한다.
 
 ### 잘린 나무 경계 보정 — `assets/sprites/bg/stage2/{mid,near}.png`
 
@@ -74,7 +81,7 @@
 - 소품: 15종을 셀별 알파 영역으로 분리하고 하단 중앙 정렬. `root_arch`를 납작하게 규격화한 16번째 파생 자산 `root_platform.png`은 떠 있는 뿌리 발판에 반복 사용한다.
 - 생성기가 실제 알파 대신 넣은 흰/연회색 체크무늬는 바깥과 이어진 밝은 중성색만 flood-fill하고 잔여 밝은 중성색을 제거해 투명화한다.
 - 그슨대 일반형·`Echo`·`Gloom`은 발견 전에는 같은 아이 형상 위장을 공유하지만, 발견 뒤에는 성인 키의 먹그림자 본체로 전환한다. 노괴는 더 크고 가지뿔이 난 별도 본체라 일반형과도 즉시 구분된다.
-- 중간 보스 `Jangseung`은 발견 전의 평범한 수호 장승과 발견 후의 보행 괴물 시트를 완전히 분리했다.
+- 중간 보스 `Jangseung`은 발견 전의 평범한 수호 장승과, 시작 화면의 장승처럼 크고 무서운 전용 각성 장승 시트를 완전히 분리했다.
 
 ## 서사/구간 설계
 
