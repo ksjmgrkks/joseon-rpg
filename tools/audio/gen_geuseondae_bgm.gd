@@ -18,11 +18,11 @@ const SR := 22050
 const OUT := "res://assets/audio/bgm/geuseondae.wav"
 const BPM := 52.0          # 아주 느리게 — 발이 무거워지는 템포
 
-var _rng := RandomNumberGenerator.new()
+var _synth := KoreanSynth.new()
 
 
 func _init() -> void:
-    _rng.seed = 20260819
+    _synth.rng.seed = 20260819
     var beat := 60.0 / BPM
     var bars := 8
     var total := beat * 4.0 * float(bars)
@@ -71,143 +71,41 @@ func _init() -> void:
     print("생성: %s  (%.1f초, %d샘플)" % [OUT, total, n])
     quit(0)
 
+# 악기·유틸 구현은 tools/audio/korean_synth.gd 로 옮겼다(시작화면 BGM 과 공유).
+# 아래는 기존 호출부를 그대로 두기 위한 얇은 위임 — 난수 호출 순서가 바뀌지 않아
+# 같은 시드면 예전과 **바이트 단위로 동일한** wav 가 나온다(재생성해서 해시로 확인함).
 
-# ── 악기 ───────────────────────────────────────────────
-
-## 가야금풍 뜯는 소리 — Karplus-Strong. 짧은 노이즈를 지연선에 넣고 평균으로 감쇠시킨다.
 func _gayageum(out: PackedFloat32Array, freq: float, t0: float, dur: float, gain: float) -> void:
-    var start := int(t0 * SR)
-    var count := int(dur * SR)
-    var delay := maxi(2, int(float(SR) / freq))
-    var line := PackedFloat32Array()
-    line.resize(delay)
-    for i in range(delay):
-        line[i] = _rng.randf_range(-1.0, 1.0)
-    var idx := 0
-    for i in range(count):
-        var pos := start + i
-        if pos < 0 or pos >= out.size():
-            break
-        var nxt := (idx + 1) % delay
-        var v: float = (line[idx] + line[nxt]) * 0.5 * 0.996      # 감쇠
-        line[idx] = v
-        idx = nxt
-        # 뜯은 직후가 가장 밝고 점점 사그라든다
-        var env: float = exp(-3.2 * float(i) / float(count))
-        out[pos] += v * env * gain
+    _synth.gayageum(out, freq, t0, dur, gain)
 
 
-## 대금풍 지속음 — 사인 + 5도 배음 + 느린 비브라토 + 숨소리.
 func _daegeum(out: PackedFloat32Array, freq: float, t0: float, dur: float, gain: float) -> void:
-    var start := int(t0 * SR)
-    var count := int(dur * SR)
-    for i in range(count):
-        var pos := start + i
-        if pos < 0 or pos >= out.size():
-            break
-        var t := float(i) / float(SR)
-        var vib := 1.0 + 0.006 * sin(TAU * 4.2 * t)               # 느린 떨림
-        var s := sin(TAU * freq * vib * t) * 0.7
-        s += sin(TAU * freq * 1.5 * vib * t) * 0.18               # 5도
-        s += _rng.randf_range(-1.0, 1.0) * 0.05                   # 숨소리
-        # 완만한 들숨/날숨
-        var env: float = sin(PI * float(i) / float(count))
-        out[pos] += s * env * gain
+    _synth.daegeum(out, freq, t0, dur, gain)
 
 
-## 장구 쿵 — 저역 사인 스윕(빠르게 떨어짐).
 func _janggu_kung(out: PackedFloat32Array, t0: float, gain: float) -> void:
-    var start := int(t0 * SR)
-    var count := int(0.28 * SR)
-    for i in range(count):
-        var pos := start + i
-        if pos < 0 or pos >= out.size():
-            break
-        var t := float(i) / float(SR)
-        var f := lerpf(120.0, 55.0, minf(1.0, t / 0.09))
-        var env: float = exp(-14.0 * t)
-        out[pos] += sin(TAU * f * t) * env * gain
+    _synth.janggu_kung(out, t0, gain)
 
 
-## 장구 덕 — 고역 노이즈가 짧게 탁.
 func _janggu_deok(out: PackedFloat32Array, t0: float, gain: float) -> void:
-    var start := int(t0 * SR)
-    var count := int(0.14 * SR)
-    var last := 0.0
-    for i in range(count):
-        var pos := start + i
-        if pos < 0 or pos >= out.size():
-            break
-        var t := float(i) / float(SR)
-        var nz := _rng.randf_range(-1.0, 1.0)
-        last = last * 0.55 + nz * 0.45                            # 살짝 눌러 나무 느낌
-        var env: float = exp(-30.0 * t)
-        out[pos] += (nz - last) * env * gain
+    _synth.janggu_deok(out, t0, gain)
 
 
-## 아이 울음의 잔향 — 음정이 미묘하게 어긋나 '흉내'처럼 들리게.
 func _child_wail(out: PackedFloat32Array, t0: float, dur: float, gain: float) -> void:
-    var start := int(t0 * SR)
-    var count := int(dur * SR)
-    for i in range(count):
-        var pos := start + i
-        if pos < 0 or pos >= out.size():
-            break
-        var t := float(i) / float(SR)
-        var p := float(i) / float(count)
-        var f := lerpf(560.0, 430.0, p) * (1.0 + 0.02 * sin(TAU * 5.5 * t))
-        var s := sin(TAU * f * t) * 0.6 + sin(TAU * f * 2.02 * t) * 0.25   # 2.02배 = 살짝 어긋난 옥타브
-        var env: float = sin(PI * p)
-        env *= env
-        out[pos] += s * env * gain
+    _synth.child_wail(out, t0, dur, gain)
 
-
-# ── 유틸 ───────────────────────────────────────────────
 
 func _note(name: String) -> float:
-    var semi := {"C": 0, "D": 2, "E": 4, "F": 5, "G": 7, "A": 9, "B": 11}
-    var letter := name.substr(0, 1).to_upper()
-    var rest := name.substr(1)
-    var acc := 0
-    if rest.begins_with("#"):
-        acc = 1; rest = rest.substr(1)
-    elif rest.begins_with("b"):
-        acc = -1; rest = rest.substr(1)
-    var octave := int(rest)
-    var n: int = int(semi[letter]) + acc + (octave + 1) * 12
-    return 440.0 * pow(2.0, (float(n) - 69.0) / 12.0)
+    return _synth.note(name)
 
 
 func _normalize(buf: PackedFloat32Array, peak: float) -> void:
-    var m := 0.0
-    for v in buf:
-        m = maxf(m, absf(v))
-    if m <= 0.0001:
-        return
-    var k := peak / m
-    for i in range(buf.size()):
-        buf[i] *= k
+    _synth.normalize(buf, peak)
 
 
 func _fade_io(buf: PackedFloat32Array, fade: int) -> void:
-    for i in range(mini(fade, buf.size())):
-        var g := float(i) / float(fade)
-        buf[i] *= g
-        buf[buf.size() - 1 - i] *= g
+    _synth.fade_io(buf, fade)
 
 
 func _save_wav(buf: PackedFloat32Array) -> void:
-    var pcm := PackedByteArray()
-    pcm.resize(buf.size() * 2)
-    for i in range(buf.size()):
-        var s := int(clampf(buf[i], -1.0, 1.0) * 32767.0)
-        pcm.encode_s16(i * 2, s)
-    var stream := AudioStreamWAV.new()
-    stream.format = AudioStreamWAV.FORMAT_16_BITS
-    stream.mix_rate = SR
-    stream.stereo = false
-    stream.data = pcm
-    stream.loop_mode = AudioStreamWAV.LOOP_FORWARD
-    stream.loop_begin = 0
-    stream.loop_end = buf.size()
-    stream.save_to_wav(ProjectSettings.globalize_path(OUT))
+    _synth.save_wav(buf, OUT)
