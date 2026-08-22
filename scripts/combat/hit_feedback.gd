@@ -13,20 +13,20 @@ static func profile(hit_count: int = 1, power: float = 1.0, pitch_bias: float = 
     return {
         "volume_db": 1.0 + minf(4.0, float(stack)),
         "pitch": clampf(1.0 + pitch_bias + 0.05 * float(stack), 0.85, 1.35),
-        "shake": minf((3.0 + 1.35 * weight) * (1.0 + 0.28 * float(stack)), 12.0),
-        "duration": minf(0.09 + 0.012 * weight, 0.14),
+        "kick": minf((1.25 + 0.45 * weight) * (1.0 + 0.18 * float(stack)), 4.0),
+        "duration": minf(0.065 + 0.006 * weight, 0.085),
         "heavy": stack >= 1,
         "stack": stack,
     }
 
 
 static func player_hit(hit_count: int = 1, power: float = 1.0, pitch_bias: float = 0.0,
-        with_shake: bool = true) -> void:
+        with_camera_bump: bool = true, direction_x: float = 1.0) -> void:
     if hit_count <= 0:
         return
     var feel := profile(hit_count, power, pitch_bias)
     Audio.play_sfx(Sfx.HIT_CONFIRM, float(feel.volume_db), float(feel.pitch))
     if bool(feel.heavy):
         Audio.play_sfx(Sfx.HIT_HEAVY, -1.0 + minf(3.0, float(feel.stack)), 1.0)
-    if with_shake:
-        ScreenFx.shake(float(feel.shake), float(feel.duration))
+    if with_camera_bump:
+        ScreenFx.impact_bump(float(feel.kick), float(feel.duration), direction_x)

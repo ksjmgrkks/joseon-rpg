@@ -94,7 +94,7 @@ func _on_body_entered(body: Node) -> void:
 	if body.has_method("_on_talisman_hit"):
 		var special_landed := bool(body._on_talisman_hit(damage, attacker))
 		if special_landed:
-			HIT_FEEDBACK.player_hit(1, 0.8, 0.08)
+			HIT_FEEDBACK.player_hit(1, 0.8, 0.08, true, signf(velocity.x))
 		queue_free()
 		return
 	# 히트박스와 같은 경로로 꽂아야 데미지 숫자·섬광·움찔·넉백이 근접타와 똑같이 나온다.
@@ -102,5 +102,5 @@ func _on_body_entered(body: Node) -> void:
 	if landed:
 		if body is Node2D:
 			SkillFx.impact((body as Node2D).global_position + Vector2(0, -16), false)
-		HIT_FEEDBACK.player_hit(1, 0.8, 0.06)
+		HIT_FEEDBACK.player_hit(1, 0.8, 0.06, true, signf(velocity.x))
 	queue_free()

@@ -10,6 +10,8 @@ extends Node
 ## 5) 보스 바가 더 두꺼운가
 ## 6) Hitbox 유효 명중 신호가 실제 HP 감소에만 발신되는가
 ## 7) 근접·부적·궁극기가 공통 HitFeedback 경로를 쓰는가
+## 8) 유효 명중 카메라 피드백이 저강도 방향성 펀치인가
+## 9) 연속 카메라 펀치 후 기준 offset으로 정확히 복귀하는가
 ##
 
 const PASS := "PASS"
@@ -26,6 +28,8 @@ func _ready() -> void:
     results.append(await _check_boss_bar())
     results.append(await _check_valid_hit_signal())
     results.append(_check_all_player_attack_feedback_routes())
+    results.append(_check_camera_feedback_profile())
+    results.append(await _check_camera_bump_rebases())
 
     var failed := 0
     for r in results:
@@ -187,3 +191,38 @@ func _check_all_player_attack_feedback_routes() -> Dictionary:
         problems.append("부적 공통 피드백 누락")
     return {"name": "all_player_attacks_use_hit_confirm", "status": PASS if problems.is_empty() else FAIL,
         "reason": ", ".join(problems)}
+
+
+func _check_camera_feedback_profile() -> Dictionary:
+    var feedback := load("res://scripts/combat/hit_feedback.gd")
+    var feel: Dictionary = feedback.profile(1, 1.0)
+    var screen_fx_src := (load("res://scripts/combat/screen_fx.gd") as GDScript).get_source_code()
+    var player_src := (load("res://scripts/player/player.gd") as GDScript).get_source_code()
+    var ok := float(feel.get("kick", 99.0)) <= 2.0 \
+        and float(feel.get("duration", 1.0)) <= 0.085 \
+        and screen_fx_src.contains("func impact_bump") \
+        and player_src.contains("2: ScreenFx.hit_stop") \
+        and not player_src.contains("1: ScreenFx.hit_stop")
+    return {"name": "directional_camera_bump_not_jitter", "status": PASS if ok else FAIL,
+        "reason": "kick=%.2f duration=%.3f" % [feel.get("kick", -1.0), feel.get("duration", -1.0)] if not ok else ""}
+
+
+func _check_camera_bump_rebases() -> Dictionary:
+    var cam := Camera2D.new()
+    var base := Vector2(0, -80)
+    cam.offset = base
+    add_child(cam)
+    cam.make_current()
+    await get_tree().process_frame
+    ScreenFx.impact_bump(2.0, 0.06, 1.0)
+    # 렌더 프레임 중간 위치를 재현한 뒤 반대 방향 명중을 넣는다. 이 값이 새 기준점이 되면 안 된다.
+    cam.offset = base + Vector2(1.75, -0.25)
+    ScreenFx.impact_bump(2.5, 0.06, -1.0)
+    var rebased := cam.offset.distance_to(base) < 0.01
+    await get_tree().create_timer(0.10, true, false, true).timeout
+    var returned := cam.offset.distance_to(base) < 0.01
+    var final_offset := cam.offset
+    cam.queue_free()
+    var ok := rebased and returned
+    return {"name": "camera_bump_restores_base_offset", "status": PASS if ok else FAIL,
+        "reason": "rebased=%s final=%s base=%s" % [str(rebased), str(final_offset), str(base)] if not ok else ""}

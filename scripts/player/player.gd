@@ -466,14 +466,15 @@ func _on_hitbox_landed(area: Area2D) -> void:
     _swing_hits += 1
     var stack := _swing_hits - 1                      # 두 번째 대상부터 '겹침'
     # 기본 1~3타·차지·도혼참 모두 같은 실데미지 신호를 쓰므로 여기서 빠짐없이 확인된다.
-    HIT_FEEDBACK.player_hit(_swing_hits, 0.75 + 0.3 * float(maxi(1, _combo_step)))
-    # 등급별 히트스톱 — 1·2타는 짧고 얕게(경쾌), 3타(마무리)는 길고 '딱' 멈춤(묵직).
-    # 여러 명을 쓸었으면 조금 더 길게 멈춰 '한 방에 여럿'이 손에 남게 한다.
-    var stop_add := minf(0.03, 0.012 * float(stack))
+    var hit_direction := 1.0 if _facing_right else -1.0
+    HIT_FEEDBACK.player_hit(
+        _swing_hits, 0.75 + 0.3 * float(maxi(1, _combo_step)), 0.0, true, hit_direction
+    )
+    # 모바일에서 렉처럼 보이지 않게 1타는 정지시키지 않고, 2·3타에만 미세 히트스톱을 남긴다.
+    var stop_add := minf(0.01, 0.004 * float(stack))
     match _combo_step:
-        1: ScreenFx.hit_stop(0.035 + stop_add, 0.18)
-        2: ScreenFx.hit_stop(0.05 + stop_add, 0.10)
-        _: ScreenFx.hit_stop(0.09 + stop_add, 0.03)
+        2: ScreenFx.hit_stop(0.018 + stop_add, 0.55)
+        3: ScreenFx.hit_stop(0.038 + stop_add, 0.35)
     # 폰 햅틱 — 타수가 커질수록 길게(손끝 타격감). 데스크톱은 무시됨.
     ScreenFx.rumble(10 + 8 * _combo_step + 6 * stack)
     var fx_pos := area.global_position if area else (global_position + Vector2(0, -16))
