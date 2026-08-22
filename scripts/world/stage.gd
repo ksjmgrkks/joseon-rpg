@@ -545,11 +545,23 @@ func _spawn_exit(x: float, target: String, entry: String, color: Color, y: float
     shape.size = Vector2(32, 96)
     cs.shape = shape
     area.add_child(cs)
-    var mark := ColorRect.new()
-    mark.color = color
-    mark.offset_left = -16; mark.offset_top = -48
-    mark.offset_right = 16; mark.offset_bottom = 48
-    area.add_child(mark)
+    # 출구 표식 — 한옥 문(PixelLab 아트, 2026-08-22 교체). 예전엔 색깔 네모였다.
+    var gate_tex := "res://assets/sprites/fx/level_exit_gate.png"
+    if ResourceLoader.exists(gate_tex):
+        var art := Sprite2D.new()
+        art.texture = load(gate_tex)
+        art.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+        art.position = Vector2(0, -8)     # 문 바닥이 지면에 닿게
+        # 스테이지별 색조는 '힌트' 정도로만 — 그대로 곱하면 나무가 초록으로 물든다.
+        art.modulate = color.lerp(Color.WHITE, 0.78)
+        art.modulate.a = 1.0
+        area.add_child(art)
+    else:
+        var mark := ColorRect.new()
+        mark.color = color
+        mark.offset_left = -16; mark.offset_top = -48
+        mark.offset_right = 16; mark.offset_bottom = 48
+        area.add_child(mark)
     add_child(area)
 
 

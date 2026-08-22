@@ -37,6 +37,8 @@ var _ranged_cd: float = 0.0
 @onready var health: HealthComponent = $HealthComponent
 
 # 피격 시 받는 넉백 배수 — 타격감 튜닝 지점(값을 키우면 더 멀리 밀려남).
+## 대화가 끝난 직후 이만큼은 아무도 못 때린다(초).
+const POST_DIALOGUE_GRACE: float = 0.7
 const KNOCK_RECEIVE: float = 1.0   # 2026-08-18: 1.6→1.2→1.0, 사용자 피드백("조금 더 줄여도 될 것 같습니다")
 
 var _dying: bool = false
@@ -45,6 +47,9 @@ var _atk_cd: float = 0.0
 # 피격 경직 — >0 인 동안 StateMachine 이 AI 를 멈추고 넉백을 감쇠시킨다(손맛 2차).
 var hitstun: float = 0.0
 var _spr_base_scale: Vector2 = Vector2.ONE   # 피격 squash 복귀 기준(드리프트 방지)
+## 한 번이라도 맞으면 참 — 시야(detect_range) 밖이라도 쫓아온다.
+## 2026-08-22 피드백: "몹 추적 범위가 짧아 멀리서 부적만 던져도 됐다".
+var aggro: bool = false
 
 
 func _ready() -> void:
@@ -69,7 +74,10 @@ func _physics_process(delta: float) -> void:
     if hitstun > 0.0:
         return                      # 피격 경직 중엔 새 공격 판단 정지(이동·넉백은 StateMachine)
     if Dialogue and Dialogue.is_active():
-        return                      # 대화 중 공격 정지
+        # 대화 중엔 공격 정지 + 쿨을 미리 채워, 대화가 끝나는 순간 일제 타격이 안 나오게 한다.
+        # 2026-08-22 피드백: "스토리 트리거가 몹들 사이에 있어 대화 종료 후 체력 상납".
+        _atk_cd = maxf(_atk_cd, POST_DIALOGUE_GRACE)
+        return
     if _atk_cd > 0.0:
         _atk_cd -= delta
     if _ranged_cd > 0.0:
@@ -146,10 +154,13 @@ func can_see_player() -> bool:
     var p := get_player()
     if p == null or not (p is Node2D):
         return false
+    if aggro:
+        return true       # 맞았으면 거리와 무관하게 쫓는다
     return global_position.distance_to((p as Node2D).global_position) < detect_range
 
 
 func _on_hurt(damage: float, knockback: float, _attacker: Node) -> void:
+    aggro = true                # 원거리로 맞아도 반드시 쫓아온다
     # 넉백 세기에 비례한 경직(작은 타격 짧게, 강타 길게). StateMachine 이 이 동안 AI 정지.
     hitstun = clampf(0.18 + absf(knockback) / 1200.0, 0.18, 0.5)
     # 받는 넉백 배수 — 맞으면 확실히 뒤로 밀려나야 때린 맛이 난다.

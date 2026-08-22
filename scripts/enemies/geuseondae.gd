@@ -101,10 +101,15 @@ func _on_hurt(damage: float, knockback: float, attacker: Node) -> void:
 
 ## TalismanShot 전용 훅 — talisman_shot.gd 가 body 에 이 메서드가 있으면 데미지 대신 호출.
 func _on_talisman_hit(damage: float, attacker: Node) -> void:
+    aggro = true                # 부적으로 맞아도 쫓아온다(원거리 농성 방지)
     if _disguised:
         _reveal()
         return
-    health.take_damage(damage, attacker)
+    # 히트박스 경로로 — 부적 명중도 근접타와 같은 반응(숫자·섬광·움찔)이 나오게.
+    var kb := 140.0
+    if attacker is Node2D:
+        kb = 140.0 * signf(global_position.x - (attacker as Node2D).global_position.x)
+    Hurtbox.deal(self, damage, kb, attacker)
 
 
 func _reveal() -> void:

@@ -30,3 +30,26 @@ func _on_area_entered(area: Area2D) -> void:
     if dir_x == 0.0:
         dir_x = 1.0
     hurt.emit(hb.damage, hb.knockback * dir_x, attacker)
+
+
+## 히트박스를 거치지 않는 피해(투사체·장판·궁극기)를 **히트박스와 같은 경로로** 꽂는다.
+##
+## 2026-08-22 피드백: "결계 뒤 적을 원거리로 잡을 때 피격 반응을 알기 힘들어 체력바만 보게 된다".
+## 원인은 투사체들이 `HealthComponent.take_damage()` 를 직접 불러 **Hurtbox.hurt 를 건너뛴 것** —
+## 체력은 깎이지만 데미지 숫자·흰 섬광·움찔·넉백은 전부 그 시그널을 듣는 쪽에 있었다.
+## 여기로 보내면 근접타와 완전히 같은 반응이 나온다.
+##
+## 반환값: 실제로 피해를 꽂았으면 true.
+static func deal(target: Node, damage: float, knockback: float, attacker: Node) -> bool:
+    if target == null or not is_instance_valid(target):
+        return false
+    var hb := target.get_node_or_null("Hurtbox") as Hurtbox
+    if hb != null:
+        hb.hurt.emit(damage, knockback, attacker)
+        return true
+    # Hurtbox 가 없는 대상(특수 오브젝트)은 예전 경로로 폴백.
+    var hc: HealthComponent = target.get_node_or_null("HealthComponent")
+    if hc != null:
+        hc.take_damage(damage, attacker)
+        return true
+    return false

@@ -122,7 +122,11 @@ func _on_talisman_hit(damage: float, attacker: Node) -> void:
 	if _disguised:
 		_reveal()
 		return
-	health.take_damage(damage, attacker)
+	# 히트박스 경로로 — 부적 명중도 근접타와 같은 반응(숫자·섬광·움찔)이 나오게.
+	var kb := 140.0
+	if attacker is Node2D:
+		kb = 140.0 * signf(global_position.x - (attacker as Node2D).global_position.x)
+	Hurtbox.deal(self, damage, kb, attacker)
 
 
 func _reveal() -> void:

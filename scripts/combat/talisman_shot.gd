@@ -93,11 +93,8 @@ func _on_body_entered(body: Node) -> void:
 		body._on_talisman_hit(damage, attacker)
 		queue_free()
 		return
-	var hc: HealthComponent = body.get_node_or_null("HealthComponent")
-	if hc:
-		hc.take_damage(damage, attacker)
-	if "velocity" in body:
-		body.velocity.x = knockback * signf(velocity.x)
+	# 히트박스와 같은 경로로 꽂아야 데미지 숫자·섬광·움찔·넉백이 근접타와 똑같이 나온다.
+	Hurtbox.deal(body, damage, knockback * signf(velocity.x), attacker)
 	if body is Node2D:
 		SkillFx.impact((body as Node2D).global_position + Vector2(0, -16), false)
 	Audio.play_sfx(Sfx.HIT, 3.0)

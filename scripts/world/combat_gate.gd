@@ -21,6 +21,9 @@ var _label: Label
 var _open: bool = false
 var _grace: float = 0.4                    # 적 스폰 대기(시작 직후 오판 방지)
 
+## 결계 아트 폭(px) — 원본 64px 그림을 그대로 쓴다.
+const BARRIER_ART_W: float = 64.0
+
 
 func _ready() -> void:
     # 충돌 벽 (플레이어 차단)
@@ -32,14 +35,31 @@ func _ready() -> void:
     cs.shape = shape
     _barrier.add_child(cs)
     add_child(_barrier)
-    # 시각 결계 — 반투명 청색 빛기둥(영적 장막)
-    var rect := ColorRect.new()
-    rect.color = Color(0.25, 0.42, 0.55, 0.35)
-    rect.offset_left = -8
-    rect.offset_top = -gate_height / 2.0
-    rect.offset_right = 8
-    rect.offset_bottom = gate_height / 2.0
-    _barrier.add_child(rect)
+    # 시각 결계 — 부적이 걸린 청색 빛기둥(PixelLab 아트, 2026-08-22 교체).
+    # 예전엔 그냥 반투명 ColorRect 라 "결계"로 안 읽혔다.
+    var tex_path := "res://assets/sprites/fx/gate_barrier.png"
+    if ResourceLoader.exists(tex_path):
+        var art := TextureRect.new()
+        art.texture = load(tex_path)
+        art.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+        # 세로로 이어 붙여 결계 높이를 채운다(가운데 띠가 반복돼도 티가 안 나는 그림).
+        art.stretch_mode = TextureRect.STRETCH_TILE
+        art.size = Vector2(BARRIER_ART_W, gate_height)
+        art.position = Vector2(-BARRIER_ART_W / 2.0, -gate_height / 2.0)
+        art.modulate = Color(1, 1, 1, 0.92)
+        _barrier.add_child(art)
+        # 아주 느린 명멸 — 살아 있는 장막처럼 보이게.
+        var tw := art.create_tween().set_loops()
+        tw.tween_property(art, "modulate:a", 0.72, 1.6).set_trans(Tween.TRANS_SINE)
+        tw.tween_property(art, "modulate:a", 0.92, 1.6).set_trans(Tween.TRANS_SINE)
+    else:
+        var rect := ColorRect.new()
+        rect.color = Color(0.25, 0.42, 0.55, 0.35)
+        rect.offset_left = -8
+        rect.offset_top = -gate_height / 2.0
+        rect.offset_right = 8
+        rect.offset_bottom = gate_height / 2.0
+        _barrier.add_child(rect)
     # 남은 적 안내 라벨 (결계 위)
     _label = Label.new()
     _label.text = "결계가 막혀 있다"

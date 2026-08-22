@@ -10,9 +10,28 @@ const POLL := 0.5
 const SCENE_BGM := {
     "MainMenu":  "res://assets/audio/bgm/title.wav",
     "Ending":    "res://assets/audio/bgm/title.wav",
+    # 1스테이지 「물이 잠긴 골짜기」 — 전용곡(2026-08-22 신규). 예전엔 village/forest/night 를
+    # 섞어 써서(옛 마을 게임 잔재) 굽이마다 곡이 바뀌고 컨셉과도 어긋났다.
+    # 보스 굽이(SacredAltar)만 전투곡 유지 — 스테이지 공통 규약.
+    "Foothills":    "res://assets/audio/bgm/stage1.wav",
+    "ForestDeep":   "res://assets/audio/bgm/stage1.wav",
+    "MountainPass": "res://assets/audio/bgm/stage1.wav",
+    "RuinedTemple": "res://assets/audio/bgm/stage1.wav",
+    "SacredAltar":  "res://assets/audio/bgm/boss.wav",
+    # 2스테이지(그슨대 숲) — 전용곡. 느린 계면조 가야금 + 성긴 장구 + 멀리서 아이 울음.
+    "ForestShadow":   "res://assets/audio/bgm/stage2.wav",
+    "ForestMist":     "res://assets/audio/bgm/stage2.wav",
+    "WitheredHollow": "res://assets/audio/bgm/stage2.wav",
+    "WailingThicket": "res://assets/audio/bgm/stage2.wav",
+    "ElderHollow":    "res://assets/audio/bgm/boss.wav",
+    # 3스테이지(저잣거리 도깨비) — 전용곡. 여태 매핑이 아예 없어 무음이었다.
+    "MarketRuins":   "res://assets/audio/bgm/stage3.wav",
+    "BrokenStalls":  "res://assets/audio/bgm/stage3.wav",
+    "WellCourt":     "res://assets/audio/bgm/stage3.wav",
+    "LanternAlley":  "res://assets/audio/bgm/stage3.wav",
+    "GoblinCourt":   "res://assets/audio/bgm/boss.wav",
+    # 옛 스토리/마을 씬 — 기존 곡 유지
     "VillageIntro": "res://assets/audio/bgm/village.wav",
-    "Foothills":    "res://assets/audio/bgm/village.wav",
-    "ForestDeep":   "res://assets/audio/bgm/forest.wav",
     "Village":   "res://assets/audio/bgm/village.wav",
     "TestLevel": "res://assets/audio/bgm/village.wav",
     "Forest":      "res://assets/audio/bgm/forest.wav",
@@ -20,16 +39,6 @@ const SCENE_BGM := {
     "BossArena":   "res://assets/audio/bgm/boss.wav",
     "TownMarket":       "res://assets/audio/bgm/village.wav",
     "MagistrateOffice": "res://assets/audio/bgm/forest.wav",
-    "RuinedTemple":     "res://assets/audio/bgm/night.wav",
-    "MountainPass":     "res://assets/audio/bgm/forest.wav",
-    "SacredAltar":      "res://assets/audio/bgm/boss.wav",
-    # 2스테이지(그슨대 숲) — 전용곡. 느린 계면조 가야금 + 성긴 장구 + 멀리서 아이 울음.
-    # 보스 굽이(ElderHollow)만 전투곡(boss) 유지 — 1스테이지 SacredAltar 와 같은 규약.
-    "ForestShadow":   "res://assets/audio/bgm/geuseondae.wav",
-    "ForestMist":     "res://assets/audio/bgm/geuseondae.wav",
-    "WitheredHollow": "res://assets/audio/bgm/geuseondae.wav",
-    "WailingThicket": "res://assets/audio/bgm/geuseondae.wav",
-    "ElderHollow":    "res://assets/audio/bgm/boss.wav",
     # 「해원」 6굽이 — 굽이별 전용곡으로 정서 분화.
     #   river 강가 진혼(프롤/1/2굽이) · grief 죄의 확인(3굽이) ·
     #   hollow 빈 고을 공허(5굽이) · requiem 최종 진혼·승화(6굽이/엔딩).

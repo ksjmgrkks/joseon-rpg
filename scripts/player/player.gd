@@ -41,9 +41,13 @@ const CHARGE_THRESHOLD: float = 0.45     # 이 시간보다 길게 누르고 있
 const CHARGE_FULL: float = 0.95          # 완전 차지(시각 강조용)
 
 # 회피 구르기
+## 구르기 — 2026-08-22 피드백: "후딜이 리스크가 되어 잘 안 하게 된다".
+## 쿨을 0.6→0.32 로 줄이고, 무적이 끝나는 '그 순간' 맞아 죽는 억울함을 없애려
+## 구르기 직후 짧은 유예 무적(GRACE)을 뒀다. 회피는 쓸수록 이득이어야 쓴다.
 const DODGE_DURATION: float = 0.28       # 무적·dash 지속
 const DODGE_SPEED: float = 360.0
-const DODGE_COOLDOWN: float = 0.6
+const DODGE_COOLDOWN: float = 0.32
+const DODGE_GRACE: float = 0.12          # 구르기가 끝난 뒤에도 이만큼은 더 무적
 
 @onready var sprite: AnimatedSprite2D = $Visual
 @onready var attack_hitbox: Hitbox = $AttackHitbox
@@ -76,6 +80,7 @@ var _base_modulate: Color = Color.WHITE
 var _dodging: bool = false
 var _dodge_timer: float = 0.0
 var _dodge_cd: float = 0.0
+var _dodge_grace: float = 0.0
 # 스킬 상태 (일섬 돌진)
 var _skill_dash_timer: float = 0.0
 var _skill_dash_speed: float = 0.0
@@ -178,6 +183,10 @@ func _physics_process(delta: float) -> void:
             _end_dodge()
     if _dodge_cd > 0.0:
         _dodge_cd = maxf(0.0, _dodge_cd - delta)
+    if _dodge_grace > 0.0:
+        _dodge_grace = maxf(0.0, _dodge_grace - delta)
+        if _dodge_grace <= 0.0 and not _dodging and hurtbox:
+            hurtbox.monitoring = true
 
     # 회피 시작
     if Input.is_action_just_pressed("dodge") and not _dodging and not _attacking and _dodge_cd <= 0.0:
@@ -314,7 +323,7 @@ func _freeze_for_dialogue(delta: float) -> void:
     #  _dodging/_attacking 을 읽어 dodge/attack 프레임에 멈춰 있기 때문.)
     if _dodging:
         _dodge_timer = 0.0
-        _end_dodge()
+        _end_dodge(false)
     _skill_dash_timer = 0.0
     _skill_dash_speed = 0.0
     _attacking = false
@@ -475,11 +484,18 @@ func _start_dodge() -> void:
     ScreenFx.shake(2.0, 0.08)
 
 
-func _end_dodge() -> void:
+## with_grace=false 면 유예 무적 없이 즉시 판정을 되켠다 —
+## 대화 진입처럼 '전투가 아닌 사유'로 구르기를 끊을 때 쓴다(무적이 남으면 안 된다).
+func _end_dodge(with_grace: bool = true) -> void:
     _dodging = false
     _dodge_cd = DODGE_COOLDOWN
-    if hurtbox:
-        hurtbox.monitoring = true
+    if with_grace:
+        # 히트박스는 바로 켜지 않는다 — GRACE 동안 더 무적(_process 에서 되켠다).
+        _dodge_grace = DODGE_GRACE
+    else:
+        _dodge_grace = 0.0
+        if hurtbox:
+            hurtbox.monitoring = true
     if sprite:
         var c := _base_modulate
         c.a = 1.0
@@ -546,9 +562,8 @@ func _skill_ultimate() -> void:
             continue
         if ground.distance_to((e as Node2D).global_position) > radius:
             continue
-        var hc: HealthComponent = e.get_node_or_null("HealthComponent")
-        if hc:
-            hc.take_damage(dmg, self)
+        # 히트박스와 같은 경로 — 궁극기도 데미지 숫자·섬광·움찔이 나오게(2026-08-22).
+        if Hurtbox.deal(e, dmg, 220.0 * (1.0 if _facing_right else -1.0), self):
             hit_any = true
             var epos: Vector2 = (e as Node2D).global_position + Vector2(0, -16)
             SkillFx.impact(epos, true)

@@ -25,7 +25,9 @@ const SECTION := "view"
 ## 1.5 를 넘기면 횡스크롤에서 앞을 못 봐 적 접근을 놓치므로 여기까지만 연다.
 const PRESETS := [1.0, 1.25, 1.5]
 const LABEL_KEYS := ["view.normal", "view.large", "view.huge"]
-const DEFAULT_ZOOM := 1.0
+## 기본값을 1.5 로 둔다(2026-08-22 사용자 결정) — 1.0 은 화면이 멀어 몰입이 안 된다는
+## 피드백이 반복됐다. 이미 저장된 설정이 있으면 그 값이 우선한다.
+const DEFAULT_ZOOM := 1.5
 
 signal zoom_changed(zoom: float)
 
