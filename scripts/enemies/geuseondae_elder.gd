@@ -3,7 +3,7 @@ class_name GeuseondaeElder
 ##
 ## 그슨대 노괴(老怪) — 2스테이지(그슨대 숲) 보스. 숲 깊은 곳에 웅크린 늙은 그슨대.
 ## 위장 상태에선 칼이 먹히지 않고, 오히려 맞을 때마다 커진다(최대체력·공격력 배율 상승).
-## 가까이 다가가 그림자를 조사하거나 부적불로 비추면 정체가 드러나고 진혼할 수 있다.
+## 가까이 다가가 "찾기"를 누르거나 부적불로 비추면 정체가 드러나고 진혼할 수 있다.
 ## 잡몹 Geuseondae(scripts/enemies/geuseondae.gd)와 같은 규칙 — 참고: https://namu.wiki/w/그슨대
 ##
 
@@ -23,7 +23,7 @@ class_name GeuseondaeElder
 @export var revealed_body_size: Vector2 = Vector2(60, 120)
 @export var revealed_hurt_size: Vector2 = Vector2(76, 150)
 
-## 조사(interact) 로 정체를 드러낼 수 있는 사거리 — 부적 대신 다가가서 버튼으로 확인한다.
+## 찾기(interact) 로 정체를 드러낼 수 있는 사거리 — 부적 대신 다가가서 버튼으로 확인한다.
 @export var interact_range: float = 78.0
 
 var _disguised: bool = true
@@ -42,12 +42,12 @@ func _ready() -> void:
 	_build_interact_prompt()
 
 
-## "조사" — 조사 사거리 안에 들어오면 뜬다(위장 중일 때만).
+## "찾기" — 탐색 사거리 안에 들어오면 뜬다(위장 중일 때만).
 func _build_interact_prompt() -> void:
 	var lbl := Label.new()
-	lbl.text = "조사"
+	lbl.text = "찾기"
 	lbl.add_theme_font_size_override("font_size", 16)
-	lbl.add_theme_color_override("font_color", Color(0.95, 0.85, 0.35))
+	lbl.add_theme_color_override("font_color", Color(1.0, 0.94, 0.62))
 	lbl.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.85))
 	lbl.add_theme_constant_override("outline_size", 5)
 	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -78,7 +78,7 @@ func _update_interact_prompt() -> void:
 			_interact_prompt.visible = near
 
 
-## 조사 버튼 — 부적(스킬)을 맞히는 대신, 다가가서 눌러 정체를 드러낸다.
+## 찾기 버튼 — 부적(스킬)을 맞히는 대신, 다가가서 눌러 정체를 드러낸다.
 func _unhandled_input(event: InputEvent) -> void:
 	if not _disguised or not _in_interact_range or _state == State.DEAD:
 		return

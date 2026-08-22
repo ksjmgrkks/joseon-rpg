@@ -54,6 +54,8 @@ func _check_assets() -> Dictionary:
         "res://assets/sprites/bg/stage2/far.png": Vector2i(640, 180),
         "res://assets/sprites/bg/stage2/mid.png": Vector2i(640, 240),
         "res://assets/sprites/bg/stage2/near.png": Vector2i(640, 180),
+        "res://assets/sprites/enemies/geuseondae_shadow/idle.png": Vector2i(440, 112),
+        "res://assets/sprites/enemies/jangseung_sealed/idle.png": Vector2i(400, 128),
         "res://assets/tilesets/side/shadow_forest.png": Vector2i(256, 224),
     }
     for path in expected:
@@ -65,6 +67,8 @@ func _check_assets() -> Dictionary:
             bad.append("%s: %s (기대 %s)" % [path, image.get_size(), expected[path]])
         if path.contains("/bg/") and (image.get_pixel(0, 0).a > 0.05 or image.get_pixel(image.get_width() - 1, 0).a > 0.05):
             bad.append("%s: 배경 상단 알파 없음" % path)
+        if (path.ends_with("/mid.png") or path.ends_with("/near.png")) and _has_tall_edge_pixels(image):
+            bad.append("%s: 화면 반복 경계에 잘린 나무가 닿음" % path)
     var prop_dir := DirAccess.open("res://assets/tilesets/stage2")
     var prop_count := 0
     if prop_dir == null:
@@ -82,6 +86,20 @@ func _check_assets() -> Dictionary:
         if prop_count != 16:
             bad.append("소품 %d개(기대 16)" % prop_count)
     return _result("전용_배경_지면_소품_규격과_알파", bad)
+
+
+## 패럴랙스 원본 좌우 경계의 상단 45%에는 나무가 닿지 않아야 한다.
+## 낮은 뿌리·덤불은 허용하되, 세로 줄기가 화면 가장자리에서 반쪽으로 잘리는 회귀를 막는다.
+func _has_tall_edge_pixels(image: Image) -> bool:
+    var edge_width := mini(8, image.get_width())
+    var scan_height := int(image.get_height() * 0.45)
+    for y in range(scan_height):
+        for x in range(edge_width):
+            if image.get_pixel(x, y).a > 0.05:
+                return true
+            if image.get_pixel(image.get_width() - 1 - x, y).a > 0.05:
+                return true
+    return false
 
 
 func _check_roster() -> Dictionary:
@@ -115,8 +133,8 @@ func _check_dialogues() -> Dictionary:
             continue
         for node in parsed.get("nodes", {}).values():
             all_text += String((node as Dictionary).get("text", ""))
-    if not all_text.contains("조사") and not all_text.contains("살피"):
-        bad.append("조사 기믹 안내 없음")
+    if not all_text.contains("찾기 버튼"):
+        bad.append("찾기 버튼 직접 안내 없음")
     if not all_text.contains("부적"):
         bad.append("부적 대안 안내 없음")
     if not all_text.contains("이름 없는 혼"):

@@ -87,7 +87,7 @@ func _fake_player(pos: Vector2) -> Node2D:
     return p
 
 
-## 위장 상태 + 조사 사거리 안일 때만 "조사" 프롬프트가 뜬다(멀면 안 뜨고, 노출되면 사라짐).
+## 위장 상태 + 탐색 사거리 안일 때만 "찾기" 프롬프트가 뜬다(멀면 안 뜨고, 노출되면 사라짐).
 func _check_interact_prompt_range() -> Dictionary:
     var g := _spawn()
     await get_tree().process_frame
@@ -99,7 +99,7 @@ func _check_interact_prompt_range() -> Dictionary:
     g._physics_process(0.016)
     var visible_near := _prompt_visible(g)
 
-    var prompt_copy_ok: bool = g._interact_prompt != null and g._interact_prompt.text == "조사"
+    var prompt_copy_ok: bool = g._interact_prompt != null and g._interact_prompt.text == "찾기"
     var ok: bool = hidden_far and visible_near and prompt_copy_ok
     var reason := "" if ok else "hidden_far=%s visible_near=%s prompt=%s" % [hidden_far, visible_near, g._interact_prompt.text]
     far.queue_free()
@@ -107,7 +107,7 @@ func _check_interact_prompt_range() -> Dictionary:
     return { "name": "interact_prompt_range", "status": PASS if ok else FAIL, "reason": reason }
 
 
-## 조사 사거리 안에서 interact 를 누르면(스킬로 맞히지 않아도) 정체가 드러난다.
+## 찾기 사거리 안에서 interact 를 누르면(스킬로 맞히지 않아도) 정체가 드러난다.
 func _check_interact_reveals() -> Dictionary:
     var g := _spawn()
     await get_tree().process_frame
@@ -122,8 +122,9 @@ func _check_interact_reveals() -> Dictionary:
     ev.pressed = true
     g._unhandled_input(ev)
 
-    var ok: bool = (g._disguised == false) and not _prompt_visible(g)
-    var reason := "" if ok else "disguised=%s prompt_visible=%s" % [g._disguised, _prompt_visible(g)]
+    var form_changed: bool = g.sprite.sheet == "enemies/geuseondae_shadow"
+    var ok: bool = (g._disguised == false) and not _prompt_visible(g) and form_changed
+    var reason := "" if ok else "disguised=%s prompt_visible=%s sheet=%s" % [g._disguised, _prompt_visible(g), g.sprite.sheet]
     p.queue_free()
     g.queue_free()
     return { "name": "interact_reveals", "status": PASS if ok else FAIL, "reason": reason }

@@ -8,16 +8,38 @@ const SRC := "res://.art_gen/stage2/"
 const BG_OUT := "res://assets/sprites/bg/stage2/"
 const TILE_OUT := "res://assets/tilesets/side/"
 const PROP_OUT := "res://assets/tilesets/stage2/"
+const ENEMY_OUT := "res://assets/sprites/enemies/"
 
 
 func _init() -> void:
     DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(BG_OUT))
     DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(PROP_OUT))
+    DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(ENEMY_OUT + "geuseondae_shadow/"))
+    DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(ENEMY_OUT + "jangseung_sealed/"))
 
     _build_background("mtn_far_source.png", "far.png", Vector2i(640, 180))
-    _build_background("mtn_mid_source.png", "mid.png", Vector2i(640, 240))
-    _build_background("mtn_near_source.png", "near.png", Vector2i(640, 180))
+    _build_background("mtn_mid_fixed_source.png", "mid.png", Vector2i(640, 240))
+    _build_background("mtn_near_fixed_source.png", "near.png", Vector2i(640, 180))
     _build_terrain("shadow_forest_source.png", "shadow_forest.png")
+    _build_enemy_grid(
+        "geuseondae_shadow_source.png", "geuseondae_shadow", 5, 4, Vector2i(88, 112),
+        {"idle": 0, "walk": 1, "attack": 2, "death": 3},
+        {
+            "idle": {"fps": 6, "loop": true},
+            "walk": {"fps": 8, "loop": true},
+            "attack": {"fps": 11, "loop": false},
+            "death": {"fps": 8, "loop": false},
+        })
+    _build_enemy_grid(
+        "jangseung_sealed_source.png", "jangseung_sealed", 5, 1, Vector2i(80, 128),
+        {"idle": 0, "walk": 0, "attack": 0, "telegraph": 0, "death": 0},
+        {
+            "idle": {"fps": 4, "loop": true},
+            "walk": {"fps": 4, "loop": true},
+            "attack": {"fps": 4, "loop": false},
+            "telegraph": {"fps": 4, "loop": false},
+            "death": {"fps": 4, "loop": false},
+        })
 
     _extract_grid("forest_props_source.png", 3, 3, [
         {"name": "pine_crooked.png", "cell": 0, "size": Vector2i(80, 120)},
@@ -39,7 +61,7 @@ func _init() -> void:
         {"name": "offering_bowl.png", "cell": 4, "size": Vector2i(80, 48)},
         {"name": "sacred_stump.png", "cell": 5, "size": Vector2i(144, 128)},
     ])
-    print("[Stage2Remaster] terrain 1, backdrop 3, props 16 exported")
+    print("[Stage2Remaster] terrain 1, backdrop 3, props 16, enemy forms 2 exported")
     quit()
 
 
@@ -114,6 +136,62 @@ func _build_background(source_name: String, output_name: String, size: Vector2i)
     var cropped := source.get_region(used)
     cropped.resize(size.x, size.y, Image.INTERPOLATE_NEAREST)
     _save(cropped, BG_OUT + output_name)
+
+
+## 생성된 격자 시트를 런타임 SpriteDb 규격(가로 스트립 + manifest)으로 바꾼다.
+## 각 셀을 독립 매팅한 뒤 같은 캔버스/발선에 맞춰, 찾기 전후 교체 때 발이 튀지 않게 한다.
+func _build_enemy_grid(
+        source_name: String, output_dir: String, cols: int, rows: int,
+        frame_size: Vector2i, anim_rows: Dictionary, anim_meta: Dictionary) -> void:
+    var source := _load_rgba(SRC + source_name, true)
+    var cell_w: int = source.get_width() / cols
+    var cell_h: int = source.get_height() / rows
+    var out_dir := ENEMY_OUT + output_dir + "/"
+    for anim_name in anim_rows:
+        var row: int = int(anim_rows[anim_name])
+        var strip := Image.create(frame_size.x * cols, frame_size.y, false, Image.FORMAT_RGBA8)
+        strip.fill(Color(0, 0, 0, 0))
+        for col in range(cols):
+            var cell := source.get_region(Rect2i(col * cell_w, row * cell_h, cell_w, cell_h))
+            _matte_edge_background(cell)
+            var frame := _fit_to_canvas(cell, frame_size)
+            strip.blit_rect(frame, Rect2i(Vector2i.ZERO, frame_size), Vector2i(col * frame_size.x, 0))
+        _save(strip, out_dir + String(anim_name) + ".png")
+
+    var anims := {}
+    for anim_name in anim_meta:
+        var meta: Dictionary = anim_meta[anim_name]
+        anims[anim_name] = {
+            "fps": int(meta.get("fps", 6)),
+            "frames": cols,
+            "loop": bool(meta.get("loop", true)),
+        }
+    var manifest := {"anims": anims, "frame_h": frame_size.y, "frame_w": frame_size.x}
+    var file := FileAccess.open(out_dir + "manifest.json", FileAccess.WRITE)
+    if file == null:
+        push_error("[Stage2Remaster] cannot write manifest for %s" % output_dir)
+        return
+    file.store_string(JSON.stringify(manifest, "  ") + "\n")
+    file.close()
+
+
+func _fit_to_canvas(cell: Image, canvas_size: Vector2i) -> Image:
+    var canvas := Image.create(canvas_size.x, canvas_size.y, false, Image.FORMAT_RGBA8)
+    canvas.fill(Color(0, 0, 0, 0))
+    var used := cell.get_used_rect()
+    if used.size.x <= 0 or used.size.y <= 0:
+        return canvas
+    var padded := used.grow(2).intersection(Rect2i(Vector2i.ZERO, cell.get_size()))
+    var cropped := cell.get_region(padded)
+    var room := Vector2i(maxi(1, canvas_size.x - 4), maxi(1, canvas_size.y - 4))
+    var scale := minf(float(room.x) / cropped.get_width(), float(room.y) / cropped.get_height())
+    var fitted := Vector2i(
+        maxi(1, int(round(cropped.get_width() * scale))),
+        maxi(1, int(round(cropped.get_height() * scale))))
+    cropped.resize(fitted.x, fitted.y, Image.INTERPOLATE_NEAREST)
+    var at := Vector2i((canvas_size.x - fitted.x) / 2, canvas_size.y - fitted.y - 2)
+    canvas.blit_rect(cropped, Rect2i(Vector2i.ZERO, fitted), at)
+    return canvas
 
 
 func _build_terrain(source_name: String, output_name: String) -> void:

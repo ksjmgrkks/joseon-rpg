@@ -1,5 +1,5 @@
 {
-  "_note": "【2스테이지 4굽이 — 이름 잃은 길】 짚인형마다 다른 울음이 걸려 있다. 세 변종이 함께 나오며 조사 순서와 거리 조절을 시험한다.",
+  "_note": "【2스테이지 4굽이 — 이름 잃은 길】 짚인형마다 다른 울음이 걸려 있다. 세 변종이 함께 나오며 찾기 순서와 거리 조절을 시험한다.",
   "auto_dialogues": [
     {
       "dialogue": "res://assets/dialogue/geuseondae/wailing_path.json",

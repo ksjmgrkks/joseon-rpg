@@ -1,11 +1,10 @@
 [gd_scene load_steps=6 format=3]
 
-; 비틀린 장승 — 2스테이지(그슨대 숲) 중간보스. 민간에서 그슨대를 막으려 세운 장승 중 하나가
-; 되레 어둠에 물들어 제 발로 걷는다. 칼이 통한다(그슨대와 달리 부적이 필요 없다) —
-; "여기서는 베어도 된다"는 대비로 그슨대 규칙을 다시 각인시키는 자리.
+; 비틀린 장승 — 2스테이지(그슨대 숲) 중간보스. 처음에는 평범한 수호 장승으로 박혀 있다가
+; 가까이서 찾기를 누르거나 부적불로 비추면 팔다리가 돋아 제 발로 걷는다.
 ; 크기 서열: 잡몹 그슨대(49px) < **중간보스(~150px)** < 보스 그슨대 노괴(정체 ~247px).
 
-[ext_resource type="Script" path="res://scripts/enemies/boss.gd" id="1_boss"]
+[ext_resource type="Script" path="res://scripts/enemies/jangseung_reveal.gd" id="1_boss"]
 [ext_resource type="Script" path="res://scripts/combat/hurtbox.gd" id="2_hurt"]
 [ext_resource type="Script" path="res://scripts/combat/health_component.gd" id="3_health"]
 [ext_resource type="Script" path="res://scripts/combat/hitbox.gd" id="4_hit"]
@@ -42,6 +41,7 @@ pattern_pool = PackedStringArray("dash", "dash", "volley", "volley", "summon")
 ; 물에서 솟구치는 등장 연출도 숲에선 맞지 않는다.
 water_entrance = false
 attack_damage = 15.0
+revealed_attack_damage = 15.0
 attack_knockback = 300.0
 xp_reward = 140
 reward_item_id = "rice_bun"
@@ -50,9 +50,9 @@ flag_on_death = "jangseung_defeated"
 
 [node name="Sprite2D" type="AnimatedSprite2D" parent="."]
 script = ExtResource("5_vis")
-sprite_scale = 1.28
-sheet = "enemies/jangseung_gwi"
-foot_offset = -28.8
+sprite_scale = 1.0
+sheet = "enemies/jangseung_sealed"
+foot_offset = -24.0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("body")

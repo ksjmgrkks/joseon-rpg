@@ -1,7 +1,7 @@
 [gd_scene load_steps=11 format=3]
 
 ; 그슨대 — 조선시대 운몽선 설화. 아이 울음소리로 유인하는 그림자 요물.
-; 위장 상태에선 칼이 안 먹히고 맞을 때마다 커진다. 가까이서 조사하거나 부적불로 정체를 드러낸다.
+; 위장 상태에선 칼이 안 먹히고 맞을 때마다 커진다. 가까이서 찾기를 누르거나 부적불로 정체를 드러낸다.
 
 [ext_resource type="Script" path="res://scripts/enemies/geuseondae.gd" id="1_p"]
 [ext_resource type="Script" path="res://scripts/visual/enemy_visual.gd" id="vis_enemy"]

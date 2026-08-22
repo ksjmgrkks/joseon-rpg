@@ -82,6 +82,25 @@ func _ready() -> void:
         if not players.is_empty() and players[0] is Node2D:
             (players[0] as Node2D).global_position.x = float(args["player_x"])
 
+    # --reveal_nearby : 플레이어와 가장 가까운 찾기형 적의 정체를 즉시 드러내
+    # 같은 카메라 구도에서 위장 전/후 스프라이트를 비교 캡처한다.
+    if args.has("reveal_nearby"):
+        await get_tree().process_frame
+        var players := get_tree().get_nodes_in_group("player")
+        if not players.is_empty() and players[0] is Node2D:
+            var player := players[0] as Node2D
+            var target: Node2D = null
+            var nearest := INF
+            for enemy in get_tree().get_nodes_in_group("enemy"):
+                if enemy is Node2D and enemy.has_method("_reveal"):
+                    var distance := player.global_position.distance_to((enemy as Node2D).global_position)
+                    if distance < nearest:
+                        nearest = distance
+                        target = enemy as Node2D
+            if target != null:
+                target.call("_reveal")
+                print("[Shot] revealed nearby %s at %.1fpx" % [target.name, nearest])
+
     # 실제 Player/PlayerVisual 경로로 구르기 애니메이션이 선택되는지 캡처한다.
     if args.has("dodge"):
         # 스폰 직후 공중 자세가 섞이지 않도록 먼저 지면에 안착시킨다.

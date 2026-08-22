@@ -1,0 +1,31 @@
+{
+  "anims": {
+    "attack": {
+      "fps": 4,
+      "frames": 5,
+      "loop": false
+    },
+    "death": {
+      "fps": 4,
+      "frames": 5,
+      "loop": false
+    },
+    "idle": {
+      "fps": 4,
+      "frames": 5,
+      "loop": true
+    },
+    "telegraph": {
+      "fps": 4,
+      "frames": 5,
+      "loop": false
+    },
+    "walk": {
+      "fps": 4,
+      "frames": 5,
+      "loop": true
+    }
+  },
+  "frame_h": 128,
+  "frame_w": 80
+}

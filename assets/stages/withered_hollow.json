@@ -21,9 +21,8 @@
   },
   "enemies": [
     {"scene": "Geuseondae", "x": 690, "y": 656},
-    {"scene": "GeuseondaeGloom", "x": 930, "y": 656},
-    {"scene": "Jangseung", "x": 1160, "y": 628},
-    {"scene": "GeuseondaeEcho", "x": 1390, "y": 656}
+    {"scene": "GeuseondaeGloom", "x": 820, "y": 656},
+    {"scene": "Jangseung", "x": 1160, "y": 628}
   ],
   "entries": [{"name": "default", "x": 100}],
   "ground": {

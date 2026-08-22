@@ -3,15 +3,20 @@ class_name Geuseondae
 ##
 ## 그슨대 — 조선시대 운몽선 설화 속 그림자 요물. 아이 울음소리를 흉내내 유인하고,
 ## 칼(근접 공격)로는 죽지 않는다 — 오히려 맞을 때마다 점점 거대해진다.
-## 가까이 다가가 그림자를 조사하거나 부적불로 비추면 본체가 드러나 비로소 진혼할 수 있다.
+## 가까이 다가가 "찾기"를 누르거나 부적불로 비추면 본체가 드러나 비로소 진혼할 수 있다.
 ## 참고: https://namu.wiki/w/%EA%B7%B8%EC%8A%A8%EB%8C%80
 ##
 
 @export var revealed_attack_damage: float = 9.0
-@export var revealed_color: Color = Color(0.85, 0.25, 0.2, 1)
+@export var revealed_color: Color = Color(0.82, 0.9, 0.94, 1)
+@export var revealed_sheet: String = "enemies/geuseondae_shadow"
+@export var revealed_sprite_scale: float = 0.9
+@export var revealed_foot_offset: float = -17.0
+@export var revealed_body_size: Vector2 = Vector2(28, 72)
+@export var revealed_hurt_size: Vector2 = Vector2(34, 84)
 @export var max_threat: int = 4          # 이 이상 커지면 성장 멈춤(과한 비대화 방지)
 @export var threat_attack_at: int = 2    # 이 위협도부터는 위장 중에도 공격 시작
-## 조사(interact) 로 정체를 드러낼 수 있는 사거리 — 부적 대신 다가가서 버튼으로 확인한다.
+## 찾기(interact) 로 정체를 드러낼 수 있는 사거리 — 부적 대신 다가가서 버튼으로 확인한다.
 @export var interact_range: float = 68.0
 
 var _disguised: bool = true
@@ -28,12 +33,12 @@ func _ready() -> void:
     _build_interact_prompt()
 
 
-## "조사" — 조사 사거리 안에 들어오면 뜬다(위장 중일 때만).
+## "찾기" — 탐색 사거리 안에 들어오면 뜬다(위장 중일 때만).
 func _build_interact_prompt() -> void:
     var lbl := Label.new()
-    lbl.text = "조사"
-    lbl.add_theme_font_size_override("font_size", 14)
-    lbl.add_theme_color_override("font_color", Color(0.95, 0.85, 0.35))
+    lbl.text = "찾기"
+    lbl.add_theme_font_size_override("font_size", 16)
+    lbl.add_theme_color_override("font_color", Color(1.0, 0.94, 0.62))
     lbl.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.85))
     lbl.add_theme_constant_override("outline_size", 4)
     lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -66,7 +71,7 @@ func _update_interact_prompt() -> void:
             _interact_prompt.visible = near
 
 
-## 조사 버튼 — 부적(스킬)을 맞히는 대신, 다가가서 눌러 정체를 드러낸다.
+## 찾기 버튼 — 부적(스킬)을 맞히는 대신, 다가가서 눌러 정체를 드러낸다.
 func _unhandled_input(event: InputEvent) -> void:
     if not _disguised or not _in_interact_range or _dying:
         return
@@ -120,8 +125,28 @@ func _reveal() -> void:
     health.shield_charges = 0
     attack_damage = revealed_attack_damage
     if sprite and is_instance_valid(sprite):
-        sprite.scale = _spr_base_scale     # 정체를 드러내며 원래 크기로 — 부풀린 그림자였을 뿐
+        sprite.set_sheet(revealed_sheet, revealed_sprite_scale, revealed_foot_offset)
         sprite.modulate = revealed_color
+        _spr_base_scale = sprite.scale
         SkillFx.hit_flash(sprite, Color.WHITE, 0.25)
+    _grow_revealed_collision()
     SkillFx.impact(global_position + Vector2(0, -16), false)
     Audio.play_sfx(Sfx.HIT, 3.0)
+
+
+## 아이 위장보다 큰 정체 시트에 맞춰 실제 몸·피격 판정과 HP 바도 함께 키운다.
+func _grow_revealed_collision() -> void:
+    var body := get_node_or_null("CollisionShape2D") as CollisionShape2D
+    if body != null and body.shape is RectangleShape2D:
+        var body_shape := (body.shape as RectangleShape2D).duplicate() as RectangleShape2D
+        body_shape.size = revealed_body_size
+        body.shape = body_shape
+    var hb := get_node_or_null("Hurtbox/HurtboxShape") as CollisionShape2D
+    if hb != null and hb.shape is RectangleShape2D:
+        var hurt_shape := (hb.shape as RectangleShape2D).duplicate() as RectangleShape2D
+        hurt_shape.size = revealed_hurt_size
+        hb.shape = hurt_shape
+        hb.position = Vector2(0, -(revealed_hurt_size.y - revealed_body_size.y) * 0.5)
+    for child in get_children():
+        if child is EnemyHpBar:
+            (child as EnemyHpBar).call_deferred("_fit_to_host", self, false)
