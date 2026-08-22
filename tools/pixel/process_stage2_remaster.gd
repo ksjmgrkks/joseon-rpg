@@ -167,8 +167,9 @@ func _build_enemy_grid(
             _matte_edge_background(cell)
             if output_dir == "jangseung_awakened":
                 # 생성기의 체크무늬가 연기/밧줄 사이에 고립되면 flood-fill로 닿지 않아
-                # 흰 사각 파편이 된다. 거의 순백인 중성색만 걷어 한지 장식과 눈빛은 보존한다.
-                _remove_light_neutral(cell, 0.96, 0.05)
+                # 흰 사각 파편이 된다. 프롬프트상 밝은 연기는 금지되고 검댕만 남아야 하므로
+                # 밝은 무채색을 넓게 걷는다. 나무·짚·밧줄은 갈색 색차로 자연히 보존된다.
+                _remove_light_neutral(cell, 0.68, 0.16)
             var frame := _fit_to_canvas(cell, frame_size)
             strip.blit_rect(frame, Rect2i(Vector2i.ZERO, frame_size), Vector2i(col * frame_size.x, 0))
         _save(strip, out_dir + String(anim_name) + ".png")

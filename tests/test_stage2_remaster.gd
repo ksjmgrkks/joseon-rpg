@@ -78,6 +78,12 @@ func _check_assets() -> Dictionary:
         if not (awakened_manifest is Dictionary) \
                 or not (awakened_manifest.get("anims", {}) as Dictionary).has(anim_name):
             bad.append("각성 장승 애니메이션 누락 %s" % anim_name)
+            continue
+        var awakened_path := "res://assets/sprites/enemies/jangseung_awakened/%s.png" % anim_name
+        var awakened_image := Image.load_from_file(awakened_path)
+        var matte_pixels := _count_light_neutral(awakened_image, 0.68, 0.16)
+        if matte_pixels > 0:
+            bad.append("각성 장승 %s: 흰/회색 매트 %dpx 잔존" % [anim_name, matte_pixels])
     var prop_dir := DirAccess.open("res://assets/tilesets/stage2")
     var prop_count := 0
     if prop_dir == null:
@@ -95,6 +101,23 @@ func _check_assets() -> Dictionary:
         if prop_count != 16:
             bad.append("소품 %d개(기대 16)" % prop_count)
     return _result("전용_배경_지면_소품_규격과_알파", bad)
+
+
+func _count_light_neutral(image: Image, floor: float, spread: float) -> int:
+    if image == null or image.is_empty():
+        return 0
+    image.convert(Image.FORMAT_RGBA8)
+    var count := 0
+    for y in image.get_height():
+        for x in image.get_width():
+            var c := image.get_pixel(x, y)
+            if c.a <= 0.001:
+                continue
+            var hi := maxf(c.r, maxf(c.g, c.b))
+            var lo := minf(c.r, minf(c.g, c.b))
+            if lo >= floor and hi - lo <= spread:
+                count += 1
+    return count
 
 
 ## 패럴랙스 원본 좌우 경계의 상단 45%에는 나무가 닿지 않아야 한다.
