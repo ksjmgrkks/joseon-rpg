@@ -46,8 +46,8 @@ const CHARGE_FULL: float = 0.95          # 완전 차지(시각 강조용)
 ## 구르기 직후 짧은 유예 무적(GRACE)을 뒀다. 회피는 쓸수록 이득이어야 쓴다.
 const DODGE_DURATION: float = 0.28       # 무적·dash 지속
 const DODGE_SPEED: float = 360.0
-const DODGE_COOLDOWN: float = 0.32
-const DODGE_GRACE: float = 0.12          # 구르기가 끝난 뒤에도 이만큼은 더 무적
+const DODGE_COOLDOWN: float = 0.22       # 2차 완화(0.6→0.32→0.22)
+const DODGE_GRACE: float = 0.22          # 구르기가 끝난 뒤에도 이만큼은 더 무적(0.12→0.22)
 
 @onready var sprite: AnimatedSprite2D = $Visual
 @onready var attack_hitbox: Hitbox = $AttackHitbox
@@ -81,6 +81,8 @@ var _dodging: bool = false
 var _dodge_timer: float = 0.0
 var _dodge_cd: float = 0.0
 var _dodge_grace: float = 0.0
+## 이번 스윙에서 맞힌 대상 수 — 0 이면 헛스윙(전용 소리), 2 이상이면 타격감을 누적한다.
+var _swing_hits: int = 0
 # 스킬 상태 (일섬 돌진)
 var _skill_dash_timer: float = 0.0
 var _skill_dash_speed: float = 0.0
@@ -395,8 +397,13 @@ func _do_combo_attack() -> void:
         var trail_n := 3 if _combo_step < 3 else 5
         SkillFx.afterimage_burst(sprite, trail_tint, trail_n, duration + ATTACK_RECOVER * 0.6)
     # 공격 휘두를 때마다 살짝 진동(피드백). 명중 시 추가 진동은 _on_hitbox_landed에서.
-    ScreenFx.shake(shake_strength * 0.5, 0.08)
+    # 헛스윙일 때 화면이 흔들리면 '맞은 것 같은' 착각을 준다 — 스윙 진동은 아주 약하게만.
+    ScreenFx.shake(shake_strength * 0.25, 0.06)
+    _swing_hits = 0
     await attack_hitbox.activate(duration)
+    # 아무도 못 맞혔으면 바람 소리만 남는다 — 명중과 확실히 구분되는 신호.
+    if _swing_hits == 0:
+        Audio.play_sfx(Sfx.WHIFF, -4.0, randf_range(0.94, 1.06))
     # 원래 베이스(씬에 박힌 기본값)로 복귀 — 데미지·넉백·히트박스 크기·위치
     attack_hitbox.damage = stored_damage
     attack_hitbox.knockback = stored_knock
@@ -447,23 +454,31 @@ func _do_charged_attack() -> void:
 
 
 # 내 hitbox가 적 hurtbox 에 닿았을 때(=공격 명중) 호출
+#
+# 2026-08-22 피드백: "맞췄을 때와 안 맞췄을 때 차이가 확실했으면. 여러 명 맞췄을 때
+# 타격감이 중첩되면 좋겠다." → 한 번의 스윙에서 맞은 수(_swing_hits)를 세어
+# 소리·진동·히트스톱을 **누적**시키고, 0명이면 스윙이 끝날 때 헛스윙 소리를 낸다.
 func _on_hitbox_landed(area: Area2D) -> void:
     if not (area is Hurtbox):
         return
-    # 적 부모를 침. (자기 자신은 Hurtbox._on_area_entered 에서 이미 걸러짐.)
-    # 타격이 적중하는 순간 '퍽' 하는 피격음(적 측에서 내던 걸 공격자 측으로 모음 → 허공 스윙엔 안 남).
-    # 스윙음(바람가르는 소리)에 묻히지 않게 +3dB 부각(피크 -0.2dBFS, 클립 없음).
-    Audio.play_sfx(Sfx.HIT, 3.0)
-    var landed_strength := 4.0 + 1.5 * float(_combo_step)
-    ScreenFx.shake(landed_strength, 0.16)
+    _swing_hits += 1
+    var stack := _swing_hits - 1                      # 두 번째 대상부터 '겹침'
+    # 타격음 — 대상이 늘수록 반음씩 올려 쌓이는 느낌을 만든다(같은 소리 반복은 뭉갠다).
+    Audio.play_sfx(Sfx.HIT, 3.0, 1.0 + 0.06 * float(stack))
+    # 둘 이상 쓸었으면 저역 타격을 한 번 더 얹어 '묵직하게' 만든다.
+    if stack >= 1:
+        Audio.play_sfx(Sfx.HIT_HEAVY, -1.0 + minf(3.0, float(stack)), 1.0)
+    var landed_strength := (4.0 + 1.5 * float(_combo_step)) * (1.0 + 0.4 * float(stack))
+    ScreenFx.shake(minf(landed_strength, 16.0), 0.16)
     # 등급별 히트스톱 — 1·2타는 짧고 얕게(경쾌), 3타(마무리)는 길고 '딱' 멈춤(묵직).
+    # 여러 명을 쓸었으면 조금 더 길게 멈춰 '한 방에 여럿'이 손에 남게 한다.
+    var stop_add := minf(0.03, 0.012 * float(stack))
     match _combo_step:
-        1: ScreenFx.hit_stop(0.035, 0.18)
-        2: ScreenFx.hit_stop(0.05, 0.10)
-        _: ScreenFx.hit_stop(0.09, 0.03)
+        1: ScreenFx.hit_stop(0.035 + stop_add, 0.18)
+        2: ScreenFx.hit_stop(0.05 + stop_add, 0.10)
+        _: ScreenFx.hit_stop(0.09 + stop_add, 0.03)
     # 폰 햅틱 — 타수가 커질수록 길게(손끝 타격감). 데스크톱은 무시됨.
-    ScreenFx.rumble(10 + 8 * _combo_step)
-    # 적중 임팩트 스파크 — 히트박스 위치 근처
+    ScreenFx.rumble(10 + 8 * _combo_step + 6 * stack)
     var fx_pos := area.global_position if area else (global_position + Vector2(0, -16))
     SkillFx.impact(fx_pos, _combo_step >= 3)
     SkillFx.bleed(fx_pos, _facing_right, _combo_step >= 3)

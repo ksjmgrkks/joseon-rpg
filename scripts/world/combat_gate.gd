@@ -35,23 +35,48 @@ func _ready() -> void:
     cs.shape = shape
     _barrier.add_child(cs)
     add_child(_barrier)
-    # 시각 결계 — 부적이 걸린 청색 빛기둥(PixelLab 아트, 2026-08-22 교체).
-    # 예전엔 그냥 반투명 ColorRect 라 "결계"로 안 읽혔다.
+    # 시각 결계 — 부적을 매단 빛기둥(PixelLab pro, 2026-08-22 교체).
+    #
+    # 「애니메이션 결계」 요청에 대해: PixelLab 의 animate_image 로 8프레임을 뽑아봤으나
+    # 프레임마다 빛기둥이 사라지거나 색이 튀어(생성 드리프트) 루프가 지저분했다.
+    # 정지 그림 한 장 + **엔진에서 두 겹으로 움직이는 방식**이 훨씬 깨끗하다:
+    #   ① 본체는 천천히 밝아졌다 어두워지고(숨쉬는 장막)
+    #   ② 그 위에 반투명 사본이 위로 흘러 올라간다(기가 솟는 결)
     var tex_path := "res://assets/sprites/fx/gate_barrier.png"
     if ResourceLoader.exists(tex_path):
+        var tex: Texture2D = load(tex_path)
+        # 두 겹이 결계 밖으로 새지 않도록 잘라내는 틀. 없으면 흐르는 겹이 화면 위아래로 뻗는다.
+        var frame := Control.new()
+        frame.clip_contents = true
+        frame.size = Vector2(BARRIER_ART_W, gate_height)
+        frame.position = Vector2(-BARRIER_ART_W / 2.0, -gate_height / 2.0)
+        frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+        _barrier.add_child(frame)
+
         var art := TextureRect.new()
-        art.texture = load(tex_path)
+        art.texture = tex
         art.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-        # 세로로 이어 붙여 결계 높이를 채운다(가운데 띠가 반복돼도 티가 안 나는 그림).
         art.stretch_mode = TextureRect.STRETCH_TILE
         art.size = Vector2(BARRIER_ART_W, gate_height)
-        art.position = Vector2(-BARRIER_ART_W / 2.0, -gate_height / 2.0)
-        art.modulate = Color(1, 1, 1, 0.92)
-        _barrier.add_child(art)
-        # 아주 느린 명멸 — 살아 있는 장막처럼 보이게.
+        art.modulate = Color(1, 1, 1, 0.95)
+        frame.add_child(art)
         var tw := art.create_tween().set_loops()
-        tw.tween_property(art, "modulate:a", 0.72, 1.6).set_trans(Tween.TRANS_SINE)
-        tw.tween_property(art, "modulate:a", 0.92, 1.6).set_trans(Tween.TRANS_SINE)
+        tw.tween_property(art, "modulate:a", 0.74, 1.5).set_trans(Tween.TRANS_SINE)
+        tw.tween_property(art, "modulate:a", 0.95, 1.5).set_trans(Tween.TRANS_SINE)
+
+        # 흐르는 겹 — 한 타일 높이만큼 위로 올라갔다 제자리로(이어 붙어 티가 안 난다).
+        var th := float(tex.get_height())
+        var flow := TextureRect.new()
+        flow.texture = tex
+        flow.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+        flow.stretch_mode = TextureRect.STRETCH_TILE
+        flow.size = Vector2(BARRIER_ART_W, gate_height + th)
+        flow.position = Vector2(0, 0)
+        flow.modulate = Color(0.85, 0.95, 1.0, 0.28)
+        frame.add_child(flow)
+        var ft := flow.create_tween().set_loops()
+        ft.tween_property(flow, "position:y", -th, 2.6).set_trans(Tween.TRANS_LINEAR)
+        ft.tween_callback(func() -> void: flow.position.y = 0.0)
     else:
         var rect := ColorRect.new()
         rect.color = Color(0.25, 0.42, 0.55, 0.35)

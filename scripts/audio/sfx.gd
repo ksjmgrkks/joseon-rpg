@@ -16,3 +16,5 @@ const UI     := "res://assets/audio/sfx/ui_click.wav" # 메뉴/버튼
 const JINGLE := "res://assets/audio/sfx/jingle_quest.wav" # 퀘스트 시작/완료
 const ULT    := "res://assets/audio/sfx/ultimate.wav"     # 궁극기 '귀창 강림' 전용
 const WARD   := "res://assets/audio/sfx/ward.wav"         # 호신부 가호(절제된 보호음)
+const WHIFF  := "res://assets/audio/sfx/whiff.wav"        # 헛스윙(아무도 못 맞힘) — 맞았을 때와 대비시키는 소리
+const HIT_HEAVY := "res://assets/audio/sfx/hit_heavy.wav" # 다중 히트·마무리타에 겹쳐 얹는 묵직한 저역

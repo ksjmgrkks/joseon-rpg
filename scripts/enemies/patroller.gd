@@ -146,6 +146,11 @@ func _on_attack_hit(_player: Node2D) -> void:
     pass
 
 
+## 지금 때릴 준비가 됐는가 — Chase 상태가 '치고 빠지기' 타이밍을 잡는 데 쓴다.
+func wants_to_attack() -> bool:
+    return not _attacking and _atk_cd <= 0.0 and not _dying and hitstun <= 0.0
+
+
 func get_player() -> Node:
     return get_tree().get_first_node_in_group("player")
 

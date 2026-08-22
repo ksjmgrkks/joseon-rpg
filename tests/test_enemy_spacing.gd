@@ -3,8 +3,8 @@ extends Node
 ## 적 간격 유지 + 어그로 검증 (2026-08-22 피드백 3건).
 ## 실행: `godot --headless res://tests/test_enemy_spacing.tscn`
 ##
-##  ① 몬스터가 플레이어 몸에 파고들지 않고 일정 거리에서 선다
-##     ("계속 바로 옆에 붙어 있어 버벅거린다")
+##  ① 몬스터가 플레이어 몸에 파고들지 않고 **사거리보다 멀찍이** 선다
+##     ("패트롤 범위가 더 넓어야 한다" — 2차 피드백). 때릴 준비가 됐을 때만 파고든다.
 ##  ② 여럿이 붙어도 같은 좌표에 겹치지 않는다("뭉쳐 있을 때 특히")
 ##  ③ 시야 밖에서 맞으면 어그로가 걸려 쫓아온다("멀리서 부적만 던져도 됐다")
 ##
@@ -35,7 +35,8 @@ func _chase_of(mob: Node) -> Node:
     return mob.get_node_or_null("StateMachine/Chase")
 
 
-## 설 자리는 '자기 공격 사거리 안'이어야 한다 — 밖이면 영원히 못 때린다.
+## 평소 설 자리는 '사거리보다 멀리'여야 한다 — 그래야 붙어 서서 버벅이지 않는다.
+## 대신 때릴 준비가 됐을 때 파고드는 건 chase 가 따로 처리한다.
 func _check_standoff_inside_reach() -> Dictionary:
     var bad: Array[String] = []
     for path in ["res://scenes/enemies/Dueoksini.tscn", "res://scenes/enemies/Wraith.tscn",
@@ -49,13 +50,13 @@ func _check_standoff_inside_reach() -> Dictionary:
             continue
         chase.enter(mob)
         var reach: float = float(mob.attack_range)
-        if chase._standoff > reach:
-            bad.append("%s: standoff %.1f > 사거리 %.1f" % [path.get_file(), chase._standoff, reach])
-        if chase._standoff < 20.0:
-            bad.append("%s: standoff %.1f — 너무 붙는다" % [path.get_file(), chase._standoff])
+        if chase._standoff < reach * 1.5:
+            bad.append("%s: 설 자리 %.1f — 사거리 %.1f 에 비해 너무 가깝다" % [
+                path.get_file(), chase._standoff, reach])
+        if chase._standoff > reach * 4.0:
+            bad.append("%s: 설 자리 %.1f — 너무 멀어 접근을 안 한다" % [path.get_file(), chase._standoff])
         mob.queue_free()
-    return {"name": "설자리가_사거리_안", "status": PASS if bad.is_empty() else FAIL, "reason": ", ".join(bad)}
-
+    return {"name": "설자리가_사거리보다_멀다", "status": PASS if bad.is_empty() else FAIL, "reason": ", ".join(bad)}
 
 ## 같은 종류를 여럿 세워도 설 자리가 전부 같으면 한 점에 겹친다.
 func _check_slots_differ() -> Dictionary:

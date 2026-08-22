@@ -26,8 +26,8 @@
       "loop": false
     },
     "dodge": {
-      "fps": 16,
-      "frames": 5,
+      "fps": 14,
+      "frames": 4,
       "loop": true
     },
     "hurt": {
@@ -56,6 +56,6 @@
       "loop": true
     }
   },
-  "frame_h": 137,
-  "frame_w": 137
+  "frame_h": 144,
+  "frame_w": 143
 }

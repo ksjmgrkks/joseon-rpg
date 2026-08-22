@@ -73,7 +73,11 @@ const CHAIN_TSCN := {
 }
 const CLEAR_SCENE := "res://scenes/ui/Clear.tscn"
 const FWD_GATE_X := 1360.0       # 전진 차단 결계 x
-const FWD_EXIT_X := 1500.0       # 전진 출구 x (결계 너머)
+const FWD_EXIT_X := 1500.0       # (미사용) 예전 전진 출구 x — 이제 결계와 같은 자리에 낸다
+## 결계 앞으로 적을 당길 때 남기는 여유(px). 결계에 딱 붙어 서면 때리기 답답하다.
+const GATE_ENEMY_MARGIN := 140.0
+## 자동 대사 지점 주변 이만큼은 적을 두지 않는다(대화 직후 난타 방지).
+const ENEMY_DIALOGUE_CLEARANCE := 260.0
 
 @export var stage_id: String = ""
 
@@ -337,6 +341,14 @@ func _build_platforms(items: Array, ground_tileset: String) -> void:
         add_child(body)
 
 
+## 소품 배치 — **바닥 정렬을 코드가 계산한다**(2026-08-22).
+##
+## 예전엔 JSON 에 `offset` 을 손으로 적어 맞췄는데, 텍스처가 바뀌거나 scale 을 조정할 때마다
+## 다시 재야 해서 결국 공중에 뜨거나 바닥을 뚫는 소품이 계속 나왔다(사용자 지적).
+## 이제는 텍스처의 **불투명 영역 아래 끝**이 JSON 의 y 에 정확히 닿도록 offset 을 자동 계산한다.
+## scale 을 바꿔도, 그림을 새로 뽑아도 정렬이 저절로 유지된다.
+##
+## 예외가 필요하면(허공에 매단 등불 등) JSON 에 "free_offset": true 를 주면 옛 방식(수동 offset).
 func _build_props(props: Array) -> void:
     for p in props:
         if not (p is Dictionary):
@@ -345,15 +357,34 @@ func _build_props(props: Array) -> void:
         if not ResourceLoader.exists(tex_path):
             continue
         var spr := Sprite2D.new()
-        spr.texture = load(tex_path)
+        var tex: Texture2D = load(tex_path)
+        spr.texture = tex
         spr.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
         spr.centered = false
         spr.scale = Vector2.ONE * float(p.get("scale", 1.0))
-        var off = p.get("offset", [0, 0])
-        spr.offset = Vector2(off[0], off[1]) if off is Array else Vector2.ZERO
+        if bool(p.get("free_offset", false)):
+            var off = p.get("offset", [0, 0])
+            spr.offset = Vector2(off[0], off[1]) if off is Array else Vector2.ZERO
+        else:
+            spr.offset = ground_align_offset(tex)
         spr.position = Vector2(float(p.get("x", 0)), float(p.get("y", GROUND_TOP)))
         add_child(spr)
 
+
+## 그림의 '발밑 가운데'를 원점으로 오게 하는 offset. centered=false 인 Sprite2D 기준.
+## 투명 여백이 얼마나 있든, 보이는 부분의 아래 끝이 노드 y 에 딱 닿는다.
+static func ground_align_offset(tex: Texture2D) -> Vector2:
+    if tex == null:
+        return Vector2.ZERO
+    var img := tex.get_image()
+    if img == null:
+        return Vector2.ZERO
+    var used := img.get_used_rect()
+    if used.size.x <= 0 or used.size.y <= 0:
+        return Vector2.ZERO
+    return Vector2(
+        -(float(used.position.x) + float(used.size.x) * 0.5),
+        -(float(used.position.y) + float(used.size.y)))
 
 func _build_entries(entries: Array) -> void:
     for e in entries:
@@ -531,9 +562,10 @@ func _build_exits(exits: Array) -> void:
 
 
 ## 출구 영역 1개 생성(전진/스토리 공용).
-func _spawn_exit(x: float, target: String, entry: String, color: Color, y: float = 620.0) -> void:
+## 만든 출구 Area2D 를 돌려준다(결계와 연동해 열고 닫기 위해).
+func _spawn_exit(x: float, target: String, entry: String, color: Color, y: float = 620.0) -> Area2D:
     if target.is_empty():
-        return
+        return null
     var area := Area2D.new()
     area.collision_mask = 1
     area.set_script(load("res://scripts/scene/level_exit.gd"))
@@ -563,6 +595,7 @@ func _spawn_exit(x: float, target: String, entry: String, color: Color, y: float
         mark.offset_right = 16; mark.offset_bottom = 48
         area.add_child(mark)
     add_child(area)
+    return area
 
 
 # ─────────── 게임성 우선(전투-클리어 전용) 빌드 ───────────
@@ -580,20 +613,62 @@ func _build_gameplay(data: Dictionary) -> void:
     _build_entries(data.get("entries", []))
     var has_enemies := (data.get("enemies", []) as Array).size() > 0
     if not cleared:
-        _build_enemies(data.get("enemies", []))
+        # 배치 정리(2026-08-22 피드백 2건):
+        #  · 결계 뒤에 적이 있으면 원거리로만 잡아야 해서 답답하다 → 전부 결계 앞으로 당긴다.
+        #  · 대사 트리거가 몹들 사이에 있으면 대화가 끝나는 순간 두들겨 맞는다 → 떼어 놓는다.
+        _build_enemies(_sanitize_enemy_spots(data.get("enemies", []),
+            data.get("auto_dialogues", [])))
     # 전진 차단 결계 — 신규 진입 + 적이 있을 때만(적 0 처치 시 자동 개방)
+    var gate: Node2D = null
     if not cleared and has_enemies:
-        var gate := Node2D.new()
+        gate = Node2D.new()
         gate.set_script(load("res://scripts/world/combat_gate.gd"))
         gate.position = Vector2(FWD_GATE_X, 600)
         gate.open_flag = clear_flag
         gate.gate_height = 260
         add_child(gate)
-    # 전진 출구 — 다음 전투 스테이지, 마지막이면 클리어 화면
-    _spawn_exit(FWD_EXIT_X, _next_target(), "default", Color(0.5, 0.55, 0.4, 0.5))
+    # 전진 출구 — 결계와 **같은 자리**에 낸다(2026-08-22 기획 변경).
+    # 부적 결계가 막고 있다가, 다 처치하면 그 자리에서 결계가 걷히고 문이 열린다.
+    # 예전엔 결계 너머 140px 지점에 따로 문이 있어 "왜 여기가 열렸지"가 안 읽혔다.
+    var exit_node := _spawn_exit(FWD_GATE_X, _next_target(), "default", Color(0.5, 0.55, 0.4, 0.5))
+    if gate != null and exit_node != null:
+        # 결계가 살아 있는 동안 문은 잠겨 있다(보이지도, 통하지도 않는다).
+        exit_node.visible = false
+        exit_node.set_deferred("monitoring", false)
+        gate.opened.connect(func() -> void:
+            if not is_instance_valid(exit_node):
+                return
+            exit_node.visible = true
+            exit_node.set_deferred("monitoring", true)
+            exit_node.modulate.a = 0.0
+            exit_node.create_tween().tween_property(exit_node, "modulate:a", 1.0, 0.5))
     _build_player(data)
     _build_ui()
 
+
+## 배치 좌표 보정 — 규칙을 코드로 못박아 데이터가 어긋나도 플레이가 깨지지 않게 한다.
+##  ① 결계(FWD_GATE_X) 뒤의 적은 결계 앞으로 당긴다.
+##  ② 자동 대사 지점 반경 ENEMY_DIALOGUE_CLEARANCE 안의 적은 바깥으로 밀어낸다.
+func _sanitize_enemy_spots(enemies: Array, dialogues: Array) -> Array:
+    var out: Array = []
+    for raw in enemies:
+        if not (raw is Dictionary):
+            continue
+        var e: Dictionary = (raw as Dictionary).duplicate()
+        var x := float(e.get("x", 0.0))
+        if x > FWD_GATE_X - GATE_ENEMY_MARGIN:
+            x = FWD_GATE_X - GATE_ENEMY_MARGIN
+        for d in dialogues:
+            if not (d is Dictionary):
+                continue
+            var dx := float(d.get("x", -99999.0))
+            if absf(x - dx) < ENEMY_DIALOGUE_CLEARANCE:
+                # 대사 지점 기준으로 먼 쪽(뒤쪽)으로 밀어낸다 — 앞으로 밀면 결계에 붙는다.
+                x = dx - ENEMY_DIALOGUE_CLEARANCE if x <= dx else dx + ENEMY_DIALOGUE_CLEARANCE
+                x = minf(x, FWD_GATE_X - GATE_ENEMY_MARGIN)
+        e["x"] = x
+        out.append(e)
+    return out
 
 ## 클리어 판정 플래그: JSON 게이트에 명시돼 있으면 그걸, 없으면 "<stage_id>_cleared".
 func _clear_flag(data: Dictionary) -> String:

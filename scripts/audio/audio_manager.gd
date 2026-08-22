@@ -61,7 +61,8 @@ func _ensure_reverb_bus(bus_name: String, room: float, damp: float, wet: float,
 
 ## 1회용 SFX 재생 — 파일이 없으면 조용히 무시. SFX 버스(옅은 잔향)로 보낸다.
 ## volume_db 로 개별 사운드 가감(예: 피격음 부각) — 버스 게인 위에 얹는 offset.
-func play_sfx(path: String, volume_db: float = 0.0) -> void:
+## pitch: 1.0 이 원음. 같은 소리를 연달아 쓸 때 살짝 올려 '쌓이는' 느낌을 만든다.
+func play_sfx(path: String, volume_db: float = 0.0, pitch: float = 1.0) -> void:
     if path.is_empty() or not ResourceLoader.exists(path):
         return
     var stream := load(path) as AudioStream
@@ -72,6 +73,7 @@ func play_sfx(path: String, volume_db: float = 0.0) -> void:
     add_child(p)
     p.stream = stream
     p.volume_db = volume_db
+    p.pitch_scale = clampf(pitch, 0.1, 4.0)
     p.finished.connect(p.queue_free)
     p.play()
 
