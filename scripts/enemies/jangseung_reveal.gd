@@ -40,6 +40,13 @@ func _physics_process(delta: float) -> void:
     super._physics_process(delta)
 
 
+## 보스 공용의 읽기 쉬운 바닥 예고는 유지하되, 장승 몸으로 검은 기운이 빨려들게 해
+## 눈빛이 켜지기 전부터 '속이 빈 나무 안에 무언가 있다'는 공포를 보탠다.
+func _telegraph_fx(pattern: int) -> void:
+    SkillFx.shadow_gather(global_position, _telegraph_time(pattern) * 0.8)
+    super._telegraph_fx(pattern)
+
+
 func _build_interact_prompt() -> void:
     var label := Label.new()
     label.text = "찾기"
@@ -111,6 +118,7 @@ func _reveal() -> void:
             (child as EnemyHpBar).visible = true
             (child as EnemyHpBar).call_deferred("_fit_to_host", self, true)
     SkillFx.impact(global_position + Vector2(0, -42), true)
+    SkillFx.shadow_burst(global_position + Vector2(0, -44))
     ScreenFx.shake(10.0, 0.28)
     Audio.play_sfx(Sfx.WARD)
 
