@@ -13,6 +13,7 @@
     }
   ],
   "backdrop": {
+    "art_set": "stage1",
     "far_scale": 0.08,
     "mist": true,
     "night_luminance": 0.32,

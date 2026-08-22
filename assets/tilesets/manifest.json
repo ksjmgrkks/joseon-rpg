@@ -56,34 +56,34 @@
     },
     "jangseung": {
       "file": "jangseung.png",
-      "frame_w": 24,
-      "frame_h": 56,
+      "frame_w": 32,
+      "frame_h": 72,
       "frames": 1
     },
     "sotdae": {
       "file": "sotdae.png",
-      "frame_w": 16,
-      "frame_h": 64,
+      "frame_w": 24,
+      "frame_h": 80,
       "frames": 1
     },
     "pine": {
       "file": "pine.png",
-      "frame_w": 56,
-      "frame_h": 88,
+      "frame_w": 64,
+      "frame_h": 104,
       "frames": 1
     },
     "lantern": {
       "file": "lantern.png",
-      "frame_w": 16,
-      "frame_h": 24,
+      "frame_w": 24,
+      "frame_h": 40,
       "frames": 1
     },
     "mul_deung": {
       "file": "mul_deung.png",
-      "frame_w": 96,
-      "frame_h": 96,
+      "frame_w": 64,
+      "frame_h": 48,
       "frames": 1,
-      "_note": "물등(유등) — 강에 띄우는 위령 등. PixelLab(d98e6f43) 뗏목 받침형, 한지 '평안' 패널. 「해원」 매 굽이·엔딩 핵심 모티프."
+      "_note": "물등(유등) — 2026-08-22 Stage 1 pro 리마스터. 글자 없는 한지 연꽃등과 낮은 뗏목."
     },
     "mul_deung_stand": {
       "file": "mul_deung_stand.png",
@@ -91,6 +91,54 @@
       "frame_h": 96,
       "frames": 1,
       "_note": "물등 — PixelLab(e996de1e) 받침대형. 제단/빈집 안에 둘 때."
+    },
+    "boulder": {
+      "file": "boulder.png",
+      "frame_w": 80,
+      "frame_h": 56,
+      "frames": 1
+    },
+    "boulder_moss": {
+      "file": "boulder_moss.png",
+      "frame_w": 80,
+      "frame_h": 56,
+      "frames": 1
+    },
+    "dead_tree": {
+      "file": "dead_tree.png",
+      "frame_w": 72,
+      "frame_h": 104,
+      "frames": 1
+    },
+    "dead_tree_tall": {
+      "file": "dead_tree_tall.png",
+      "frame_w": 72,
+      "frame_h": 120,
+      "frames": 1
+    },
+    "driftwood": {
+      "file": "driftwood.png",
+      "frame_w": 72,
+      "frame_h": 36,
+      "frames": 1
+    },
+    "reed": {
+      "file": "reed.png",
+      "frame_w": 56,
+      "frame_h": 72,
+      "frames": 1
+    },
+    "seokdeung": {
+      "file": "seokdeung.png",
+      "frame_w": 40,
+      "frame_h": 72,
+      "frames": 1
+    },
+    "shrine_ruin": {
+      "file": "shrine_ruin.png",
+      "frame_w": 96,
+      "frame_h": 80,
+      "frames": 1
     }
   }
 }

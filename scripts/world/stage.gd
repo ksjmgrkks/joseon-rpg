@@ -27,9 +27,12 @@ class_name Stage
 
 const TILE_DIR := "res://assets/tilesets/%s.png"
 const SIDE_DIR := "res://assets/tilesets/side/%s.png"   # 신규 사이드뷰 지면 타일셋(4x4 wang)
-# wang tile15 배치에서 '윗면(잔디/서리)' 타일과 '속(꽉 찬 흙/돌)' 타일의 시트 내 좌표.
-const SURFACE_TILE := Vector2i(96, 0)
-const FILL_TILE := Vector2i(64, 32)
+# 리마스터 atlas: 윗줄 256x32는 표면 8변형, 아래 256x192는 연속 속재질.
+# 큰 region을 통째로 반복해 단일 32px 무늬가 도장처럼 보이는 현상을 줄인다.
+const SURFACE_RECT := Rect2i(0, 0, 256, 32)
+const FILL_RECT := Rect2i(0, 32, 256, 192)
+const LEGACY_SURFACE_TILE := Vector2i(96, 0)
+const LEGACY_FILL_TILE := Vector2i(64, 32)
 const SURFACE_RISE := 20.0   # 윗면 타일을 지면선 위로 얼마나 올려 얹을지(잔디가 지면선에 걸치게)
 const ENEMY_DIR := "res://scenes/enemies/%s.tscn"
 const PLAYER_SCENE := "res://scenes/player/Player.tscn"
@@ -208,6 +211,8 @@ func _build_backdrop(b: Dictionary) -> void:
     var bd: ParallaxBackground = load(BACKDROP_SCENE).instantiate()
     bd.sky_color = _col(b.get("sky", null), Color(0.93, 0.89, 0.78))
     bd.tint = _col(b.get("tint", null), Color.WHITE)
+    if b.has("art_set"):
+        bd.art_set = String(b["art_set"])
     if b.has("far_scale"):
         bd.far_scale = float(b["far_scale"])
     # 장면 성격에 맞춰 원경을 끄고 켠다 — 담 안 마당에 산맥이 보이지 않게.
@@ -248,8 +253,9 @@ func _build_ground_tileset(g: Dictionary) -> void:
     var gx := int(g.get("x", -600))
     var mod := _col(g.get("tint", null), Color(0.94, 0.92, 0.89))  # 살짝 눌러 배경과 조화
     var sheet: Texture2D = load(SIDE_DIR % name)
-    var surf := _crop_tile(sheet, SURFACE_TILE)
-    var fill := _crop_tile(sheet, FILL_TILE)
+    var patterns := _terrain_patterns(sheet)
+    var surf: Texture2D = patterns["surface"]
+    var fill: Texture2D = patterns["fill"]
     # ① 속(흙/돌) — 지면선부터 아래로 (윗면 타일의 투명부 뒤를 메움)
     _tiled_from_tex(fill, w, 360, Vector2(gx, GROUND_TOP), mod)
     # ② 윗면(잔디/서리) — 위로 살짝 올려 얹어 잔디가 지면선에 걸치게
@@ -286,23 +292,44 @@ func _add_ground_collision(gx: int, w: int) -> void:
 
 ## 시트에서 32x32 한 칸을 잘라 독립 텍스처로 — repeat 로 넓게 깔 수 있게.
 func _crop_tile(sheet: Texture2D, at: Vector2i) -> ImageTexture:
+    return _crop_region(sheet, Rect2i(at.x, at.y, 32, 32))
+
+
+func _crop_region(sheet: Texture2D, rect: Rect2i) -> ImageTexture:
     var img := sheet.get_image()
-    var cell := img.get_region(Rect2i(at.x, at.y, 32, 32))
-    return ImageTexture.create_from_image(cell)
+    var region := img.get_region(rect)
+    return ImageTexture.create_from_image(region)
 
 
-## 32x32 타일 텍스처를 region+repeat 로 폭 w, 높이 h 만큼 깐다.
+## 1스테이지 pro atlas(256x224)와 기존 스테이지 wang atlas(128x128)를 함께 지원한다.
+func _terrain_patterns(sheet: Texture2D) -> Dictionary:
+    if sheet.get_width() >= 256 and sheet.get_height() >= 224:
+        return {
+            "surface": _crop_region(sheet, SURFACE_RECT),
+            "fill": _crop_region(sheet, FILL_RECT),
+        }
+    return {
+        "surface": _crop_tile(sheet, LEGACY_SURFACE_TILE),
+        "fill": _crop_tile(sheet, LEGACY_FILL_TILE),
+    }
+
+
+## 패턴 텍스처를 실제 조각으로 이어 붙인다. 동적 ImageTexture는 일부 렌더러에서
+## region repeat 시 두 번째 주기부터 투명하게 잘리는 현상이 있어 수동 타일링이 안전하다.
 func _tiled_from_tex(tex: Texture2D, w: int, h: int, pos: Vector2, mod: Color) -> void:
-    var s := Sprite2D.new()
-    s.texture = tex
-    s.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-    s.texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED
-    s.centered = false
-    s.region_enabled = true
-    s.region_rect = Rect2(0, 0, w, h)
-    s.position = pos
-    s.modulate = mod
-    add_child(s)
+    var tile_w := maxi(1, tex.get_width())
+    var tile_h := maxi(1, tex.get_height())
+    for y in range(0, h, tile_h):
+        for x in range(0, w, tile_w):
+            var piece := Sprite2D.new()
+            piece.texture = tex
+            piece.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+            piece.centered = false
+            piece.region_enabled = true
+            piece.region_rect = Rect2(0, 0, mini(tile_w, w - x), mini(tile_h, h - y))
+            piece.position = pos + Vector2(x, y)
+            piece.modulate = mod
+            add_child(piece)
 
 
 ## 떠 있는 발판 — 위에서 밟고 설 수 있고 아래에서 점프로 통과(one-way). 지면 타일셋으로 그린다.
@@ -318,8 +345,9 @@ func _build_platforms(items: Array, ground_tileset: String) -> void:
         var left := px - pw / 2.0
         if ResourceLoader.exists(SIDE_DIR % name):
             var sheet: Texture2D = load(SIDE_DIR % name)
-            var surf := _crop_tile(sheet, SURFACE_TILE)
-            var fill := _crop_tile(sheet, FILL_TILE)
+            var patterns := _terrain_patterns(sheet)
+            var surf: Texture2D = patterns["surface"]
+            var fill: Texture2D = patterns["fill"]
             _tiled_from_tex(fill, pw, 40, Vector2(left, py + 12.0), mod)
             _tiled_from_tex(surf, pw, 32, Vector2(left, py - SURFACE_RISE), mod)
         elif ResourceLoader.exists(TILE_DIR % "wood_platform"):

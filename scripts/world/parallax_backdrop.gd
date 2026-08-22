@@ -39,10 +39,19 @@ class_name ParallaxBackdrop
 @export var clouds: bool = true
 # 야간 분위기 자동 판정 임계(하늘 휘도). 이보다 어두우면 별/반딧불 표시. 음수면 끔.
 @export var night_luminance: float = 0.55
+## 비주얼 세트. 빈 문자열은 기존 공용 산수, "stage1"은 1스테이지 전용 pro 리마스터.
+@export var art_set: String = ""
 
 # 신규 PixelLab 수묵 산 실루엣(있으면 이걸 쓰고, 없으면 옛 스트립으로 폴백).
 const MTN_FAR := "res://assets/sprites/bg/mtn_far.png"
 const MTN_HILL := "res://assets/sprites/bg/mtn_hill.png"
+const ART_SETS := {
+    "stage1": {
+        "far": "res://assets/sprites/bg/stage1/far.png",
+        "mid": "res://assets/sprites/bg/stage1/mid.png",
+        "near": "res://assets/sprites/bg/stage1/near.png",
+    },
+}
 # 옛 seamless 스트립(폴백).
 const BG_FAR := "res://assets/sprites/bg/bg_far.png"
 const BG_MID := "res://assets/sprites/bg/bg_mid.png"
@@ -63,8 +72,9 @@ func _ready() -> void:
     # 담 안 마당·곳간·사당처럼 '닫힌 공간'에서는 원경 산·솔숲을 끈다.
     # (기와집 마당 뒤로 산맥이 보이면 장면이 어그러진다 — 2026-08-18 사용자 지적.)
     if mountains:
-        if ResourceLoader.exists(MTN_FAR) and ResourceLoader.exists(MTN_HILL):
-            _build_mountains()
+        var paths := _mountain_paths()
+        if ResourceLoader.exists(paths["far"]) and ResourceLoader.exists(paths["mid"]):
+            _build_mountains(paths)
         else:
             _build_legacy_strips()
     _add_ambience()
@@ -153,17 +163,34 @@ func _draw_cloud(parent: Node, pos: Vector2, scale: float, col: Color, rng: Rand
 # ── ③⑤ 산맥 레이어(신규 PixelLab 수묵 산수 — 깨끗한 단일 타일 무한반복) ──
 ## 각 이미지는 그 자체로 완성된 수묵 산수(하늘+능선)라, 겹쳐 흩으면 반투명 하늘이
 ## 사각으로 겹쳐 띠(밴딩)가 생긴다 → 레이어당 '한 장'만 가로 무한반복해 깨끗하게.
-func _build_mountains() -> void:
-    var far_tex: Texture2D = load(MTN_FAR)
-    var hill_tex: Texture2D = load(MTN_HILL)
+func _mountain_paths() -> Dictionary:
+    if ART_SETS.has(art_set):
+        return ART_SETS[art_set]
+    return {"far": MTN_FAR, "mid": MTN_HILL, "near": ""}
+
+
+func _build_mountains(paths: Dictionary) -> void:
+    var far_tex: Texture2D = load(paths["far"])
+    var hill_tex: Texture2D = load(paths["mid"])
     # 원경 먼 산맥 — 하늘색으로 흐려(대기 원근) 위쪽 깊이.
-    _mountain_layer(far_tex, far_scale, tint.lerp(sky_color, aerial), 2.1, horizon_y + 44.0)
+    var far_col := tint.lerp(sky_color, aerial)
+    far_col.a = 0.48 if art_set == "stage1" else 1.0
+    _mountain_layer(far_tex, far_scale, far_col, 1.0, horizon_y + 44.0)
     if mist:
         _add_mist(far_scale + 0.03, horizon_y - 6.0, 0.26, 9.0)
     # 중경 솔숲 — 플레이 지면 바로 뒤에 앉혀 근경감.
-    _mountain_layer(hill_tex, mid_scale, tint.lerp(sky_color, aerial * 0.3), 1.7, horizon_y + 120.0)
+    var mid_col := tint.lerp(sky_color, aerial * 0.3)
+    mid_col.a = 0.62 if art_set == "stage1" else 1.0
+    _mountain_layer(hill_tex, mid_scale, mid_col, 1.0, horizon_y + 120.0)
     if mist:
         _add_mist(mid_scale + 0.04, horizon_y + 84.0, 0.20, 13.0)
+    # 1스테이지 리마스터는 중경 재사용 대신 독립 근경을 둔다.
+    var near_path := String(paths.get("near", ""))
+    if near_path != "" and ResourceLoader.exists(near_path):
+        var near_tex: Texture2D = load(near_path)
+        var near_col := tint.lerp(sky_color, aerial * 0.08)
+        near_col.a = 0.45
+        _mountain_layer(near_tex, near_scale, near_col, 1.0, horizon_y + 132.0)
 
 
 ## 한 산맥 레이어: 완성된 수묵 산수 한 장을 가로로 이어붙여 무한반복. base_y = 이미지 밑동 y.

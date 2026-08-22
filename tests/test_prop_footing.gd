@@ -3,17 +3,9 @@ extends Node
 ## 지형지물(props) '바닥 정렬' 검증 (헤드리스).
 ## 실행: `godot --headless res://tests/test_prop_footing.tscn`
 ##
-## 2026-08-20 사고: 사용자 신고 "지형지물이 바닥을 뚫고 간다". 실측해보니 boulder/boulder_moss
-## 소품이 모든 스테이지(12개 JSON, 34곳)에서 offset [-64,-64] 를 그대로 썼는데, 이건 128×128
-## "캔버스 절반"일 뿐 실제 그림(get_used_rect)의 바닥과 무관해서 지면선보다 44~82px 더 깊이
-## 파묻혀 있었다. offset.y = -(used.y + used.h) 로 바꾸면 스케일에 무관하게 바닥이 y 위치에
-## 정확히 맞는다(test_enemy_footing 의 발끝 정렬과 같은 원리, 소품용).
-##
-## 다른 소품(jangseung/sotdae/well/lantern 등)은 인스턴스마다 offset 이 여러 종류라
-## 수작업으로 다르게 배치된 것으로 보여 여기 대상에서 뺐다 — 눈으로 확인 후 필요하면 추가.
-##
-## 2026-08-21 추가: 1스테이지 재제작(reed/driftwood/seokdeung 신규 소품)도 같은
-## get_used_rect() 공식으로 offset 을 계산해서 배치했으므로 같이 고정한다.
+## 2026-08-22부터 stage.gd가 JSON의 옛 수동 offset 대신 Stage.ground_align_offset()으로
+## 실제 알파 하단을 계산한다. 이미지 크기가 바뀌는 리마스터 뒤에도 이 런타임 공식으로
+## 바닥이 정확히 맞는지, 사고가 잦았던 자연물 5종을 전체 JSON에서 별도로 고정한다.
 ##
 
 const PASS := "PASS"
@@ -26,14 +18,14 @@ const GROUNDED_TEX := ["boulder", "boulder_moss", "reed", "driftwood", "seokdeun
 
 func _ready() -> void:
     print("=== test_prop_footing ===")
-    var used_rects := {}
+    var textures := {}
     for tex in GROUNDED_TEX:
-        var img := Image.load_from_file("res://assets/tilesets/%s.png" % tex)
-        if img == null:
+        var path := "res://assets/tilesets/%s.png" % tex
+        if not ResourceLoader.exists(path):
             print("[FAIL] prop_footing\n  reason: %s.png 로드 실패" % tex)
             get_tree().quit(1)
             return
-        used_rects[tex] = img.get_used_rect()
+        textures[tex] = load(path)
 
     var bad: Array[String] = []
     var checked := 0
@@ -54,15 +46,15 @@ func _ready() -> void:
             if not (p is Dictionary):
                 continue
             var tex := String(p.get("tex", ""))
-            if not used_rects.has(tex):
+            if not textures.has(tex) or bool(p.get("free_offset", false)):
                 continue
             checked += 1
-            var used: Rect2i = used_rects[tex]
+            var texture: Texture2D = textures[tex]
+            var used := texture.get_image().get_used_rect()
             var scale := float(p.get("scale", 1.0))
-            var off = p.get("offset", [0, 0])
-            var off_y := float(off[1]) if off is Array and off.size() > 1 else 0.0
+            var off := Stage.ground_align_offset(texture)
             var y := float(p.get("y", GROUND_TOP))
-            var bottom := y + scale * (off_y + float(used.position.y + used.size.y))
+            var bottom := y + scale * (off.y + float(used.position.y + used.size.y))
             var gap := bottom - y
             if absf(gap) > TOLERANCE:
                 bad.append("%s: %s(scale %.1f) 바닥이 지면에서 %+.0fpx 어긋남" % [f, tex, scale, gap])

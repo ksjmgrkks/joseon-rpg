@@ -36,6 +36,7 @@
     "stage": "to_forest"
   },
   "backdrop": {
+    "art_set": "stage1",
     "far_scale": 0.12,
     "mist": true,
     "night_luminance": 0.46,
