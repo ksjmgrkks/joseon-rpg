@@ -37,9 +37,11 @@ func _check_find_reveals_distinct_form() -> Dictionary:
     event.pressed = true
     boss._unhandled_input(event)
     var after_ok: bool = not boss._disguised \
-        and boss.sprite.sheet == "enemies/jangseung_gwi" \
+        and boss.sprite.sheet == "enemies/jangseung_awakened" \
         and is_equal_approx(boss.attack_damage, boss.revealed_attack_damage) \
-        and boss.health.shield_charges == 0
+        and boss.health.shield_charges == 0 \
+        and boss.sprite.scale.x > 1.0 \
+        and (boss.get_node("Hurtbox/HurtboxShape").shape as RectangleShape2D).size.y >= 132.0
     var ok := before_ok and prompt_ok and after_ok
     var reason := "" if ok else "before=%s prompt=%s after=%s sheet=%s" % [
         before_ok, prompt_ok, after_ok, boss.sprite.sheet]
@@ -56,7 +58,7 @@ func _check_talisman_also_reveals() -> Dictionary:
     var hp_before: float = boss.health.hp
     var damaged: bool = boss._on_talisman_hit(7.0, self)
     var ok: bool = accepted and not boss._disguised \
-        and boss.sprite.sheet == "enemies/jangseung_gwi" \
+        and boss.sprite.sheet == "enemies/jangseung_awakened" \
         and damaged and boss.health.hp < hp_before
     var reason := "" if ok else "accepted=%s disguised=%s sheet=%s damaged=%s hp=%.1f/%.1f" % [
         accepted, boss._disguised, boss.sprite.sheet, damaged, boss.health.hp, hp_before]

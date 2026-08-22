@@ -16,6 +16,7 @@ func _init() -> void:
     DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(PROP_OUT))
     DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(ENEMY_OUT + "geuseondae_shadow/"))
     DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(ENEMY_OUT + "jangseung_sealed/"))
+    DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(ENEMY_OUT + "jangseung_awakened/"))
 
     _build_background("mtn_far_source.png", "far.png", Vector2i(640, 180))
     _build_background("mtn_mid_fixed_source.png", "mid.png", Vector2i(640, 240))
@@ -40,6 +41,16 @@ func _init() -> void:
             "telegraph": {"fps": 4, "loop": false},
             "death": {"fps": 4, "loop": false},
         })
+    _build_enemy_grid(
+        "jangseung_awakened_source.png", "jangseung_awakened", 5, 5, Vector2i(176, 192),
+        {"idle": 0, "walk": 1, "telegraph": 2, "attack": 3, "death": 4},
+        {
+            "idle": {"fps": 6, "loop": true},
+            "walk": {"fps": 8, "loop": true},
+            "telegraph": {"fps": 8, "loop": false},
+            "attack": {"fps": 11, "loop": false},
+            "death": {"fps": 8, "loop": false},
+        })
 
     _extract_grid("forest_props_source.png", 3, 3, [
         {"name": "pine_crooked.png", "cell": 0, "size": Vector2i(80, 120)},
@@ -61,7 +72,7 @@ func _init() -> void:
         {"name": "offering_bowl.png", "cell": 4, "size": Vector2i(80, 48)},
         {"name": "sacred_stump.png", "cell": 5, "size": Vector2i(144, 128)},
     ])
-    print("[Stage2Remaster] terrain 1, backdrop 3, props 16, enemy forms 2 exported")
+    print("[Stage2Remaster] terrain 1, backdrop 3, props 16, enemy forms 3 exported")
     quit()
 
 
@@ -154,6 +165,10 @@ func _build_enemy_grid(
         for col in range(cols):
             var cell := source.get_region(Rect2i(col * cell_w, row * cell_h, cell_w, cell_h))
             _matte_edge_background(cell)
+            if output_dir == "jangseung_awakened":
+                # 생성기의 체크무늬가 연기/밧줄 사이에 고립되면 flood-fill로 닿지 않아
+                # 흰 사각 파편이 된다. 거의 순백인 중성색만 걷어 한지 장식과 눈빛은 보존한다.
+                _remove_light_neutral(cell, 0.96, 0.05)
             var frame := _fit_to_canvas(cell, frame_size)
             strip.blit_rect(frame, Rect2i(Vector2i.ZERO, frame_size), Vector2i(col * frame_size.x, 0))
         _save(strip, out_dir + String(anim_name) + ".png")

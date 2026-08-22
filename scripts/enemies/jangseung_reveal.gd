@@ -6,10 +6,13 @@ class_name JangseungReveal
 ##
 
 @export var interact_range: float = 92.0
-@export var revealed_sheet: String = "enemies/jangseung_gwi"
-@export var revealed_sprite_scale: float = 1.28
-@export var revealed_foot_offset: float = -28.8
+@export var revealed_sheet: String = "enemies/jangseung_awakened"
+@export var revealed_sprite_scale: float = 1.06
+@export var revealed_foot_offset: float = -62.0
 @export var revealed_attack_damage: float = 15.0
+@export var revealed_body_size: Vector2 = Vector2(48, 76)
+@export var revealed_hurt_size: Vector2 = Vector2(72, 132)
+@export var revealed_attack_size: Vector2 = Vector2(112, 92)
 
 var _disguised: bool = true
 var _in_interact_range: bool = false
@@ -100,6 +103,7 @@ func _reveal() -> void:
         sprite.modulate = Color.WHITE
         _spr_base_scale = sprite.scale
         SkillFx.hit_flash(sprite, Color.WHITE, 0.3)
+    _grow_revealed_collision()
     if _warn:
         _warn.position.y = -154.0
     for child in get_children():
@@ -109,3 +113,24 @@ func _reveal() -> void:
     SkillFx.impact(global_position + Vector2(0, -42), true)
     ScreenFx.shake(10.0, 0.28)
     Audio.play_sfx(Sfx.WARD)
+
+
+## 시작 화면의 장승처럼 커진 정체와 실제 몸·피격·공격 판정을 맞춘다.
+## 몸 높이는 바닥 접지를 유지하고, 상체 쪽 피격 판정만 크게 올려 발이 땅에 박히지 않게 한다.
+func _grow_revealed_collision() -> void:
+    var body := get_node_or_null("CollisionShape2D") as CollisionShape2D
+    if body != null and body.shape is RectangleShape2D:
+        var body_shape := (body.shape as RectangleShape2D).duplicate() as RectangleShape2D
+        body_shape.size = revealed_body_size
+        body.shape = body_shape
+    var hurt := get_node_or_null("Hurtbox/HurtboxShape") as CollisionShape2D
+    if hurt != null and hurt.shape is RectangleShape2D:
+        var hurt_shape := (hurt.shape as RectangleShape2D).duplicate() as RectangleShape2D
+        hurt_shape.size = revealed_hurt_size
+        hurt.shape = hurt_shape
+        hurt.position = Vector2(0, -(revealed_hurt_size.y - revealed_body_size.y) * 0.5)
+    var hit := get_node_or_null("AttackHitbox/HitShape") as CollisionShape2D
+    if hit != null and hit.shape is RectangleShape2D:
+        var hit_shape := (hit.shape as RectangleShape2D).duplicate() as RectangleShape2D
+        hit_shape.size = revealed_attack_size
+        hit.shape = hit_shape

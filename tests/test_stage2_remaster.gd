@@ -56,6 +56,7 @@ func _check_assets() -> Dictionary:
         "res://assets/sprites/bg/stage2/near.png": Vector2i(640, 180),
         "res://assets/sprites/enemies/geuseondae_shadow/idle.png": Vector2i(440, 112),
         "res://assets/sprites/enemies/jangseung_sealed/idle.png": Vector2i(400, 128),
+        "res://assets/sprites/enemies/jangseung_awakened/idle.png": Vector2i(880, 192),
         "res://assets/tilesets/side/shadow_forest.png": Vector2i(256, 224),
     }
     for path in expected:
@@ -67,8 +68,16 @@ func _check_assets() -> Dictionary:
             bad.append("%s: %s (기대 %s)" % [path, image.get_size(), expected[path]])
         if path.contains("/bg/") and (image.get_pixel(0, 0).a > 0.05 or image.get_pixel(image.get_width() - 1, 0).a > 0.05):
             bad.append("%s: 배경 상단 알파 없음" % path)
+        if path.contains("/enemies/") and (image.get_pixel(0, 0).a > 0.05 or image.get_pixel(image.get_width() - 1, 0).a > 0.05):
+            bad.append("%s: 적 시트 투명 여백 없음" % path)
         if (path.ends_with("/mid.png") or path.ends_with("/near.png")) and _has_tall_edge_pixels(image):
             bad.append("%s: 화면 반복 경계에 잘린 나무가 닿음" % path)
+    var awakened_manifest_path := "res://assets/sprites/enemies/jangseung_awakened/manifest.json"
+    var awakened_manifest = JSON.parse_string(FileAccess.get_file_as_string(awakened_manifest_path))
+    for anim_name in ["idle", "walk", "telegraph", "attack", "death"]:
+        if not (awakened_manifest is Dictionary) \
+                or not (awakened_manifest.get("anims", {}) as Dictionary).has(anim_name):
+            bad.append("각성 장승 애니메이션 누락 %s" % anim_name)
     var prop_dir := DirAccess.open("res://assets/tilesets/stage2")
     var prop_count := 0
     if prop_dir == null:
