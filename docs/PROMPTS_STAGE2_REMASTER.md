@@ -17,6 +17,7 @@
   - `exec-0dd06b47-3700-452e-8d38-b441c0b0b7d5.png` → `mtn_near_fixed_source.png`
   - `exec-1fe95d75-8fb7-4276-8b15-5a0a413706c1.png` → `mtn_mid_fixed_source.png`
   - `exec-88459a65-4650-4b0f-b163-12d8d69adc63.png` → `jangseung_awakened_source.png`
+  - `exec-71b9222b-ef55-4115-b02c-4d065d862a0b.png` → `jangseung_awakened_source.png` (최종 공포 강도 보정)
 
 ## 공통 제약
 
@@ -67,6 +68,12 @@
 > Use the enormous frightening carved jangseung at the far-right edge of the game's start-screen art as the primary face, menace, wood-carving and silhouette reference, and the sealed jangseung sheet as the same-object identity reference. Create a much larger discovered-after midboss made entirely from one massive blackened tree trunk: deeply gouged furious brow, recessed staring eyes with cold celadon pinlights, broad flattened nose, rigid carved wooden teeth, heavy shoulder knots, enormous crooked branch arms, thick root legs, torn hanji streamers and old geumjul rope. Strict 5-row × 5-column grid: threatening idle, heavy root-legged walk, eye/crack telegraph, brutal sweeping branch-arm attack, and splitting/collapsing death. Premium hard-edged 16-bit pixel art, about three player-heights in game, genuinely transparent background. No skinny body, passive human face, flesh, goblin/orc anatomy, comedy, armor, metal weapons, non-Korean motifs, text, borders, scenery, logo or watermark.
 
 기존 `jangseung_gwi`의 초록 피부·익살스러운 사람형 비율은 사용하지 않는다. 시작 화면 오른쪽 장승의 큰 눈구멍과 나무 이빨을 직접 계승하고, 발견 전 장승의 삿갓·밧줄·세로 통나무 재질이 뿌리 다리와 가지 팔로 갈라지도록 이어 붙였다. 런타임 규격은 프레임 `176×192`, 5프레임 5동작, 표시 배율 `1.06`으로 플레이어 약 3배이며 피격·공격 판정도 커진 상체에 맞춰 확장한다.
+
+#### 공포 강도 최종 보정
+
+> Preserve the exact 5×5 animation layout, identity, scale, poses and materials, but make the carved face consistently asymmetrical: one socket completely black with a tiny distant celadon pinprick, the other eye split by a vertical crack, an impossible lowered brow, and a widened rigid mouth of uneven broken wooden teeth with pure black negative space behind them. Suggest a formless second shadow trapped behind cheek and chest cracks, lengthen the rootlike fingers, replace pale smoke with matte-black soot, keep the face staring at the player during attacks, and let the inner shadow escape during death. Preserve the straw cap, ropes, trunk proportions, animation order, baseline and transparent cell padding. No gore, flesh, skulls, generic demon anatomy, comedy, bright cyan, white checkerboard artifacts, scenery, text or non-Korean motifs.
+
+실게임에서는 발견 순간 `shadow_burst`, 매 공격 예고에는 기존의 읽기 쉬운 바닥 표식과 함께 `shadow_gather`를 겹쳐, 검은 기운이 빈 통나무 안으로 빨려드는 인상을 준다.
 
 ### 잘린 나무 경계 보정 — `assets/sprites/bg/stage2/{mid,near}.png`
 
