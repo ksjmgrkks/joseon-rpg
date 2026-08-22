@@ -13,13 +13,14 @@ func _ready() -> void:
     # 외부 제작(AI) 커스텀 스프라이트 우선 — 있으면 그걸 쓰고, 없으면 코드 생성 폴백.
     if SpriteDb.frames("protagonist_custom") != null:
         sheet = "protagonist_custom"
-        # 2026-08-22 리마스터: PixelLab pro 로 128px 캐릭터를 새로 뽑아 교체(구 256px 시트는
-        # 일러스트를 축소한 느낌이라 도트 밀도가 어색했다). 프레임 143x119, idle 내용 높이 108.
+        # 2026-08-22 리마스터 v2: 1차본이 "소년미가 강하고 머리가 크다"는 지적을 받아
+        # pro 로 다시 생성(성인 체형·작은 머리·갓 챙에 눈이 가리는 분위기).
+        # 프레임 137x137, idle 내용 높이 120.
         # 화면 크기는 예전 그대로 77px 로 유지한다 — 잡몹/보스 크기 서열(tests/test_midboss.gd)이
         # 주인공 77px 기준으로 맞춰져 있어서, 주인공만 키우면 서열이 통째로 틀어진다.
         # "더 크게 보고 싶다"는 요구는 카메라 배율(설정 → 시야)로 따로 푼다.
-        sprite_scale = 0.71                     # 108 * 0.71 ≈ 77px
-        foot_offset = -32.0                     # 16/0.71 - (114 - 119/2)
+        sprite_scale = 0.64                     # 120 * 0.64 ≈ 77px
+        foot_offset = -41.5                     # 16/0.64 - (135 - 137/2)
     else:
         sheet = "protagonist"
     super._ready()
